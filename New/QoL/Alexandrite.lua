@@ -94,7 +94,7 @@ function Main()
     end
 
     -- Mount up and fly to flag
-    if not CharacterCondition(CharacterCondition.mounted) then
+    if not GetCharacterCondition(CharacterCondition.mounted) then
         yield('/gaction "mount roulette"')
     end
     WaitForNavMesh()
