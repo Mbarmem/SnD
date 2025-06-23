@@ -31,9 +31,9 @@ MateriaToUse = {
     [2] = "Quickarm Materia"
 }
 
-local ScrollId = 0
+local ScrollId     = 0
 local InfusedCount = 0
-local EchoPrefix = "[Materia Infuse] "
+local EchoPrefix   = "[Materia Infuse] "
 
 --------------------------------- Constant --------------------------------
 
@@ -45,9 +45,9 @@ CharacterCondition = {
     occupied = 39
 }
 
------------------
---    Scroll   --
------------------
+----------------------
+--    Scroll Data   --
+----------------------
 
 ScrollList = {
     { itemName = "Curtana",           itemId = 7873 },
@@ -63,9 +63,9 @@ ScrollList = {
     { itemName = "Yoshimitsu",        itemId = 9255 }
 }
 
------------------
---    Index    --
------------------
+-------------------------
+--    Materia Index    --
+-------------------------
 
 ItemIndex = {
     { itemName = "Heavens' Eye Materia I",      itemIndex = 0  },
@@ -98,11 +98,11 @@ ItemIndex = {
     { itemName = "Battledance Materia IV",      itemIndex = 27 },
 }
 
-----------------
---    List    --
-----------------
+-------------------------
+--    Materia Range    --
+-------------------------
 
-MateriaList = {
+MateriaRange = {
     { itemName = MateriaToUse[1] .. " I",   minRange = 0,  maxRange = 11 },
     { itemName = MateriaToUse[1] .. " II",  minRange = 11, maxRange = 22 },
     { itemName = MateriaToUse[1] .. " III", minRange = 22, maxRange = 33 },
@@ -114,23 +114,27 @@ MateriaList = {
 
 -------------------------------- Functions --------------------------------
 
--- Checks for the Sphere Scroll in the ScrollList and validates if it's in the inventory.
+--- Checks for the selected Sphere Scroll in the ScrollList and validates its presence in the inventory.
+--- If not found, it logs an error and stops the script.
 function Checks()
     for _, scroll in ipairs(ScrollList) do
         if Sphere_Scroll == scroll.itemName then
             local item = Inventory.GetInventoryItem(scroll.itemId)
             ScrollId = scroll.itemId
 
+            -- If the item isn't present in inventory, stop the script
             if not item or item.ItemId == 0 then
-                Echo("Stopping Script... Sphere Scroll not found!", EchoPrefix)
-                yield("/snd stop")
+                Echo(string.format("Stopping Script... Sphere Scroll not found in inventory!"), EchoPrefix)
+                yield("/snd stop all")
             end
 
-            break
+            return ScrollId
         end
     end
 
-    return ScrollId
+    -- Scroll name was not found in the ScrollList
+    Echo(string.format("Stopping Script... Sphere Scroll '%s' is invalid!", Sphere_Scroll), EchoPrefix)
+    yield("/snd stop all")
 end
 
 -- Opens the Sphere Scroll UI and updates the InfusedCount
@@ -157,11 +161,11 @@ end
 Checks()
 SphereScroll()
 
-for _, materia in ipairs(MateriaList) do
+for _, materia in ipairs(MateriaRange) do
     local itemIndex = ItemIndexMap[materia.itemName]
     if itemIndex then
         while InfusedCount >= materia.minRange and InfusedCount < materia.maxRange do
-            LogInfo(EchoPrefix .. string.format("Infusing %s (Index %d)", materia.itemName, itemIndex))
+            LogInfo(string.format("%sInfusing %s (Index %d)...", EchoPrefix, materia.itemName, itemIndex))
 
             yield(string.format("/callback RelicSphereScroll true 1 %d", itemIndex))
             Wait(1)
@@ -170,14 +174,13 @@ for _, materia in ipairs(MateriaList) do
             Wait(1)
 
             -- Retry loop to avoid infinite wait
-            local maxRetries = 100
             local retryCount = 0
             repeat
                 Wait(0.1)
                 retryCount = retryCount + 1
-            until not GetCharacterCondition(CharacterCondition.occupied) or retryCount >= maxRetries
+            until not GetCharacterCondition(CharacterCondition.occupied) or retryCount > 100
 
-            if retryCount >= maxRetries then
+            if retryCount > 100 then
                 Echo("Timed out waiting for infusion to complete. Exiting loop.", EchoPrefix)
                 break
             end
