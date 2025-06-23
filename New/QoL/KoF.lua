@@ -46,28 +46,6 @@ function MoveAndInteract()
     until IsPlayerAvailable()
 end
 
--- Closes various known addon windows
-function CloseAddons()
-    local closableAddons = {
-        "SelectIconString",
-        "SelectString",
-        "ShopExchangeItem",
-        "RetainerList",
-        "InventoryRetainer"
-    }
-
-    repeat
-        yield("/wait 1")
-
-        for _, addon in ipairs(closableAddons) do
-            if IsAddonVisible(addon) then
-                LogInfo("[KoF] Closing addon: %s", addon)
-                yield(string.format("/callback %s true -1", addon))
-            end
-        end
-    until IsPlayerAvailable()
-end
-
 -- Core function: interacts with Lizbeth and processes a Kupo draw
 function KoF()
     Target("Lizbeth")

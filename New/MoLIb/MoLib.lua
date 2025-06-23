@@ -370,6 +370,12 @@ function IsInZone(zoneId)
     return ZoneID() == zoneId
 end
 
+--- Retrieves the Territory ID of the currently flagged map.
+--- @return integer territoryId The ID of the zone where the current map flag is set.
+function FlagZoneID()
+    return Instances.Map.Flag.TerritoryId
+end
+
 -- Initiates teleport to the given location and waits for it to complete
 function Teleport(location)
     LogInfo(string.format("[MoLib] Initiating teleport to '%s'.", location))
@@ -377,6 +383,27 @@ function Teleport(location)
     Wait(0.1)
     WaitForTp()
     PlayerTest()
+end
+
+-- Teleports the player to the flag's zone if they are not already there
+function TeleportFlagZone()
+    local flagZone = FlagZoneID()
+
+    -- Check if player is already in the correct zone
+    if not IsInZone(flagZone) then
+        -- Retrieve the Aetheryte name from the TerritoryType Excel sheet
+        local territoryData = Excel.GetRow("TerritoryType", flagZone)
+
+        if territoryData and territoryData.Aetheryte and territoryData.Aetheryte.PlaceName then
+            local flagAetheryte = tostring(territoryData.Aetheryte.PlaceName.Name)
+            LogInfo(string.format("[MoLib] Teleporting to map zone: '%s'.", flagAetheryte))
+            Teleport(flagAetheryte)
+        else
+            LogDebug("[MoLib] Failed to retrieve Aetheryte information for teleportation.")
+        end
+    else
+        LogInfo("[MoLib] Already in the correct zone. No teleport needed.")
+    end
 end
 
 ------------------

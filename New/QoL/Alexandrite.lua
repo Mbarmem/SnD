@@ -85,13 +85,7 @@ function Main()
     PlayerTest()
 
     -- Travel to flagged zone
-    local flagZone = GetFlagZone()
-    if not IsInZone(flagZone) then
-        local aeth = GetAetheryteName(GetAetherytesInZone(flagZone)[0])
-        LogInfo(EchoPrefix .. "Teleporting to map zone: " .. tostring(aeth))
-        Teleport(aeth)
-        PlayerTest()
-    end
+    TeleportFlagZone()
 
     -- Mount up and fly to flag
     if not GetCharacterCondition(CharacterCondition.mounted) then
