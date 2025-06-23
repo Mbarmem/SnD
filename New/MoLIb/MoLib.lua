@@ -361,13 +361,13 @@ end
 ----------------
 
 -- Helper to get current zone ID
-function ZoneID()
+function GetZoneID()
     return Svc.ClientState.TerritoryType
 end
 
 -- Returns true if the player is currently in the specified zone
 function IsInZone(zoneId)
-    return ZoneID() == zoneId
+    return GetZoneID() == zoneId
 end
 
 --- Retrieves the Territory ID of the currently flagged map.

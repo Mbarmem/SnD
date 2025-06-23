@@ -161,7 +161,7 @@ for _, materia in ipairs(MateriaList) do
     local itemIndex = ItemIndexMap[materia.itemName]
     if itemIndex then
         while InfusedCount >= materia.minRange and InfusedCount < materia.maxRange do
-            LogInfo(string.format("Infusing %s (Index %d)...", materia.itemName, itemIndex), EchoPrefix)
+            LogInfo(EchoPrefix .. string.format("Infusing %s (Index %d)", materia.itemName, itemIndex))
 
             yield(string.format("/callback RelicSphereScroll true 1 %d", itemIndex))
             Wait(1)
