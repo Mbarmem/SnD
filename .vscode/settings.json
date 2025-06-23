@@ -1,0 +1,12 @@
+{
+  "Lua.runtime.version": "Lua 5.3",
+  "Lua.workspace.checkThirdParty": false,
+  "Lua.workspace.library": [
+  "${workspaceFolder}/.stubs/snd-stubs.lua"
+  ],
+  "Lua.diagnostics.globals": [
+    "yield", "Sleep", "Wait",
+    "Dalamud", "Entity", "Player",
+    "IPC", "NavBuildProgress", "truncate"
+  ]
+}
