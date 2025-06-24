@@ -10,16 +10,8 @@
               **********************
 
               **********************
-              * Version  |  1.0.0  *
+              * Version  |  2.0.0  *
               **********************
-
-              *********************
-              *  Required Plugins *
-              *********************
-
-Plugins that are used are:
-    -> Something Need Doing [Expanded Edition] : Main Plugin for everything to work (https://puni.sh/api/repository/croizat)
-    -> Skip Cutscene
 
 ]]
 
@@ -29,8 +21,9 @@ Plugins that are used are:
 --    Genereal    --
 --------------------
 
-runs_to_play = 20 --number of runs you want to play, 20 is default for max weekly challenge log reward
-runs_played = 0 --leave default, no reason to change this
+local RunsToPlay   = 20 -- Number of runs to play (20 = max for weekly challenge log reward)
+local RunsPlayed   = 0  -- Leave default; will auto-increment
+local EchoPrefix   = "[ChoboRacing] "
 
 --------------------------------- Constant --------------------------------
 
@@ -47,8 +40,8 @@ RequiredPlugins = {
 ---------------------
 
 CharacterCondition = {
-    choboRacing=12,
-    occupiedInCutSceneEvent=35
+    choboRacing = 12,
+    occupiedInCutSceneEvent = 35
 }
 
 -------------------------------- Functions --------------------------------
@@ -58,48 +51,60 @@ CharacterCondition = {
 -------------------
 
 function Plugins()
+    local missingPlugins = {}
+
+    -- Check for required plugins
     for _, plugin in ipairs(RequiredPlugins) do
         if not HasPlugin(plugin) then
-            yield("/echo [ChoboRacing] Missing required plugin: "..plugin)
-            StopFlag = true
+            table.insert(missingPlugins, plugin)
         end
     end
-    if StopFlag then
-        yield("/echo [ChoboRacing] Stopping the script..!!")
-        yield("/snd stop")
+
+    -- Report and handle missing plugins
+    if #missingPlugins > 0 then
+        for _, plugin in ipairs(missingPlugins) do
+            Echo(string.format("Missing required plugin: %s", plugin), EchoPrefix)
+        end
+        Echo(string.format("Stopping the script due to missing plugins."), EchoPrefix)
+        yield("/snd stop all")
     end
 end
+
 
 ----------------
 --    Main    --
 ----------------
 
-function dutyFinder()
-    if IsAddonVisible("JournalDetail")==false then yield("/dutyfinder") end
-    yield("/wait 1")
+function DutyFinder()
+    if not IsAddonReady("JournalDetail") then
+        yield("/dutyfinder")
+    end
+    Wait(1)
     yield("/waitaddon JournalDetail")
-    yield("/wait 1")
+    Wait(1)
     yield("/callback ContentsFinder true 12 1") --clears duty selection if applicable
-    yield("/wait 1")
+    Wait(1)
     yield("/callback ContentsFinder true 1 9") --open gold saucer tab in DF
-    yield("/wait 1")
+    Wait(1)
     yield("/callback ContentsFinder true 3 11") --select duty
-    yield("/wait 1")
+    Wait(1)
     yield("/callback ContentsFinder true 12 0") --click join
-    yield("/wait 1")
+    Wait(1)
+
     while not GetCharacterCondition(CharacterCondition.occupiedInCutSceneEvent) do
-        yield("/wait 1")
-        if IsAddonVisible("ContentsFinderConfirm") then
-            yield("/wait 1")
+        Wait(1)
+        if IsAddonReady("ContentsFinderConfirm") then
+            Wait(1)
             yield("/click ContentsFinderConfirm Commence")
         end
     end
 end
 
-function superSprint()
+-- Use Sprint skill during race
+function SuperSprint()
     if GetCharacterCondition(CharacterCondition.occupiedInCutSceneEvent) then
         repeat
-            yield("/wait 1")
+            Wait(1)
         until not GetCharacterCondition(CharacterCondition.occupiedInCutSceneEvent)
     end
     yield("/wait 6")
@@ -107,34 +112,37 @@ function superSprint()
     yield("/wait 3")
 end
 
-function keySpam()
+-- Spam movement/acceleration key
+function KeySpam()
     repeat
         yield("/send KEY_1")
-        yield("/wait 5")
-    until IsAddonVisible("RaceChocoboResult")
+        Wait(5)
+    until IsAddonReady("RaceChocoboResult")
 end
 
-function endMatch()
+-- End match and update count
+function EndMatch()
     yield("/waitaddon RaceChocoboResult <maxwait.500>")
-    runs_played = runs_played + 1
+    RunsPlayed = RunsPlayed + 1
     yield("/callback RaceChocoboResult true 1")
-    yield("/echo [ChoboRacing] Runs played: "..runs_played)
-    yield("/wait 1")
+    yield("/echo " .. EchoPrefix .. "Runs played: " .. RunsPlayed)
+    Wait(1)
     repeat
-        yield("/wait 1")
+        Wait(1)
     until IsPlayerAvailable()
-    yield("/wait 3")
+    Wait(3)
 end
 
 -------------------------------- Execution --------------------------------
 
 Plugins()
-while runs_played < runs_to_play do
-    dutyFinder()
-    superSprint()
-    keySpam()
-    endMatch()
+while RunsPlayed < RunsToPlay do
+    DutyFinder()
+    SuperSprint()
+    KeySpam()
+    EndMatch()
 end
-yield("/echo [ChoboRacing] Loop Finished..!!")
+
+Echo("Loop Finished..!!", EchoPrefix)
 
 ----------------------------------- End -----------------------------------

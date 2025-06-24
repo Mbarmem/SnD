@@ -254,6 +254,21 @@ function PathToObject(targetName, fly, stopDistance)
     end
 end
 
+--- Calculates the distance from the player to a given 3D point.
+function GetDistanceToPoint(vector3)
+    local px = Svc.ClientState.LocalPlayer.Position.X
+    local py = Svc.ClientState.LocalPlayer.Position.Y
+    local pz = Svc.ClientState.LocalPlayer.Position.Z
+
+    local dx = vector3.X - px
+    local dy = vector3.Y - py
+    local dz = vector3.Z - pz
+
+    local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
+    LogInfo(string.format("[MoLib] [Distance] From (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f) = %.2f", px, py, pz, vector3.X, vector3.Y, vector3.Z, distance))
+    return distance
+end
+
 -------------------
 --    Targets    --
 -------------------
@@ -441,6 +456,11 @@ end
 function Echo(msg, echoprefix)
     echoprefix = echoprefix or "[MoLib]"
     yield(string.format("/echo %s %s", tostring(echoprefix), tostring(msg)))
+end
+
+-- Checks if a given plugin is installed using IPC
+function HasPlugin(plugin)
+    return IPC.IsInstalled(plugin)
 end
 
 -- Executes a Lifestream command and waits for its completion

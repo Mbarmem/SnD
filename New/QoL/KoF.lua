@@ -21,10 +21,14 @@ require("MoLib")
 
 -------------------------------- Variables --------------------------------
 
-local Loop = 0
-local VoucherItemId = 26807  -- Kupo Voucher (adjust if needed)
-local LoopCount = Inventory.GetItemCount(VoucherItemId)
-local EchoPrefix = "[KoF] "
+-------------------
+--    General    --
+-------------------
+
+local Loop          = 0
+local VoucherItemId = 26807    -- Kupo Voucher (adjust if needed)
+local LoopCount     = Inventory.GetItemCount(VoucherItemId)
+local EchoPrefix    = "[KoF] "
 
 -------------------------------- Functions --------------------------------
 
@@ -58,13 +62,13 @@ end
 
 if LoopCount == 0 then
     Echo("No Kupo Vouchers found. Script stopped.", EchoPrefix)
-    yield("/snd stop")
+    yield("/snd stop all")
 end
 
 Echo(string.format("Starting KoF — Found %d Kupo Vouchers.", LoopCount), EchoPrefix)
 
 while Loop < LoopCount do
-    Echo(string.format("Running KoF iteration %d/%d...", Loop + 1, LoopCount), EchoPrefix)
+    LogInfo(string.format("%sRunning KoF iteration %d/%d...", EchoPrefix, Loop + 1, LoopCount))
     KoF()
     Loop = Loop + 1
     Wait(0.1)

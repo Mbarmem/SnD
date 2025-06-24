@@ -21,11 +21,19 @@ require("MoLib")
 
 -------------------------------- Variables --------------------------------
 
+-------------------
+--    General    --
+-------------------
+
 local Alexandrite     = 0
 local Desired_count   = 75
 local EchoPrefix      = "[Alexandrite] "
 
---------------------------------- Constants --------------------------------
+--------------------------------- Constant --------------------------------
+
+---------------------
+--    Condition    --
+---------------------
 
 CharacterCondition = {
     mounted   = 4,
@@ -36,14 +44,14 @@ CharacterCondition = {
 
 -- Main routine: obtains maps, deciphers, travels, digs, fights, and loots.
 function Main()
-    LogInfo(EchoPrefix .. "Starting cycle. Alexandrite so far: " .. Alexandrite)
+    LogInfo(string.format("%sStarting cycle. Alexandrite so far: %s", EchoPrefix, Alexandrite))
 
     -- Acquire Mysterious Map if none in inventory
     if Inventory.GetItemCount(7884) < 1 then
-        LogInfo(EchoPrefix .. "No map found, teleporting to Revenant's Toll.")
+        LogInfo(string.format("%sNo map found, teleporting to Revenant's Toll.", EchoPrefix))
         Teleport("Revenant's Toll")
 
-        LogInfo(EchoPrefix .. "Traveling to Auriana to purchase map.")
+        LogInfo(string.format("%sTraveling to Auriana to purchase map.", EchoPrefix))
         MoveTo(63.3, 31.15, -736.3)
         WaitForNavMesh()
         yield("/ac Sprint")
@@ -52,23 +60,27 @@ function Main()
 
         Target("Auriana")
         yield("/interact")
-        WaitForAddon("SelectIconString")
-        yield("/callback SelectIconString true 5")
-
-        WaitForAddon("Talk")
-        yield("/callback Talk true 0")
         Wait(1)
+        repeat
 
-        WaitForAddon("SelectYesno")
-        yield("/callback SelectYesno true 0")
+            if IsAddonReady("SelectIconString") then
+                yield("/callback SelectIconString true 5")
+            end
 
-        WaitForAddon("Talk")
-        yield("/callback Talk true 0")
-        Wait(1)
+            if IsAddonReady("Talk") then
+                yield("/callback Talk true 0")
+            end
+
+            if IsAddonReady("SelectYesno") then
+                yield("/callback SelectYesno true 0")
+            end
+
+            Wait(1)
+        until IsPlayerAvailable()
     end
 
     -- Decipher the map
-    LogInfo(EchoPrefix .. "Deciphering the map.")
+    LogInfo(string.format("%sDeciphering the map.", EchoPrefix))
     yield("/ac Decipher")
     WaitForAddon("SelectIconString")
     yield("/callback SelectIconString true 0")
@@ -98,7 +110,7 @@ function Main()
     WaitForPathRunning()
 
     -- Dig at flag and approach chest
-    LogInfo(EchoPrefix .. "Digging at flag.")
+    LogInfo(string.format("%sDigging at flag.", EchoPrefix))
     yield("/generalaction Dig")
     Wait(5)
     PlayerTest()
@@ -133,7 +145,7 @@ function Main()
         yield("/rotation off")
     end
 
-    LogInfo(EchoPrefix .. "Cycle completed.")
+    LogInfo(string.format("%sCycle completed.", EchoPrefix))
 end
 
 -------------------------------- Execution --------------------------------

@@ -1,97 +1,141 @@
--- Define script URL and config folder
-local scriptURL = "https://raw.githubusercontent.com/pot0to/pot0to-SND-Scripts/refs/heads/main/Gold%20Saucer/MiniCactpot.lua"
-local ConfigFolder = os.getenv("appdata") .. "\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\pot0to\\Dailies\\"
+--[[
 
--- Check if a file exists
-local function FileExists(name)
-    local file = io.open(name, "r")
-    if file then
-        io.close(file)
-        LogInfo("[SUCCESS] File exists: " .. name)
-        return true
+***********************************************
+*                Mini Cactpot                 *
+*        Script for Daily Mini Cactpot        *
+***********************************************
+
+            **********************
+            *     Author: Mo     *
+            **********************
+
+            **********************
+            * Version  |  2.0.0  *
+            **********************
+
+]]
+
+---------------------------------- Import ---------------------------------
+
+require("MoLib")
+
+-------------------------------- Variables --------------------------------
+
+-------------------
+--    General    --
+-------------------
+
+local Npc = {
+    name     = "Mini Cactpot Broker",
+    position = Vector3(-50, 1, 22)
+}
+
+local Aetheryte   = Vector3(-1, 3, -1)
+local EchoPrefix  = "[Mini Cactpot] "
+
+--------------------------------- Constants -------------------------------
+
+---------------------
+--    Condition    --
+---------------------
+
+CharacterCondition = {
+    casting       = 27,
+    occupied      = 32,
+    betweenAreas  = 45
+}
+
+----------------------------
+--    State Management    --
+----------------------------
+
+CharacterStates = {}
+
+local StopFlag = false
+local State    = nil
+
+-------------------------------- Functions --------------------------------
+
+----------------
+--    Main    --
+----------------
+
+--- Checks if player is in Gold Saucer. If not, teleports there.
+function CharacterStates.ready()
+    if not IsInZone(144) then
+        Teleport("Gold Saucer")
     else
-        LogInfo("[ERROR] File does not exist: " .. name)
-        yield("/echo [ERROR] File does not exist.")
-        return false
+        State = CharacterStates.goToCashier
     end
 end
 
--- Check if a folder exists
-local function FolderExists(path)
-    local ok, err, code = os.rename(path, path)
-    if ok or code == 13 then
-        LogInfo("[SUCCESS] Folder exists: " .. path)
-        return true
-    else
-        LogInfo("[ERROR] Error checking folder existence: " .. err)
-        yield("/echo [ERROR] Error checking folder existence.")
-        return false
+--- Navigates to the Mini Cactpot Broker.
+function CharacterStates.goToCashier()
+    if GetDistanceToPoint(Aetheryte) <= 8 and IPC.vnavmesh.IsRunning() then
+        yield("/gaction jump")  -- Prevents stuck pathing near aetheryte
+        Wait(3)
+        return
     end
-end
 
--- Ensure a folder exists, create if it doesn't
-local function EnsureFolderExists(folderPath)
-    if not FolderExists(folderPath) then
-        yield("/echo [ERROR] Script folder does not exists.")
-        return false
-    end
-    return true
-end
-
--- Extract version from script content
-local function ExtractVersion(scriptContent)
-    return scriptContent:match("%*%s+Version%s[%s]?[%W]?[%s]?[%s]?(%d+.%d+.%d+)%s+%*")
-end
-
--- Check if script version matches required version
-local function CheckVersion(scriptContent, requiredVersion)
-    local scriptVersion = ExtractVersion(scriptContent)
-    if scriptVersion == requiredVersion then
-        LogInfo("[SUCCESS] Script version matches required version.")
-        yield("/echo [SUCCESS] Script version matches required version.")
-        return true
-    else
-        LogInfo("[ERROR] Script version does not match required version.")
-        yield("/echo [ERROR] Script version does not match required version.")
-        return false
-    end
-end
-
--- Execute a Lua script
-local function ExecuteLuaScript(filePath)
-    local loadedFunction, errorMessage = loadfile(filePath)
-    if loadedFunction then
-        loadedFunction()
-        LogInfo("[SUCCESS] Script loaded and executed successfully.")
-    else
-        LogInfo("[ERROR] Error loading script:", errorMessage)
-    end
-end
-
--- Execute a script from a URL
-local function ExecuteScriptFromURL(url, folderPath)
-    local fileName = url:match("[^/]+$"):gsub("%%20", " ")
-    local filePath = folderPath .. fileName
-
-    if FileExists(filePath) then
-        local file = io.open(filePath, "r")
-        if file then
-            local scriptContent = file:read("*a")
-            file:close()
-            local urlScriptContent = io.popen("curl -s " .. url):read("*a")
-            if CheckVersion(scriptContent, ExtractVersion(urlScriptContent)) then
-                ExecuteLuaScript(filePath)
-                return
-            end
-        else
-            LogInfo("[ERROR] Unable to open script file:", filePath)
+    if GetDistanceToPoint(Npc.position) > 5 then
+        if not IPC.vnavmesh.PathfindInProgress() and not IPC.vnavmesh.IsRunning() then
+            IPC.vnavmesh.PathfindAndMoveTo(Npc.position, false)
         end
+        return
+    end
+
+    if IPC.vnavmesh.PathfindInProgress() or IPC.vnavmesh.IsRunning() then
+        yield("/vnav stop")
+    end
+
+    State = CharacterStates.playMiniCactpot
+end
+
+local TicketsPurchased = false
+
+--- Handles Mini Cactpot purchase and interaction flow.
+function CharacterStates.playMiniCactpot()
+    if IsAddonReady("LotteryDaily") then
+        Wait(1)
+    elseif IsAddonReady("SelectIconString") then
+        yield("/callback SelectIconString true 0")
+    elseif IsAddonReady("Talk") then
+        yield("/click Talk Click")
+    elseif IsAddonReady("SelectYesno") then
+        yield("/callback SelectYesno true 0")
+    elseif GetDistanceToPoint(Npc.position) > 5 then
+        IPC.vnavmesh.PathfindAndMoveTo(Npc.position)
+    elseif IPC.vnavmesh.PathfindInProgress() or IPC.vnavmesh.IsRunning() then
+        yield("/vnav stop")
+    elseif TicketsPurchased and not GetCharacterCondition(CharacterCondition.occupied) then
+        State = CharacterStates.endState
+    elseif not Entity or not Entity.Target or Entity.Target.Name ~= Npc.name then
+        Target(Npc.name)
     else
-        LogInfo("[ERROR] Script could not be found.")
+        yield("/interact")
+        TicketsPurchased = true
     end
 end
 
--- Ensure config folder exists and execute script from URL
-if EnsureFolderExists(ConfigFolder) then
-    ExecuteScriptFromURL(scriptURL, ConfigFolder)
+--- Closes any open dialogue window and ends script.
+function CharacterStates.endState()
+    if IsAddonReady("SelectString") then
+        yield("/callback SelectString true -1")
+    else
+        StopFlag = true
+    end
 end
+
+------------------------------- Execution ----------------------------------
+
+State = CharacterStates.ready
+yield("/at y")
+
+while not StopFlag do
+    State()
+    Wait(0.1)
+end
+
+Echo("Mini Cactpot script completed successfully!", EchoPrefix)
+
+----------------------------------- End -----------------------------------
