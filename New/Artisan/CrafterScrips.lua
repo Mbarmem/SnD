@@ -1,37 +1,21 @@
---[[
+--[=====[
+[[SND Metadata]]
+author: Mo
+version: 2.0.0
+description: Artisan - Script for Crafting & Turning In
+plugin_dependencies:
+- Artisan
+- TeleporterPlugin
+- Lifestream
+- vnavmesh
+- AutoRetainer
+dependencies:
+- source: https://raw.githubusercontent.com/Mbarmem/SnD/refs/heads/main/New/MoLib/MoLib.lua
+  name: latest
+  type: unknown
 
-***********************************************
-*                  Artisan                    *
-*       Script for Crafting & Turning In      *
-***********************************************
-
-            **********************
-            *     Author: Mo     *
-            **********************
-
-            **********************
-            * Version  |  2.0.0  *
-            **********************
-
-            *********************
-            *  Required Plugins *
-            *********************
-
-Plugins that are used are:
-    -> Artisan
-    -> Teleporter
-    -> Lifestream : https://github.com/NightmareXIV/Lifestream/blob/main/Lifestream/Lifestream.json
-    -> Something Need Doing [Expanded Edition] : https://puni.sh/api/repository/croizat
-    -> Vnavmesh
-    -> YesAlready
-    -> PandorasBox
-    -> AutoRetainer
-
-]]
-
---========================= DEPENDENCIES =========================--
-
-require("MoLib")
+[[End Metadata]]
+--]=====]
 
 --=========================== VARIABLES ==========================--
 
@@ -44,7 +28,7 @@ ScripColor             = "Orange"
 ItemToBuy              = "Crafter's Command Materia XII"
 HubCity                = "Ul'dah"  -- Options: Limsa / Gridania / Ul'dah / Solution Nine
 MinItemsForTurnIns     = 1
-MinInventoryFreeSlots  = 70
+MinInventoryFreeSlots  = 15
 RepairThreshold        = 20
 DoAutoRetainers        = true
 ExtractMateria         = true
@@ -254,7 +238,7 @@ OrangeScrips = {
         turninRow      = 0,
         turninIndex    = 7,
         turninType     = 15,
-        artisanListId  = 21193,  -- 14783 / 21193
+        artisanListId  = 14783,  -- 14783 / 21193
     },
 }
 
@@ -605,7 +589,6 @@ function ScripExchange()
         Wait(1)
     end
 
-    --EXCHANGE CATEGORY--
     for _, item in ipairs(ScripExchangeItems) do
         if item.itemName == ItemToBuy then
             ScripCategoryMenu = item.categoryMenu
