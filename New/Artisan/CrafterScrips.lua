@@ -51,18 +51,6 @@ ScripOvercapLimit      = 3900
 
 --============================ CONSTANT ==========================--
 
----------------------
---    Condition    --
----------------------
-
-CharacterCondition = {
-    crafting              =  5,
-    casting               = 27,
-    occupied              = 39,
-    betweenAreas          = 45,
-    occupiedSummoningBell = 50,
-}
-
 -----------------
 --    Class    --
 -----------------
@@ -504,7 +492,7 @@ function ArtisanCraftingList()
                 Wait(2)
             until os.clock() - ArtisanTimeoutStartTime > 15 or IsCrafting()
 
-            if IsNotCrafting() then
+            if not IsCrafting() then
                 StopFlag = true
                 LogInfo(string.format("%s Stopping Artisan Crafting List..Out of Mats..", EchoPrefix))
                 Wait(1)

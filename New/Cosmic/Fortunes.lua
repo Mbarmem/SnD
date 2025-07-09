@@ -192,7 +192,9 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
         end
     end
 
-    CloseAddons()
+    if IsAddonVisible("Talk") then
+        CloseAddons()
+    end
 end
 
 --============================== END =============================--

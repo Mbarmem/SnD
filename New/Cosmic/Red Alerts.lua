@@ -2,7 +2,7 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Cosmic Exploration - Critical mission crafter automation
+description: Cosmic Exploration - Critical mission crafting automation aka RedAlerts
 plugin_dependencies:
 - Artisan
 - vnavmesh
@@ -80,6 +80,7 @@ while true do
 
     WaitForAddon("WKSMission")
 
+    LogInfo(string.format("%s Selecting mission ID: %s", EchoPrefix, tostring(mission_id)))
     yield("/callback WKSMission true 12 216 2 1")
     yield("/callback WKSMission true 13 " .. mission_id)
 
@@ -91,11 +92,13 @@ while true do
     until IsAddonReady("WKSRecipeNotebook")
 
     ArtisanSetEnduranceStatus(true)
+    LogInfo(string.format("%s Crafting started.", EchoPrefix))
     Wait(5)
 
     WaitForPlayer()
     ArtisanSetEnduranceStatus(false)
 
+    LogInfo(string.format("%s Reporting to Collection Point.", EchoPrefix))
     MoveToTarget("Collection Point")
     Interact("Collection Point")
     Wait(3)

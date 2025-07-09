@@ -117,8 +117,6 @@ function MoveToSpot()
     Lifestream("Cosmic")
     WaitForLifeStream()
     Wait(1)
-    WaitForZoneChange()
-    Wait(1)
     MoveTo(-89.203, -3.337, -27.259)
     WaitForPathRunning()
     yield("/ice start")
@@ -188,10 +186,10 @@ function StartCrafting()
 
     Wait(0.5)
     LogInfo(string.format("%s Crafting..", EchoPrefix))
-    SetAutoHookState(true)
+    ArtisanSetEnduranceStatus(true)
     Wait(10)
 
-    while ArtisanGetEnduranceStatus() == true do
+    while ArtisanGetEnduranceStatus() do
         Wait(0.5)
     end
 

@@ -72,7 +72,7 @@ end
 
 ---------------------------------------------------------------------
 
---- Checks if the player is currently crafting.
+-- Checks if the player is currently crafting.
 function IsCrafting()
     local isCrafting = Svc.Condition[CharacterCondition.crafting]
     LogDebug(string.format("[MoLib] IsCrafting: %s", tostring(isCrafting)))
@@ -81,7 +81,7 @@ end
 
 ---------------------------------------------------------------------
 
---- Checks if the player is currently gathering.
+-- Checks if the player is currently gathering.
 function IsGathering()
     local isGathering = Svc.Condition[CharacterCondition.gathering]
     LogDebug(string.format("[MoLib] IsGathering: %s", tostring(isGathering)))
@@ -90,7 +90,7 @@ end
 
 ---------------------------------------------------------------------
 
---- Checks if the player is currently fishing.
+-- Checks if the player is currently fishing.
 function IsFishing()
     local isFishing = Svc.Condition[CharacterCondition.fishing]
     LogDebug(string.format("[MoLib] IsFishing: %s", tostring(isFishing)))
@@ -121,7 +121,7 @@ end
 
 --------------------------------------------------------------------
 
---- Get the current player's class/job ID.
+-- Get the current player's class/job ID.
 function GetClassJobId()
     local jobId = Player and Player.Job and Player.Job.Id
     LogDebug(string.format("[MoLib] GetClassJobId: %s", tostring(jobId)))
@@ -149,7 +149,7 @@ end
 --    Artisan    --
 --===============--
 
---- Checks if an Artisan crafting list is currently running.
+-- Checks if an Artisan crafting list is currently running.
 function ArtisanIsListRunning()
     local isRunning = IPC.Artisan.IsListRunning()
     LogDebug(string.format("[MoLib] Artisan list running: %s", tostring(isRunning)))
@@ -158,7 +158,7 @@ end
 
 --------------------------------------------------------------------
 
---- Retrieves the current endurance status from the Artisan system.
+-- Retrieves the current endurance status from the Artisan system.
 function ArtisanGetEnduranceStatus()
     local status = IPC.Artisan.GetEnduranceStatus()
     LogDebug(string.format("[MoLib] Artisan endurance status retrieved: %s", tostring(status)))
@@ -167,7 +167,7 @@ end
 
 --------------------------------------------------------------------
 
---- Sets the endurance status for the Artisan system.
+-- Sets the endurance status for the Artisan system.
 function ArtisanSetEnduranceStatus(status)
     LogDebug(string.format("[MoLib] Artisan endurance status set to: %s", tostring(status)))
     return IPC.Artisan.SetEnduranceStatus(status)
@@ -179,7 +179,7 @@ end
 --    AutoHook    --
 --================--
 
---- Sets the AutoHook plugin to use a specific preset.
+-- Sets the AutoHook plugin to use a specific preset.
 function SetAutoHookPreset(presetName)
     LogDebug(string.format("%s AutoHook preset set to: %s", EchoPrefix, tostring(presetName)))
     return IPC.AutoHook.SetPreset(presetName)
@@ -187,7 +187,7 @@ end
 
 --------------------------------------------------------------------
 
---- Sets the AutoHook state.
+-- Sets the AutoHook state.
 function SetAutoHookState(state)
     LogDebug(string.format("%s AutoHook state set to: %s", EchoPrefix, tostring(state)))
     return IPC.AutoHook.SetPluginState(state)
@@ -199,7 +199,7 @@ end
 --    AutoRetainer    --
 --====================--
 
---- Checks if there are any AutoRetainers waiting to be processed for the current character.
+-- Checks if there are any AutoRetainers waiting to be processed for the current character.
 function ARRetainersWaitingToBeProcessed()
     local hasRetainers = IPC.AutoRetainer.AreAnyRetainersAvailableForCurrentChara()
     LogDebug(string.format("[MoLib] Retainers waiting to be processed: %s", tostring(hasRetainers)))
@@ -227,7 +227,7 @@ end
 
 --------------------------------------------------------------------
 
---- Checks whether Lifestream is currently performing a teleport or is otherwise busy.
+-- Checks whether Lifestream is currently performing a teleport or is otherwise busy.
 function LifestreamIsBusy()
     local busy = IPC.Lifestream.IsBusy()
     LogDebug(string.format("[MoLib] LifestreamIsBusy: %s", tostring(busy)))
@@ -254,7 +254,7 @@ end
 --    Vnavmesn    --
 --================--
 
---- Checks whether a vnavmesh pathfinding operation is currently in progress.
+-- Checks whether a vnavmesh pathfinding operation is currently in progress.
 function PathfindInProgress()
     local inProgress = IPC.vnavmesh.PathfindInProgress()
     LogDebug(string.format("[MoLib] PathfindInProgress: %s", tostring(inProgress)))
@@ -263,7 +263,7 @@ end
 
 --------------------------------------------------------------------
 
---- Checks whether the vnavmesh path is currently running.
+-- Checks whether the vnavmesh path is currently running.
 -- This indicates whether the navigation system is actively moving toward a target.
 function PathIsRunning()
     local isRunning = IPC.vnavmesh.IsRunning()
@@ -273,7 +273,7 @@ end
 
 --------------------------------------------------------------------
 
---- Initiates pathfinding and movement to the specified 3D coordinates using vnavmesh.
+-- Initiates pathfinding and movement to the specified 3D coordinates using vnavmesh.
 -- Can optionally enable flying movement if supported.
 function PathfindAndMoveTo(x, y, z, fly)
     fly = fly or false
@@ -317,7 +317,7 @@ end
 
 --------------------------------------------------------------------
 
---- Stops the current vnavmesh pathfinding movement, if any is active.
+-- Stops the current vnavmesh pathfinding movement, if any is active.
 function PathStop()
     LogDebug("[MoLib] PathStop: Attempting to stop pathfinding.")
     return IPC.vnavmesh.Stop()
@@ -329,7 +329,7 @@ end
 --    YesAlready    --
 --==================--
 
---- Pauses the YesAlready plugin.
+-- Pauses the YesAlready plugin.
 function PauseYesAlready(sleepTime)
     sleepTime = sleepTime or 300
     LogDebug(string.format("[MoLib] YesAlready plugin paused for: %s seconds", tostring(sleepTime)))
@@ -548,7 +548,7 @@ end
 
 --------------------------------------------------------------------
 
---- Calculates the distance from the player to a given 3D point.
+-- Calculates the distance from the player to a given 3D point.
 function GetDistanceToPoint(dX, dY, dZ)
     local player = Svc.ClientState.LocalPlayer
     if not player or not player.Position then
@@ -571,7 +571,7 @@ end
 
 --------------------------------------------------------------------
 
---- Teleports the player to their Inn room if they are not already in one of the Inn zones.
+-- Teleports the player to their Inn room if they are not already in one of the Inn zones.
 -- Zone IDs: 177 (Limsa), 178 (Gridania), 179 (Ul'dah), 1205 (Solution Nine)
 function MoveToInn()
     local WhereAmI = GetZoneID()
@@ -645,7 +645,7 @@ end
 
 --------------------------------------------------------------------
 
---- Gets the name of the current target, if any.
+-- Gets the name of the current target, if any.
 function GetTargetName()
     local name = Entity.Target and Entity.Target.Name or nil
     LogDebug(string.format("[MoLib] Current target name: %s", name or "None"))
@@ -654,7 +654,7 @@ end
 
 --------------------------------------------------------------------
 
---- Clears the current target if one is selected.
+-- Clears the current target if one is selected.
 function ClearTarget()
     if Entity.Target and Entity.Target.IsValid then
         LogDebug(string.format("[MoLib] Clearing target: %s", Entity.Target.Name))
@@ -845,9 +845,11 @@ function CloseAddons()
         for _, addon in ipairs(closableAddons) do
             if IsAddonVisible(addon) then
                 LogDebug(string.format("[MoLib] Closing addon: %s", addon))
-                yield(string.format("/callback %s true -1", addon))
-            else
-                LogDebug(string.format("[MoLib] Addon not visible: %s", addon))
+                if addon == "Talk" then
+                    yield(string.format("/callback %s true 0", addon))
+                else
+                    yield(string.format("/callback %s true -1", addon))
+                end
             end
         end
 
@@ -855,6 +857,7 @@ function CloseAddons()
 
     LogDebug("[MoLib] Player is now available. CloseAddons() complete.")
 end
+
 
 --============================= ZONE =============================--
 
@@ -881,7 +884,7 @@ end
 
 --------------------------------------------------------------------
 
---- Retrieves the Territory ID of the currently flagged map.
+-- Retrieves the Territory ID of the currently flagged map.
 --- @return integer TerritoryId The ID of the zone where the current map flag is set.
 function FlagZoneID()
     local territoryId = Instances.Map.Flag.TerritoryId
@@ -925,7 +928,7 @@ end
 
 --------------------------------------------------------------------
 
---- Returns the aetheryte name for a given ZoneID.
+-- Returns the aetheryte name for a given ZoneID.
 function GetAetheryteName(ZoneID)
     local territoryData = Excel.GetRow("TerritoryType", ZoneID)
 
@@ -980,7 +983,7 @@ end
 
 --------------------------------------------------------------------
 
---- Returns the number of free inventory slots the player currently has.
+-- Returns the number of free inventory slots the player currently has.
 function GetInventoryFreeSlotCount()
     local freeSlots = Inventory.GetFreeInventorySlots()
     LogDebug(string.format("[MoLib] Checked inventory: %d free slots available", freeSlots))
@@ -989,7 +992,7 @@ end
 
 --------------------------------------------------------------------
 
---- Returns the total count of a specific item in the player's inventory.
+-- Returns the total count of a specific item in the player's inventory.
 function GetItemCount(itemId)
     local count = Inventory.GetItemCount(itemId)
     LogDebug(string.format("[MoLib] Queried item ID %d: Count = %d", itemId, count))
@@ -1005,7 +1008,7 @@ end
 
 --============================ REPAIRS ===========================--
 
---- Checks if any items in the specified container need repair.
+-- Checks if any items in the specified container need repair.
 function NeedsRepair(percentage)
     local repairList = Inventory.GetItemsInNeedOfRepairs(percentage)
     local needsRepair = repairList.Count > 0
@@ -1017,7 +1020,7 @@ end
 
 --------------------------------------------------------------------
 
---- Attempts to repair gear if any items fall below the repair threshold.
+-- Attempts to repair gear if any items fall below the repair threshold.
 function Repair(RepairThreshold)
     RepairThreshold = RepairThreshold or 20
 
@@ -1042,7 +1045,7 @@ function Repair(RepairThreshold)
         end
 
         -- Wait until player is no longer busy with repair interaction
-        while GetCharacterCondition(CharacterCondition.occupied) do
+        while Svc.Condition[CharacterCondition.occupied] do
             Wait(1)
         end
 
@@ -1062,7 +1065,7 @@ end
 
 --============================ MATERIA ===========================--
 
---- Returns a list of spiritbonded items from the player's inventory.
+-- Returns a list of spiritbonded items from the player's inventory.
 function CanExtractMateria()
     local bondedItems = Inventory.GetSpiritbondedItems()
     LogDebug(string.format("[MoLib] Found %d spiritbonded items.", bondedItems.Count or 0))
@@ -1071,7 +1074,7 @@ end
 
 --------------------------------------------------------------------
 
---- Extracts materia from all spiritbonded gear if enabled and above the threshold.
+-- Extracts materia from all spiritbonded gear if enabled and above the threshold.
 function MateriaExtraction(ExtractMateria)
     ExtractMateria = ExtractMateria or false
 
@@ -1097,7 +1100,7 @@ function MateriaExtraction(ExtractMateria)
                     Wait(1)
                 end
 
-                while GetCharacterCondition(CharacterCondition.occupied) do
+                while Svc.Condition[CharacterCondition.occupied] do
                     Wait(1)
                 end
             end
@@ -1152,7 +1155,7 @@ function WaitForAR(DoAutoRetainers)
     LogInfo(string.format("%s Waiting for AutoRetainers to complete.", EchoPrefix))
     Wait(1)
 
-    while GetCharacterCondition(CharacterCondition.occupiedSummoningBell) do
+    while Svc.Condition[CharacterCondition.occupiedSummoningBell] do
         WaitForPlayer()
     end
 end

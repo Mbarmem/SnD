@@ -20,17 +20,17 @@ function Fate()
     if state == "end" then
         MoveToTarget("Depleted Mini Rover")
         Interact("Depleted Mini Rover")
-        Wait(5)
+        WaitForPlayer()
         state = "start"
     elseif state == "charge" then
         MoveToTarget("Charging Module")
         Interact("Charging Module")
-        Wait(5)
+        WaitForPlayer()
         state = "end"
     elseif state == "start" then
         MoveToTarget("Mini Rover")
         Interact("Mini Rover")
-        Wait(5)
+        WaitForPlayer()
         state = "charge"
     end
 end
