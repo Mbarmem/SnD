@@ -329,10 +329,11 @@ end
 --    YesAlready    --
 --==================--
 
---- Enables or disables the YesAlready plugin.
-function PauseYesAlready(state)
-    LogDebug(string.format("[MoLib] YesAlready plugin enabled: %s", tostring(state)))
-    return IPC.YesAlready.SetPluginEnabled(state)
+--- Pauses the YesAlready plugin.
+function PauseYesAlready(sleepTime)
+    sleepTime = sleepTime or 300
+    LogDebug(string.format("[MoLib] YesAlready plugin paused for: %s seconds", tostring(sleepTime)))
+    return IPC.YesAlready.PausePlugin(sleepTime)
 end
 
 --============================= WAIT =============================--

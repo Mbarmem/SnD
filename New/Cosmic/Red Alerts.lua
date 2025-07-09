@@ -85,17 +85,20 @@ while true do
 
     PauseYesAlready()
 
-    WaitForAddon("SelectYesno")
-    yield("/callback SelectYesno true 0")
-
-    WaitForAddon("WKSRecipeNotebook")
+    repeat
+        if IsAddonReady("SelectYesno") then
+            yield("/callback SelectYesno true 0")
+        end
+        Wait(0.1)
+    until IsAddonReady("WKSRecipeNotebook")
 
     ArtisanSetEnduranceStatus(true)
-    Wait(2)
+    Wait(5)
 
     WaitForPlayer()
     ArtisanSetEnduranceStatus(false)
 
+    MoveToTarget("Collection Point")
     Interact("Collection Point")
     Wait(3)
 
