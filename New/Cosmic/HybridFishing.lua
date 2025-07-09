@@ -237,10 +237,11 @@ while true do
         MoveTo(-264.005, 22.156, -94.770)
         WaitForPathRunning()
     elseif SuccessCount == 5 then
-        MoveTo(-259.450, 22.337, -75.942)
+        MoveTo(-297.165, 22.075, -91.238)
         WaitForPathRunning()
     elseif SuccessCount == 10 then
-        MoveTo(-297.165, 22.075, -91.238)
+        MoveTo(-269.529, 26.526, -132.304)
+        MoveTo(-277.559, 26.449, -134.192)
         WaitForPathRunning()
     end
 

@@ -13,31 +13,38 @@ dependencies:
 [[End Metadata]]
 --]=====]
 
+--=========================== VARIABLES ==========================--
+
+-------------------
+--    General    --
+-------------------
+
+State = "Start"
+
 --=========================== FUNCTIONS ==========================--
 
-local state = "start"
 function Fate()
-    if state == "end" then
+    if State == "End" then
         MoveToTarget("Depleted Mini Rover")
         Interact("Depleted Mini Rover")
         WaitForPlayer()
-        state = "start"
-    elseif state == "charge" then
+        State = "Start"
+    elseif State == "Charge" then
         MoveToTarget("Charging Module")
         Interact("Charging Module")
         WaitForPlayer()
-        state = "end"
-    elseif state == "start" then
+        State = "End"
+    elseif state == "Start" then
         MoveToTarget("Mini Rover")
         Interact("Mini Rover")
         WaitForPlayer()
-        state = "charge"
+        State = "Charge"
     end
 end
 
 --=========================== EXECUTION ==========================--
 
-while state do
+while State do
     Fate()
 end
 

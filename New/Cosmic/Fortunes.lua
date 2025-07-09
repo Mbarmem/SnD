@@ -15,18 +15,18 @@ dependencies:
 
 --=========================== VARIABLES ==========================--
 
-local fullAuto = true
-local minimumCreditsLeft = 0
-local EchoPrefix = "[CosmicFortunes]"
+FullAuto           = true
+MinimumCreditsLeft = 0
+EchoPrefix         = "[CosmicFortunes]"
 
-local npc = {
+Npc = {
     name = "Orbitingway",
     x = 17,
     y = -1,
     z = -16
 }
 
-local itemsWanted = {
+ItemsWanted = {
     ["Vacuum Suit Identification Key"]              = 200,
     ["Ballroom Etiquette - Personal Per..."]        = 50,  -- Ballroom Etiquette - Personal Perfection
     ["Cosmosuit Coffer"]                            = 40,
@@ -54,7 +54,7 @@ local itemsWanted = {
 
 --=========================== FUNCTIONS ==========================--
 
-local function calculateTotalWeight()
+function CalculateTotalWeight()
     local itemsInFirstWheel = {}
     local itemsInSecondWheel = {}
     local weightFirstWheel = 0
@@ -73,14 +73,14 @@ local function calculateTotalWeight()
     end
 
     for itemName, count in pairs(itemsInFirstWheel) do
-        local weight = itemsWanted[itemName]
+        local weight = ItemsWanted[itemName]
         if weight and weight > 0 then
             weightFirstWheel = weightFirstWheel + (weight * count)
         end
     end
 
     for itemName, count in pairs(itemsInSecondWheel) do
-        local weight = itemsWanted[itemName]
+        local weight = ItemsWanted[itemName]
         if weight and weight > 0 then
             weightSecondWheel = weightSecondWheel + (weight * count)
         end
@@ -92,12 +92,12 @@ end
 --=========================== EXECUTION ==========================--
 
 if not IsAddonReady("WKSLottery") then
-    while GetDistanceToPoint(npc.x, npc.y, npc.z) > 3 do
+    while GetDistanceToPoint(Npc.x, Npc.y, Npc.z) > 3 do
         if not PathfindInProgress() and not PathIsRunning() then
-            if GetDistanceToPoint(npc.x, npc.y, npc.z) > 80 then
+            if GetDistanceToPoint(Npc.x, Npc.y, Npc.z) > 80 then
                 yield('/ac "Duty Action I"')
             else
-                MoveTo(npc.x, npc.y, npc.z)
+                MoveTo(Npc.x, Npc.y, Npc.z)
             end
         end
         WaitForPlayer()
@@ -107,7 +107,7 @@ if not IsAddonReady("WKSLottery") then
         PathStop()
     end
 
-    Interact(npc.name)
+    Interact(Npc.name)
 
     while not IsPlayerAvailable() do
         Wait(0.1)
@@ -132,16 +132,16 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
         Wait(0.5)
     until IsNodeVisible("WKSLottery", 1, 30) and IsNodeVisible("WKSLottery", 1, 40)
 
-    if not fullAuto then
+    if not FullAuto then
         Wait(1)
     end
 
-    local weightFirstWheel, weightSecondWheel = calculateTotalWeight()
+    local weightFirstWheel, weightSecondWheel = CalculateTotalWeight()
 
     if weightFirstWheel > weightSecondWheel then
         Echo(string.format("First wheel is better with total weight: %s", weightFirstWheel), EchoPrefix)
 
-        if fullAuto then
+        if FullAuto then
             yield("/callback WKSLottery true 0 0")
             Wait(1)
             yield("/callback WKSLottery true 1 0")
@@ -150,7 +150,7 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
     elseif weightSecondWheel > weightFirstWheel then
         Echo(string.format("Second wheel is better with total weight: %s", weightSecondWheel), EchoPrefix)
 
-        if fullAuto then
+        if FullAuto then
             yield("/callback WKSLottery true 0 1")
             Wait(1)
             yield("/callback WKSLottery true 1 0")
@@ -159,7 +159,7 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
     else
         Echo(string.format("Both wheels are equal in weight."), EchoPrefix)
 
-        if fullAuto then
+        if FullAuto then
             yield("/callback WKSLottery true 0 0")
             Wait(1)
             yield("/callback WKSLottery true 1 0")
@@ -170,7 +170,7 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
         Wait(0.5)
     until not (IsNodeVisible("WKSLottery", 1, 30) and IsNodeVisible("WKSLottery", 1, 40))
 
-    if not fullAuto then
+    if not FullAuto then
         Wait(1)
     end
 
@@ -181,7 +181,7 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
     yield("/callback WKSLottery true 2 0")
     Wait(0.5)
 
-    if minimumCreditsLeft >= 1000 and GetItemCount(45691) < minimumCreditsLeft + 1000 then
+    if MinimumCreditsLeft >= 1000 and GetItemCount(45691) < MinimumCreditsLeft + 1000 then
         if IsAddonReady("SelectYesno") then
             yield("/callback SelectYesno true 1")
         end
