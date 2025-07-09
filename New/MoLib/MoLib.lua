@@ -92,7 +92,7 @@ end
 
 --- Checks if the player is currently fishing.
 function IsFishing()
-    local isFishing = not Svc.Condition[CharacterCondition.fishing]
+    local isFishing = Svc.Condition[CharacterCondition.fishing]
     LogDebug(string.format("[MoLib] IsFishing: %s", tostring(isFishing)))
     return isFishing
 end

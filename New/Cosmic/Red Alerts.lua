@@ -83,8 +83,6 @@ while true do
     yield("/callback WKSMission true 12 216 2 1")
     yield("/callback WKSMission true 13 " .. mission_id)
 
-    PauseYesAlready()
-
     repeat
         if IsAddonReady("SelectYesno") then
             yield("/callback SelectYesno true 0")
