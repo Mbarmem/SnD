@@ -1,85 +1,44 @@
---[[
+--[=====[
+[[SND Metadata]]
+author: Mo
+version: 2.0.0
+description: Cosmic Exploration - Script for Auto Fate
+plugin_dependencies:
+- vnavmesh
+dependencies:
+- source: https://raw.githubusercontent.com/Mbarmem/SnD/refs/heads/main/New/MoLib/MoLib.lua
+  name: latest
+  type: unknown
 
-***********************************************
-*             Cosmic Exploration              *
-*            Script for Auto Fate             *
-***********************************************
+[[End Metadata]]
+--]=====]
 
-            **********************
-            *     Author: Mo     *
-            **********************
-
-            **********************
-            * Version  |  1.0.0  *
-            **********************
-
-]]
-
--------------------------------- Functions --------------------------------
-
-function Target(destination)
-    attemptsCount = 0
-    yield("/target "..destination)
-    yield("/wait 0.5")
-    while GetTargetName():lower() ~= destination:lower() do
-        yield("/target "..destination)
-        attemptsCount = attemptsCount + 1
-        if attemptsCount > 5 then
-            yield("/e Unable to Target "..destination.." Stopping")
-            return
-        end
-        yield("/wait 0.5")
-    end
-end
-
-function PathFinding()
-    yield("/wait 0.2")
-    while PathfindInProgress() do
-        yield("/wait 0.5")
-    end
-end
-
-function moveToTarget(minDistanceOverride)
-    minDistance = minDistanceOverride or 2
-    targetX = GetTargetRawXPos()
-    targetY = GetTargetRawYPos()
-    targetZ = GetTargetRawZPos()
-    PathfindAndMoveTo(targetX, targetY, targetZ, false)
-    PathFinding()
-    while GetDistanceToPoint(targetX, targetY, targetZ) > minDistance do
-        yield("/wait 0.1")
-    end
-    PathStop()
-end
-
-function MoveAndInteract()
-    moveToTarget()
-    yield("/wait 1")
-    yield("/interact")
-    yield("/wait 5")
-end
+--=========================== FUNCTIONS ==========================--
 
 local state = "start"
 function Fate()
     if state == "end" then
-        Target("Depleted Mini Rover")
-        MoveAndInteract()
+        MoveToTarget("Depleted Mini Rover")
+        Interact("Depleted Mini Rover")
+        Wait(5)
         state = "start"
     elseif state == "charge" then
-        Target("Charging Module")
-        MoveAndInteract()
+        MoveToTarget("Charging Module")
+        Interact("Charging Module")
+        Wait(5)
         state = "end"
     elseif state == "start" then
-        Target("Mini Rover")
-        MoveAndInteract()
+        MoveToTarget("Mini Rover")
+        Interact("Mini Rover")
+        Wait(5)
         state = "charge"
     end
 end
 
--------------------------------- Execution --------------------------------
+--=========================== EXECUTION ==========================--
 
 while state do
     Fate()
 end
 
------------------------------------ End -----------------------------------
+--============================== END =============================--

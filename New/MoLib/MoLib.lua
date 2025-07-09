@@ -558,7 +558,7 @@ function AcquireTarget(name, maxRetries, sleepTime)
 
     local retries = 0
     while (Entity == nil or Entity.Target == nil) and retries < maxRetries do
-        Sleep(sleepTime)
+        Wait(sleepTime)
         retries = retries + 1
     end
 
