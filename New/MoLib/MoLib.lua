@@ -27,6 +27,7 @@ CharacterCondition = {
     tradeOpen               = 37,
     occupied39              = 39,
     gathering42             = 42,
+    fishing                 = 43,
     betweenAreas            = 45,
     occupiedSummoningBell   = 50,
     betweenArea51           = 51,
@@ -54,7 +55,6 @@ local LogLevel = {
 --==============--
 
 -- Wrapper for Player.Available
--- Returns true if the player is available (i.e., not in cutscenes, loading screens, etc.)
 function IsPlayerAvailable()
     local isAvailable = Player and Player.Available and not Player.IsBusy
     LogDebug(string.format("[MoLib] IsPlayerAvailable: %s", tostring(isAvailable)))
@@ -64,7 +64,6 @@ end
 ---------------------------------------------------------------------
 
 -- Wrapper for Player.Entity.IsCasting
--- Returns true if the player is currently casting a spell or ability
 function IsPlayerCasting()
     local isCasting = Player.Entity and Player.Entity.IsCasting
     LogDebug(string.format("[MoLib] IsPlayerCasting: %s", tostring(isCasting)))
@@ -82,11 +81,20 @@ end
 
 ---------------------------------------------------------------------
 
---- Checks if the player is currently not crafting.
-function IsNotCrafting()
-    local notCrafting = not Svc.Condition[CharacterCondition.crafting]
-    LogDebug(string.format("[MoLib] IsNotCrafting: %s", tostring(notCrafting)))
-    return notCrafting
+--- Checks if the player is currently gathering.
+function IsGathering()
+    local isGathering = Svc.Condition[CharacterCondition.gathering]
+    LogDebug(string.format("[MoLib] IsGathering: %s", tostring(isGathering)))
+    return isGathering
+end
+
+---------------------------------------------------------------------
+
+--- Checks if the player is currently fishing.
+function IsFishing()
+    local isFishing = not Svc.Condition[CharacterCondition.fishing]
+    LogDebug(string.format("[MoLib] IsFishing: %s", tostring(isFishing)))
+    return isFishing
 end
 
 ---------------------------------------------------------------------
@@ -163,6 +171,26 @@ end
 function ArtisanSetEnduranceStatus(status)
     LogDebug(string.format("[MoLib] Artisan endurance status set to: %s", tostring(status)))
     return IPC.Artisan.SetEnduranceStatus(status)
+end
+
+--------------------------------------------------------------------
+
+--================--
+--    AutoHook    --
+--================--
+
+--- Sets the AutoHook plugin to use a specific preset.
+function SetAutoHookPreset(presetName)
+    LogDebug(string.format("%s AutoHook preset set to: %s", EchoPrefix, tostring(presetName)))
+    return IPC.AutoHook.SetPreset(presetName)
+end
+
+--------------------------------------------------------------------
+
+--- Sets the AutoHook state.
+function SetAutoHookState(state)
+    LogDebug(string.format("%s AutoHook state set to: %s", EchoPrefix, tostring(state)))
+    return IPC.AutoHook.SetPluginState(state)
 end
 
 --------------------------------------------------------------------
