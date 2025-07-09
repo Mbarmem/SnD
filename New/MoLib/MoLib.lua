@@ -150,6 +150,23 @@ end
 
 --------------------------------------------------------------------
 
+--- Retrieves the current endurance status from the Artisan system.
+function ArtisanGetEnduranceStatus()
+    local status = IPC.Artisan.GetEnduranceStatus()
+    LogDebug(string.format("[MoLib] Artisan endurance status retrieved: %s", tostring(status)))
+    return status
+end
+
+--------------------------------------------------------------------
+
+--- Sets the endurance status for the Artisan system.
+function ArtisanSetEnduranceStatus(status)
+    LogDebug(string.format("[MoLib] Artisan endurance status set to: %s", tostring(status)))
+    return IPC.Artisan.SetEnduranceStatus(status)
+end
+
+--------------------------------------------------------------------
+
 --====================--
 --    AutoRetainer    --
 --====================--
@@ -276,6 +293,19 @@ end
 function PathStop()
     LogDebug("[MoLib] PathStop: Attempting to stop pathfinding.")
     return IPC.vnavmesh.Stop()
+end
+
+--------------------------------------------------------------------
+
+--==================--
+--    YesAlready    --
+--==================--
+
+--- Pauses the YesAlready plugin.
+function PauseYesAlready(sleepTime)
+    sleepTime = sleepTime or 300
+    LogDebug(string.format("[MoLib] YesAlready plugin paused for: %s seconds", tostring(sleepTime)))
+    return IPC.YesAlready.PausePlugin(sleepTime)
 end
 
 --============================= WAIT =============================--
