@@ -4,11 +4,13 @@ author: Mo
 version: 2.0.0
 description: Allied Societies Quests - Script for Dailies
 plugin_dependencies:
+- Questionable
+- RotationSolver
 - Artisan
-- TeleporterPlugin
-- Lifestream
 - vnavmesh
-- AutoRetainer
+- Lifestream
+- TeleporterPlugin
+- TextAdvance
 dependencies:
 - source: https://raw.githubusercontent.com/Mbarmem/SnD/refs/heads/main/New/MoLib/MoLib.lua
   name: latest
@@ -24,8 +26,10 @@ dependencies:
 -------------------
 
 EchoPrefix  = "[Allied Quests]"
+
 ToDoList = {
-    { alliedSocietyName="MamoolJa", class="Miner" }
+    { alliedSocietyName = "Kobolds", class = "Machinist" },
+    { alliedSocietyName = "Sylphs", class = "Machinist" }
 }
 
 --============================ CONSTANT ==========================--
@@ -225,67 +229,81 @@ end
 
 function GetAcceptedAlliedSocietyQuests(alliedSocietyName)
     local accepted = {}
-    local allAcceptedQuests = GetAcceptedQuests()
-    for i=0, allAcceptedQuests.Count-1 do
-        if GetQuestAlliedSociety(allAcceptedQuests[i]):lower() == alliedSocietyName:lower() then
-            table.insert(accepted, allAcceptedQuests[i])
+    local allAcceptedQuests = Quests.GetAcceptedQuests()
+    local count = allAcceptedQuests.Count - 1
+
+    for i = 1, count do
+        local questId = allAcceptedQuests[i]
+        local row = Excel.GetRow("Quest", questId)
+
+        if row and row.BeastTribe and row.BeastTribe.Name:lower() == alliedSocietyName:lower() then
+            table.insert(accepted, questId)
         end
     end
+
     return accepted
 end
 
 function CheckAllowances()
     if not IsAddonReady("ContentsInfo") then
         yield("/timers")
-        Wait(1)
+        Wait(3)
     end
 
-    for i = 1, 15 do
-        local timerName = GetNodeText("ContentsInfo", 8, i, 5)
-        if timerName == "Next Allied Society Daily Quest Allowance" then
-            return tonumber(GetNodeText("ContentsInfo", 8, i, 4):match("%d+$"))
-        end
+    local timerName = GetNodeText("ContentsInfo", 1, 4, 41009, 6, 8)
+    local timerConv = tonumber(timerName:match("%d+$"))
+    Wait(1)
+
+    if timerConv then
+        CloseAddons()
+        return timerConv
     end
+
+    CloseAddons()
     return 0
 end
 
+--=========================== EXECUTION ==========================--
+
 yield("/at y")
+
 for _, alliedSociety in ipairs(ToDoList) do
+    local remainingAllowances = CheckAllowances()
+    LogInfo(string.format("%s Remaining daily quest allowances: %d", EchoPrefix, remainingAllowances))
+
+    if remainingAllowances <= 0 then
+        LogInfo(string.format("%s No allowances left. Stopping script.", EchoPrefix))
+        return
+    end
+
     local alliedSocietyTable = GetAlliedSocietyTable(alliedSociety.alliedSocietyName)
-    if alliedSocietyTable ~= nil then
-        repeat
-            Wait(1)
-        until IsPlayerAvailable()
+    if alliedSocietyTable then
+        WaitForPlayer()
 
         if not IsInZone(alliedSocietyTable.zoneId) then
             Teleport(alliedSocietyTable.aetheryteName)
         end
 
-        if not GetCharacterCondition(CharacterCondition.mounted) then
-            yield('/gaction "mount roulette"')
+        if not IsMounted() then
+            UseMount()
         end
+
         repeat
             Wait(1)
-        until GetCharacterCondition(CharacterCondition.mounted)
+        until IsMounted()
+
         MoveTo(alliedSocietyTable.x, alliedSocietyTable.y, alliedSocietyTable.z, true)
         WaitForPathRunning()
 
-        yield("/gs change "..alliedSociety.class)
+        yield("/gs change " .. alliedSociety.class)
         Wait(3)
 
         -- accept 3 allocations
-        local quests = {}
         for i=1,3 do
-            yield("/target "..alliedSocietyTable.questGiver)
-            yield("/interact")
-
-            repeat
-                Wait(1)
-            until IsAddonReady("SelectIconString")
+            Interact(alliedSocietyTable.questGiver)
+            WaitForAddon("SelectIconString")
             yield("/callback SelectIconString true 0")
-            repeat
-                Wait(1)
-            until IsPlayerAvailable()
+            WaitForPlayer()
         end
 
         yield("/qst start")
@@ -293,7 +311,11 @@ for _, alliedSociety in ipairs(ToDoList) do
             Wait(10)
         until #GetAcceptedAlliedSocietyQuests(alliedSociety.alliedSocietyName) == 0
         yield("/qst stop")
+    else
+        LogInfo(string.format("%s Allied society '%s' not found in data table.", EchoPrefix, alliedSociety.alliedSocietyName))
     end
 end
 
-Echo("Daily quest script completed successfully.", EchoPrefix)
+LogInfo(string.format("%s Daily quest script completed successfully.", EchoPrefix))
+
+--============================== END =============================--

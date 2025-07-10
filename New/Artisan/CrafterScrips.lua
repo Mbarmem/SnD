@@ -322,29 +322,29 @@ HubCities = {
         zoneName      = "Limsa",
         zoneId        = 129,
         aethernet     = { aethernetZoneId = 129, aethernetName = "Hawkers' Alley", x = -213.61108, y = 16.739136, z = 51.80432 },
-        retainerBell  = { x = -124.703, y = 18, z = 19.887, s = 2, requiresAethernet = false },
-        scripExchange = { x = -258.52585, y = 16.2, z = 40.65883, s = 2, requiresAethernet = true },
+        retainerBell  = { x = -124.703, y = 18, z = 19.887, requiresAethernet = false },
+        scripExchange = { x = -258.52585, y = 16.2, z = 40.65883, requiresAethernet = true },
     },
     {
         zoneName      = "Gridania",
         zoneId        = 132,
         aethernet     = { aethernetZoneId = 133, aethernetName = "Leatherworkers' Guild & Shaded Bower", x = 131.9447, y = 4.714966, z = -29.800903 },
-        retainerBell  = { x = 168.72, y = 15.5, z = -100.06, s = 2, requiresAethernet = true },
-        scripExchange = { x = 142.15, y = 13.74, z = -105.39, s = 2, requiresAethernet = true },
+        retainerBell  = { x = 168.72, y = 15.5, z = -100.06, requiresAethernet = true },
+        scripExchange = { x = 142.15, y = 13.74, z = -105.39, requiresAethernet = true },
     },
     {
         zoneName      = "Ul'dah",
         zoneId        = 130,
         aethernet     = { aethernetZoneId = 131, aethernetName = "Sapphire Avenue Exchange", x = 101, y = 9, z = -112 },
-        retainerBell  = { x = 146.760, y = 4, z = -42.992, s = 2, requiresAethernet = true },
-        scripExchange = { x = 147.73, y = 4, z = -18.19, s = 2, requiresAethernet = true },
+        retainerBell  = { x = 146.760, y = 4, z = -42.992, requiresAethernet = true },
+        scripExchange = { x = 147.73, y = 4, z = -18.19, requiresAethernet = true },
     },
     {
         zoneName      = "Solution Nine",
         zoneId        = 1186,
         aethernet     = { aethernetZoneId = 1186, aethernetName = "Nexus Arcade", x = -161, y = -1, z = 212 },
-        retainerBell  = { x = -152.465, y = 0.660, z = -13.557, s = 2, requiresAethernet = true },
-        scripExchange = { x = -158.019, y = 0.922, z = -37.884, s = 2, requiresAethernet = true },
+        retainerBell  = { x = -152.465, y = 0.660, z = -13.557, requiresAethernet = true },
+        scripExchange = { x = -158.019, y = 0.922, z = -37.884, requiresAethernet = true },
     },
 }
 
@@ -427,7 +427,7 @@ function MoveForExchange()
 
         if IsInZone(SelectedHubCity.aethernet.aethernetZoneId) and ScripExchangeDistance > 1 and ScripExchangeDistance < 100 then
             if not (PathfindInProgress() or PathIsRunning()) then
-                MoveTo(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z, false, SelectedHubCity.scripExchange.s)
+                MoveTo(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z, 2)
                 StateReached = true
             end
         else

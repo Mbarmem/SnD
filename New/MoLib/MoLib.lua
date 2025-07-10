@@ -72,6 +72,15 @@ end
 
 ---------------------------------------------------------------------
 
+-- Checks if the player is currently mounted.
+function IsMounted()
+    local isMounted = Svc.Condition[CharacterCondition.mounted]
+    LogDebug(string.format("[MoLib] IsMounted: %s", tostring(isMounted)))
+    return isMounted
+end
+
+---------------------------------------------------------------------
+
 -- Checks if the player is currently crafting.
 function IsCrafting()
     local isCrafting = Svc.Condition[CharacterCondition.crafting]
@@ -421,7 +430,7 @@ end
 -- Usage: MoveTo(-67.457, -0.502, -8.274)           -- Normal ground movement
 --        MoveTo(x, y, z, true)                     -- Flying movement
 --        MoveTo(x, y, z, false, 4.0)               -- Ground path, stop within 4.0 units
-function MoveTo(x, y, z, fly, stopDistance)
+function MoveTo(x, y, z, stopDistance, fly)
     fly = fly or false
     stopDistance = stopDistance or 0.0
 
@@ -832,6 +841,7 @@ function CloseAddons()
         "SelectString",
         "SelectYesno",
         "ShopExchangeItem",
+        "ContentsInfo",
         "RetainerList",
         "InventoryRetainer",
         "Talk"
@@ -971,13 +981,14 @@ end
 
 --------------------------------------------------------------------
 
+--- Attempts to mount using a specific mount name or Mount Roulette if none is provided.
 function UseMount(mountName)
     if mountName ~= nil and mountName ~= "" then
         LogDebug(string.format("[MoLib] Attempting to mount: %s", mountName))
-        yield(string.format('/mount "%s"', mountName)) -- Use the specified mount
+        yield(string.format('/mount "%s"', mountName))
     else
         LogDebug("[MoLib] Attempting Mount Roulette")
-        yield('/gaction "Mount Roulette"') -- Use Mount Roulette
+        yield('/gaction "Mount Roulette"')
     end
 end
 

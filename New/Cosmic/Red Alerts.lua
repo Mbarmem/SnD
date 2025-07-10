@@ -99,7 +99,7 @@ while true do
     ArtisanSetEnduranceStatus(false)
 
     LogInfo(string.format("%s Reporting to Collection Point.", EchoPrefix))
-    MoveToTarget("Collection Point")
+    MoveToTarget("Collection Point", 4)
     Interact("Collection Point")
     Wait(3)
 
