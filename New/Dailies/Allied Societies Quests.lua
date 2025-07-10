@@ -292,7 +292,7 @@ for _, alliedSociety in ipairs(ToDoList) do
             Wait(1)
         until IsMounted()
 
-        MoveTo(alliedSocietyTable.x, alliedSocietyTable.y, alliedSocietyTable.z, true)
+        MoveTo(alliedSocietyTable.x, alliedSocietyTable.y, alliedSocietyTable.z, 2, true)
         WaitForPathRunning()
 
         yield("/gs change " .. alliedSociety.class)

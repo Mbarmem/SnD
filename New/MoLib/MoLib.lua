@@ -557,6 +557,17 @@ end
 
 --------------------------------------------------------------------
 
+-- Calculates the 3D Euclidean distance between two points
+function DistanceBetween(px1, py1, pz1, px2, py2, pz2)
+    local dx = px2 - px1
+    local dy = py2 - py1
+    local dz = pz2 - pz1
+
+    return math.sqrt(dx * dx + dy * dy + dz * dz)
+end
+
+--------------------------------------------------------------------
+
 -- Calculates the distance from the player to a given 3D point.
 function GetDistanceToPoint(dX, dY, dZ)
     local player = Svc.ClientState.LocalPlayer
@@ -699,7 +710,7 @@ function MoveToTarget(targetName, distanceThreshold, maxRetries, sleepTime, fly)
     LogDebug(string.format("[MoLib] Moving to target [%s] at (%.2f, %.2f, %.2f) with stop distance %.2f", target.Name, target.Position.X, target.Position.Y, target.Position.Z, distanceThreshold))
 
     -- Use the provided MoveTo function
-    return MoveTo(target.Position.X, target.Position.Y, target.Position.Z, fly, distanceThreshold)
+    return MoveTo(target.Position.X, target.Position.Y, target.Position.Z, distanceThreshold, fly)
 end
 
 --------------------------------------------------------------------

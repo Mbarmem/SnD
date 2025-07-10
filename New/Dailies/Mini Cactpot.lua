@@ -35,8 +35,9 @@ EchoPrefix = "[Mini Cactpot]"
 
 CharacterStates = {}
 
-local StopFlag = false
-local State    = nil
+local StopFlag  = false
+local State     = nil
+local Tickets   = false
 
 --=========================== FUNCTIONS ==========================--
 
@@ -49,6 +50,7 @@ function CharacterStates.ready()
         Teleport("Gold Saucer")
     else
         State = CharacterStates.goToCashier
+        LogInfo(string.format("%s State Change: GoToCashier", EchoPrefix))
     end
 end
 
@@ -61,7 +63,7 @@ function CharacterStates.goToCashier()
 
     if GetDistanceToPoint(Npc.position.X, Npc.position.Y, Npc.position.Z) > 5 then
         if not PathfindInProgress() and not PathIsRunning() then
-            MoveTo(Npc.position.X, Npc.position.Y, Npc.position.Z, false, 5)
+            MoveTo(Npc.position.X, Npc.position.Y, Npc.position.Z, 5)
         end
         return
     end
@@ -71,30 +73,38 @@ function CharacterStates.goToCashier()
     end
 
     State = CharacterStates.playMiniCactpot
+    LogInfo(string.format("%s State Change: PlayMiniCactpot", EchoPrefix))
 end
-
-local TicketsPurchased = false
 
 function CharacterStates.playMiniCactpot()
     if IsAddonReady("LotteryDaily") then
         Wait(1)
+
     elseif IsAddonReady("SelectIconString") then
         yield("/callback SelectIconString true 0")
+
     elseif IsAddonReady("Talk") then
         yield("/click Talk Click")
+
     elseif IsAddonReady("SelectYesno") then
         yield("/callback SelectYesno true 0")
+
     elseif GetDistanceToPoint(Npc.position.X, Npc.position.Y, Npc.position.Z) > 5 then
-        MoveTo(Npc.position.X, Npc.position.Y, Npc.position.Z, false, 5)
+        MoveTo(Npc.position.X, Npc.position.Y, Npc.position.Z, 5)
+
     elseif PathfindInProgress() or PathIsRunning() then
         PathStop()
-    elseif TicketsPurchased and IsPlayerAvailable() then
+
+    elseif Tickets and IsPlayerAvailable() then
         State = CharacterStates.endState
+        LogInfo(string.format("%s State Change: EndState", EchoPrefix))
+
     elseif GetTargetName() ~= Npc.name then
         Target(Npc.name)
+
     else
         Interact(Npc.name)
-        TicketsPurchased = true
+        Tickets = true
     end
 end
 
@@ -106,7 +116,7 @@ function CharacterStates.endState()
     end
 end
 
-------------------------------- Execution ----------------------------------
+--=========================== EXECUTION ==========================--
 
 State = CharacterStates.ready
 yield("/at y")
@@ -118,4 +128,4 @@ end
 
 LogInfo(string.format("%s Mini Cactpot script completed successfully!", EchoPrefix))
 
------------------------------------ End -----------------------------------
+--============================== END =============================--
