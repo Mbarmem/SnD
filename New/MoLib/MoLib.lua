@@ -1127,7 +1127,7 @@ function MateriaExtraction(ExtractMateria)
             yield("/generalaction \"Materia Extraction\"")
             yield("/waitaddon Materialize")
 
-            while CanExtractMateria() > 0 do
+            while CanExtractMateria() = 0 do
                 if not IsAddonVisible("Materialize") then
                     yield("/generalaction \"Materia Extraction\"")
                 end
