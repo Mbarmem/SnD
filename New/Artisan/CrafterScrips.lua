@@ -16,7 +16,7 @@ dependencies:
 configs:
   CrafterClass:
     default:
-    description: Select the crafting claaaass to use for turn-ins and crafting tasks.
+    description: Select the crafting class to use for turn-ins and crafting tasks.
     type: string
     required: true
   DoScrips:
