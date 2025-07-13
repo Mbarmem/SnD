@@ -1,7 +1,7 @@
 --[=====[
 [[SND Metadata]]
 author: Mo
-version: 2.0.0
+version: 2.0.1
 description: Artisan - Script for Crafting & Turning In
 plugin_dependencies:
 - Artisan
