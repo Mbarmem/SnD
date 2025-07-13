@@ -10,9 +10,25 @@ plugin_dependencies:
 - vnavmesh
 - ICE
 dependencies:
-- source: https://raw.githubusercontent.com/Mbarmem/SnD/refs/heads/main/New/MoLib/MoLib.lua
-  name: latest
-  type: unknown
+- source: ''
+  name: SnD
+  type: git
+configs:
+  WeatherSelection:
+    default: Normal
+    description: Specifies the desired weather type. Options: All, Normal, Moon, Umbral.
+    type: string
+    required: true
+  RepairThreshold:
+    default: 20
+    description: Durability percentage at which tools should be repaired.
+    type: int
+    min: 0
+    max: 100
+  ExtractMateria:
+    default: true
+    description: Automatically extract materia from fully spiritbonded gear.
+    type: boolean
 
 [[End Metadata]]
 --]=====]
@@ -23,9 +39,9 @@ dependencies:
 --    General    --
 -------------------
 
-WeatherSelection          = "Normal" -- All, Normal, Moon, Umbral
-RepairThreshold           = 20
-ExtractMateria            = true
+WeatherSelection          = Config.Get("WeatherSelection")
+RepairThreshold           = Config.Get("RepairThreshold ")
+ExtractMateria            = Config.Get("ExtractMateria")
 EchoPrefix                = "[HybridFishing]"
 
 FisherNormalMissionName   = "A-2: Refined Moon Gel"
