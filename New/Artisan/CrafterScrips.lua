@@ -1,7 +1,7 @@
 --[=====[
 [[SND Metadata]]
 author: Mo
-version: 2.0.1
+version: 2.0.2
 description: Artisan - Script for Crafting & Turning In
 plugin_dependencies:
 - Artisan
@@ -16,7 +16,7 @@ dependencies:
 configs:
   CrafterClass:
     default:
-    description: Select the crafting class to use for turn-ins and crafting tasks.
+    description: Select the crafting claaaass to use for turn-ins and crafting tasks.
     type: string
     required: true
   DoScrips:
@@ -80,7 +80,7 @@ configs:
     type: int
   HowManyLoops:
     default: 1
-    description: Number of full crafting and turn-in loops to perform.
+    description: Number of full crafting and turn-in loops to perform (99 for true).
     type: int
 
 [[End Metadata]]
@@ -516,7 +516,7 @@ end
 function InitializeLoop()
     local loopValue = tostring(HowManyLoops):lower()
 
-    if loopValue == "true" then
+    if loopValue == "true" or 99 then
         LoopAmount = true
     else
         local numericLoop = tonumber(HowManyLoops)
