@@ -1052,9 +1052,7 @@ end
 function NeedsRepair(percentage)
     local repairList = Inventory.GetItemsInNeedOfRepairs(percentage)
     local needsRepair = repairList.Count > 0
-
     LogDebug(string.format("[MoLib] Checked for items below %d%% durability: %s", percentage, needsRepair and "Needs repair" or "No repairs needed"))
-
     return needsRepair
 end
 
@@ -1064,41 +1062,37 @@ end
 function Repair(RepairThreshold)
     RepairThreshold = RepairThreshold or 20
 
-    if NeedsRepair(RepairThreshold) then
-        Echo("Repairing Gear", EchoPrefix)
-        LogDebug("[MoLib] Initiating gear repair process.")
-
-        -- Open the Repair window using general action
-        while not IsAddonVisible("Repair") do
-            yield("/generalaction repair")
-            Wait(1)
-        end
-
-        -- Begin gear repair
-        yield("/callback Repair true 0")
+    if not NeedsRepair(RepairThreshold) then
+        LogDebug(string.format("[MoLib] No gear repairs needed."))
+        WaitForPlayer()
         Wait(1)
-
-        -- Confirm repair if a confirmation window appears
-        if IsAddonVisible("SelectYesno") then
-            yield("/callback SelectYesno true 0")
-            Wait(1)
-        end
-
-        -- Wait until player is no longer busy with repair interaction
-        while Svc.Condition[CharacterCondition.occupied] do
-            Wait(1)
-        end
-
-        -- Final cleanup (some addons require this)
-        Wait(1)
-        yield("/callback Repair true -1")
-
-        LogDebug("[MoLib] Gear repair process completed.")
-    else
-        LogDebug("[MoLib] No gear repairs needed.")
+        return
     end
 
-    -- Ensure the player is ready to continue
+    LogDebug(string.format("[MoLib] Initiating gear repair process."))
+
+    while not IsAddonVisible("Repair") do
+        yield("/generalaction repair")
+        Wait(1)
+    end
+
+    yield("/callback Repair true 0")
+    Wait(1)
+
+    if IsAddonVisible("SelectYesno") then
+        yield("/callback SelectYesno true 0")
+        Wait(1)
+    end
+
+    while Svc.Condition[CharacterCondition.occupied] do
+        Wait(1)
+    end
+
+    Wait(1)
+    yield("/callback Repair true -1")
+
+    LogDebug("[MoLib] Gear repair process completed.")
+
     WaitForPlayer()
     Wait(1)
 end
