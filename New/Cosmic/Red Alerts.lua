@@ -7,16 +7,21 @@ plugin_dependencies:
 - Artisan
 - vnavmesh
 dependencies:
-- source: https://raw.githubusercontent.com/Mbarmem/SnD/refs/heads/main/New/MoLib/MoLib.lua
-  name: latest
-  type: unknown
+- source: ''
+  name: SnD
+  type: git
+configs:
+  MissionName:
+    description: Name of the mission to accept.
+    type: string
+    required: true
 
 [[End Metadata]]
 --]=====]
 
 --=========================== VARIABLES ==========================--
 
-Mission_name = "Meteorite Drills" -- mission you want to do, case insensitive
+MissionName= Config.Get("MissionName")
 EchoPrefix   = "[RedAlerts]"
 
 --============================ CONSTANT ==========================--
@@ -66,7 +71,7 @@ end
 
 --=========================== EXECUTION ==========================--
 
-local mission_id = Find_mission_id(Mission_name)
+local mission_id = Find_mission_id(MissionName)
 
 if not mission_id then
     LogInfo(string.format("%s Mission name not found, stopping script", EchoPrefix))
