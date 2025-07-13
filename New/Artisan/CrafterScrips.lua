@@ -44,7 +44,7 @@ configs:
     description: Name of the item to purchase using scrips.
     type: string
   HubCity:
-    default: "Ul'dah"
+    default: Ul'dah
     description: Main city to use as a hub for turn-ins and purchases (Ul'dah, Limsa, Gridania, or Solution Nine).
     type: string
   MinItemsForTurnIns:
