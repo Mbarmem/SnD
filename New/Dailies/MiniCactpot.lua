@@ -25,7 +25,7 @@ dependencies:
 
 Aetheryte  = { X = -1, Y = 3, Z = -1 }
 Npc        = { name = "Mini Cactpot Broker", position = { X = -50, Y = 1, Z = 22 } }
-EchoPrefix = "[Mini Cactpot]"
+EchoPrefix = "[MiniCactpot]"
 
 --============================ CONSTANT ==========================--
 
