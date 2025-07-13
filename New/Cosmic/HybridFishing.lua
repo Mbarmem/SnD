@@ -16,7 +16,7 @@ dependencies:
 configs:
   WeatherSelection:
     default: Normal
-    description: Specifies the desired weather type. Options: All, Normal, Moon, Umbral.
+    description: Specifies the desired weather type. Options - All, Normal, Moon, Umbral.
     type: string
     required: true
   RepairThreshold:
@@ -40,7 +40,7 @@ configs:
 -------------------
 
 WeatherSelection          = Config.Get("WeatherSelection")
-RepairThreshold           = Config.Get("RepairThreshold ")
+RepairThreshold           = Config.Get("RepairThreshold")
 ExtractMateria            = Config.Get("ExtractMateria")
 EchoPrefix                = "[HybridFishing]"
 
