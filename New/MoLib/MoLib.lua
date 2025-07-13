@@ -1119,41 +1119,44 @@ end
 function MateriaExtraction(ExtractMateria)
     ExtractMateria = ExtractMateria or false
 
-    if ExtractMateria == true then
-        local extractable = CanExtractMateria()
+    if not ExtractMateria then
+        LogDebug(string.format("[MoLib] Materia extraction is disabled (ExtractMateria = false)."))
+        WaitForPlayer()
+        Wait(1)
+        return
+    end
 
-        if extractable > 1 then
-            yield("/generalaction \"Materia Extraction\"")
-            yield("/waitaddon Materialize")
+    local extractable = CanExtractMateria()
 
-            while CanExtractMateria() < 1 do
-                if not IsAddonVisible("Materialize") then
-                    yield("/generalaction \"Materia Extraction\"")
-                end
+    if extractable > 0 then
+        yield("/generalaction \"Materia Extraction\"")
+        yield("/waitaddon Materialize")
 
-                yield("/callback Materialize true 2")
-                Wait(1)
-
-                if IsAddonVisible("MaterializeDialog") then
-                    yield("/callback MaterializeDialog true 0")
-                    Wait(1)
-                end
-
-                while Svc.Condition[CharacterCondition.occupied] do
-                    Wait(1)
-                end
+        while CanExtractMateria() > 0 do
+            if not IsAddonVisible("Materialize") then
+                yield("/generalaction \"Materia Extraction\"")
             end
 
-            Wait(1)
-            yield("/callback Materialize true -1")
+            yield("/callback Materialize true 2")
             Wait(1)
 
-            LogDebug("[MoLib] Materia extraction completed.")
-        else
-            LogDebug("[MoLib] No items found for materia extraction.")
+            if IsAddonVisible("MaterializeDialog") then
+                yield("/callback MaterializeDialog true 0")
+                Wait(1)
+            end
+
+            while Svc.Condition[CharacterCondition.occupied] do
+                Wait(1)
+            end
         end
+
+        Wait(1)
+        yield("/callback Materialize true -1")
+        Wait(1)
+
+        LogDebug(string.format("[MoLib] Materia extraction completed."))
     else
-        LogDebug("[MoLib] Materia extraction is disabled (ExtractMateria = false).")
+        LogDebug(string.format("[MoLib] No items found for materia extraction."))
     end
 
     WaitForPlayer()
@@ -1164,7 +1167,7 @@ end
 
 function DoAR(DoAutoRetainers)
     if ARRetainersWaitingToBeProcessed() and DoAutoRetainers then
-        LogInfo(string.format("%s Assigning ventures to Retainers.", EchoPrefix))
+        LogDebug(string.format("%s Assigning ventures to Retainers.", EchoPrefix))
         MoveToTarget("Summoning Bell")
         Wait(1)
         Interact("Summoning Bell")
@@ -1175,9 +1178,9 @@ function DoAR(DoAutoRetainers)
         WaitForAR(DoAutoRetainers)
 
     elseif not DoAutoRetainers then
-        LogInfo(string.format("%s AutoRetainers is disabled.", EchoPrefix))
+        LogDebug(string.format("%s AutoRetainers is disabled.", EchoPrefix))
     else
-        LogInfo(string.format("%s No retainers currently need venture assignment.", EchoPrefix))
+        LogDebug(string.format("%s No retainers currently need venture assignment.", EchoPrefix))
     end
 
     CloseAddons()
@@ -1191,7 +1194,7 @@ function WaitForAR(DoAutoRetainers)
         return
     end
 
-    LogInfo(string.format("%s Waiting for AutoRetainers to complete.", EchoPrefix))
+    LogDebug(string.format("%s Waiting for AutoRetainers to complete.", EchoPrefix))
     Wait(1)
 
     while Svc.Condition[CharacterCondition.occupiedSummoningBell] do
