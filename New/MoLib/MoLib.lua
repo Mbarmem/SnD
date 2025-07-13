@@ -1120,14 +1120,14 @@ function MateriaExtraction(ExtractMateria)
 
     if ExtractMateria == true then
         local extractable = CanExtractMateria()
-        if extractable and extractable.Count > 0 then
+        if extractable and extractable.Count == 0 then
             Echo("Extracting Materia", EchoPrefix)
             LogDebug(string.format("[MoLib] Found %d items for materia extraction.", extractable.Count))
 
             yield("/generalaction \"Materia Extraction\"")
             yield("/waitaddon Materialize")
 
-            while CanExtractMateria() = 0 do
+            while CanExtractMateria() == 0 do
                 if not IsAddonVisible("Materialize") then
                     yield("/generalaction \"Materia Extraction\"")
                 end
