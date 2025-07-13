@@ -12,9 +12,42 @@ plugin_dependencies:
 - TeleporterPlugin
 - TextAdvance
 dependencies:
-- source: https://raw.githubusercontent.com/Mbarmem/SnD/refs/heads/main/New/MoLib/MoLib.lua
-  name: latest
-  type: unknown
+- source: ''
+  name: SnD
+  type: git
+configs:
+  AlliedSociety1:
+    description: The first allied society from which to accept quests.
+    type: string
+    required: true
+  Class1:
+    description: Primary class to assign for completing quests
+    type: string
+    required: true
+  AlliedSociety2:
+    description: The first allied society from which to accept quests.
+    type: string
+    required: true
+  Class2:
+    description: Primary class to assign for completing quests
+    type: string
+    required: true
+  AlliedSociety3:
+    description: The first allied society from which to accept quests.
+    type: string
+    required: true
+  Class3:
+    description: Primary class to assign for completing quests
+    type: string
+    required: true
+  AlliedSociety4:
+    description: The first allied society from which to accept quests.
+    type: string
+    required: true
+  Class4:
+    description: Primary class to assign for completing quests
+    type: string
+    required: true
 
 [[End Metadata]]
 --]=====]
@@ -28,9 +61,10 @@ dependencies:
 EchoPrefix  = "[AlliedQuests]"
 
 ToDoList = {
-    { alliedSocietyName = "MamoolJa", class = "Miner" },
-    { alliedSocietyName = "Kobolds", class = "Machinist" },
-    { alliedSocietyName = "Sylphs", class = "Machinist" }
+    { alliedSocietyName = Config.Get("AlliedSociety1"), class = Config.Get("Class1")},
+    { alliedSocietyName = Config.Get("AlliedSociety2"), class = Config.Get("Class2") },
+    { alliedSocietyName = Config.Get("AlliedSociety3"), class = Config.Get("Class3") },
+    { alliedSocietyName = Config.Get("AlliedSociety4"), class = Config.Get("Class4") },
 }
 
 --============================ CONSTANT ==========================--
