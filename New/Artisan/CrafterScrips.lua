@@ -1,7 +1,7 @@
 --[=====[
 [[SND Metadata]]
 author: Mo
-version: 2.0.2
+version: 2.0.3
 description: Artisan - Script for Crafting & Turning In
 plugin_dependencies:
 - Artisan
@@ -24,23 +24,23 @@ configs:
     description: Enable or disable the use of scrips for crafting and purchases.
     type: boolean
   ScripColor:
-    default:
+    default: Orange
     description: Type of scrip to use for crafting / purchases (Orange, Purple).
     type: string
   MinScripExchange:
-    default: 1
+    default: 2500
     description: Minimum number of scrips required before making an exchange.
     type: int
     min: 0
     max: 4000
   ScripOvercapLimit:
-    default: 1
+    default: 3900
     description: Scrip amount at which to trigger spending to avoid overcapping.
     type: int
     min: 0
     max: 4000
   ItemToBuy:
-    default:
+    default: Crafter's Command Materia XII
     description: Name of the item to purchase using scrips.
     type: string
   HubCity:
@@ -54,7 +54,7 @@ configs:
     min: 0
     max: 140
   MinInventoryFreeSlots:
-    default: 1
+    default: 15
     description: Minimum free inventory slots required to start crafting or turn-ins.
     type: int
     min: 0
@@ -67,11 +67,11 @@ configs:
     min: 0
     max: 100
   DoAutoRetainers:
-    default: false
+    default: true
     description: Automatically interact with retainers for ventures.
     type: boolean
   ExtractMateria:
-    default: false
+    default: true
     description: Automatically extract materia from fully spiritbonded gear.
     type: boolean
   Loop:
@@ -79,7 +79,7 @@ configs:
     description: Number of times to repeat the crafting and turn-in cycle.
     type: int
   HowManyLoops:
-    default: 1
+    default: 99
     description: Number of full crafting and turn-in loops to perform (99 for true).
     type: int
 
