@@ -19,8 +19,8 @@ configs:
     description: Select the crafting class to use for turn-ins and crafting tasks.
     type: string
     required: true
-  DoScrips: true
-    default:
+  DoScrips:
+    default: true
     description: Enable or disable the use of scrips for crafting and purchases.
     type: boolean
   ScripColor:
