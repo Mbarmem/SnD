@@ -1108,8 +1108,9 @@ end
 -- Returns a list of spiritbonded items from the player's inventory.
 function CanExtractMateria()
     local bondedItems = Inventory.GetSpiritbondedItems()
-    LogDebug(string.format("[MoLib] Found %d spiritbonded items.", bondedItems.Count or 0))
-    return bondedItems
+    local count = (bondedItems and bondedItems.Count) or 0
+    LogDebug(string.format("[MoLib] Found %d spiritbonded items.", count))
+    return count
 end
 
 --------------------------------------------------------------------
@@ -1120,14 +1121,12 @@ function MateriaExtraction(ExtractMateria)
 
     if ExtractMateria == true then
         local extractable = CanExtractMateria()
-        if extractable and extractable.Count == 0 then
-            Echo("Extracting Materia", EchoPrefix)
-            LogDebug(string.format("[MoLib] Found %d items for materia extraction.", extractable.Count))
 
+        if extractable > 1 then
             yield("/generalaction \"Materia Extraction\"")
             yield("/waitaddon Materialize")
 
-            while CanExtractMateria() == 0 do
+            while CanExtractMateria() < 1 do
                 if not IsAddonVisible("Materialize") then
                     yield("/generalaction \"Materia Extraction\"")
                 end
