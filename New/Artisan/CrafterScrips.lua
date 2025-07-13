@@ -1,7 +1,7 @@
 --[=====[
 [[SND Metadata]]
 author: Mo
-version: 2.0.3
+version: 2.0.4
 description: Artisan - Script for Crafting & Turning In
 plugin_dependencies:
 - Artisan
@@ -76,11 +76,11 @@ configs:
     type: boolean
   Loop:
     default: 1
-    description: Number of times to repeat the crafting and turn-in cycle.
+    description: Initial Loop count
     type: int
   HowManyLoops:
     default: 99
-    description: Number of full crafting and turn-in loops to perform (99 for true).
+    description: Number of times to repeat the crafting and turn-in cycle (99 for unlimited).
     type: int
 
 [[End Metadata]]
