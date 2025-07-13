@@ -6,17 +6,28 @@ description: Cosmic Exploration - Script for Cosmic Fortunes
 plugin_dependencies:
 - vnavmesh
 dependencies:
-- source: https://raw.githubusercontent.com/Mbarmem/SnD/refs/heads/main/New/MoLib/MoLib.lua
-  name: latest
-  type: unknown
+- source: ''
+  name: SnD
+  type: git
+configs:
+  FullAuto:
+    default: true
+    description: Enable or disable the use of FullAuto.
+    type: boolean
+  MinimumCreditsLeft:
+    default: 0
+    description: Minimum number of credits to retain before stopping further spending or actions.
+    type: int
+    min: 0
+    max: 10000
 
 [[End Metadata]]
 --]=====]
 
 --=========================== VARIABLES ==========================--
 
-FullAuto           = true
-MinimumCreditsLeft = 0
+FullAuto           = Config.Get("FullAuto")
+MinimumCreditsLeft = Config.Get("MinimumCreditsLeft")
 EchoPrefix         = "[CosmicFortunes]"
 
 Npc = {

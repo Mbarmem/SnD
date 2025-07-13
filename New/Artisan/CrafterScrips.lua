@@ -10,12 +10,11 @@ plugin_dependencies:
 - vnavmesh
 - AutoRetainer
 dependencies:
-- source: https://raw.githubusercontent.com/Mbarmem/SnD/refs/heads/main/New/MoLib/MoLib.lua
-  name: latest
-  type: unknown
+- source: ''
+  name: SnD
+  type: git
 configs:
   CrafterClass:
-    default:
     description: Select the crafting class to use for turn-ins and crafting tasks.
     type: string
     required: true
