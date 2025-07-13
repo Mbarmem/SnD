@@ -63,15 +63,6 @@ end
 
 ---------------------------------------------------------------------
 
--- Wrapper for Player.Entity.IsCasting
-function IsPlayerCasting()
-    local isCasting = Player.Entity and Player.Entity.IsCasting
-    LogDebug(string.format("[MoLib] IsPlayerCasting: %s", tostring(isCasting)))
-    return isCasting
-end
-
----------------------------------------------------------------------
-
 -- Checks if the player is currently mounted.
 function IsMounted()
     local isMounted = Svc.Condition[CharacterCondition.mounted]
@@ -99,11 +90,38 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently fishing.
+-- Wrapper for Player.Entity.IsCasting
+function IsPlayerCasting()
+    local isCasting = Player.Entity and Player.Entity.IsCasting
+    LogDebug(string.format("[MoLib] IsPlayerCasting: %s", tostring(isCasting)))
+    return isCasting
+end
+
+---------------------------------------------------------------------
+
+-- Checks if the player is currently bound by duty
+function IsBoundByDuty()
+    local isBoundByDuty = Svc.Condition[CharacterCondition.boundByDuty] or Svc.Condition[CharacterCondition.boundByDuty56]
+    LogDebug(string.format("[MoLib] IsBoundByDuty: %s", tostring(isBoundByDuty)))
+    return isBoundByDuty
+end
+
+---------------------------------------------------------------------
+
+-- Checks if the player is currently fishing
 function IsFishing()
     local isFishing = Svc.Condition[CharacterCondition.fishing]
     LogDebug(string.format("[MoLib] IsFishing: %s", tostring(isFishing)))
     return isFishing
+end
+
+---------------------------------------------------------------------
+
+-- Checks if the player is currently between Areas
+function IsBetweenAreas()
+    local isBetweenAreas = Svc.Condition[CharacterCondition.betweenAreas]
+    LogDebug(string.format("[MoLib] IsBetweenAreas: %s", tostring(isBetweenAreas)))
+    return isBetweenAreas
 end
 
 ---------------------------------------------------------------------

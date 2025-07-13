@@ -1,65 +1,36 @@
---[[
+--[=====[
+[[SND Metadata]]
+author: Mo
+version: 2.0.0
+description: Dungeon Farm for Minions  - A barebones script
+plugin_dependencies:
+- AutoDuty
+- RotationSolver
+- BossModReborn
+- vnavmesh
+- TeleporterPlugin
+- Lifestream
+- YesAlready
+- SkipCutscene
+- Automaton
+- TextAdvance
+dependencies:
+- source: https://raw.githubusercontent.com/Mbarmem/SnD/refs/heads/main/New/MoLib/MoLib.lua
+  name: latest
+  type: unknown
 
-***********************************************
-*          Dungeon Farm for Minions           *
-*             A barebones script.             *
-***********************************************
+[[End Metadata]]
+--]=====]
 
-            **********************
-            *     Author: Mo     *
-            **********************
-
-            **********************
-            * Version  |  1.0.0  *
-            **********************
-
-            *********************
-            *  Required Plugins *
-            *********************
-
-Plugins that are used are:
-    -> AutoDuty
-    -> Rotation Solver Reborn
-    -> BossMod Reborn
-    -> Vnavmesh
-    -> Teleporter
-    -> Lifestream
-    -> Something Need Doing [Expanded Edition]
-    -> Yes Already
-    -> SkipCutscene
-    -> Automaton (CBT)
-    -> TextAdvance
-
-]]
-
---------------------------------- Constant --------------------------------
+--=========================== VARIABLES ==========================--
 
 -------------------
---    Plugins    --
+--    General    --
 -------------------
 
-RequiredPlugins = {
-    "AutoDuty",
-    "RotationSolver",
-    "BossModReborn",
-    "vnavmesh",
-    "TeleporterPlugin",
-    "Lifestream",
-    "YesAlready",
-    "SkipCutscene",
-    "Automaton",
-    "TextAdvance"
-}
+EchoPrefix = "[MinionFarmer]"
 
----------------------
---    Condition    --
----------------------
-
-CharacterCondition = {
-    boundByDuty=34,
-    betweenAreas=51,
-    boundByDuty56=56
-}
+--============================ CONSTANT ==========================--
 
 --------------------
 --    Dungeons    --
@@ -67,93 +38,73 @@ CharacterCondition = {
 
 Dungeons = {
     {
-        Name = "The Grand Cosmos",
-        dutyId = 884,
-        dutyMode = "Regular",
+        Name         = "The Grand Cosmos",
+        dutyId       = 884,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        minionId = 28626
+        minionId     = 28626,
     },
     {
-        Name = "Anamnesis Anyder",
-        dutyId = 898,
-        dutyMode = "Regular",
+        Name         = "Anamnesis Anyder",
+        dutyId       = 898,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        minionId = 30096
+        minionId     = 30096,
     },
     {
-        Name = "Paglth'an",
-        dutyId = 938,
-        dutyMode = "Regular",
+        Name         = "Paglth'an",
+        dutyId       = 938,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        minionId = 33693
+        minionId     = 33693,
     },
     {
-        Name = "Matoya's Relict",
-        dutyId = 933,
-        dutyMode = "Regular",
+        Name         = "Matoya's Relict",
+        dutyId       = 933,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        minionId = 32856
+        minionId     = 32856,
     },
     {
-        Name = "The Antitower",
-        dutyId = 1111,
-        dutyMode = "Regular",
+        Name         = "The Antitower",
+        dutyId       = 1111,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        minionId = 14099
+        minionId     = 14099,
     },
     {
-        Name = "Dohn Mheg",
-        dutyId = 821,
-        dutyMode = "Regular",
+        Name         = "Dohn Mheg",
+        dutyId       = 821,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        minionId = 26801
+        minionId     = 26801,
     },
     {
-        Name = "The Heroes' Gauntlet",
-        dutyId = 916,
-        dutyMode = "Regular",
+        Name         = "The Heroes' Gauntlet",
+        dutyId       = 916,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        minionId = 30872
-    }
+        minionId     = 30872,
+    },
 }
 
--------------------------------- Functions --------------------------------
+--=========================== EXECUTION ==========================--
 
--------------------
---    Plugins    --
--------------------
-
-function Plugins()
-    for _, plugin in ipairs(RequiredPlugins) do
-        if not HasPlugin(plugin) then
-            yield("/echo [Minion Farmer] Missing required plugin: "..plugin)
-            StopFlag = true
-        end
-    end
-    if StopFlag then
-        yield("/echo [Minion Farmer] Stopping the script..!!")
-        yield("/snd stop")
-    end
-end
-
--------------------------------- Execution --------------------------------
-
-Plugins()
 for _, minions in ipairs(Dungeons) do
     RunCount = 1
     while GetItemCount(minions.minionId) < 1 do
-        yield("/echo [Minion Farmer] [Run: "..RunCount.."] DutyMode: "..minions.dutyMode.." - "..minions.Name)
+        LogInfo(string.format("%s [Run: %d] DutyMode: %s - %s", EchoPrefix, RunCount, minions.dutyMode, minions.Name))
         yield("/ad cfg Unsynced "..minions.dutyUnsynced)
         yield("/ad run "..minions.dutyMode.." "..minions.dutyId.." 1 true")
         yield("/bmrai on")
         yield("/rotation auto")
-        yield("/wait 10")
-        while GetCharacterCondition(CharacterCondition.boundByDuty) or GetCharacterCondition(CharacterCondition.betweenAreas) or GetCharacterCondition(CharacterCondition.boundByDuty56) do -- wait for duty to be finished
-            yield("/wait 1")
+        Wait(10)
+        while IsBetweenAreas() or IsBoundByDuty() do -- wait for duty to be finished
+            Wait(1)
         end
         RunCount = RunCount + 1
     end
-    yield("/echo [Minion Farmer] "..minions.Name.." is done.")
+    LogInfo(string.format("%s %s is done.", EchoPrefix, minions.Name))
 end
 
------------------------------------ End -----------------------------------
+--============================== END =============================--

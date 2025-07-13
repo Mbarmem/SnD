@@ -25,9 +25,10 @@ dependencies:
 --    General    --
 -------------------
 
-EchoPrefix  = "[Allied Quests]"
+EchoPrefix  = "[AlliedQuests]"
 
 ToDoList = {
+    { alliedSocietyName = "MamoolJa", class = "Miner" },
     { alliedSocietyName = "Kobolds", class = "Machinist" },
     { alliedSocietyName = "Sylphs", class = "Machinist" }
 }

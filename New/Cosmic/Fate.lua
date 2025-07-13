@@ -19,33 +19,48 @@ dependencies:
 --    General    --
 -------------------
 
-State = "Start"
+EchoPrefix  = "[CosmicFate]"
+
+--============================ CONSTANT ==========================--
+
+----------------------------
+--    State Management    --
+----------------------------
+
+CharacterStates = {}
 
 --=========================== FUNCTIONS ==========================--
 
-function Fate()
-    if State == "End" then
-        MoveToTarget("Depleted Mini Rover")
-        Interact("Depleted Mini Rover")
-        WaitForPlayer()
-        State = "Start"
-    elseif State == "Charge" then
-        MoveToTarget("Charging Module")
-        Interact("Charging Module")
-        WaitForPlayer()
-        State = "End"
-    elseif state == "Start" then
-        MoveToTarget("Mini Rover")
-        Interact("Mini Rover")
-        WaitForPlayer()
-        State = "Charge"
-    end
+function CharacterStates.Start()
+    MoveToTarget("Mini Rover")
+    Interact("Mini Rover")
+    WaitForPlayer()
+    State = "Charge"
+    LogInfo(string.format("%s State changed to: Charge", EchoPrefix))
+end
+
+function CharacterStates.Charge()
+    MoveToTarget("Charging Module")
+    Interact("Charging Module")
+    WaitForPlayer()
+    State = "End"
+    LogInfo(string.format("%s State changed to: End", EchoPrefix))
+end
+
+function CharacterStates.End()
+    MoveToTarget("Depleted Mini Rover")
+    Interact("Depleted Mini Rover")
+    WaitForPlayer()
+    State = "Start"
+    LogInfo(string.format("%s State changed to: Start", EchoPrefix))
 end
 
 --=========================== EXECUTION ==========================--
 
+State = CharacterStates.Start
+
 while State do
-    Fate()
+    State()
 end
 
 --============================== END =============================--

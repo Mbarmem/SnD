@@ -13,6 +13,75 @@ dependencies:
 - source: https://raw.githubusercontent.com/Mbarmem/SnD/refs/heads/main/New/MoLib/MoLib.lua
   name: latest
   type: unknown
+configs:
+  CrafterClass:
+    default:
+    description: Select the crafting class to use for turn-ins and crafting tasks.
+    type: string
+    required: true
+  DoScrips: true
+    default:
+    description: Enable or disable the use of scrips for crafting and purchases.
+    type: boolean
+  ScripColor:
+    default:
+    description: Type of scrip to use for crafting / purchases (Orange, Purple).
+    type: string
+  MinScripExchange:
+    default: 1
+    description: Minimum number of scrips required before making an exchange.
+    type: int
+    min: 0
+    max: 4000
+  ScripOvercapLimit:
+    default: 1
+    description: Scrip amount at which to trigger spending to avoid overcapping.
+    type: int
+    min: 0
+    max: 4000
+  ItemToBuy:
+    default:
+    description: Name of the item to purchase using scrips.
+    type: string
+  HubCity:
+    default: "Ul'dah"
+    description: Main city to use as a hub for turn-ins and purchases (Ul'dah, Limsa, Gridania, or Solution Nine).
+    type: string
+  MinItemsForTurnIns:
+    default: 1
+    description: Minimum number of collectible items required before performing turn-ins.
+    type: int
+    min: 0
+    max: 140
+  MinInventoryFreeSlots:
+    default: 1
+    description: Minimum free inventory slots required to start crafting or turn-ins.
+    type: int
+    min: 0
+    max: 140
+    required: true
+  RepairThreshold:
+    default: 20
+    description: Durability percentage at which tools should be repaired.
+    type: int
+    min: 0
+    max: 100
+  DoAutoRetainers:
+    default: false
+    description: Automatically interact with retainers for ventures.
+    type: boolean
+  ExtractMateria:
+    default: false
+    description: Automatically extract materia from fully spiritbonded gear.
+    type: boolean
+  Loop:
+    default: 1
+    description: Number of times to repeat the crafting and turn-in cycle.
+    type: int
+  HowManyLoops:
+    default: 1
+    description: Number of full crafting and turn-in loops to perform.
+    type: int
 
 [[End Metadata]]
 --]=====]
@@ -23,31 +92,31 @@ dependencies:
 --    General    --
 -------------------
 
-CrafterClass           = "Culinarian"
-ScripColor             = "Orange"
-ItemToBuy              = "Crafter's Command Materia XII"
-HubCity                = "Ul'dah"  -- Options: Limsa / Gridania / Ul'dah / Solution Nine
-MinItemsForTurnIns     = 1
-MinInventoryFreeSlots  = 15
-RepairThreshold        = 20
-DoAutoRetainers        = true
-ExtractMateria         = true
+CrafterClass           = Config.Get("CrafterClass")
+ItemToBuy              = Config.Get("ItemToBuy")
+HubCity                = Config.Get("HubCity")
+MinItemsForTurnIns     = Config.Get("MinItemsForTurnIns")
+MinInventoryFreeSlots  = Config.Get("MinInventoryFreeSlots")
+RepairThreshold        = Config.Get("RepairThreshold")
+DoAutoRetainers        = Config.Get("DoAutoRetainers")
+ExtractMateria         = Config.Get("ExtractMateria")
 EchoPrefix             = "[Artisan]"
 
 ----------------
 --    Loop    --
 ----------------
 
-Loop                   = 1
-HowManyLoops           = true
+Loop                   = Config.Get("Loop")
+HowManyLoops           = Config.Get("HowManyLoops")
 
 ------------------
 --    Scrips    --
 ------------------
 
-DoScrips               = true
-MinScripExchange       = 2500
-ScripOvercapLimit      = 3900
+DoScrips               = Config.Get("DoScrips")
+ScripColor             = Config.Get("ScripColor")
+MinScripExchange       = Config.Get("MinScripExchange")
+ScripOvercapLimit      = Config.Get("ScripOvercapLimit")
 
 --============================ CONSTANT ==========================--
 

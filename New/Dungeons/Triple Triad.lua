@@ -1,65 +1,36 @@
---[[
+--[=====[
+[[SND Metadata]]
+author: Mo
+version: 2.0.0
+description: Dungeon Farm for TT Cards - A barebones script
+plugin_dependencies:
+- AutoDuty
+- RotationSolver
+- BossModReborn
+- vnavmesh
+- TeleporterPlugin
+- Lifestream
+- YesAlready
+- SkipCutscene
+- Automaton
+- TextAdvance
+dependencies:
+- source: https://raw.githubusercontent.com/Mbarmem/SnD/refs/heads/main/New/MoLib/MoLib.lua
+  name: latest
+  type: unknown
 
-***********************************************
-*          Dungeon Farm for TT Cards          *
-*             A barebones script.             *
-***********************************************
+[[End Metadata]]
+--]=====]
 
-            **********************
-            *     Author: Mo     *
-            **********************
-
-            **********************
-            * Version  |  1.0.0  *
-            **********************
-
-            *********************
-            *  Required Plugins *
-            *********************
-
-Plugins that are used are:
-    -> AutoDuty
-    -> Rotation Solver Reborn
-    -> BossMod Reborn
-    -> Vnavmesh
-    -> Teleporter
-    -> Lifestream
-    -> Something Need Doing [Expanded Edition]
-    -> Yes Already
-    -> SkipCutscene
-    -> Automaton (CBT)
-    -> TextAdvance
-
-]]
-
---------------------------------- Constant --------------------------------
+--=========================== VARIABLES ==========================--
 
 -------------------
---    Plugins    --
+--    General    --
 -------------------
 
-RequiredPlugins = {
-    "AutoDuty",
-    "RotationSolver",
-    "BossModReborn",
-    "vnavmesh",
-    "TeleporterPlugin",
-    "Lifestream",
-    "YesAlready",
-    "SkipCutscene",
-    "Automaton",
-    "TextAdvance"
-}
+EchoPrefix = "[TTFarmer]"
 
----------------------
---    Condition    --
----------------------
-
-CharacterCondition = {
-    boundByDuty=34,
-    betweenAreas=51,
-    boundByDuty56=56
-}
+--============================ CONSTANT ==========================--
 
 --------------------
 --    Dungeons    --
@@ -67,100 +38,80 @@ CharacterCondition = {
 
 Dungeons = {
     {
-        Name = "Pharos Sirius (Hard)",
-        dutyId = 510,
-        dutyMode = "Regular",
+        Name         = "Pharos Sirius (Hard)",
+        dutyId       = 510,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        cardId = 13369
+        cardId       = 13369,
     },
     {
-        Name = "The Drowned City Of Skalla",
-        dutyId = 1172,
-        dutyMode = "Regular",
+        Name         = "The Drowned City Of Skalla",
+        dutyId       = 1172,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        cardId = 21184
+        cardId       = 21184,
     },
     {
-        Name = "The Ghimlyt Dark",
-        dutyId = 1174,
-        dutyMode = "Regular",
+        Name         = "The Ghimlyt Dark",
+        dutyId       = 1174,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        cardId = 24872
+        cardId       = 24872,
     },
     {
-        Name = "The Burn",
-        dutyId = 1173,
-        dutyMode = "Regular",
+        Name         = "The Burn",
+        dutyId       = 1173,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        cardId = 23910
+        cardId       = 23910,
     },
     {
-        Name = "Saint Mocianne's Arboretum (Hard)",
-        dutyId = 788,
-        dutyMode = "Regular",
+        Name         = "Saint Mocianne's Arboretum (Hard)",
+        dutyId       = 788,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        cardId = 23909
+        cardId       = 23909,
     },
     {
-        Name = "Baelsar's Wall",
-        dutyId = 1114,
-        dutyMode = "Regular",
+        Name         = "Baelsar's Wall",
+        dutyId       = 1114,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        cardId = 17683
+        cardId       = 17683,
     },
     {
-        Name = "The Fractal Continuum (Hard)",
-        dutyId = 743,
-        dutyMode = "Regular",
+        Name         = "The Fractal Continuum (Hard)",
+        dutyId       = 743,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        cardId = 22381
+        cardId       = 22381,
     },
     {
-        Name = "The Swallow's Compass",
-        dutyId = 768,
-        dutyMode = "Regular",
+        Name         = "The Swallow's Compass",
+        dutyId       = 768,
+        dutyMode     = "Regular",
         dutyUnsynced = "true",
-        cardId = 23047
-    }
+        cardId       = 23047,
+    },
 }
 
--------------------------------- Functions --------------------------------
+--=========================== EXECUTION ==========================--
 
--------------------
---    Plugins    --
--------------------
-
-function Plugins()
-    for _, plugin in ipairs(RequiredPlugins) do
-        if not HasPlugin(plugin) then
-            yield("/echo [TT Farmer] Missing required plugin: "..plugin)
-            StopFlag = true
-        end
-    end
-    if StopFlag then
-        yield("/echo [TT Farmer] Stopping the script..!!")
-        yield("/snd stop")
-    end
-end
-
--------------------------------- Execution --------------------------------
-
-Plugins()
 for _, cards in ipairs(Dungeons) do
     RunCount = 1
     while GetItemCount(cards.cardId) < 1 do
-        yield("/echo [TT Farmer] [Run: "..RunCount.."] DutyMode: "..cards.dutyMode.." - "..cards.Name)
+        LogInfo(string.format("%s [Run: %d] DutyMode: %s - %s", EchoPrefix, RunCount, cards.dutyMode, cards.Name))
         yield("/ad cfg Unsynced "..cards.dutyUnsynced)
         yield("/ad run "..cards.dutyMode.." "..cards.dutyId.." 1 true")
         yield("/bmrai on")
         yield("/rotation auto")
-        yield("/wait 10")
-        while GetCharacterCondition(CharacterCondition.boundByDuty) or GetCharacterCondition(CharacterCondition.betweenAreas) or GetCharacterCondition(CharacterCondition.boundByDuty56) do -- wait for duty to be finished
-            yield("/wait 1")
+        Wait(10)
+        while IsBetweenAreas() or IsBoundByDuty() do -- wait for duty to be finished
+            Wait(1)
         end
         RunCount = RunCount + 1
     end
-    yield("/echo [TT Farmer] "..cards.Name.." is done.")
+    LogInfo(string.format("%s %s is done.", EchoPrefix, cards.Name))
 end
 
------------------------------------ End -----------------------------------
+--============================== END =============================--
