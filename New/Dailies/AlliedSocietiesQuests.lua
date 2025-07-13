@@ -16,38 +16,32 @@ dependencies:
   name: SnD
   type: git
 configs:
-  AlliedSociety1:
+  FirstAlliedSociety:
     description: The first allied society from which to accept quests.
     type: string
     required: true
-  Class1:
-    description: Primary class to assign for completing quests
+  FirstClass:
+    description: Class to assign for first allied society.
     type: string
     required: true
-  AlliedSociety2:
-    description: The first allied society from which to accept quests.
+  SecondAlliedSociety:
+    description: The second allied society from which to accept quests.
     type: string
-    required: true
-  Class2:
-    description: Primary class to assign for completing quests
+  SecondClass:
+    description: Class to assign for second allied society.
     type: string
-    required: true
-  AlliedSociety3:
-    description: The first allied society from which to accept quests.
+  ThirdAlliedSociety:
+    description: The third allied society from which to accept quests.
     type: string
-    required: true
-  Class3:
-    description: Primary class to assign for completing quests
+  ThirdClass:
+    description: Class to assign for third allied society.
     type: string
-    required: true
-  AlliedSociety4:
-    description: The first allied society from which to accept quests.
+  FourthAlliedSociety:
+    description: The fourth allied society from which to accept quests.
     type: string
-    required: true
-  Class4:
-    description: Primary class to assign for completing quests
+  FourthClass:
+    description: Class to assign for fourth allied society.
     type: string
-    required: true
 
 [[End Metadata]]
 --]=====]
@@ -61,10 +55,10 @@ configs:
 EchoPrefix  = "[AlliedQuests]"
 
 ToDoList = {
-    { alliedSocietyName = Config.Get("AlliedSociety1"), class = Config.Get("Class1")},
-    { alliedSocietyName = Config.Get("AlliedSociety2"), class = Config.Get("Class2") },
-    { alliedSocietyName = Config.Get("AlliedSociety3"), class = Config.Get("Class3") },
-    { alliedSocietyName = Config.Get("AlliedSociety4"), class = Config.Get("Class4") },
+    { alliedSocietyName = Config.Get("AlliedSociety1"), class = Config.Get("FirstClass")},
+    { alliedSocietyName = Config.Get("AlliedSociety2"), class = Config.Get("SecondClass") },
+    { alliedSocietyName = Config.Get("AlliedSociety3"), class = Config.Get("ThirdClass") },
+    { alliedSocietyName = Config.Get("AlliedSociety4"), class = Config.Get("FourthClass") },
 }
 
 --============================ CONSTANT ==========================--
