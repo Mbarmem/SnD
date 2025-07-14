@@ -108,14 +108,14 @@ MoveSpotsAfter         = Config.Get("MoveSpotsAfter")
 ResetHardAmissAfter    = Config.Get("ResetHardAmissAfter")
 EchoPrefix             = "[Forager]"
 
---[[
-********************************************************************************
-*           Code: Don't touch this unless you know what you're doing           *
-********************************************************************************
-]]
+------------------
+--    Scrips    --
+------------------
 
 OrangeGathererScripId = 41785
 PurpleGathererScripId = 33914
+
+--============================ CONSTANT ==========================--
 
 -----------------
 --    Items    --
@@ -151,7 +151,6 @@ FishingBaitMerchant = {
     aetheryte = "Limsa Lominsa",
     aethernet = { name = "Arcanists' Guild", x = -336, y = 12, z = 56 }
 }
-
 
 ------------------------
 --    Collectables    --
@@ -441,7 +440,6 @@ function Fishing()
     end
 
     if os.clock() - SelectedFishingSpot.startTime > 10 then
-        LogInfo(string.format("%s 2", EchoPrefix))
         local x = GetPlayerRawXPos()
         local y = GetPlayerRawYPos()
         local z = GetPlayerRawZPos()
@@ -462,8 +460,7 @@ function Fishing()
 
     -- run towards fishing hole and cast until the fishing line hits the water
     if not PathfindInProgress() and not PathIsRunning() then
-        LogInfo(string.format("%s 3", EchoPrefix))
-        PathfindAndMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
+        PathMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
         return
     end
 

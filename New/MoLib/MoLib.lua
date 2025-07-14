@@ -356,6 +356,17 @@ end
 
 --------------------------------------------------------------------
 
+-- Initiates movement without pathfinding to the specified 3D coordinates using vnavmesh.
+-- Can optionally enable flying movement if supported.
+function PathMoveTo(x, y, z, fly)
+    fly = fly or false
+    local destination = Vector3(x, y, z)
+    LogDebug(string.format("[MoLib] PathMoveTo: Destination = %s, Fly = %s", tostring(destination), tostring(fly)))
+    return IPC.vnavmesh.PathfindAndMoveTo(destination, fly)
+end
+
+--------------------------------------------------------------------
+
 -- Waits until the navigation mesh system is ready before continuing
 function WaitForNavMesh()
     LogDebug("[MoLib] Waiting for navmesh to become ready...")
