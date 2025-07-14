@@ -1016,7 +1016,7 @@ end
 -- Checks if a given plugin is installed
 function HasPlugin(name)
     for plugin in luanet.each(Svc.PluginInterface.InstalledPlugins) do
-        if plugin.InternalName == name then
+        if plugin.InternalName == name and plugin.IsLoaded then
             LogDebug(string.format("[MoLib] Plugin '%s' found in InstalledPlugins.", name))
             return true
         end
