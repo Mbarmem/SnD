@@ -397,6 +397,29 @@ end
 
 --------------------------------------------------------------------
 
+-- Queries the nearest point on the navigation mesh floor from a Vector3 or x/y/z coordinates.
+function QueryMeshPointOnFloor(positionOrX, y, z, allowUnlandable, halfExtentXZ)
+    local position
+
+    if type(positionOrX) == "userdata" then
+        -- Case: Vector3 passed
+        position = positionOrX
+        allowUnlandable = y
+        halfExtentXZ = z
+    else
+        -- Case: raw x, y, z passed
+        position = Vector3(positionOrX, y, z)
+        -- allowUnlandable and halfExtentXZ remain unchanged
+    end
+
+    LogDebug(string.format("[MoLib] QueryMeshPointOnFloor called with position: %s, allowUnlandable: %s, halfExtentXZ: %s", tostring(position), tostring(allowUnlandable), tostring(halfExtentXZ)))
+    local result = IPC.vnavmesh.PointOnFloor(position, allowUnlandable, halfExtentXZ)
+    LogDebug(string.format("[MoLib] PointOnFloor result: %s", tostring(result)))
+    return result
+end
+
+--------------------------------------------------------------------
+
 --==================--
 --    YesAlready    --
 --==================--
