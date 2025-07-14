@@ -295,7 +295,7 @@ function SelectNewFishingHole()
     LogInfo(string.format("%s Selecting new fishing hole", EchoPrefix))
 
     -- If there are waypoints defined, select a random interpolated waypoint
-    -- SelectedFishingSpot = GetWaypoint(SelectedFish.fishingSpots.waypoints, math.random())
+    SelectedFishingSpot = GetWaypoint(SelectedFish.fishingSpots.waypoints, math.random())
     -- SelectedFishingSpot.waypointY = QueryMeshPointOnFloorY(SelectedFishingSpot.waypointX, SelectedFish.fishingSpots.maxHeight, SelectedFishingSpot.waypointZ, false, 50)
 
     -- Set facing direction coordinates
@@ -320,7 +320,7 @@ end
 
 function TeleportFishingZone()
     if not IsInZone(SelectedFish.zoneId) then
-        Teleport(SelectedFish.closestAetheryte.aetheryteName)
+        Teleport(GetAetheryteName(SelectedFish.zoneId))
     elseif IsPlayerAvailable() then
         Wait(3)
         SelectNewFishingHole()
@@ -458,7 +458,7 @@ function Fishing()
 
     -- run towards fishing hole and cast until the fishing line hits the water
     if not PathfindInProgress() and not PathIsRunning() then
-        PathMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
+        MoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
         return
     end
 
@@ -918,21 +918,9 @@ function ExecuteExtractMateria()
         return
     end
 
-    if CanExtractMateria(100) and GetInventoryFreeSlotCount() > 1 then
-        if not IsAddonVisible("Materialize") then
-            LogInfo(string.format("%s Opening Materia Extraction menu.", EchoPrefix))
-            yield("/generalaction \"Materia Extraction\"")
-            Wait(1)
-            return
-        end
-
+    if CanExtractMateria() > 0 and GetInventoryFreeSlotCount() > 1 then
         LogInfo(string.format("%s Extracting materia...", EchoPrefix))
-
-        if IsAddonVisible("MaterializeDialog") then
-            yield("/callback MaterializeDialog true 0")
-        else
-            yield("/callback Materialize true 2 0")
-        end
+        MateriaExtraction(true)
 
     else
         if IsAddonVisible("Materialize") then
@@ -946,7 +934,7 @@ function ExecuteExtractMateria()
 end
 
 function FoodCheck()
-    if not Player.Status.StatusId(48) and Food ~= "" then
+    if not Player.Status.StatusId == 48 and Food ~= "" then
         LogInfo(string.format("%s Using food: %s", EchoPrefix, Food))
         yield("/item " .. Food)
     else
@@ -955,7 +943,7 @@ function FoodCheck()
 end
 
 function PotionCheck()
-    if not Player.Status.StatusId(49) and Potion ~= "" then
+    if not Player.Status.StatusId == 49 and Potion ~= "" then
         LogInfo(string.format("%s Using potion: %s", EchoPrefix, Potion))
         yield("/item " .. Potion)
     else
@@ -988,7 +976,7 @@ function Ready()
         State = CharacterState.repair
         LogInfo(string.format("%s State Change: Repair", EchoPrefix))
 
-    elseif ExtractMateria and CanExtractMateria(100) and GetInventoryFreeSlotCount() > 1 then
+    elseif ExtractMateria and CanExtractMateria() > 0 and GetInventoryFreeSlotCount() > 1 then
         State = CharacterState.extractMateria
         LogInfo(string.format("%s State Change: ExtractMateria", EchoPrefix))
 
@@ -1059,12 +1047,6 @@ end
 
 SelectedFish = SelectFishTable()
 
-if SelectedFish.fishingSpots.waypoints == nil then
-    SelectedFish.closestAetheryte = GetClosestAetheryte(SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ, SelectedFish.zoneId, 0)
-else
-    SelectedFish.closestAetheryte = GetClosestAetheryte(SelectedFish.fishingSpots.waypoints[1].x, SelectedFish.fishingSpots.waypoints[1].y, SelectedFish.fishingSpots.waypoints[1].z, SelectedFish.zoneId, 0)
-end
-
 if IsInZone(SelectedFish.zoneId) then
     LogInfo(string.format("%s In fishing zone already. Selecting new fishing hole.", EchoPrefix))
     SelectNewFishingHole()
@@ -1073,7 +1055,6 @@ end
 yield("/ahon")
 LogInfo(string.format("%s AutoHook enabled.", EchoPrefix))
 
-DeleteAllAutoHookAnonymousPresets()
 SetAutoHookPreset(SelectedFish.autoHookPreset)
 LogInfo(string.format("%s Set AutoHook preset: %s", EchoPrefix, SelectedFish.autoHookPreset))
 
