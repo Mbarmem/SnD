@@ -63,6 +63,15 @@ end
 
 ---------------------------------------------------------------------
 
+-- Checks if the player is currently dead.
+function IsDead()
+    local isDead = Svc.Condition[CharacterCondition.dead]
+    LogDebug(string.format("[MoLib] IsDead: %s", tostring(isDead)))
+    return isDead
+end
+
+---------------------------------------------------------------------
+
 -- Checks if the player is currently mounted.
 function IsMounted()
     local isMounted = Svc.Condition[CharacterCondition.mounted]
@@ -86,6 +95,15 @@ function IsGathering()
     local isGathering = Svc.Condition[CharacterCondition.gathering]
     LogDebug(string.format("[MoLib] IsGathering: %s", tostring(isGathering)))
     return isGathering
+end
+
+---------------------------------------------------------------------
+
+-- Checks if the player is currently InCombat.
+function IsInCombat()
+    local isInCombat = Entity.Player.IsInCombat
+    LogDebug(string.format("[MoLib] IsInCombat: %s", tostring(isInCombat)))
+    return isInCombat
 end
 
 ---------------------------------------------------------------------
