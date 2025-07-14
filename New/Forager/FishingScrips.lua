@@ -296,7 +296,8 @@ function SelectNewFishingHole()
 
     -- If there are waypoints defined, select a random interpolated waypoint
     SelectedFishingSpot = GetWaypoint(SelectedFish.fishingSpots.waypoints, math.random())
-    SelectedFishingSpot.waypointY = QueryMeshPointOnFloor(SelectedFishingSpot.waypointX, SelectedFish.fishingSpots.maxHeight, SelectedFishingSpot.waypointZ, false, 50)
+    local point = QueryMeshPointOnFloor(SelectedFishingSpot.waypointX, SelectedFish.fishingSpots.maxHeight, SelectedFishingSpot.waypointZ, false, 50)
+    SelectedFishingSpot.waypointY = point and point.Y
 
     -- Set facing direction coordinates
     SelectedFishingSpot.x = SelectedFish.fishingSpots.pointToFace.x
@@ -353,6 +354,7 @@ function GoToFishingHole()
             local randomX, randomY, randomZ = RandomAdjustCoordinates(x, y, z, 20)
             if randomX ~= nil and randomY ~= nil and randomZ ~= nil then
                 PathfindAndMoveTo(randomX, randomY, randomZ, IsMounted())
+                WaitForPathRunning()
             end
             return
         else
@@ -370,6 +372,7 @@ function GoToFishingHole()
         elseif not (PathfindInProgress() or PathIsRunning()) then
             LogInfo(string.format("%s Moving to waypoint: (%.2f, %.2f, %.2f)", EchoPrefix, SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ))
             PathfindAndMoveTo(SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ, true)
+            WaitForPathRunning()
         end
         Wait(1)
         return
@@ -438,6 +441,7 @@ function Fishing()
     end
 
     if os.clock() - SelectedFishingSpot.startTime > 10 then
+        LogInfo(string.format("%s 2", EchoPrefix))
         local x = GetPlayerRawXPos()
         local y = GetPlayerRawYPos()
         local z = GetPlayerRawZPos()
@@ -458,7 +462,8 @@ function Fishing()
 
     -- run towards fishing hole and cast until the fishing line hits the water
     if not PathfindInProgress() and not PathIsRunning() then
-        MoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
+        LogInfo(string.format("%s 3", EchoPrefix))
+        PathfindAndMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
         return
     end
 
@@ -503,6 +508,7 @@ function BuyFishingBait()
     if distanceToMerchant > 5 then
         if not PathfindInProgress() and not PathIsRunning() then
             PathfindAndMoveTo(FishingBaitMerchant.x, FishingBaitMerchant.y, FishingBaitMerchant.z)
+            WaitForPathRunning()
             LogInfo(string.format("%s Moving to merchant at (%.2f, %.2f, %.2f)", EchoPrefix, FishingBaitMerchant.x, FishingBaitMerchant.y, FishingBaitMerchant.z))
         end
         return
@@ -604,6 +610,7 @@ function TurnIn()
         if not (PathfindInProgress() or PathIsRunning()) then
             LogInfo(string.format("%s Player is not near scrip exchange. Pathing there now.", EchoPrefix))
             PathfindAndMoveTo(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z)
+            WaitForPathRunning()
         end
 
     elseif GetItemCount(GathererScripId) >= 3800 then
@@ -670,6 +677,7 @@ function ScripExchange()
         LogInfo(string.format("%s Moving to Scrip Exchange.", EchoPrefix))
         if not (PathfindInProgress() or PathIsRunning()) then
             PathfindAndMoveTo(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z)
+            WaitForPathRunning()
         end
 
         elseif IsAddonVisible("ShopExchangeItemDialog") then
@@ -741,6 +749,7 @@ function ProcessDoAutoRetainers()
         LogInfo(string.format("%s Moving to Summoning Bell.", EchoPrefix))
         if not (PathfindInProgress() or PathIsRunning()) then
             PathfindAndMoveTo(SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z)
+            WaitForPathRunning()
         end
 
     elseif PathfindInProgress() or PathIsRunning() then
@@ -847,6 +856,7 @@ function ExecuteRepair()
                 if not (PathfindInProgress() or PathIsRunning()) then
                     LogInfo(string.format("%s Moving to Dark Matter vendor.", EchoPrefix))
                     PathfindAndMoveTo(vendor.x, vendor.y, vendor.z)
+                    WaitForPathRunning()
                 end
             else
                 if GetTargetName() ~= vendor.npcName then
@@ -888,6 +898,7 @@ function ExecuteRepair()
                 if not (PathfindInProgress() or PathIsRunning()) then
                     LogInfo(string.format("%s Moving to mender.", EchoPrefix))
                     PathfindAndMoveTo(mender.x, mender.y, mender.z)
+                    WaitForPathRunning()
                 end
             else
                 if GetTargetName() ~= mender.npcName then

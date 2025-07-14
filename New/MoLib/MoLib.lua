@@ -210,7 +210,7 @@ end
 
 -- Retrieves the player's current Z position in the game world
 function GetPlayerRawZPos()
-    local z = Player.Entity.Position.Y
+    local z = Player.Entity.Position.Z
     LogDebug(string.format("[MoLib] Player Z Position: %.2f", z))
     return z
 end
