@@ -1,97 +1,94 @@
--- Define script URL and config folder
-local scriptURL = "https://raw.githubusercontent.com/pot0to/pot0to-SND-Scripts/refs/heads/main/Fate%20Farming/Atma%20Farming.lua"
-local ConfigFolder = os.getenv("appdata") .. "\\XIVLauncher\\pluginConfigs\\SomethingNeedDoing\\pot0to\\Fate Farming\\"
+--[[
 
--- Check if a file exists
-local function FileExists(name)
-    local file = io.open(name, "r")
-    if file then
-        io.close(file)
-        LogInfo("[SUCCESS] File exists: " .. name)
-        return true
-    else
-        LogInfo("[ERROR] File does not exist: " .. name)
-        yield("/echo [ERROR] File does not exist.")
-        return false
-    end
-end
+********************************************************************************
+*                                Atma Farming                                  *
+*                                Version 1.0.0                                 *
+********************************************************************************
 
--- Check if a folder exists
-local function FolderExists(path)
-    local ok, err, code = os.rename(path, path)
-    if ok or code == 13 then
-        LogInfo("[SUCCESS] Folder exists: " .. path)
-        return true
-    else
-        LogInfo("[ERROR] Error checking folder existence: " .. err)
-        yield("/echo [ERROR] Error checking folder existence.")
-        return false
-    end
-end
+Atma farming script meant to be used with `Fate Farming.lua`. This will go down
+the list of atma farming zones and farm fates until you have 12 of the required
+atmas in your inventory, then teleport to the next zone and restart the fate
+farming script.
 
--- Ensure a folder exists, create if it doesn't
-local function EnsureFolderExists(folderPath)
-    if not FolderExists(folderPath) then
-        yield("/echo [ERROR] Script folder does not exists.")
-        return false
-    end
-    return true
-end
+Created by: pot0to (https://ko-fi.com/pot0to)
+        
+    -> 1.0.0    First release
 
--- Extract version from script content
-local function ExtractVersion(scriptContent)
-    return scriptContent:match("%*%s+Version%s[%s]?[%W]?[%s]?[%s]?(%d+.%d+.%d+)%s+%*")
-end
+--#region Settings
 
--- Check if script version matches required version
-local function CheckVersion(scriptContent, requiredVersion)
-    local scriptVersion = ExtractVersion(scriptContent)
-    if scriptVersion == requiredVersion then
-        LogInfo("[SUCCESS] Script version matches required version.")
-        yield("/echo [SUCCESS] Script version matches required version.")
-        return true
-    else
-        LogInfo("[ERROR] Script version does not match required version.")
-        yield("/echo [ERROR] Script version does not match required version.")
-        return false
-    end
-end
+--[[
+********************************************************************************
+*                                   Settings                                   *
+********************************************************************************
+]]
 
--- Execute a Lua script
-local function ExecuteLuaScript(filePath)
-    local loadedFunction, errorMessage = loadfile(filePath)
-    if loadedFunction then
-        loadedFunction()
-        LogInfo("[SUCCESS] Script loaded and executed successfully.")
-    else
-        LogInfo("[ERROR] Error loading script:", errorMessage)
-    end
-end
+FateMacro = "Fate Farming"
+NumberToFarm = 1                -- How many of each atma to farm
 
--- Execute a script from a URL
-local function ExecuteScriptFromURL(url, folderPath)
-    local fileName = url:match("[^/]+$"):gsub("%%20", " ")
-    local filePath = folderPath .. fileName
+--#endregion Settings
 
-    if FileExists(filePath) then
-        local file = io.open(filePath, "r")
-        if file then
-            local scriptContent = file:read("*a")
-            file:close()
-            local urlScriptContent = io.popen("curl -s " .. url):read("*a")
-            if CheckVersion(scriptContent, ExtractVersion(urlScriptContent)) then
-                ExecuteLuaScript(filePath)
-                return
-            end
-        else
-            LogInfo("[ERROR] Unable to open script file:", filePath)
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--[[
+**************************************************************
+*  Code: Don't touch this unless you know what you're doing  *
+**************************************************************
+]]
+Atmas =
+{
+    {zoneName = "Middle La Noscea", zoneId = 134, itemName = "Atma of the Ram", itemId = 7856},
+    {zoneName = "Lower La Noscea", zoneId = 135, itemName = "Atma of the Fish", itemId = 7859},
+    {zoneName = "Western La Noscea", zoneId = 138, itemName = "Atma of the Crab", itemId = 7862},
+    {zoneName = "Upper La Noscea", zoneId = 139, itemName = "Atma of the Water-bearer", itemId = 7853},
+    {zoneName = "Western Thanalan", zoneId = 140, itemName = "Atma of the Twins", itemId = 7857},
+    {zoneName = "Central Thanalan", zoneId = 141, itemName = "Atma of the Scales", itemId = 7861},
+    {zoneName = "Eastern Thanalan", zoneId = 145, itemName = "Atma of the Bull", itemId = 7855},
+    {zoneName = "Southern Thanalan", zoneId = 146, itemName = "Atma of the Scorpion", itemId = 7852, flying=false},
+    {zoneName = "Central Shroud", zoneId = 148, itemName = "Atma of the Maiden", itemId = 7851},
+    {zoneName = "East Shroud", zoneId = 152, itemName = "Atma of the Goat", itemId = 7854},
+    {zoneName = "North Shroud", zoneId = 154, itemName = "Atma of the Archer", itemId = 7860},
+    {zoneName = "Outer La Noscea", zoneId = 180, itemName = "Atma of the Lion", itemId = 7858, flying=false}
+}
+
+CharacterCondition = {
+    casting=27,
+    betweenAreas=45
+}
+
+function GetNextAtmaTable()
+    for _, atmaTable in pairs(Atmas) do
+        if GetItemCount(atmaTable.itemId) < NumberToFarm then
+            return atmaTable
         end
-    else
-        LogInfo("[ERROR] Script could not be found.")
     end
 end
 
--- Ensure config folder exists and execute script from URL
-if EnsureFolderExists(ConfigFolder) then
-    ExecuteScriptFromURL(scriptURL, ConfigFolder)
+function TeleportTo(aetheryteName)
+    yield("/tp "..aetheryteName)
+    yield("/wait 1") -- wait for casting to begin
+    while GetCharacterCondition(CharacterCondition.casting) do
+        LogInfo("[FATE] Casting teleport...")
+        yield("/wait 1")
+    end
+    yield("/wait 1") -- wait for that microsecond in between the cast finishing and the transition beginning
+    while GetCharacterCondition(CharacterCondition.betweenAreas) do
+        LogInfo("[FATE] Teleporting...")
+        yield("/wait 1")
+    end
+    yield("/wait 1")
+end
+
+yield("/at y")
+NextAtmaTable = GetNextAtmaTable()
+while NextAtmaTable ~= nil do
+    if not IsPlayerOccupied() and not IsMacroRunningOrQueued(FateMacro) then
+        if GetItemCount(NextAtmaTable.itemId) >= NumberToFarm then
+            NextAtmaTable = GetNextAtmaTable()
+        elseif not IsInZone(NextAtmaTable.zoneId) then
+            TeleportTo(GetAetheryteName(GetAetherytesInZone(NextAtmaTable.zoneId)[0]))
+        else
+            yield("/snd run "..FateMacro)
+        end
+    end
+    yield("/wait 1")
 end
