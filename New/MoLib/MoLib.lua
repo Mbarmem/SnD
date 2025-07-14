@@ -188,6 +188,33 @@ function GetCharacterCondition(index)
     end
 end
 
+--------------------------------------------------------------------
+
+-- Retrieves the player's current X position in the game world
+function GetPlayerRawXPos()
+    local x = Player.Entity.Position.X
+    LogDebug(string.format("[MoLib] Player X Position: %.2f", x))
+    return x
+end
+
+--------------------------------------------------------------------
+
+-- Retrieves the player's current Y position in the game world
+function GetPlayerRawYPos()
+    local y = Player.Entity.Position.Y
+    LogDebug(string.format("[MoLib] Player Y Position: %.2f", y))
+    return y
+end
+
+--------------------------------------------------------------------
+
+-- Retrieves the player's current Z position in the game world
+function GetPlayerRawZPos()
+    local z = Player.Entity.Position.Y
+    LogDebug(string.format("[MoLib] Player Z Position: %.2f", z))
+    return z
+end
+
 --============================= IPC ==============================--
 
 --===============--

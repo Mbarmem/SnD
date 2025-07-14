@@ -44,19 +44,19 @@ configs:
     max: 140
     required: true
   ReturnToGCTown:
-    default:
+    default: false
     description: Whether to return to the Grand Company town.
     type: boolean
   DoAutoRetainers:
-    default:
+    default: true
     description: Automatically interact with retainers for ventures.
     type: boolean
   GrandCompanyTurnIn:
-    default:
+    default: false
     description: Automatically turn in eligible items to your Grand Company for seals.
     type: boolean
   SelfRepair:
-    default:
+    default: true
     description: Automatically repair your own gear when durability is low.
     type: boolean
   RepairThreshold:
