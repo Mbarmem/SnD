@@ -714,10 +714,7 @@ end
 ----------------
 
 function ProcessDoAutoRetainers()
-    LogInfo(string.format("%s Handling retainers...", EchoPrefix))
-
     if (not ARRetainersWaitingToBeProcessed() or GetInventoryFreeSlotCount() <= 1) then
-        LogInfo(string.format("%s Retainers not waiting or inventory nearly full.", EchoPrefix))
         if IsAddonVisible("RetainerList") then
             if IsAddonReady("RetainerList") then
                 yield("/callback RetainerList true -1")
@@ -733,38 +730,32 @@ function ProcessDoAutoRetainers()
 
     elseif SelectedHubCity.retainerBell.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) + 10) then
         if not LifestreamIsBusy() then
-            LogInfo(string.format("%s Using Lifestream to move via Aethernet.", EchoPrefix))
             Lifestream(SelectedHubCity.aethernet.aethernetName)
         end
         Wait(1)
 
     elseif IsAddonVisible("TelepotTown") then
-        LogInfo(string.format("%s TelepotTown open. Closing it.", EchoPrefix))
         yield("/callback TelepotTown false -1")
 
     elseif GetDistanceToPoint(SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) > 1 then
-        LogInfo(string.format("%s Moving to Summoning Bell.", EchoPrefix))
         if not (PathfindInProgress() or PathIsRunning()) then
             PathfindAndMoveTo(SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z)
             WaitForPathRunning()
         end
 
     elseif PathfindInProgress() or PathIsRunning() then
-        -- Wait until pathfinding is done before continuing
+        WaitForPathRunning()
         return
 
     elseif GetTargetName() ~= "Summoning Bell" then
-        LogInfo(string.format("%s Targeting Summoning Bell.", EchoPrefix))
         Target("Summoning Bell")
         return
 
     elseif IsPlayerAvailable() then
-        LogInfo(string.format("%s Interacting with Summoning Bell.", EchoPrefix))
         Interact("Summoning Bell")
 
     elseif IsAddonReady("RetainerList") and IsAddonVisible("RetainerList") then
         yield("/ays e")
-        LogInfo(string.format("%s Processing retainers", EchoPrefix))
         Wait(1)
     end
 end
@@ -945,8 +936,6 @@ function FoodCheck()
     if not Player.Status.StatusId == 48 and Food ~= "" then
         LogInfo(string.format("%s Using food: %s", EchoPrefix, Food))
         yield("/item " .. Food)
-    else
-        LogInfo(string.format("%s Food check passed. Buff active or no food set.", EchoPrefix))
     end
 end
 
@@ -954,8 +943,6 @@ function PotionCheck()
     if not Player.Status.StatusId == 49 and Potion ~= "" then
         LogInfo(string.format("%s Using potion: %s", EchoPrefix, Potion))
         yield("/item " .. Potion)
-    else
-        LogInfo(string.format("%s Potion check passed. Buff active or no potion set.", EchoPrefix))
     end
 end
 
