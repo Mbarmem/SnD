@@ -16,6 +16,7 @@ CharacterCondition = {
     crafting                =  5,
     gathering               =  6,
     chocoboRacing           = 12,
+    playingMiniGame         = 13,
     playingLordOfVerminion  = 14,
     occupied                = 25,
     inCombat                = 26,
@@ -95,6 +96,15 @@ function IsGathering()
     local isGathering = Svc.Condition[CharacterCondition.gathering]
     LogDebug(string.format("[MoLib] IsGathering: %s", tostring(isGathering)))
     return isGathering
+end
+
+---------------------------------------------------------------------
+
+-- Checks if the player is currently occupied in a mini-game.
+function IsPlayingMiniGame()
+    local isMiniGame = Svc.Condition[CharacterCondition.playingMiniGame]
+    LogDebug(string.format("[MoLib] IsPlayingMiniGame: %s", tostring(isMiniGame)))
+    return isMiniGame
 end
 
 ---------------------------------------------------------------------
