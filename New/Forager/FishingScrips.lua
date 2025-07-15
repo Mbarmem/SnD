@@ -455,7 +455,7 @@ function Fishing()
         MoveTo(30.640678, 21.700165, 485.11768)
         WaitForPathRunning()
     end
-    
+
     yield("/vnavmesh movedir 1 0 1")
     yield("/ac Cast")
     Wait(0.5)
@@ -578,6 +578,7 @@ function TurnIn()
         State = CharacterState.goToHubCity
         LogInfo(string.format("%s State Change: GoToHubCity", EchoPrefix))
 
+---@diagnostic disable-next-line: undefined-field
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
             Lifestream(SelectedHubCity.aethernet.aethernetName)
@@ -638,6 +639,7 @@ function ScripExchange()
         State = CharacterState.goToHubCity
         LogInfo(string.format("%s State Change: GoToHubCity", EchoPrefix))
 
+---@diagnostic disable-next-line: undefined-field
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
             Lifestream(SelectedHubCity.aethernet.aethernetName)
