@@ -19,7 +19,6 @@ configs:
     description: Automatically interact with retainers for ventures.
     type: boolean
 
-
 [[End Metadata]]
 --]=====]
 
