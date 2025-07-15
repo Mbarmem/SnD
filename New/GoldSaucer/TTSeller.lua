@@ -60,25 +60,32 @@ function Main()
     Interact(Npc.Name)
     WaitForAddon("SelectIconString")
     yield("/callback SelectIconString true 1")
+    Wait(1)
 
-    WaitForAddon("TripleTriadCoinExchange")
+    while true do
+        WaitForAddon("TripleTriadCoinExchange")
+        local Node = GetNodeText("TripleTriadCoinExchange", 1, 10, 5, 6)
 
-    while not IsNodeVisible("TripleTriadCoinExchange", 1, 11) do
-        local nodenumber = GetNodeText("TripleTriadCoinExchange",3 ,1 ,5)
-        local a = tonumber(nodenumber)
+        if not Node then
+            break
+        end
 
-        repeat
-            Wait(0.1)
-        until IsNodeVisible("TripleTriadCoinExchange", 1, 10, 5)
+        local a = tonumber(Node)
 
-        yield("/callback TripleTriadCoinExchange true 0")
+        if IsNodeVisible("TripleTriadCoinExchange", 1, 10, 5) then
+            yield("/callback TripleTriadCoinExchange true 0")
+            WaitForAddon("ShopCardDialog")
+            Wait(1)
+        end
 
-        WaitForAddon("ShopCardDialog")
-        yield(string.format("/callback ShopCardDialog true 0 %d", a))
-
-        Wait(1)
+        if IsAddonVisible("ShopCardDialog") then
+            yield(string.format("/callback ShopCardDialog true 0 %d", a))
+            Wait(1)
+        end
     end
     yield("/callback TripleTriadCoinExchange true -1")
+    Wait(1)
+    return false
 end
 
 --=========================== EXECUTION ==========================--

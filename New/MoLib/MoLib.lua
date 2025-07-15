@@ -916,7 +916,7 @@ end
 function GetNodeText(addonName, ...)
     if not IsAddonReady(addonName) then
         LogDebug(string.format("[MoLib] GetNodeText('%s', ...): Addon not ready.", addonName))
-        return ""
+        return false
     end
 
     local addon = Addons.GetAddon(addonName)
