@@ -16,12 +16,12 @@ dependencies:
   type: git
 configs:
   ScripColorToFarm:
-    default: Orange
+    default: Purple
     description: Type of scrip to farm (Orange, Purple).
     type: string
     required: true
   ItemToExchange:
-    default:
+    default: Hi-Cordial
     description: Name of the item to purchase using scrips.
     type: string
   Food:
@@ -116,6 +116,26 @@ OrangeGathererScripId = 41785
 PurpleGathererScripId = 33914
 
 --============================ CONSTANT ==========================--
+
+----------------------------
+--    State Management    --
+----------------------------
+
+CharacterState = {
+    ready = Ready,
+    TeleportFishingZone = TeleportFishingZone,
+    goToFishingHole = GoToFishingHole,
+    extractMateria = ExecuteExtractMateria,
+    repair = ExecuteRepair,
+    exchangingVouchers = ExecuteBicolorExchange,
+    processDoAutoRetainers = ProcessDoAutoRetainers,
+    gcTurnIn = ExecuteGrandCompanyTurnIn,
+    fishing = Fishing,
+    turnIn = TurnIn,
+    scripExchange = ScripExchange,
+    goToHubCity = GoToHubCity,
+    buyFishingBait = BuyFishingBait
+}
 
 -----------------
 --    Items    --
@@ -956,21 +976,7 @@ function Ready()
     end
 end
 
-CharacterState = {
-    ready = Ready,
-    TeleportFishingZone = TeleportFishingZone,
-    goToFishingHole = GoToFishingHole,
-    extractMateria = ExecuteExtractMateria,
-    repair = ExecuteRepair,
-    exchangingVouchers = ExecuteBicolorExchange,
-    processDoAutoRetainers = ProcessDoAutoRetainers,
-    gcTurnIn = ExecuteGrandCompanyTurnIn,
-    fishing = Fishing,
-    turnIn = TurnIn,
-    scripExchange = ScripExchange,
-    goToHubCity = GoToHubCity,
-    buyFishingBait = BuyFishingBait
-}
+--=========================== EXECUTION ==========================--
 
 StopFlag = false
 
@@ -1043,3 +1049,5 @@ while not StopFlag do
     State()
     Wait(0.1)
 end
+
+--============================== END =============================--

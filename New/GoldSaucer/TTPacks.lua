@@ -97,6 +97,7 @@ end
 function GoToSeller()
     if IsInZone(144) then
         DistanceToSeller()
+
         if Distance_Test > 0 and Distance_Test < 100 then
             MoveTo(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
             return
