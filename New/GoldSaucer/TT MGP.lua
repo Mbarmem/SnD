@@ -14,10 +14,10 @@ dependencies:
   name: SnD
   type: git
 configs:
-  MaxFailuresAllowed:
-    default: 5
-    description: The maximum number of allowed failures before stopping the script.
-    type: int
+  DoAutoRetainers:
+    default: true
+    description: Automatically interact with retainers for ventures.
+    type: boolean
 
 
 [[End Metadata]]
@@ -29,28 +29,26 @@ configs:
 --    General    --
 -------------------
 
-MaxFailuresAllowed = Config.Get("MaxFailuresAllowed")
-EchoPrefix         = "[MGP]"
+DoAutoRetainers = Config.Get("DoAutoRetainers")
+EchoPrefix      = "[MGP]"
+
+--============================ CONSTANT ==========================--
+
+----------------------------
+--    State Management    --
+----------------------------
+
+CharacterStates = {}
 
 --=========================== FUNCTIONS ==========================--
 
-------------------
---    Helper    --
-------------------
-
-function StartScript()
-    PlayManservant()
-end
-
-function StopScript()
-    yield("/echo Stopping script, thanks for using")
-    yield("/pcraft stop")
-end
+----------------
+--    Main    --
+----------------
 
 function PlayTTUntilNeeded()
     while not IsPlayerAvailable() do
         Wait(0.5)
-        LogInfo(string.format("%s Waiting for game UI", EchoPrefix))
     end
 
     yield("/saucy tt go")
@@ -69,47 +67,96 @@ function PlayTTUntilNeeded()
     end
 
     Wait(1)
-    LogInfo(string.format("%s Done Playing... Heading to bell", EchoPrefix))
+    LogInfo(string.format("%s Done Playing... Heading to Summoning Bell", EchoPrefix))
 end
 
-function PlayManservant()
-    if IsInZone(433) then
-        goto HouseFortemps
+function CharacterStates.goToFoundation()
+    if IsInZone(418) then
+        MoveToTarget("Aetheryte", 7)
+        Lifestream("The Last Vigil")
+        WaitForLifeStream()
+        WaitForZoneChange()
+
+        State = CharacterStates.goToLastVigil
+        LogInfo(string.format("%s State changed to: GoToLastVigil", EchoPrefix))
+    else
+        Teleport("Foundation")
+        WaitForTeleport()
+
+        State = CharacterStates.goToFoundation
+        LogInfo(string.format("%s State changed to: GoToFoundation", EchoPrefix))
     end
-    Teleport("Foundation")
-    WaitForTeleport()
-    MoveToTarget("Aetheryte", 7)
-    Lifestream("Last")
-    WaitForLifeStream()
-    ::LastVigil::
+end
+
+function CharacterStates.goToLastVigil()
+    if not IsInZone(419) then
+        State = CharacterStates.goToFoundation
+        LogInfo(string.format("%s State changed to: GoToFoundation", EchoPrefix))
+        return
+    end
+
     MoveToTarget("House Fortemps Guard", 3)
     Interact("House Fortemps Guard")
     WaitForZoneChange()
-    ::HouseFortemps::
+
+    State = CharacterStates.goToHouseFortemp
+    LogInfo(string.format("%s State changed to: goToHouseFortemp", EchoPrefix))
+end
+
+function CharacterStates.goToHouseFortemp()
+    if not IsInZone(433) then
+        State = CharacterStates.goToLastVigil
+        LogInfo(string.format("%s State changed to: GoToLastVigil", EchoPrefix))
+        return
+    end
+
     MoveToTarget("House Fortemps Manservant", 3)
     Interact("House Fortemps Manservant")
-    ::PlayTT::
+
+    State = CharacterStates.playTTandAR
+    LogInfo(string.format("%s State changed to: PlayTTandAR", EchoPrefix))
+end
+
+function CharacterStates.playTTandAR()
+    if not IsInZone(433) then
+        State = CharacterStates.goToLastVigil
+        LogInfo(string.format("%s State changed to: GoToLastVigil", EchoPrefix))
+        return
+    end
+
     PlayTTUntilNeeded()
+
     if DoAutoRetainers then
         MoveToTarget("Manor Exit")
         Interact("Manor Exit")
         WaitForZoneChange()
-        MoveToTarget("Aethernet Shard", 7)
-        Lifestream("Jeweled")
+
+        MoveToTarget("Aethernet Shard", 5)
+        Lifestream("The Jeweled Crozier")
         WaitForLifeStream()
-        MoveToTarget("Summoning Bell")
-        Interact("Summoning Bell")
+        WaitForZoneChange()
+
         DoAR(DoAutoRetainers)
-        MoveToTarget("Aethernet Shard")
-        Lifestream("Last")
+
+        MoveToTarget("Aethernet Shard", 5)
+        Lifestream("The Last Vigil")
         WaitForLifeStream()
-        goto LastVigil
+
+        State = CharacterStates.goToLastVigil
+        LogInfo(string.format("%s State changed to: GoToLastVigil", EchoPrefix))
     else
-        goto PlayTT
+        State = CharacterStates.playTTandAR
+        LogInfo(string.format("%s State changed to: PlayTTandAR", EchoPrefix))
     end
 end
 
---[[ START ]]
+--=========================== EXECUTION ==========================--
 
-StartScript()
-StopScript()
+State = CharacterStates.playTTandAR
+
+while State do
+    State()
+    Wait(0.1)
+end
+
+--============================== END =============================--
