@@ -55,10 +55,10 @@ configs:
 EchoPrefix  = "[AlliedQuests]"
 
 ToDoList = {
-    { alliedSocietyName = Config.Get("AlliedSociety1"), class = Config.Get("FirstClass")},
-    { alliedSocietyName = Config.Get("AlliedSociety2"), class = Config.Get("SecondClass") },
-    { alliedSocietyName = Config.Get("AlliedSociety3"), class = Config.Get("ThirdClass") },
-    { alliedSocietyName = Config.Get("AlliedSociety4"), class = Config.Get("FourthClass") },
+    { alliedSocietyName = Config.Get("FirstAlliedSociety"), class = Config.Get("FirstClass") },
+    { alliedSocietyName = Config.Get("SecondAlliedSociety"), class = Config.Get("SecondClass") },
+    { alliedSocietyName = Config.Get("ThirdAlliedSociety"), class = Config.Get("ThirdClass") },
+    { alliedSocietyName = Config.Get("FourthAlliedSociety"), class = Config.Get("FourthClass") }
 }
 
 --============================ CONSTANT ==========================--
