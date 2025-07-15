@@ -46,10 +46,11 @@ CharacterStates = {}
 ----------------
 
 function PlayTTUntilNeeded()
-    while not IsPlayerAvailable() do
+    while not IsPlayingMiniGame() do
         Wait(1)
     end
 
+    LogInfo(string.format("%s Starting Triple Triad...", EchoPrefix))
     yield("/saucy tt go")
     Wait(1)
 
@@ -98,21 +99,6 @@ function CharacterStates.goToLastVigil()
     Interact("House Fortemps Guard")
     WaitForZoneChange()
 
-    State = CharacterStates.goToHouseFortemp
-    LogInfo(string.format("%s State changed to: goToHouseFortemp", EchoPrefix))
-end
-
-function CharacterStates.goToHouseFortemp()
-    if not IsInZone(433) then
-        State = CharacterStates.goToLastVigil
-        LogInfo(string.format("%s State changed to: GoToLastVigil", EchoPrefix))
-        return
-    end
-
-    MoveToTarget("House Fortemps Manservant", 3)
-    Interact("House Fortemps Manservant")
-    Wait(1)
-
     State = CharacterStates.playTTandAR
     LogInfo(string.format("%s State changed to: PlayTTandAR", EchoPrefix))
 end
@@ -123,6 +109,9 @@ function CharacterStates.playTTandAR()
         LogInfo(string.format("%s State changed to: GoToLastVigil", EchoPrefix))
         return
     end
+
+    MoveToTarget("House Fortemps Manservant", 3)
+    Interact("House Fortemps Manservant")
 
     PlayTTUntilNeeded()
 
