@@ -116,6 +116,7 @@ function Main()
     for _, packs in ipairs(TTPacks) do
         if packs.packName == PackToBuy then
             SelectedPackToBuy = packs
+            break
         end
     end
 
@@ -136,28 +137,28 @@ function Main()
                 return false
             end
         end
-        return
+        return true
     end
 
     if GetTargetName() ~= Npc.Name then
         Target(Npc.Name)
-        return
+        return true
     end
 
     if IsAddonVisible("SelectIconString") then
         yield("/callback SelectIconString true 0")
-        return
+        return true
     end
 
     if IsAddonVisible("SelectYesno") then
         yield("/callback SelectYesno true 0")
-        return
+        return true
     end
 
     if IsAddonVisible("ShopExchangeCurrency") then
         LogInfo(string.format("%s Buying a new pack: %s.", EchoPrefix, SelectedPackToBuy.packName))
         yield("/callback ShopExchangeCurrency true 0 "..SelectedPackToBuy.subcategoryMenu.." 10")
-        return
+        return true
     end
 
     Interact(Npc.Name)
@@ -168,8 +169,8 @@ end
 GoToSeller()
 
 while true do
-    local shouldContinue = Main()
-    if not shouldContinue then
+    local executeMain = Main()
+    if not executeMain then
         break
     end
     Wait(1)
