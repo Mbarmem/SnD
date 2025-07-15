@@ -243,7 +243,6 @@ HubCities = {
 -------------------
 
 function InterpolateCoordinates(startCoords, endCoords, n)
-    LogInfo(string.format("%s Interpolating coordinates with n = %.2f", EchoPrefix, n))
     local x = startCoords.x + n * (endCoords.x - startCoords.x)
     local y = startCoords.y + n * (endCoords.y - startCoords.y)
     local z = startCoords.z + n * (endCoords.z - startCoords.z)
@@ -264,14 +263,10 @@ function GetWaypoint(coords, n)
         local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
         table.insert(distances, distance)
         total_distance = total_distance + distance
-        LogInfo(string.format("%s Distance between point %d and %d: %.2f", EchoPrefix, i, i + 1, distance))
     end
-
-    LogInfo(string.format("%s Total distance: %.2f", EchoPrefix, total_distance))
 
     -- Find the target distance
     local target_distance = n * total_distance
-    LogInfo(string.format("%s Target distance (n * total_distance): %.2f", EchoPrefix, target_distance))
 
     -- Walk through the coordinates to find the target coordinates
     local accumulated_distance = 0
@@ -279,14 +274,12 @@ function GetWaypoint(coords, n)
         if accumulated_distance + distances[i] >= target_distance then
             local remaining_distance = target_distance - accumulated_distance
             local t = remaining_distance / distances[i]
-            LogInfo(string.format("%s Interpolating between point %d and %d with t=%.2f", EchoPrefix, i, i + 1, t))
             return InterpolateCoordinates(coords[i], coords[i + 1], t)
         end
         accumulated_distance = accumulated_distance + distances[i]
     end
 
     -- If n is 1 (100%), return the last coordinate
-    LogInfo(string.format("%s n=1 or target beyond range, returning last coordinate", EchoPrefix))
     return { waypointX = coords[#coords].x, waypointY = coords[#coords].y, waypointZ = coords[#coords].z }
 end
 
@@ -363,7 +356,6 @@ function GoToFishingHole()
 
     local distanceToWaypoint = GetDistanceToPoint(SelectedFishingSpot.waypointX, GetPlayerRawYPos(), SelectedFishingSpot.waypointZ)
     if distanceToWaypoint > 10 then
-        LogInfo(string.format("%s Too far from waypoint! Currently %.2f distance.", EchoPrefix, distanceToWaypoint))
         if not IsMounted() then
             UseMount()
             State = CharacterState.goToFishingHole
@@ -459,11 +451,12 @@ function Fishing()
     end
 
     -- run towards fishing hole and cast until the fishing line hits the water
-    if not PathfindInProgress() and not PathIsRunning() then
-        PathMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
-        return
+    if not PathfindInProgress() and not PathIsRunning() and not Player.IsMoving then
+        MoveTo(30.640678, 21.700165, 485.11768)
+        WaitForPathRunning()
     end
-
+    
+    yield("/vnavmesh movedir 1 0 1")
     yield("/ac Cast")
     Wait(0.5)
 end
@@ -491,14 +484,12 @@ function BuyFishingBait()
     if distanceToMerchant > distanceViaAethernet + 20 then
         if not LifestreamIsBusy() then
             Lifestream(FishingBaitMerchant.aethernet.name)
-            LogInfo(string.format("%s Using Lifestream to %s", EchoPrefix, FishingBaitMerchant.aethernet.name))
         end
         return
     end
 
     if IsAddonVisible("TelepotTown") then
         yield("/callback TelepotTown true -1")
-        LogInfo(string.format("%s Closing TelepotTown addon", EchoPrefix))
         return
     end
 
@@ -513,13 +504,11 @@ function BuyFishingBait()
 
     if PathfindInProgress() or PathIsRunning() then
         PathStop()
-        LogInfo(string.format("%s Stopping pathfinding", EchoPrefix))
         return
     end
 
     if GetTargetName() ~= FishingBaitMerchant.npcName then
         Target(FishingBaitMerchant.npcName)
-        LogInfo(string.format("%s Targeting NPC: %s", EchoPrefix, FishingBaitMerchant.npcName))
         return
     end
 
@@ -540,13 +529,11 @@ end
 
 function Dismount(callbackState)
     if PathIsRunning() or PathfindInProgress() then
-        LogInfo(string.format("%s Pathing in progress. Stopping path.", EchoPrefix))
         PathStop()
         return
     end
 
     if IsMounted() then
-        LogInfo(string.format("%s Mounted. Sending dismount command.", EchoPrefix))
         yield('/ac dismount')
     elseif IsPlayerAvailable() and callbackState ~= nil then
         State = callbackState
@@ -578,7 +565,6 @@ end
 function TurnIn()
     if GetItemCount(SelectedFish.fishId) == 0 then
         if IsAddonVisible("CollectablesShop") then
-            LogInfo(string.format("%s No fish to turn in. Closing CollectablesShop.", EchoPrefix))
             yield("/callback CollectablesShop true -1")
         elseif GetItemCount(GathererScripId) >= ScripExchangeItem.price then
             State = CharacterState.scripExchange
@@ -594,25 +580,21 @@ function TurnIn()
 
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
-            LogInfo(string.format("%s Using Lifestream to move via Aethernet.", EchoPrefix))
             Lifestream(SelectedHubCity.aethernet.aethernetName)
         end
         Wait(1)
 
     elseif IsAddonVisible("TelepotTown") then
-        LogInfo(string.format("%s TelepotTown UI is open. Closing it.", EchoPrefix))
         yield("/callback TelepotTown false -1")
 
     elseif GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > 1 then
         if not (PathfindInProgress() or PathIsRunning()) then
-            LogInfo(string.format("%s Player is not near scrip exchange. Pathing there now.", EchoPrefix))
             PathfindAndMoveTo(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z)
             WaitForPathRunning()
         end
 
     elseif GetItemCount(GathererScripId) >= 3800 then
         if IsAddonVisible("CollectablesShop") then
-            LogInfo(string.format("%s Capping scrips. Closing CollectablesShop.", EchoPrefix))
             yield("/callback CollectablesShop true -1")
         else
             State = CharacterState.scripExchange
@@ -621,16 +603,13 @@ function TurnIn()
 
     else
         if PathfindInProgress() or PathIsRunning() then
-            LogInfo(string.format("%s Stopping current path.", EchoPrefix))
             PathStop()
         end
 
         if not IsAddonVisible("CollectablesShop") or not IsAddonReady("CollectablesShop") then
-            LogInfo(string.format("%s Targeting Collectable Appraiser to open CollectablesShop.", EchoPrefix))
             Interact("Collectable Appraiser")
             Wait(0.5)
         else
-            LogInfo(string.format("%s Turning in fish collectible (Index: %d).", EchoPrefix, SelectedFish.collectiblesTurnInListIndex))
             yield("/callback CollectablesShop true 12 " .. SelectedFish.collectiblesTurnInListIndex)
             Wait(0.1)
             yield("/callback CollectablesShop true 15 0")
@@ -646,7 +625,6 @@ end
 function ScripExchange()
     if GetItemCount(GathererScripId) < ScripExchangeItem.price then
         if IsAddonVisible("InclusionShop") then
-            LogInfo(string.format("%s Closing InclusionShop due to insufficient scrips.", EchoPrefix))
             yield("/callback InclusionShop true -1")
         elseif GetItemCount(SelectedFish.fishId) > 0 then
             State = CharacterState.turnIn
@@ -667,7 +645,6 @@ function ScripExchange()
         Wait(1)
 
     elseif IsAddonVisible("TelepotTown") then
-        LogInfo(string.format("%s TelepotTown open. Closing.", EchoPrefix))
         yield("/callback TelepotTown false -1")
 
     elseif GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > 1 then
@@ -678,22 +655,17 @@ function ScripExchange()
         end
 
         elseif IsAddonVisible("ShopExchangeItemDialog") then
-        LogInfo(string.format("%s ShopExchangeItemDialog visible.", EchoPrefix))
         if IsAddonReady("ShopExchangeItemDialog") then
             yield("/callback ShopExchangeItemDialog true 0")
         end
 
     elseif IsAddonVisible("SelectIconString") then
         if IsAddonReady("SelectIconString") then
-            LogInfo(string.format("%s SelectIconString Ready", EchoPrefix))
             yield("/callback SelectIconString true 0")
-        else
-            LogInfo(string.format("%s SelectIconString Not Ready", EchoPrefix))
         end
 
     elseif IsAddonVisible("InclusionShop") then
         if IsAddonReady("InclusionShop") then
-            LogInfo(string.format("%s InclusionShop ready. Exchanging scrips.", EchoPrefix))
             yield("/callback InclusionShop true 12 " .. ScripExchangeItem.categoryMenu)
             Wait(1)
             yield("/callback InclusionShop true 13 " .. ScripExchangeItem.subcategoryMenu)
@@ -703,7 +675,6 @@ function ScripExchange()
         end
 
     else
-        LogInfo(string.format("%s Targeting and interacting with Scrip Exchange.", EchoPrefix))
         Wait(1)
         Interact("Scrip Exchange")
     end
@@ -775,7 +746,6 @@ function ExecuteGrandCompanyTurnIn()
             Wait(1)
 
         elseif IPC.Deliveroo.IsTurnInRunning() then
-            LogInfo(string.format("%s Deliveroo turn-in is already running. Waiting...", EchoPrefix))
             return
 
         else
@@ -791,7 +761,6 @@ end
 
 function ExecuteRepair()
     if IsAddonVisible("SelectYesno") then
-        LogInfo(string.format("%s Confirming repair with SelectYesno.", EchoPrefix))
         yield("/callback SelectYesno true 0")
         return
     end
@@ -801,14 +770,12 @@ function ExecuteRepair()
             LogInfo(string.format("%s Repair not needed. Closing Repair menu.", EchoPrefix))
             yield("/callback Repair true -1")
         else
-            LogInfo(string.format("%s Selecting repair option in Repair menu.", EchoPrefix))
             yield("/callback Repair true 0")
         end
         return
     end
 
     if Svc.Condition[39] then
-        LogInfo(string.format("%s Repairing...", EchoPrefix))
         Wait(1)
         return
     end
@@ -834,29 +801,23 @@ function ExecuteRepair()
 
             local vendor = { npcName = "Unsynrael", x = -257.71, y = 16.19, z = 50.11, wait = 0.08 }
             if GetDistanceToPoint(vendor.x, vendor.y, vendor.z) > DistanceBetween(hawkersAlleyAethernetShard.x, hawkersAlleyAethernetShard.y, hawkersAlleyAethernetShard.z, vendor.x, vendor.y, vendor.z) + 10 then
-                LogInfo(string.format("%s Too far from vendor. Using Aethernet.", EchoPrefix))
                 Lifestream("Hawkers' Alley")
                 Wait(1)
             elseif IsAddonVisible("TelepotTown") then
-                LogInfo(string.format("%s Closing TelepotTown window.", EchoPrefix))
                 yield("/callback TelepotTown false -1")
             elseif GetDistanceToPoint(vendor.x, vendor.y, vendor.z) > 5 then
                 if not (PathfindInProgress() or PathIsRunning()) then
-                    LogInfo(string.format("%s Moving to Dark Matter vendor.", EchoPrefix))
                     PathfindAndMoveTo(vendor.x, vendor.y, vendor.z)
                     WaitForPathRunning()
                 end
             else
                 if GetTargetName() ~= vendor.npcName then
-                    LogInfo(string.format("%s Targeting vendor: %s", EchoPrefix, vendor.npcName))
                     Target(vendor.npcName)
                 elseif not Svc.Condition[32] then
-                    LogInfo(string.format("%s Interacting with vendor.", EchoPrefix))
                     Interact(vendor.npcName)
                 elseif IsAddonVisible("SelectYesno") then
                     yield("/callback SelectYesno true 0")
                 elseif IsAddonVisible("Shop") then
-                    LogInfo(string.format("%s Buying Dark Matter from shop.", EchoPrefix))
                     yield("/callback Shop true 0 40 99")
                 end
             end
@@ -876,24 +837,19 @@ function ExecuteRepair()
 
             local mender = { npcName = "Alistair", x = -246.87, y = 16.19, z = 49.83 }
             if GetDistanceToPoint(mender.x, mender.y, mender.z) > DistanceBetween(hawkersAlleyAethernetShard.x, hawkersAlleyAethernetShard.y, hawkersAlleyAethernetShard.z, mender.x, mender.y, mender.z) + 10 then
-                LogInfo(string.format("%s Using Aethernet to get closer to mender.", EchoPrefix))
                 Lifestream("Hawkers' Alley")
                 Wait(1)
             elseif IsAddonVisible("TelepotTown") then
-                LogInfo(string.format("%s Closing TelepotTown window.", EchoPrefix))
                 yield("/callback TelepotTown false -1")
             elseif GetDistanceToPoint(mender.x, mender.y, mender.z) > 5 then
                 if not (PathfindInProgress() or PathIsRunning()) then
-                    LogInfo(string.format("%s Moving to mender.", EchoPrefix))
                     PathfindAndMoveTo(mender.x, mender.y, mender.z)
                     WaitForPathRunning()
                 end
             else
                 if GetTargetName() ~= mender.npcName then
-                    LogInfo(string.format("%s Targeting mender: %s", EchoPrefix, mender.npcName))
                     Target(mender.npcName)
                 elseif not Svc.Condition[32] then
-                    LogInfo(string.format("%s Interacting with mender.", EchoPrefix))
                     Interact(mender.npcName)
                 end
             end
@@ -907,13 +863,11 @@ end
 
 function ExecuteExtractMateria()
     if IsMounted() then
-        LogInfo(string.format("%s Dismounting for materia extraction.", EchoPrefix))
         Dismount()
         return
     end
 
     if Svc.Condition[39] then
-        LogInfo(string.format("%s Currently occupied with extraction or repair. Waiting...", EchoPrefix))
         return
     end
 
@@ -923,7 +877,6 @@ function ExecuteExtractMateria()
 
     else
         if IsAddonVisible("Materialize") then
-            LogInfo(string.format("%s Closing Materia menu. No items to extract or low inventory space.", EchoPrefix))
             yield("/callback Materialize true -1")
         else
             State = CharacterState.ready
@@ -1083,7 +1036,6 @@ end
 
 -- Set initial state and run the loop
 State = CharacterState.ready
-LogInfo(string.format("%s Entering main state loop.", EchoPrefix))
 
 while not StopFlag do
     State()
