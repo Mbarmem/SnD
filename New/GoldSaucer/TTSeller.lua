@@ -64,13 +64,10 @@ function Main()
 
     while true do
         WaitForAddon("TripleTriadCoinExchange")
-        local Node = GetNodeText("TripleTriadCoinExchange", 1, 10, 5, 6)
-
-        if not Node then
+        local Visible = IsNodeVisible("TripleTriadCoinExchange", 1, 11)
+        if Visible then
             break
         end
-
-        local a = tonumber(Node)
 
         if IsNodeVisible("TripleTriadCoinExchange", 1, 10, 5) then
             yield("/callback TripleTriadCoinExchange true 0")
@@ -78,10 +75,14 @@ function Main()
             Wait(1)
         end
 
+        local Node = GetNodeText("TripleTriadCoinExchange", 1, 10, 5, 6)
+        local a = tonumber(Node)
+
         if IsAddonVisible("ShopCardDialog") then
             yield(string.format("/callback ShopCardDialog true 0 %d", a))
             Wait(1)
         end
+        Wait(1)
     end
     yield("/callback TripleTriadCoinExchange true -1")
     Wait(1)
