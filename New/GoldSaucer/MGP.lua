@@ -48,7 +48,7 @@ CharacterStates = {}
 
 function PlayTTUntilNeeded()
     while not IsPlayerAvailable() do
-        Wait(0.5)
+        Wait(1)
     end
 
     yield("/saucy tt go")
@@ -60,6 +60,7 @@ function PlayTTUntilNeeded()
 
     if IsPlayingMiniGame() then
         yield("/saucy tt play 1")
+        Wait(1)
     end
 
     while IsPlayingMiniGame() do
@@ -75,7 +76,6 @@ function CharacterStates.goToFoundation()
         MoveToTarget("Aetheryte", 7)
         Lifestream("The Last Vigil")
         WaitForLifeStream()
-        WaitForZoneChange()
 
         State = CharacterStates.goToLastVigil
         LogInfo(string.format("%s State changed to: GoToLastVigil", EchoPrefix))
@@ -112,6 +112,7 @@ function CharacterStates.goToHouseFortemp()
 
     MoveToTarget("House Fortemps Manservant", 3)
     Interact("House Fortemps Manservant")
+    Wait(1)
 
     State = CharacterStates.playTTandAR
     LogInfo(string.format("%s State changed to: PlayTTandAR", EchoPrefix))
@@ -134,7 +135,6 @@ function CharacterStates.playTTandAR()
         MoveToTarget("Aethernet Shard", 5)
         Lifestream("The Jeweled Crozier")
         WaitForLifeStream()
-        WaitForZoneChange()
 
         DoAR(DoAutoRetainers)
 
@@ -156,7 +156,7 @@ State = CharacterStates.playTTandAR
 
 while State do
     State()
-    Wait(0.1)
+    Wait(1)
 end
 
 --============================== END =============================--
