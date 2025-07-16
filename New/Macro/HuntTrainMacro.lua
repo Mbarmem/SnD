@@ -2,7 +2,7 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Artisan Macro - Macro for enabling or disabling Artisan collection
+description: HuntTrain Macro - Macro for enabling or disabling HuntTrain collection
 dependencies:
 - source: ''
   name: SnD
@@ -18,11 +18,7 @@ dependencies:
 -------------------
 
 RequiredPlugins = {
-    "Artisan",
-    "vnavmesh",
-    "PandorasBox",
-    "YesAlready",
-    "AutoRetainer"
+    "HuntTrainAssistant"
 }
 
 --=========================== FUNCTIONS ==========================--
@@ -39,13 +35,13 @@ end
 --=========================== EXECUTION ==========================--
 
 if AreAllPluginsEnabled() then
-    Echo("|| Artisan Disabled ||")
-    LogInfo("|| Artisan Disabled ||")
-    yield("/xldisablecollection Artisan")
+    Echo("|| HuntTrain Disabled ||")
+    LogInfo("|| HuntTrain Disabled ||")
+    yield("/xldisablecollection HuntTrain")
 else
-    Echo("|| Artisan Enabled ||")
-    LogInfo("|| Artisan Enabled ||")
-    yield("/xlenablecollection Artisan")
+    Echo("|| HuntTrain Enabled ||")
+    LogInfo("|| HuntTrain Enabled ||")
+    yield("/xlenablecollection HuntTrain")
 end
 
 --============================== END =============================--

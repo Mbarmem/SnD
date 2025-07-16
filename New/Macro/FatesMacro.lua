@@ -2,7 +2,7 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Artisan Macro - Macro for enabling or disabling Artisan collection
+description: Fates Macro - Macro for enabling or disabling Fates collection
 dependencies:
 - source: ''
   name: SnD
@@ -18,11 +18,14 @@ dependencies:
 -------------------
 
 RequiredPlugins = {
-    "Artisan",
+    "RotationSolver",
+    "BossModReborn",
     "vnavmesh",
-    "PandorasBox",
+    "Deliveroo",
     "YesAlready",
-    "AutoRetainer"
+    "TextAdvance",
+    "AutoRetainer",
+    "SkipCutscene"
 }
 
 --=========================== FUNCTIONS ==========================--
@@ -39,13 +42,19 @@ end
 --=========================== EXECUTION ==========================--
 
 if AreAllPluginsEnabled() then
-    Echo("|| Artisan Disabled ||")
-    LogInfo("|| Artisan Disabled ||")
-    yield("/xldisablecollection Artisan")
+    Echo("|| Fates Disabled ||")
+    LogInfo("|| Fates Disabled ||")
+    yield("/xldisablecollection Fates")
 else
-    Echo("|| Artisan Enabled ||")
-    LogInfo("|| Artisan Enabled ||")
-    yield("/xlenablecollection Artisan")
+    Echo("|| Fates Enabled ||")
+    LogInfo("|| Fates Enabled ||")
+    yield("/xlenablecollection Fates")
+    Echo("|| Running Fates ||")
+    yield("/snd")
+    repeat
+        Wait(1)
+    until AreAllPluginsEnabled()
+    yield("/snd run MultiZoneFarming")
 end
 
 --============================== END =============================--

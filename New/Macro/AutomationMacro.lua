@@ -2,7 +2,7 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Artisan Macro - Macro for enabling or disabling Artisan collection
+description: Automation Macro - Macro for enabling or disabling Automation collection
 dependencies:
 - source: ''
   name: SnD
@@ -18,11 +18,9 @@ dependencies:
 -------------------
 
 RequiredPlugins = {
-    "Artisan",
-    "vnavmesh",
     "PandorasBox",
-    "YesAlready",
-    "AutoRetainer"
+    "AutoRetainer",
+    "Dagobert"
 }
 
 --=========================== FUNCTIONS ==========================--
@@ -39,13 +37,13 @@ end
 --=========================== EXECUTION ==========================--
 
 if AreAllPluginsEnabled() then
-    Echo("|| Artisan Disabled ||")
-    LogInfo("|| Artisan Disabled ||")
-    yield("/xldisablecollection Artisan")
+    Echo("|| Automation Disabled ||")
+    LogInfo("|| Automation Disabled ||")
+    yield("/xldisablecollection Automation")
 else
-    Echo("|| Artisan Enabled ||")
-    LogInfo("|| Artisan Enabled ||")
-    yield("/xlenablecollection Artisan")
+    Echo("|| Automation Enabled ||")
+    LogInfo("|| Automation Enabled ||")
+    yield("/xlenablecollection Automation")
 end
 
 --============================== END =============================--

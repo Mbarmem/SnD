@@ -2,7 +2,7 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Artisan Macro - Macro for enabling or disabling Artisan collection
+description: Gather Macro - Macro for enabling or disabling Gather collection
 dependencies:
 - source: ''
   name: SnD
@@ -18,11 +18,14 @@ dependencies:
 -------------------
 
 RequiredPlugins = {
-    "Artisan",
+    "GatherbuddyReborn",
+    "AutoHook",
     "vnavmesh",
+    "visland",
     "PandorasBox",
     "YesAlready",
-    "AutoRetainer"
+    "AutoRetainer",
+    "Deliveroo"
 }
 
 --=========================== FUNCTIONS ==========================--
@@ -39,13 +42,13 @@ end
 --=========================== EXECUTION ==========================--
 
 if AreAllPluginsEnabled() then
-    Echo("|| Artisan Disabled ||")
-    LogInfo("|| Artisan Disabled ||")
-    yield("/xldisablecollection Artisan")
+    Echo("|| Gather Disabled ||")
+    LogInfo("|| Gather Disabled ||")
+    yield("/xldisablecollection Gather")
 else
-    Echo("|| Artisan Enabled ||")
-    LogInfo("|| Artisan Enabled ||")
-    yield("/xlenablecollection Artisan")
+    Echo("|| Gather Enabled ||")
+    LogInfo("|| Gather Enabled ||")
+    yield("/xlenablecollection Gather")
 end
 
 --============================== END =============================--
