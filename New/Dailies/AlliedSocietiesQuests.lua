@@ -279,7 +279,7 @@ function CheckAllowances()
         Wait(3)
     end
 
-    local timerName = GetNodeText("ContentsInfo", 1, 4, 41009, 6, 8)
+    local timerName = GetNodeText("ContentsInfo", 1, 4, 41009, 6, 8) or 0
     local timerConv = tonumber(timerName:match("%d+$"))
     Wait(1)
 
