@@ -376,17 +376,17 @@ for _, alliedSociety in ipairs(ToDoList) do
         yield("/gs change " .. alliedSociety.class)
         Wait(3)
 
+        -- pick up quests and add them to Questionable's priority list
+        local timeout = os.time()
         local quests = {}
         local blackList = alliedSocietyTable.dailyQuests.blackList or {}
 
-        QuestionableClearQuestPriority()
-
-        for questId = alliedSocietyTable.dailyQuests.first, alliedSocietyTable.dailyQuests.last+1 do
-            if not QuestionableIsQuestLocked(questId) and blackList[questId] then
+        for questId = alliedSocietyTable.dailyQuests.first, alliedSocietyTable.dailyQuests.last do
+            if not QuestionableIsQuestLocked(tostring(questId)) and not blackList[questId] then
                 table.insert(quests, questId)
-                QuestionableAddQuestPriority(questId)
+                QuestionableClearQuestPriority()
+                QuestionableAddQuestPriority(tostring(questId))
 
-                local timeout = os.time()
                 repeat
                     if not QuestionableIsRunning() then
                         yield("/qst start")
@@ -395,18 +395,23 @@ for _, alliedSociety in ipairs(ToDoList) do
                         yield("/qst reload")
                         timeout = os.time()
                     end
-                    Wait(1)
-                until IsQuestAccepted(questId)
+                    Wait(2)
+                until Quests.IsQuestAccepted(questId)
+
+                timeout = os.time()
+                yield("/qst stop")
             end
         end
 
-        yield("/qst stop")
+        for _, questId in ipairs(quests) do
+            QuestionableAddQuestPriority(tostring(questId))
+        end
 
         repeat
             if not QuestionableIsRunning() then
                 yield("/qst start")
             end
-            Wait(10)
+            Wait(2)
         until #GetAcceptedAlliedSocietyQuests(alliedSociety.alliedSocietyName) == 0
         yield("/qst stop")
     else
