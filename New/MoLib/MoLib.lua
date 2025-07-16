@@ -1159,7 +1159,7 @@ function UseMount(mountName)
     end
 end
 
---------------------------------------------------------------------
+--=========================== INVENTORY ==========================--
 
 -- Returns the number of free inventory slots the player currently has.
 function GetInventoryFreeSlotCount()
@@ -1182,6 +1182,27 @@ function GetItemCount(itemId)
     end
 
     return count
+end
+
+--=========================== INSTANCE ===========================--
+
+-- Checks if the player can leave the current instanced content
+function CanLeaveInstance()
+    local canLeave = InstancedContent.CanLeaveCurrentContent()
+    LogDebug(string.format("[MoLib] Can leave instance: %s", tostring(canLeave)))
+    return canLeave
+end
+
+--------------------------------------------------------------------
+
+-- Attempts to leave the current instanced content if allowed
+function LeaveInstance()
+    if CanLeaveInstance() then
+        LogInfo(string.format("[MoLib] Leaving instanced content"))
+        return InstancedContent.LeaveCurrentContent()
+    else
+        LogDebug(string.format("[MoLib] Cannot leave instance at this time"))
+    end
 end
 
 --============================ REPAIRS ===========================--
