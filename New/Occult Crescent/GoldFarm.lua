@@ -118,11 +118,8 @@ end
 
 function MoveToEG()
     VislandRouteStart(RouteAetheryte, false)
-    repeat
-        Wait(1)
-    until IsPlayerAvailable()
-    VislandRouteStop()
     WaitForPlayer()
+    VislandRouteStop()
 
     LogInfo(string.format("%s Moving to Eldergrowth", EchoPrefix))
     Lifestream("Eldergrowth")
