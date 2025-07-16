@@ -120,8 +120,6 @@ function MoveToOC()
         end
         Wait(1)
     end
-    WaitForZoneChange()
-    Wait(1)
 end
 
 function MoveToEG()
@@ -132,7 +130,6 @@ function MoveToEG()
     LogInfo(string.format("%s Moving to Eldergrowth", EchoPrefix))
     Lifestream("Eldergrowth")
     WaitForLifeStream()
-    WaitForZoneChange()
 end
 
 ----------------
@@ -168,8 +165,14 @@ while true do
         VislandResume()
         yield("/rsr auto")
         yield("/bmrai on")
+    elseif IsVislandRouteRunning() then
+        Wait(1)
+        return
+    elseif InstancedContent.CanLeaveCurrentContent() then
+        InstancedContent.LeaveCurrentContent()
+        WaitForPlayer()
+        Wait(1)
     end
-    Wait(1)
 end
 
 --============================== END =============================--
