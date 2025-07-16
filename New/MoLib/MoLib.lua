@@ -258,6 +258,26 @@ end
 --------------------------------------------------------------------
 
 --================--
+--    AutoDuty    --
+--================--
+
+-- Starts an AutoDuty run with the specified territory and parameters.
+function AutoDutyRun(territoryType, loops, bareMode)
+    LogDebug(string.format("[MoLib] Running duty: territoryType=%s, loops=%s, bareMode=%s", tostring(territoryType), tostring(loops), tostring(bareMode)))
+    IPC.AutoDuty.Run(territoryType, loops, bareMode)
+end
+
+--------------------------------------------------------------------
+
+-- Sets a configuration key-value pair for AutoDuty via IPC.
+function AutoDutyConfig(key, value)
+    LogDebug(string.format("[MoLib] AutoDuty config: %s = %s", tostring(key), tostring(value)))
+    return IPC.AutoDuty.SetConfig(key, value)
+end
+
+--------------------------------------------------------------------
+
+--================--
 --    AutoHook    --
 --================--
 
@@ -295,7 +315,6 @@ end
 --==================--
 
 -- Executes a Lifestream command and waits for its completion
--- Logs the command execution for debugging purposes
 function Lifestream(command)
     if not command or command == "" then
         LogDebug("[MoLib] No Lifestream command provided.")
@@ -332,9 +351,47 @@ end
 
 --------------------------------------------------------------------
 
---================-
+--====================--
+--    Questionable    --
+--====================--
+
+-- Returns whether Questionable is currently running.
+function QuestionableIsRunning()
+    local running = IPC.Questionable.IsRunning()
+    LogDebug(string.format("[MoLib] QuestionableIsRunning: %s", tostring(running)))
+    return running
+end
+
+--------------------------------------------------------------------
+
+-- Adds a quest to the priority list in Questionable.
+function QuestionableAddQuestPriority(questId)
+    LogDebug(string.format("[MoLib] QuestionableAddQuestPriority: QuestID=%d", questId))
+    return IPC.Questionable.AddQuestPriority(questId)
+end
+
+--------------------------------------------------------------------
+
+-- Clears all quest priorities in Questionable.
+function QuestionableClearQuestPriority()
+    LogDebug("[MoLib] QuestionableClearQuestPriority called")
+    return IPC.Questionable.ClearQuestPriority()
+end
+
+--------------------------------------------------------------------
+
+-- Checks if a specific quest is locked in Questionable.
+function QuestionableIsQuestLocked(questId)
+    local locked = IPC.Questionable.IsQuestLocked(questId)
+    LogDebug(string.format("[MoLib] QuestionableIsQuestLocked: QuestID=%d, Locked=%s", questId, tostring(locked)))
+    return locked
+end
+
+--------------------------------------------------------------------
+
+--===============--
 --    Visland    --
---================-
+--===============--
 
 -- Checks if the Visland route is currently running
 function IsVislandRouteRunning()
@@ -521,8 +578,17 @@ end
 function WaitForCondition(name, timeout)
     LogDebug(string.format("[MoLib] WaitForCondition: Waiting for condition '%s' to clear...", tostring(name)))
 
-    local conditionValue = CharacterCondition[name]
-    if not conditionValue then
+    local conditionName = string.lower(name)
+    local conditionKey = nil
+
+    for k, v in pairs(CharacterCondition) do
+        if string.lower(k) == conditionName then
+            conditionKey = v
+            break
+        end
+    end
+
+    if not conditionKey then
         LogDebug(string.format("[MoLib] WaitForCondition: Unknown condition name '%s'.", tostring(name)))
         return false
     end
@@ -536,7 +602,7 @@ function WaitForCondition(name, timeout)
         end
 
         Wait(0.1)
-    until Svc.Condition[conditionValue]
+    until Svc.Condition[conditionKey]
 
     LogDebug(string.format("[MoLib] WaitForCondition: Condition '%s' has been cleared.", tostring(name)))
     return true
@@ -772,9 +838,9 @@ end
 
 --=========================== TARGETS ============================--
 
---================-
+--===============--
 --    Targets    --
---================-
+--===============--
 
 -- Function to perform a case-insensitive "startsWith" string comparison
 -- Allows partial name targeting similar to how /target works in-game

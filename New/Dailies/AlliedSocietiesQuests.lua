@@ -54,13 +54,6 @@ configs:
 
 EchoPrefix  = "[AlliedQuests]"
 
-ToDoList = {
-    { alliedSocietyName = Config.Get("FirstAlliedSociety"), class = Config.Get("FirstClass") },
-    { alliedSocietyName = Config.Get("SecondAlliedSociety"), class = Config.Get("SecondClass") },
-    { alliedSocietyName = Config.Get("ThirdAlliedSociety"), class = Config.Get("ThirdClass") },
-    { alliedSocietyName = Config.Get("FourthAlliedSociety"), class = Config.Get("FourthClass") }
-}
-
 --============================ CONSTANT ==========================--
 
 -----------------------
@@ -70,179 +63,238 @@ ToDoList = {
 AlliedSocietiesTable = {
     amaljaa = {
         alliedSocietyName = "Amalj'aa",
-        questGiver        = "Fibubb Gah",
+        mainQuests        = { first = 1217, last = 1221 },
+        dailyQuests       = { first = 1222, last = 1251, blackList = { [1245] = true } },
         x                 = 103.12,
         y                 = 15.05,
         z                 = -359.51,
         zoneId            = 146,
-        aetheryteName     = "Little Ala Mhigo"
+        aetheryteName     = "Little Ala Mhigo",
+        expac             = "A Realm Reborn"
     },
     sylphs = {
         alliedSocietyName = "Sylphs",
-        questGiver        = "Tonaxia",
+        mainQuests        = { first = 1252, last = 1256 },
+        dailyQuests       = { first = 1257, last = 1286 },
         x                 = 46.41,
         y                 = 6.07,
         z                 = 252.91,
         zoneId            = 152,
-        aetheryteName     = "The Hawthorne Hut"
+        aetheryteName     = "The Hawthorne Hut",
+        expac             = "A Realm Reborn"
     },
     kobolds = {
         alliedSocietyName = "Kobolds",
-        questGiver        = "789th Order Dustman Bo Bu",
+        mainQuests        = { first = 1320, last = 1324 },
+        dailyQuests       = { first = 1325, last = 1373 },
         x                 = 12.857726,
         y                 = 16.164295,
         z                 = -178.77,
         zoneId            = 180,
-        aetheryteName     = "Camp Overlook"
+        aetheryteName     = "Camp Overlook",
+        expac             = "A Realm Reborn"
     },
     sahagin = {
         alliedSocietyName = "Sahagin",
-        questGiver        = "Houu",
+        mainQuests        = { first = 1374, last = 1378 },
+        dailyQuests       = { first = 1380, last = 1409 },
         x                 = -244.53,
         y                 = -41.46,
         z                 = 52.75,
         zoneId            = 138,
-        aetheryteName     = "Aleport"
+        aetheryteName     = "Aleport",
+        expac             = "A Realm Reborn"
     },
     ixal = {
         alliedSocietyName = "Ixal",
-        questGiver        = "Ehcatl Nine Manciple",
+        mainQuests        = { first = 1486, last = 1493 },
+        dailyQuests       = { first = 1494, last = 1568 },
         x                 = 173.21,
         y                 = -5.37,
         z                 = 81.85,
         zoneId            = 154,
-        aetheryteName     = "Fallgourd Float"
+        aetheryteName     = "Fallgourd Float",
+        expac             = "A Realm Reborn"
     },
     vanuvanu = {
         alliedSocietyName = "Vanu Vanu",
-        questGiver        = "Muna Vanu",
+        mainQuests        = { first = 2164, last = 2225 },
+        dailyQuests       = { first = 2171, last = 2200 },
         x                 = -796.3722,
         y                 = -133.27,
         z                 = -404.35,
         zoneId            = 401,
-        aetheryteName     = "Ok' Zundu"
+        aetheryteName     = "Ok' Zundu",
+        expac             = "Heavensward"
     },
     vath = {
         alliedSocietyName = "Vath",
-        questGiver        = "Vath Keeneye",
+        mainQuests        = { first = 2164, last = 2225 },
+        dailyQuests       = { first = 2171, last = 2200 },
         x                 = 58.80,
         y                 = -48.00,
         z                 = -171.64,
         zoneId            = 398,
         aetheryteName     = "Tailfeather",
-        preset            = "qst:v1:MjI1NTsyMjU2OzIyNTc7MjI1ODsyMjYwOzIyNjE7MjI2MjsyMjYzOzIyNjQ7MjI2NTsyMjY2OzIyNjc7MjI2ODsyMjY5OzIyNzA7MjI3MTsyMjcyOzIyNzM7MjI3NDsyMjc1OzIyNzY7MjI3NzsyMjc4OzIyNzk7MjI4MA=="
+        expac             = "Heavensward"
     },
     moogles = {
         alliedSocietyName = "Moogles",
-        questGiver        = "Mogek the Marvelous",
+        mainQuests        = { first = 2320, last = 2327 },
+        dailyQuests       = { first = 2290, last = 2319 },
         x                 = -335.28,
         y                 = 58.94,
         z                 = 316.30,
         zoneId            = 400,
-        aetheryteName     = "Zenith"
+        aetheryteName     = "Zenith",
+        expac             = "Heavensward"
     },
     kojin = {
         alliedSocietyName = "Kojin",
-        questGiver        = "Zukin",
+        mainQuests        = { first = 2973, last = 2978 },
+        dailyQuests       = { first = 2979, last = 3002 },
         x                 = 391.22,
         y                 = -119.59,
         z                 = -234.92,
         zoneId            = 613,
-        aetheryteName     = "Tamamizu"
+        aetheryteName     = "Tamamizu",
+        expac             = "Stormblood"
     },
     ananta = {
         alliedSocietyName = "Ananta",
-        questGiver        = "Eshana",
+        mainQuests        = { first = 3036, last = 3041 },
+        dailyQuests       = { first = 3043, last = 3069 },
         x                 = -26.91,
         y                 = 56.12,
         z                 = 233.53,
         zoneId            = 612,
-        aetheryteName     = "The Peering Stones"
+        aetheryteName     = "The Peering Stones",
+        expac             = "Stormblood"
     },
     namazu = {
         alliedSocietyName = "Namazu",
-        questGiver        = "Seigetsu the Enlightened",
+        mainQuests        = { first = 3096, last = 3102 },
+        dailyQuests       = { first = 3103, last = 3129 },
         x                 = -777.72,
         y                 = 127.81,
         z                 = 98.76,
         zoneId            = 622,
-        aetheryteName     = "Dhoro Iloh"
+        aetheryteName     = "Dhoro Iloh",
+        expac             = "Stormblood"
     },
     pixies = {
         alliedSocietyName = "Pixies",
-        questGiver        = "Uin Nee",
+        mainQuests        = { first = 3683, last = 3688 },
+        dailyQuests       = { first = 3689, last = 3716 },
         x                 = -453.69,
         y                 = 71.21,
         z                 = 573.54,
         zoneId            = 816,
-        aetheryteName     = "Lydha Lran"
+        aetheryteName     = "Lydha Lran",
+        expac             = "Shadowbringers"
     },
     qitari = {
         alliedSocietyName = "Qitari",
-        questGiver        = "Qhoterl Pasol",
+        mainQuests        = { first = 3794, last = 3805 },
+        dailyQuests       = { first = 3806, last = 3833 },
         x                 = 786.83,
         y                 = -45.82,
         z                 = -214.51,
         zoneId            = 817,
-        aetheryteName     = "Fanow"
+        aetheryteName     = "Fanow",
+        expac             = "Shadowbringers"
     },
     dwarves = {
         alliedSocietyName = "Dwarves",
-        questGiver        = "Regitt",
+        mainQuests        = { first = 3896, last = 3901 },
+        dailyQuests       = { first = 3902, last = 3929 },
         x                 = -615.48,
         y                 = 65.60,
         z                 = -423.82,
         zoneId            = 813,
-        aetheryteName     = "The Ostall Imperative"
+        aetheryteName     = "The Ostall Imperative",
+        expac             = "Shadowbringers"
     },
     arkosodara = {
         alliedSocietyName = "Arkasodara",
-        questGiver        = "Maru",
+        mainQuests        = { first = 4545, last = 4550 },
+        dailyQuests       = { first = 4551, last = 4578 },
         x                 = -68.21,
         y                 = 39.99,
         z                 = 323.31,
         zoneId            = 957,
-        aetheryteName     = "Yedlihmad"
+        aetheryteName     = "Yedlihmad",
+        expac             = "Endwalker"
     },
     loporrits = {
         alliedSocietyName = "Loporrits",
-        questGiver        = "Managingway",
+        mainQuests        = { first = 4681, last = 4686 },
+        dailyQuests       = { first = 4687, last = 4714 },
         x                 = -201.27,
         y                 = -49.15,
-        z                 = -273.80,
+        z                 = -273.8,
         zoneId            = 959,
-        aetheryteName     = "Bestways Burrow"
+        aetheryteName     = "Bestways Burrow",
+        expac             = "Endwalker"
     },
     omicrons = {
         alliedSocietyName = "Omicrons",
-        questGiver        = "Stigma-4",
+        mainQuests        = { first = 4601, last = 4606 },
+        dailyQuests       = { first = 4607, last = 4634 },
         x                 = 315.84,
         y                 = 481.99,
         z                 = 152.08,
         zoneId            = 960,
-        aetheryteName     = "Base Omicron"
+        aetheryteName     = "Base Omicron",
+        expac             = "Endwalker"
     },
     pelupleu = {
         alliedSocietyName = "Pelupelu",
-        questGiver        = "Yubli",
+        mainQuests        = { first = 5193, last = 5198 },
+        dailyQuests       = { first = 5199, last = 5226 },
         x                 = 770.89954,
         y                 = 12.846571,
         z                 = -261.0889,
         zoneId            = 1188,
-        aetheryteName     = "Dock Poga"
+        aetheryteName     = "Dock Poga",
+        expac             = "Dawntrail"
     },
     mamoolja = {
-        alliedSocietyName = "MamoolJa",
-        questGiver        = "Kageel Ja",
+        alliedSocietyName = "Mamool Ja",
+        mainQuests        = { first = 5255, last = 5260 },
+        dailyQuests       = { first = 5261, last = 5288 },
         x                 = 589.3,
         y                 = -142.9,
         z                 = 730.5,
         zoneId            = 1189,
-        aetheryteName     = "Mamook"
+        aetheryteName     = "Mamook",
+        expac             = "Dawntrail"
     }
 }
 
 --=========================== FUNCTIONS ==========================--
+
+-----------------------
+--    Allied Data    --
+-----------------------
+
+ToDoList = {}
+
+local societyConfigKeys = {
+    { societyKey = "FirstAlliedSociety",  classKey = "FirstClass"  },
+    { societyKey = "SecondAlliedSociety", classKey = "SecondClass" },
+    { societyKey = "ThirdAlliedSociety",  classKey = "ThirdClass"  },
+    { societyKey = "FourthAlliedSociety", classKey = "FourthClass" }
+}
+
+for _, entry in ipairs(societyConfigKeys) do
+    local society = Config.Get(entry.societyKey)
+    local class   = Config.Get(entry.classKey)
+
+    if society and class and society ~= "" and class ~= "" then
+        table.insert(ToDoList, { alliedSocietyName = society, class = class })
+    end
+end
 
 ----------------
 --    Main    --
@@ -262,11 +314,11 @@ function GetAcceptedAlliedSocietyQuests(alliedSocietyName)
     local count = allAcceptedQuests.Count - 1
 
     for i = 1, count do
-        local questId = allAcceptedQuests[i]
-        local row = Excel.GetRow("Quest", questId)
+        local allAcceptedQuestId = allAcceptedQuests[i]
+        local row = Excel.GetRow("Quest", allAcceptedQuestId)
 
         if row and row.BeastTribe and row.BeastTribe.Name:lower() == alliedSocietyName:lower() then
-            table.insert(accepted, questId)
+            table.insert(accepted, allAcceptedQuestId)
         end
     end
 
@@ -282,13 +334,12 @@ function CheckAllowances()
     local timerName = GetNodeText("ContentsInfo", 1, 4, 41009, 6, 8) or 0
     local timerConv = tonumber(timerName:match("%d+$"))
     Wait(1)
+    CloseAddons()
 
     if timerConv then
-        CloseAddons()
         return timerConv
     end
 
-    CloseAddons()
     return 0
 end
 
@@ -317,9 +368,7 @@ for _, alliedSociety in ipairs(ToDoList) do
             UseMount()
         end
 
-        repeat
-            Wait(1)
-        until IsMounted()
+        WaitForCondition("Mounted", 20)
 
         MoveTo(alliedSocietyTable.x, alliedSocietyTable.y, alliedSocietyTable.z, 2, true)
         WaitForPathRunning()
@@ -327,16 +376,36 @@ for _, alliedSociety in ipairs(ToDoList) do
         yield("/gs change " .. alliedSociety.class)
         Wait(3)
 
-        -- accept 3 allocations
-        for i=1,3 do
-            Interact(alliedSocietyTable.questGiver)
-            WaitForAddon("SelectIconString")
-            yield("/callback SelectIconString true 0")
-            WaitForPlayer()
+        local quests = {}
+        local blackList = alliedSocietyTable.dailyQuests.blackList or {}
+
+        QuestionableClearQuestPriority()
+
+        for questId = alliedSocietyTable.dailyQuests.first, alliedSocietyTable.dailyQuests.last+1 do
+            if not QuestionableIsQuestLocked(questId) and blackList[questId] then
+                table.insert(quests, questId)
+                QuestionableAddQuestPriority(questId)
+
+                local timeout = os.time()
+                repeat
+                    if not QuestionableIsRunning() then
+                        yield("/qst start")
+                    elseif os.time() - timeout > 5 then
+                        LogInfo(string.format("%s Took more than 5 seconds to pick up the quest. Reloading...", EchoPrefix))
+                        yield("/qst reload")
+                        timeout = os.time()
+                    end
+                    Wait(1)
+                until IsQuestAccepted(questId)
+            end
         end
 
-        yield("/qst start")
+        yield("/qst stop")
+
         repeat
+            if not QuestionableIsRunning() then
+                yield("/qst start")
+            end
             Wait(10)
         until #GetAcceptedAlliedSocietyQuests(alliedSociety.alliedSocietyName) == 0
         yield("/qst stop")
