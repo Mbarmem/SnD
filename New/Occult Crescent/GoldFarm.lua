@@ -120,12 +120,16 @@ function MoveToOC()
         end
         Wait(1)
     end
+    WaitForPlayer()
+	Wait(1)
 end
 
 function MoveToEG()
     VislandRouteStart(RouteAetheryte, false)
-    Wait(3)
-    VislandRouteStop()
+    repeat
+        Wait(1)
+    until not IsVislandRouteRunning()
+    WaitForPlayer()
 
     LogInfo(string.format("%s Moving to Eldergrowth", EchoPrefix))
     Lifestream("Eldergrowth")
@@ -144,7 +148,7 @@ function VislandPause()
 end
 
 function VislandResume()
-    if HasVisland and VislandIsRoutePaused() then
+    if HasVisland and IsVislandRoutePaused() then
         LogInfo(string.format("%s Resuming paused Visland route", EchoPrefix))
         VislandSetRoutePaused(false)
     elseif HasVisland and not IsVislandRouteRunning() then
