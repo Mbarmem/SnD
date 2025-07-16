@@ -24,7 +24,7 @@ dependencies:
 -------------------
 
 Aetheryte  = { X = -1, Y = 3, Z = -1 }
-Npc        = { name = "Mini Cactpot Broker", position = { X = -50, Y = 1, Z = 22 } }
+Npc        = { Name = "Mini Cactpot Broker", Position = { X = -50, Y = 1, Z = 22 } }
 EchoPrefix = "[MiniCactpot]"
 
 --============================ CONSTANT ==========================--
@@ -61,9 +61,9 @@ function CharacterStates.goToCashier()
         return
     end
 
-    if GetDistanceToPoint(Npc.position.X, Npc.position.Y, Npc.position.Z) > 5 then
+    if GetDistanceToPoint(Npc.Position.X, Npc.Position.Y, Npc.Position.Z) > 5 then
         if not PathfindInProgress() and not PathIsRunning() then
-            MoveTo(Npc.position.X, Npc.position.Y, Npc.position.Z, 5)
+            MoveTo(Npc.Position.X, Npc.Position.Y, Npc.Position.Z, 5)
         end
         return
     end
@@ -89,8 +89,8 @@ function CharacterStates.playMiniCactpot()
     elseif IsAddonReady("SelectYesno") then
         yield("/callback SelectYesno true 0")
 
-    elseif GetDistanceToPoint(Npc.position.X, Npc.position.Y, Npc.position.Z) > 5 then
-        MoveTo(Npc.position.X, Npc.position.Y, Npc.position.Z, 5)
+    elseif GetDistanceToPoint(Npc.Position.X, Npc.Position.Y, Npc.Position.Z) > 5 then
+        MoveTo(Npc.Position.X, Npc.Position.Y, Npc.Position.Z, 5)
 
     elseif PathfindInProgress() or PathIsRunning() then
         PathStop()
@@ -99,11 +99,11 @@ function CharacterStates.playMiniCactpot()
         State = CharacterStates.endState
         LogInfo(string.format("%s State Change: EndState", EchoPrefix))
 
-    elseif GetTargetName() ~= Npc.name then
-        Target(Npc.name)
+    elseif GetTargetName() ~= Npc.Name then
+        Target(Npc.Name)
 
     else
-        Interact(Npc.name)
+        Interact(Npc.Name)
         Tickets = true
     end
 end
