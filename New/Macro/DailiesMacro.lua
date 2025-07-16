@@ -66,9 +66,9 @@ else
     Echo("|| Dailies Enabled ||")
     LogInfo("|| Dailies Enabled ||")
     yield("/xlenablecollection Dailies")
-    CheckAllowances()
+    local Allowance = CheckAllowances()
     Wait(5)
-    if CheckAllowances() == 12 then
+    if Allowance == 12 then
         Echo("|| Running Daily Tasks ||")
         yield("/snd")
         repeat
