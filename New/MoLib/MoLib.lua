@@ -332,6 +332,55 @@ end
 
 --------------------------------------------------------------------
 
+--================-
+--    Visland    --
+--================-
+
+-- Checks if the Visland route is currently running
+function IsVislandRouteRunning()
+    local running = IPC.visland.IsRouteRunning()
+    LogDebug(string.format("[MoLib] Visland route running status: %s", tostring(running)))
+    return running
+end
+
+--------------------------------------------------------------------
+
+-- Checks if the Visland route is currently paused
+function IsVislandRoutePaused()
+    local paused = IPC.visland.IsRoutePaused()
+    LogDebug(string.format("[MoLib] Visland route paused status: %s", tostring(paused)))
+    return paused
+end
+
+--------------------------------------------------------------------
+
+-- Starts the specified Visland route, with optional looping
+function VislandRouteStart(routeName, loop)
+    loop = loop or false
+    LogInfo(string.format("[MoLib] Starting Visland route: %s (Loop: %s)", routeName, tostring(loop)))
+    return IPC.visland.StartRoute(routeName, loop)
+end
+
+--------------------------------------------------------------------
+
+-- Stops the Visland route if it is running
+function VislandRouteStop()
+    if IsVislandRouteRunning() then
+        LogDebug(string.format("[MoLib] Stopping Visland route"))
+        return IPC.visland.StopRoute()
+    end
+end
+
+--------------------------------------------------------------------
+
+-- Sets the Visland route pause state to true or false
+function VislandSetRoutePaused(paused)
+    LogDebug(string.format("[MoLib] Setting Visland route paused: %s", tostring(paused)))
+    return IPC.visland.SetRoutePaused(paused)
+end
+
+--------------------------------------------------------------------
+
 --================--
 --    Vnavmesn    --
 --================--
