@@ -519,16 +519,24 @@ end
 -- Waits until the specified condition is cleared, or until a timeout is reached
 -- Returns true if the condition was cleared, false if it timed out
 function WaitForCondition(name, timeout)
-    local startTime = os.clock()
     LogDebug(string.format("[MoLib] WaitForCondition: Waiting for condition '%s' to clear...", tostring(name)))
+
+    local conditionValue = CharacterCondition[name]
+    if not conditionValue then
+        LogDebug(string.format("[MoLib] WaitForCondition: Unknown condition name '%s'.", tostring(name)))
+        return false
+    end
+
+    local startTime = os.clock()
 
     repeat
         if timeout and (os.clock() - startTime) >= timeout then
             LogDebug(string.format("[MoLib] WaitForCondition: Timeout reached while waiting for '%s' to clear.", tostring(name)))
             return false
         end
+
         Wait(0.1)
-    until not Svc.Condition[name]
+    until Svc.Condition[conditionValue]
 
     LogDebug(string.format("[MoLib] WaitForCondition: Condition '%s' has been cleared.", tostring(name)))
     return true
