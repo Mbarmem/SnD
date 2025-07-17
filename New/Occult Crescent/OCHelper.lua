@@ -195,15 +195,11 @@ function RunVislandRoute(routeName, timeoutSeconds)
     return true
 end
 
-function Rand(value, range)
-    return value + (math.Random() * 2 - 1) * (range or 0)
-end
-
 ----------------
 --    Main    --
 ----------------
 
-function startFarm()
+function StartFarm()
     if not IsInZone(Zones.SouthHorn) then
         return
     end
@@ -252,7 +248,7 @@ end
 while true do
     if IsInZone(Zones.SouthHorn) then
         LogInfo(string.format("%s In SouthHorn zone. Beginning CE farm cycle.", LogPrefix))
-        startFarm()
+        StartFarm()
         WaitForPlayer()
     else
         LogInfo(string.format("%s Not in SouthHorn. Moving to Occult Crescent zone...", LogPrefix))
