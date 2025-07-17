@@ -250,6 +250,33 @@ function HasStatusId(targetId)
     return false
 end
 
+--------------------------------------------------------------------
+
+-- Checks if the player has a specific status and returns its remaining time.
+function GetStatusTimeRemaining(targetId)
+    local statusList = Player.Status
+    LogDebug(string.format("[MoLib] Checking remaining time for StatusId = %d", targetId))
+
+    if not statusList then
+        LogDebug("[MoLib] Player.Status is nil.")
+        return nil
+    end
+
+    for i = 0, statusList.Count - 1 do
+        local status = statusList:get_Item(i)
+
+        if status and status.StatusId == targetId then
+            LogDebug(string.format("[MoLib] Found StatusId %d at index %d with remaining time %.2f seconds.", targetId, i, status.RemainingTime))
+            return status.RemainingTime
+        end
+    end
+
+    LogDebug(string.format("[MoLib] StatusId %d not found in Player.Status list.", targetId))
+    return nil
+end
+
+--------------------------------------------------------------------
+
 --============================= IPC ==============================--
 
 --===============--

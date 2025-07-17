@@ -13,6 +13,19 @@ dependencies:
 - source: ''
   name: SnD
   type: git
+configs:
+  UseSimpleTweaksCommand:
+    default: true
+    description: Requires Simple Tweaks command support
+    type: boolean
+  JobChangeCommand :
+    default: /phantomjob
+    description: Command name in Simple Tweaks
+    type: string
+  ActionStatusThreshold:
+    default: 10
+    description: Threshold for buff reapplication (in seconds)
+    type: int
 
 [[End Metadata]]
 --]=====]
@@ -23,16 +36,15 @@ dependencies:
 --    General    --
 -------------------
 
-local useSimpleTweaksCommand  = true        -- Requires Simple Tweaks command support
-local jobChangeCommand        = "/phantomjob"
-local intervalTime            = 0.2         -- Delay between actions (in seconds)
-local actionStatusThreshold   = 10          -- Threshold for buff reapplication (in seconds)
-EchoPrefix                    = "[JobBuffs]"
+UseSimpleTweaksCommand  = Config.Get("UseSimpleTweaksCommand")
+JobChangeCommand        = Config.Get("JobChangeCommand")
+ActionStatusThreshold   = Config.Get("ActionStatusThreshold")
+EchoPrefix              = "[JobBuffs]"
 
 --============================ CONSTANT ==========================--
 
 -- Execute the action number(s) defined in JOB_MAP.
-local JOBACTION_ORDER = {
+JOBACTION_ORDER = {
     { job = "Bard",      actions = { 2     } },
     { job = "Geomancer", actions = { 3, 1  } },
     { job = "Thief",     actions = { 1     } },
@@ -40,13 +52,13 @@ local JOBACTION_ORDER = {
 
 -- Job names are available in multiple languages.
 -- If 'actions' is omitted, the first defined action is executed.
-local CRYSTALACTION_ORDER = {
+CRYSTALACTION_ORDER = {
     { job = "Knight" },
     { job = "Bard"   },
     { job = "Monk"   },
 }
 
-local CRYSTAL_MAP = {
+CRYSTAL_MAP = {
     [1252] = { -- South Horn
         { x =  835.9, y =  73.1, z = -709.3 },
         { x = -165.8, y =   6.5, z = -616.5 },
@@ -56,7 +68,7 @@ local CRYSTAL_MAP = {
     },
 }
 
-local JOB_MAP = {
+JOB_MAP = {
     Freelancer = {
         jobName     = { jp = "すっぴん", en = "Freelancer",  de = "Freiberufler", fr = "Freelance" },
         jobId       = 0,
@@ -180,7 +192,7 @@ local JOB_MAP = {
 }
 
 -- Create a lowercase-indexed version of JOB_MAP for quick lookup
-local JOB_MAP_LOWER = {}
+JOB_MAP_LOWER = {}
 for name, data in pairs(JOB_MAP) do
     JOB_MAP_LOWER[string.lower(name)] = data
 end
@@ -188,7 +200,7 @@ end
 --=========================== FUNCTIONS ==========================--
 
 -- Finds a job key in JOB_MAP using any localized job name (EN, JP, DE, FR)
-local function findJobKeyByAnyName(name)
+function FindJobKeyByAnyName(name)
     local nameLower = string.lower(name)
 
     for key, data in pairs(JOB_MAP) do
@@ -202,22 +214,22 @@ local function findJobKeyByAnyName(name)
     return nil
 end
 
-local function openSupportJob()
+function OpenSupportJob()
     while not IsAddonVisible("MKDSupportJob") do
         yield("/callback MKDInfo true 1 0")
-        Wait(intervalTime)
+        Wait(0.5)
     end
 end
 
-local function openSupportJobList()
+function OpenSupportJobList()
     while not IsAddonVisible("MKDSupportJobList") do
-        openSupportJob()
+        OpenSupportJob()
         yield("/callback MKDSupportJob true 0 0 0")
-        Wait(intervalTime)
+        Wait(0.5)
     end
 end
 
-local function getOriginalJobName()
+function GetOriginalJobName()
     for jobName, data in pairs(JOB_MAP) do
         if HasStatusId(data.jobStatusId) then
             LogInfo(string.format("%s Detected current job as: %s", EchoPrefix, jobName))
@@ -226,10 +238,10 @@ local function getOriginalJobName()
     end
 
     LogInfo(string.format("%s No matching jobStatusId found", EchoPrefix))
-    return nil
+    return "Freelancer"
 end
 
-local function getCurrentJobLevel()
+function GetCurrentJobLevel()
     local levelText = GetNodeText("MKDInfo", 1, 20, 30)
 
     if levelText then
@@ -242,7 +254,7 @@ local function getCurrentJobLevel()
     return 1
 end
 
-local function isNearAnyCrystal()
+function IsNearAnyCrystal()
     local zoneId = GetZoneID()
     local crystalList = CRYSTAL_MAP[zoneId]
 
@@ -266,50 +278,54 @@ local function isNearAnyCrystal()
     end
 end
 
-local function changeSupportJob(jobName)
-    local jobKey = findJobKeyByAnyName(jobName)
-    local jobData = jobKey and JOB_MAP[jobKey] or nil
+function ChangeSupportJob(jobName)
+    local jobKey = FindJobKeyByAnyName(jobName) or string.lower(jobName)
+    local jobData = JOB_MAP[jobKey] or JOB_MAP_LOWER[jobKey]
 
     if not jobData then
         LogInfo(string.format("%s Invalid job name: %s", EchoPrefix, tostring(jobName)))
         return
     end
 
-    if HasStatusId(jobData.jobStatusId) then
+    local isFreelancer = jobKey == "Freelancer"
+
+    if not isFreelancer and HasStatusId(jobData.jobStatusId) then
         LogInfo(string.format("%s Job '%s' is already active.", EchoPrefix, jobName))
         return
     end
 
-    if useSimpleTweaksCommand then
+    SwitchedJob = true
+
+    if UseSimpleTweaksCommand then
         repeat
-            yield(string.format("%s %d", jobChangeCommand, jobData.jobId))
-            Wait(intervalTime)
-        until HasStatusId(jobData.jobStatusId)
+            yield(string.format("%s %d", JobChangeCommand, jobData.jobId))
+            Wait(0.5)
+        until isFreelancer or HasStatusId(jobData.jobStatusId)
     else
         repeat
-            openSupportJobList()
+            OpenSupportJobList()
             yield(string.format("/callback MKDSupportJobList true 0 %d", jobData.jobId))
-            Wait(intervalTime)
-        until HasStatusId(jobData.jobStatusId)
+            Wait(0.5)
+        until isFreelancer or HasStatusId(jobData.jobStatusId)
     end
 
     LogInfo(string.format("%s Successfully changed support job to '%s'.", EchoPrefix, jobName))
 end
 
-local function getJobData(jobNameInput)
-    local jobKey = findJobKeyByAnyName(jobNameInput) or string.lower(jobNameInput)
+function GetJobData(jobNameInput)
+    local jobKey = FindJobKeyByAnyName(jobNameInput) or string.lower(jobNameInput)
     return JOB_MAP[jobKey] or JOB_MAP_LOWER[jobKey]
 end
 
-local function shouldSkipAction(action)
-    if action.crystal == true and not isNearAnyCrystal() then
+function ShouldSkipAction(action)
+    if action.crystal == true and not IsNearAnyCrystal() then
         LogInfo(string.format("%s Action requires crystal, but player is not near any crystal. Skipping action.", EchoPrefix))
         return true
     end
     return false
 end
 
-local function hasActiveStatus(action, threshold)
+function HasActiveStatus(action, threshold)
     if not action.actionStatusId then
         return false
     end
@@ -323,37 +339,37 @@ local function hasActiveStatus(action, threshold)
     return false
 end
 
-local function performAction(action)
-    local threshold = (action.statusTime or 0) - actionStatusThreshold
+function PerformAction(action)
+    local threshold = (action.statusTime or 0) - ActionStatusThreshold
 
-    if not action.actionId or getCurrentJobLevel() < action.actionLevel then
+    if not action.actionId or GetCurrentJobLevel() < action.actionLevel then
         return
     end
 
     LogInfo(string.format("%s Attempting to perform actionId: %s with threshold: %s", EchoPrefix, tostring(action.actionId), tostring(threshold)))
 
-    local function tryExecute()
+    function tryExecute()
         if not Svc.Condition[27] then
-            ExecuteGeneralAction(action.actionId)
+            Actions.ExecuteGeneralAction(action.actionId)
         end
     end
 
     if threshold <= 0 then
         repeat
             tryExecute()
-            Wait(intervalTime)
+            Wait(0.5)
         until HasStatusId(action.actionStatusId)
     else
         repeat
             tryExecute()
-            Wait(intervalTime)
-        until hasActiveStatus(action, threshold)
+            Wait(0.5)
+        until HasActiveStatus(action, threshold)
     end
 end
 
-local function useSupportAction(actionOrderList)
+function UseSupportAction(actionOrderList)
     for _, jobEntry in ipairs(actionOrderList) do
-        local jobData = getJobData(jobEntry.job)
+        local jobData = GetJobData(jobEntry.job)
         if not jobData then
             LogInfo(string.format("%s Invalid job name: %s", EchoPrefix, tostring(jobEntry.job)))
             goto continue
@@ -367,19 +383,19 @@ local function useSupportAction(actionOrderList)
                 goto action_continue
             end
 
-            if shouldSkipAction(action) then
+            if ShouldSkipAction(action) then
                 goto action_continue
             end
 
-            changeSupportJob(jobData.jobName["en"] or jobEntry.job)
+            ChangeSupportJob(jobData.jobName["en"] or jobEntry.job)
 
-            local threshold = (action.statusTime or 0) - actionStatusThreshold
-            if hasActiveStatus(action, threshold) then
+            local threshold = (action.statusTime or 0) - ActionStatusThreshold
+            if HasActiveStatus(action, threshold) then
                 LogInfo(string.format("%s Action already active for job: %s action#%d", EchoPrefix, jobEntry.job, idx))
                 goto action_continue
             end
 
-            performAction(action)
+            PerformAction(action)
 
             ::action_continue::
         end
@@ -389,20 +405,20 @@ end
 
 --=========================== EXECUTION ==========================--
 
-local originalJob = getOriginalJobName()
+local originalJob = GetOriginalJobName()
 LogInfo(string.format("%s Original job: %s", EchoPrefix, tostring(originalJob)))
 
-if isNearAnyCrystal() then
+if IsNearAnyCrystal() then
     LogInfo(string.format("%s Near a crystal, using support actions.", EchoPrefix))
-    useSupportAction(CRYSTALACTION_ORDER)
+    UseSupportAction(CRYSTALACTION_ORDER)
 else
     LogInfo(string.format("%s Not near any crystal, using job order actions.", EchoPrefix))
-    useSupportAction(JOBACTION_ORDER)
+    UseSupportAction(JOBACTION_ORDER)
 end
 
-if originalJob then
+if SwitchedJob and originalJob then
     LogInfo(string.format("%s Reverting to original job: %s", EchoPrefix, originalJob))
-    changeSupportJob(originalJob)
+    ChangeSupportJob(originalJob)
 end
 
 --============================== END =============================--
