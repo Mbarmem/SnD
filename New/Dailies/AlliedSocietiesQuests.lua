@@ -369,7 +369,6 @@ for _, alliedSociety in ipairs(ToDoList) do
         end
 
         WaitForCondition("Mounted", 20)
-
         MoveTo(alliedSocietyTable.x, alliedSocietyTable.y, alliedSocietyTable.z, 2, true)
         WaitForPathRunning()
 
@@ -413,6 +412,7 @@ for _, alliedSociety in ipairs(ToDoList) do
             end
             Wait(2)
         until #GetAcceptedAlliedSocietyQuests(alliedSociety.alliedSocietyName) == 0
+
         yield("/qst stop")
     else
         LogInfo(string.format("%s Allied society '%s' not found in data table.", EchoPrefix, alliedSociety.alliedSocietyName))
