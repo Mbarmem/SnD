@@ -273,7 +273,7 @@ while true do
     while (currentMissionName ~= missionName) do
         Wait(0.5)
         if IsAddonReady("WKSMissionInfomation") then
-            currentMissionName = GetNodeText("WKSMissionInfomation", 1, 3)
+            currentMissionName = GetNodeText("WKSMissionInfomation", 1, 3) or ""
         end
     end
 

@@ -73,12 +73,12 @@ function CalculateTotalWeight()
 
     for i = 1, 7 do
         if IsNodeVisible("WKSLottery", 1, 30, 38 - i) then
-            local itemName = GetNodeText("WKSLottery", 1, 30, 38 - i, 10)
+            local itemName = GetNodeText("WKSLottery", 1, 30, 38 - i, 10) or 0
             itemsInFirstWheel[itemName] = (itemsInFirstWheel[itemName] or 0) + 1
         end
 
         if IsNodeVisible("WKSLottery", 1, 40, 48 - i) then
-            local itemName = GetNodeText("WKSLottery", 1, 40, 48 - i, 10)
+            local itemName = GetNodeText("WKSLottery", 1, 40, 48 - i, 10) or 0
             itemsInSecondWheel[itemName] = (itemsInSecondWheel[itemName] or 0) + 1
         end
     end

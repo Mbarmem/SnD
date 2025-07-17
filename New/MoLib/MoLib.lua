@@ -335,7 +335,7 @@ end
 
 -- Sets the AutoHook plugin to use a specific preset.
 function SetAutoHookPreset(presetName)
-    LogDebug(string.format("%s AutoHook preset set to: %s", EchoPrefix, tostring(presetName)))
+    LogDebug(string.format("[MoLib] AutoHook preset set to: %s", tostring(presetName)))
     return IPC.AutoHook.SetPreset(presetName)
 end
 
@@ -343,7 +343,7 @@ end
 
 -- Sets the AutoHook state.
 function SetAutoHookState(state)
-    LogDebug(string.format("%s AutoHook state set to: %s", EchoPrefix, tostring(state)))
+    LogDebug(string.format("[MoLib] AutoHook state set to: %s", tostring(state)))
     return IPC.AutoHook.SetPluginState(state)
 end
 
@@ -1446,7 +1446,7 @@ end
 
 function DoAR(DoAutoRetainers)
     if ARRetainersWaitingToBeProcessed() and DoAutoRetainers then
-        LogDebug(string.format("%s Assigning ventures to Retainers.", EchoPrefix))
+        LogDebug(string.format("[MoLib] Assigning ventures to Retainers."))
         MoveToTarget("Summoning Bell")
         Wait(1)
         Interact("Summoning Bell")
@@ -1457,9 +1457,9 @@ function DoAR(DoAutoRetainers)
         WaitForAR(DoAutoRetainers)
 
     elseif not DoAutoRetainers then
-        LogDebug(string.format("%s AutoRetainers is disabled.", EchoPrefix))
+        LogDebug(string.format("[MoLib] AutoRetainers is disabled."))
     else
-        LogDebug(string.format("%s No retainers currently need venture assignment.", EchoPrefix))
+        LogDebug(string.format("[MoLib] No retainers currently need venture assignment."))
     end
 
     CloseAddons()
@@ -1473,7 +1473,7 @@ function WaitForAR(DoAutoRetainers)
         return
     end
 
-    LogDebug(string.format("%s Waiting for AutoRetainers to complete.", EchoPrefix))
+    LogDebug(string.format("%[MoLib] Waiting for AutoRetainers to complete."))
     Wait(1)
 
     while Svc.Condition[CharacterCondition.occupiedSummoningBell] do
