@@ -35,7 +35,7 @@ configs:
 
 FateMacro    = Config.Get("FateMacro")
 NumberToFarm = Config.Get("NumberToFarm")
-EchoPrefix   = "[AtmaFarming]"
+LogPrefix    = "[AtmaFarming]"
 
 --============================ CONSTANT ==========================--
 
@@ -70,7 +70,7 @@ end
 
 --=========================== EXECUTION ==========================--
 
-LogInfo(string.format("%s Starting Atma farming process...", EchoPrefix))
+LogInfo(string.format("%s Starting Atma farming process...", LogPrefix))
 yield("/at y")
 
 NextAtmaTable = GetNextAtmaTable()
@@ -78,13 +78,13 @@ NextAtmaTable = GetNextAtmaTable()
 while NextAtmaTable ~= nil do
     if IsPlayerAvailable() and not IsMacroRunningOrQueued(FateMacro) then
         if GetItemCount(NextAtmaTable.itemId) >= NumberToFarm then
-            LogInfo(string.format("%s Already have enough of %s. Moving to next.", EchoPrefix, NextAtmaTable.itemName))
+            LogInfo(string.format("%s Already have enough of %s. Moving to next.", LogPrefix, NextAtmaTable.itemName))
             NextAtmaTable = GetNextAtmaTable()
         elseif not IsInZone(NextAtmaTable.zoneId) then
-            LogInfo(string.format("%s Teleporting to zone: %s", EchoPrefix, NextAtmaTable.zoneName))
+            LogInfo(string.format("%s Teleporting to zone: %s", LogPrefix, NextAtmaTable.zoneName))
             Teleport(GetAetheryteName(NextAtmaTable.zoneId))
         else
-            LogInfo(string.format("%s Starting FateMacro in %s for %s...", EchoPrefix, NextAtmaTable.zoneName, NextAtmaTable.itemName))
+            LogInfo(string.format("%s Starting FateMacro in %s for %s...", LogPrefix, NextAtmaTable.zoneName, NextAtmaTable.itemName))
             yield("/snd run ".. FateMacro)
         end
     end

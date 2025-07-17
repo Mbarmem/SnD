@@ -21,7 +21,7 @@ dependencies:
 --    General    --
 -------------------
 
-EchoPrefix  = "[DailyHunts]"
+LogPrefix  = "[DailyHunts]"
 
 --============================ CONSTANT ==========================--
 
@@ -126,13 +126,13 @@ HuntBoards = {
 function CharacterStates.goToHuntBoard()
     if BoardNumber > #HuntBoards then
         State = CharacterStates.endScript
-        LogInfo(string.format("%s State Change: EndScript", EchoPrefix))
+        LogInfo(string.format("%s State Change: EndScript", LogPrefix))
         Wait(0.5)
         return
     end
 
     Board = HuntBoards[BoardNumber]
-    LogInfo(string.format("%s Checking board: %s", EchoPrefix, Board.city))
+    LogInfo(string.format("%s Checking board: %s", LogPrefix, Board.city))
 
     local skipBoard = true
     for _, bill in ipairs(Board.bills) do
@@ -141,7 +141,7 @@ function CharacterStates.goToHuntBoard()
         end
     end
 
-    LogInfo(string.format("%s skipBoard = %s", EchoPrefix, tostring(skipBoard)))
+    LogInfo(string.format("%s skipBoard = %s", LogPrefix, tostring(skipBoard)))
 
     if skipBoard then
         BoardNumber = BoardNumber + 1
@@ -149,7 +149,7 @@ function CharacterStates.goToHuntBoard()
     end
 
     if not IsInZone(Board.zoneId) then
-        LogInfo(string.format("%s Not in %s, teleporting to %s", EchoPrefix, Board.city, Board.aetheryte))
+        LogInfo(string.format("%s Not in %s, teleporting to %s", LogPrefix, Board.city, Board.aetheryte))
         Teleport(Board.aetheryte)
     end
 
@@ -157,8 +157,8 @@ function CharacterStates.goToHuntBoard()
         local distanceToBoard       = GetDistanceToPoint(Board.x, Board.y, Board.z)
         local distanceFromAethernet = DistanceBetween(Board.miniAethernet.x, Board.miniAethernet.y, Board.miniAethernet.z, Board.x, Board.y, Board.z)
 
-        LogInfo(string.format("%s Distance to board: %.2f", EchoPrefix, distanceToBoard))
-        LogInfo(string.format("%s Distance from mini aetheryte: %.2f", EchoPrefix, distanceFromAethernet))
+        LogInfo(string.format("%s Distance to board: %.2f", LogPrefix, distanceToBoard))
+        LogInfo(string.format("%s Distance from mini aetheryte: %.2f", LogPrefix, distanceFromAethernet))
 
         if distanceToBoard > (distanceFromAethernet + 20) then
             Target("Aetheryte")
@@ -180,7 +180,7 @@ function CharacterStates.goToHuntBoard()
     if GetDistanceToPoint(Board.x, Board.y, Board.z) < 4 then
         BoardNumber = BoardNumber + 1
         State = CharacterStates.pickUpHunts
-        LogInfo(string.format("%s State Change: PickUpHunts", EchoPrefix))
+        LogInfo(string.format("%s State Change: PickUpHunts", LogPrefix))
     end
 end
 
@@ -192,7 +192,7 @@ function CharacterStates.pickUpHunts()
         else
             HuntNumber = 0
             State = CharacterStates.goToHuntBoard
-            LogInfo(string.format("%s State Change: GoToHuntBoard %d", EchoPrefix, BoardNumber))
+            LogInfo(string.format("%s State Change: GoToHuntBoard %d", LogPrefix, BoardNumber))
         end
 
     elseif GetItemCount(Board.bills[HuntNumber+1]) >= 1 then
@@ -237,6 +237,6 @@ while not StopFlag do
     Wait(0.1)
 end
 
-LogInfo(string.format("%s All Marks Obtained..!!", EchoPrefix))
+LogInfo(string.format("%s All Marks Obtained..!!", LogPrefix))
 
 --============================== END =============================--

@@ -39,7 +39,7 @@ configs:
 UseSimpleTweaksCommand  = Config.Get("UseSimpleTweaksCommand")
 JobChangeCommand        = Config.Get("JobChangeCommand")
 ActionStatusThreshold   = Config.Get("ActionStatusThreshold")
-EchoPrefix              = "[JobBuffs]"
+LogPrefix               = "[JobBuffs]"
 
 --============================ CONSTANT ==========================--
 
@@ -232,12 +232,12 @@ end
 function GetOriginalJobName()
     for jobName, data in pairs(JOB_MAP) do
         if HasStatusId(data.jobStatusId) then
-            LogInfo(string.format("%s Detected current job as: %s", EchoPrefix, jobName))
+            LogInfo(string.format("%s Detected current job as: %s", LogPrefix, jobName))
             return jobName
         end
     end
 
-    LogInfo(string.format("%s No matching jobStatusId found", EchoPrefix))
+    LogInfo(string.format("%s No matching jobStatusId found", LogPrefix))
     return "Freelancer"
 end
 
@@ -246,11 +246,11 @@ function GetCurrentJobLevel()
 
     if levelText then
         local level = tonumber(levelText)
-        LogInfo(string.format("%s Current job level detected: %d", EchoPrefix, level or -1))
+        LogInfo(string.format("%s Current job level detected: %d", LogPrefix, level or -1))
         return level
     end
 
-    LogInfo(string.format("%s Failed to detect job level, defaulting to 1", EchoPrefix))
+    LogInfo(string.format("%s Failed to detect job level, defaulting to 1", LogPrefix))
     return 1
 end
 
@@ -259,7 +259,7 @@ function IsNearAnyCrystal()
     local crystalList = CRYSTAL_MAP[zoneId]
 
     if not crystalList then
-        LogInfo(string.format("%s No crystals defined for zone ID: %s", EchoPrefix, tostring(zoneId)))
+        LogInfo(string.format("%s No crystals defined for zone ID: %s", LogPrefix, tostring(zoneId)))
         return false
     end
 
@@ -272,7 +272,7 @@ function IsNearAnyCrystal()
         local distance = math.sqrt(dx * dx + dz * dz)
 
         if distance <= 4.8 then
-            LogInfo(string.format("%s Player is near a crystal (%.1f units)", EchoPrefix, distance))
+            LogInfo(string.format("%s Player is near a crystal (%.1f units)", LogPrefix, distance))
             return true
         end
     end
@@ -283,14 +283,14 @@ function ChangeSupportJob(jobName)
     local jobData = JOB_MAP[jobKey] or JOB_MAP_LOWER[jobKey]
 
     if not jobData then
-        LogInfo(string.format("%s Invalid job name: %s", EchoPrefix, tostring(jobName)))
+        LogInfo(string.format("%s Invalid job name: %s", LogPrefix, tostring(jobName)))
         return
     end
 
     local isFreelancer = jobKey == "Freelancer"
 
     if not isFreelancer and HasStatusId(jobData.jobStatusId) then
-        LogInfo(string.format("%s Job '%s' is already active.", EchoPrefix, jobName))
+        LogInfo(string.format("%s Job '%s' is already active.", LogPrefix, jobName))
         return
     end
 
@@ -309,7 +309,7 @@ function ChangeSupportJob(jobName)
         until isFreelancer or HasStatusId(jobData.jobStatusId)
     end
 
-    LogInfo(string.format("%s Successfully changed support job to '%s'.", EchoPrefix, jobName))
+    LogInfo(string.format("%s Successfully changed support job to '%s'.", LogPrefix, jobName))
 end
 
 function GetJobData(jobNameInput)
@@ -319,7 +319,7 @@ end
 
 function ShouldSkipAction(action)
     if action.crystal == true and not IsNearAnyCrystal() then
-        LogInfo(string.format("%s Action requires crystal, but player is not near any crystal. Skipping action.", EchoPrefix))
+        LogInfo(string.format("%s Action requires crystal, but player is not near any crystal. Skipping action.", LogPrefix))
         return true
     end
     return false
@@ -346,7 +346,7 @@ function PerformAction(action)
         return
     end
 
-    LogInfo(string.format("%s Attempting to perform actionId: %s with threshold: %s", EchoPrefix, tostring(action.actionId), tostring(threshold)))
+    LogInfo(string.format("%s Attempting to perform actionId: %s with threshold: %s", LogPrefix, tostring(action.actionId), tostring(threshold)))
 
     function tryExecute()
         if not IsPlayerCasting() then
@@ -371,7 +371,7 @@ function UseSupportAction(actionOrderList)
     for _, jobEntry in ipairs(actionOrderList) do
         local jobData = GetJobData(jobEntry.job)
         if not jobData then
-            LogInfo(string.format("%s Invalid job name: %s", EchoPrefix, tostring(jobEntry.job)))
+            LogInfo(string.format("%s Invalid job name: %s", LogPrefix, tostring(jobEntry.job)))
             goto continue
         end
 
@@ -379,7 +379,7 @@ function UseSupportAction(actionOrderList)
         for _, idx in ipairs(actionIndexes) do
             local action = jobData.actions[idx]
             if not action then
-                LogInfo(string.format("%s No action index %d for job %s", EchoPrefix, idx, jobEntry.job))
+                LogInfo(string.format("%s No action index %d for job %s", LogPrefix, idx, jobEntry.job))
                 goto action_continue
             end
 
@@ -391,7 +391,7 @@ function UseSupportAction(actionOrderList)
 
             local threshold = (action.statusTime or 0) - ActionStatusThreshold
             if HasActiveStatus(action, threshold) then
-                LogInfo(string.format("%s Action already active for job: %s action#%d", EchoPrefix, jobEntry.job, idx))
+                LogInfo(string.format("%s Action already active for job: %s action#%d", LogPrefix, jobEntry.job, idx))
                 goto action_continue
             end
 
@@ -406,18 +406,18 @@ end
 --=========================== EXECUTION ==========================--
 
 local originalJob = GetOriginalJobName()
-LogInfo(string.format("%s Original job: %s", EchoPrefix, tostring(originalJob)))
+LogInfo(string.format("%s Original job: %s", LogPrefix, tostring(originalJob)))
 
 if IsNearAnyCrystal() then
-    LogInfo(string.format("%s Near a crystal, using support actions.", EchoPrefix))
+    LogInfo(string.format("%s Near a crystal, using support actions.", LogPrefix))
     UseSupportAction(CRYSTALACTION_ORDER)
 else
-    LogInfo(string.format("%s Not near any crystal, using job order actions.", EchoPrefix))
+    LogInfo(string.format("%s Not near any crystal, using job order actions.", LogPrefix))
     UseSupportAction(JOBACTION_ORDER)
 end
 
 if SwitchedJob and originalJob then
-    LogInfo(string.format("%s Reverting to original job: %s", EchoPrefix, originalJob))
+    LogInfo(string.format("%s Reverting to original job: %s", LogPrefix, originalJob))
     ChangeSupportJob(originalJob)
 end
 

@@ -52,7 +52,7 @@ configs:
 --    General    --
 -------------------
 
-EchoPrefix  = "[AlliedQuests]"
+LogPrefix  = "[AlliedQuests]"
 
 --============================ CONSTANT ==========================--
 
@@ -349,10 +349,10 @@ yield("/at y")
 
 for _, alliedSociety in ipairs(ToDoList) do
     local remainingAllowances = CheckAllowances()
-    LogInfo(string.format("%s Remaining daily quest allowances: %d", EchoPrefix, remainingAllowances))
+    LogInfo(string.format("%s Remaining daily quest allowances: %d", LogPrefix, remainingAllowances))
 
     if remainingAllowances <= 0 then
-        LogInfo(string.format("%s No allowances left. Stopping script.", EchoPrefix))
+        LogInfo(string.format("%s No allowances left. Stopping script.", LogPrefix))
         return
     end
 
@@ -390,7 +390,7 @@ for _, alliedSociety in ipairs(ToDoList) do
                     if not QuestionableIsRunning() then
                         yield("/qst start")
                     elseif os.time() - timeout > 5 then
-                        LogInfo(string.format("%s Took more than 5 seconds to pick up the quest. Reloading...", EchoPrefix))
+                        LogInfo(string.format("%s Took more than 5 seconds to pick up the quest. Reloading...", LogPrefix))
                         yield("/qst reload")
                         timeout = os.time()
                     end
@@ -415,10 +415,10 @@ for _, alliedSociety in ipairs(ToDoList) do
 
         yield("/qst stop")
     else
-        LogInfo(string.format("%s Allied society '%s' not found in data table.", EchoPrefix, alliedSociety.alliedSocietyName))
+        LogInfo(string.format("%s Allied society '%s' not found in data table.", LogPrefix, alliedSociety.alliedSocietyName))
     end
 end
 
-LogInfo(string.format("%s Daily quest script completed successfully.", EchoPrefix))
+LogInfo(string.format("%s Daily quest script completed successfully.", LogPrefix))
 
 --============================== END =============================--

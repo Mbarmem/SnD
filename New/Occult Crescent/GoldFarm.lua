@@ -49,7 +49,7 @@ ClassName       = Config.Get("ClassName")
 AetheryteName   = Config.Get("AetheryteName")
 RouteFarm       = Config.Get("RouteFarm")
 RouteAetheryte  = Config.Get("RouteAetheryte")
-EchoPrefix      = "[GoldFarm]"
+LogPrefix       = "[GoldFarm]"
 
 --============================ CONSTANT ==========================--
 
@@ -76,7 +76,7 @@ Zones = {
 
 function Checks()
     if GetClassJobId() ~= 21 then
-        LogInfo(string.format("%s Crafter class changed to: %s", EchoPrefix, className))
+        LogInfo(string.format("%s Crafter class changed to: %s", LogPrefix, className))
         yield("/gearset change ".. ClassName)
         Wait(1)
     end
@@ -90,25 +90,25 @@ function MoveToOC()
     WaitForPlayer()
 
     if not IsInZone(Zones.PhantomVillage) then
-        LogInfo(string.format("%s Moving to Occult Crescent", EchoPrefix))
+        LogInfo(string.format("%s Moving to Occult Crescent", LogPrefix))
         Lifestream("Occult")
         WaitForLifeStream()
         return
     end
 
-    LogInfo(string.format("%s Interacting with Jeffroy to enter Occult Crescent", EchoPrefix))
+    LogInfo(string.format("%s Interacting with Jeffroy to enter Occult Crescent", LogPrefix))
     Interact("Jeffroy")
 
     while not IsBoundByDuty() do
         if IsAddonVisible("SelectString") then
             yield("/callback SelectString true 0")
-            LogInfo(string.format("%s Confirmed SelectString", EchoPrefix))
+            LogInfo(string.format("%s Confirmed SelectString", LogPrefix))
         elseif IsAddonVisible("SelectYesno") then
             yield("/callback SelectYesno true 0")
-            LogInfo(string.format("%s Confirmed SelectYesno", EchoPrefix))
+            LogInfo(string.format("%s Confirmed SelectYesno", LogPrefix))
         elseif IsAddonVisible("ContentsFinderConfirm") then
             yield("/click ContentsFinderConfirm Commence")
-            LogInfo(string.format("%s Commenced duty via ContentsFinderConfirm", EchoPrefix))
+            LogInfo(string.format("%s Commenced duty via ContentsFinderConfirm", LogPrefix))
         end
         Wait(1)
     end
@@ -121,7 +121,7 @@ function MoveToEG()
     WaitForPlayer()
     VislandRouteStop()
 
-    LogInfo(string.format("%s Moving to Eldergrowth", EchoPrefix))
+    LogInfo(string.format("%s Moving to Eldergrowth", LogPrefix))
     Lifestream("Eldergrowth")
     WaitForLifeStream()
 end
@@ -132,17 +132,17 @@ end
 
 function VislandPause()
     if HasVisland and IsVislandRouteRunning() then
-        LogInfo(string.format("%s Pausing Visland route", EchoPrefix))
+        LogInfo(string.format("%s Pausing Visland route", LogPrefix))
         VislandSetRoutePaused(true)
     end
 end
 
 function VislandResume()
     if HasVisland and IsVislandRoutePaused() then
-        LogInfo(string.format("%s Resuming paused Visland route", EchoPrefix))
+        LogInfo(string.format("%s Resuming paused Visland route", LogPrefix))
         VislandSetRoutePaused(false)
     elseif HasVisland and not IsVislandRouteRunning() then
-        LogInfo(string.format("%s Starting Visland route: %s (Loop: true)", EchoPrefix, RouteFarm))
+        LogInfo(string.format("%s Starting Visland route: %s (Loop: true)", LogPrefix, RouteFarm))
         VislandRouteStart(RouteFarm, true)
     end
 end

@@ -22,7 +22,7 @@ dependencies:
 -------------------
 
 Npc         = { Name = "Triple Triad Trader", Position = { X = -52.42, Y = 1.6, Z = 15.77 } }
-EchoPrefix  = "[TTSeller]"
+LogPrefix   = "[TTSeller]"
 
 --=========================== FUNCTIONS ==========================--
 
@@ -33,7 +33,7 @@ EchoPrefix  = "[TTSeller]"
 function DistanceToSeller()
     if IsInZone(144) then -- The Gold Saucer
         Distance_Test = GetDistanceToPoint(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
-        LogInfo(string.format("%s Distance to seller: %.2f", EchoPrefix, Distance_Test))
+        LogInfo(string.format("%s Distance to seller: %.2f", LogPrefix, Distance_Test))
     end
 end
 
@@ -93,6 +93,6 @@ end
 
 GoToSeller()
 Main()
-LogInfo(string.format("%s Cards sold. Stopping the script.", EchoPrefix))
+LogInfo(string.format("%s Cards sold. Stopping the script.", LogPrefix))
 
 --============================== END =============================--

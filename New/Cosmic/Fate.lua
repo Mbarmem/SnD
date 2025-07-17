@@ -19,7 +19,7 @@ dependencies:
 --    General    --
 -------------------
 
-EchoPrefix  = "[CosmicFate]"
+LogPrefix  = "[CosmicFate]"
 
 --============================ CONSTANT ==========================--
 
@@ -36,7 +36,7 @@ function CharacterStates.Start()
     Interact("Mini Rover")
     WaitForPlayer()
     State = "Charge"
-    LogInfo(string.format("%s State changed to: Charge", EchoPrefix))
+    LogInfo(string.format("%s State changed to: Charge", LogPrefix))
 end
 
 function CharacterStates.Charge()
@@ -44,7 +44,7 @@ function CharacterStates.Charge()
     Interact("Charging Module")
     WaitForPlayer()
     State = "End"
-    LogInfo(string.format("%s State changed to: End", EchoPrefix))
+    LogInfo(string.format("%s State changed to: End", LogPrefix))
 end
 
 function CharacterStates.End()
@@ -52,7 +52,7 @@ function CharacterStates.End()
     Interact("Depleted Mini Rover")
     WaitForPlayer()
     State = "Start"
-    LogInfo(string.format("%s State changed to: Start", EchoPrefix))
+    LogInfo(string.format("%s State changed to: Start", LogPrefix))
 end
 
 --=========================== EXECUTION ==========================--

@@ -28,7 +28,7 @@ dependencies:
 --    General    --
 -------------------
 
-EchoPrefix = "[TTFarmer]"
+LogPrefix = "[TTFarmer]"
 
 --============================ CONSTANT ==========================--
 
@@ -100,7 +100,7 @@ Dungeons = {
 for _, cards in ipairs(Dungeons) do
     RunCount = 1
     while GetItemCount(cards.cardId) < 1 do
-        LogInfo(string.format("%s [Run: %d] DutyMode: %s - %s", EchoPrefix, RunCount, cards.dutyMode, cards.Name))
+        LogInfo(string.format("%s [Run: %d] DutyMode: %s - %s", LogPrefix, RunCount, cards.dutyMode, cards.Name))
         yield("/ad cfg Unsynced "..cards.dutyUnsynced)
         yield("/ad run "..cards.dutyMode.." "..cards.dutyId.." 1 true")
         yield("/bmrai on")
@@ -111,7 +111,7 @@ for _, cards in ipairs(Dungeons) do
         end
         RunCount = RunCount + 1
     end
-    LogInfo(string.format("%s %s is done.", EchoPrefix, cards.Name))
+    LogInfo(string.format("%s %s is done.", LogPrefix, cards.Name))
 end
 
 --============================== END =============================--

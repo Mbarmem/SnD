@@ -28,7 +28,7 @@ configs:
 
 FullAuto           = Config.Get("FullAuto")
 MinimumCreditsLeft = Config.Get("MinimumCreditsLeft")
-EchoPrefix         = "[CosmicFortunes]"
+LogPrefix          = "[CosmicFortunes]"
 
 Npc = {
     name = "Orbitingway",
@@ -150,7 +150,7 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
     local weightFirstWheel, weightSecondWheel = CalculateTotalWeight()
 
     if weightFirstWheel > weightSecondWheel then
-        Echo(string.format("First wheel is better with total weight: %s", weightFirstWheel), EchoPrefix)
+        Echo(string.format("First wheel is better with total weight: %s", weightFirstWheel), LogPrefix)
 
         if FullAuto then
             yield("/callback WKSLottery true 0 0")
@@ -159,7 +159,7 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
         end
 
     elseif weightSecondWheel > weightFirstWheel then
-        Echo(string.format("Second wheel is better with total weight: %s", weightSecondWheel), EchoPrefix)
+        Echo(string.format("Second wheel is better with total weight: %s", weightSecondWheel), LogPrefix)
 
         if FullAuto then
             yield("/callback WKSLottery true 0 1")
@@ -168,7 +168,7 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
         end
 
     else
-        Echo(string.format("Both wheels are equal in weight."), EchoPrefix)
+        Echo(string.format("Both wheels are equal in weight."), LogPrefix)
 
         if FullAuto then
             yield("/callback WKSLottery true 0 0")

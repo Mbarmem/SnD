@@ -42,7 +42,7 @@ configs:
 WeatherSelection          = Config.Get("WeatherSelection")
 RepairThreshold           = Config.Get("RepairThreshold")
 ExtractMateria            = Config.Get("ExtractMateria")
-EchoPrefix                = "[HybridFishing]"
+LogPrefix                 = "[HybridFishing]"
 
 FisherNormalMissionName   = "A-2: Refined Moon Gel"
 FisherNormalCoords        = "/coord 15.8 19.4"
@@ -113,7 +113,7 @@ function Init()
             itemAmount = data.itemAmount
         end
     else
-        LogInfo(string.format("%s Wrong Class!!!", EchoPrefix))
+        LogInfo(string.format("%s Wrong Class!!!", LogPrefix))
         return false
     end
     return true
@@ -148,18 +148,18 @@ function WaitForFishingItem(maxWaitSeconds)
     Wait(1)
 
     while not IsFishing() and retryCount < maxRetries do
-        LogInfo(string.format("%s Attempting to start fishing (retry %d)", EchoPrefix, retryCount))
+        LogInfo(string.format("%s Attempting to start fishing (retry %d)", LogPrefix, retryCount))
         yield("/ahstart")
         Wait(5)
         retryCount = retryCount + 1
     end
 
     if not IsFishing() then
-        LogInfo(string.format("%s Fishing did not start after retries.", EchoPrefix))
+        LogInfo(string.format("%s Fishing did not start after retries.", LogPrefix))
         return false
     end
 
-    LogInfo(string.format("%s Waiting to obtain item ID %s x%d", EchoPrefix, tostring(itemId), itemAmount))
+    LogInfo(string.format("%s Waiting to obtain item ID %s x%d", LogPrefix, tostring(itemId), itemAmount))
     while GetItemCount(itemId) < itemAmount and waitElapsed < maxWaitSeconds do
         Wait(1)
         waitElapsed = waitElapsed + 1
@@ -172,19 +172,19 @@ function WaitForFishingItem(maxWaitSeconds)
             yield("/ac Quit")
             Wait(0.1)
         end
-        LogInfo(string.format("%s Timeout acquiring item ID %s", EchoPrefix, tostring(itemId)))
+        LogInfo(string.format("%s Timeout acquiring item ID %s", LogPrefix, tostring(itemId)))
         return false
     end
 
     if IsFishing() then
-        LogInfo(string.format("%s Still in fishing mode, waiting to exit.", EchoPrefix))
+        LogInfo(string.format("%s Still in fishing mode, waiting to exit.", LogPrefix))
         Wait(1)
         while IsFishing() do
             Wait(0.1)
         end
     end
 
-    LogInfo(string.format("%s Successfully acquired required items.", EchoPrefix))
+    LogInfo(string.format("%s Successfully acquired required items.", LogPrefix))
     return true
 end
 
@@ -201,7 +201,7 @@ function StartCrafting()
     end
 
     Wait(0.5)
-    LogInfo(string.format("%s Crafting..", EchoPrefix))
+    LogInfo(string.format("%s Crafting..", LogPrefix))
     ArtisanSetEnduranceStatus(true)
     Wait(10)
 
@@ -209,12 +209,12 @@ function StartCrafting()
         Wait(0.5)
     end
 
-    LogInfo(string.format("%s Crafting completed successfully.", EchoPrefix))
+    LogInfo(string.format("%s Crafting completed successfully.", LogPrefix))
     Wait(1)
 end
 
 function SubmitReport()
-    LogInfo(string.format("%s Reporting the Mission..", EchoPrefix))
+    LogInfo(string.format("%s Reporting the Mission..", LogPrefix))
     if not IsAddonReady("WKSMissionInfomation") then
         yield("/callback WKSHud true 11")
         Wait(0.2)
@@ -229,7 +229,7 @@ function SubmitReport()
     end
 
     Wait(1)
-    LogInfo(string.format("%s Changing Gearset to %s", EchoPrefix, tostring(Class)))
+    LogInfo(string.format("%s Changing Gearset to %s", LogPrefix, tostring(Class)))
     yield("/gs change "..Class)
     Wait(1)
     yield("/callback WKSMissionInfomation true 11 1")
@@ -240,9 +240,9 @@ end
 
 previousWeatherType = GetWeatherType(weatherId)
 if Init() then
-    LogInfo(string.format("%s MissionName: %s", EchoPrefix, tostring(missionName)))
-    LogInfo(string.format("%s MissionCoords: %s", EchoPrefix, tostring(coords)))
-    LogInfo(string.format("%s MissionPreset: %s", EchoPrefix, tostring(preset)))
+    LogInfo(string.format("%s MissionName: %s", LogPrefix, tostring(missionName)))
+    LogInfo(string.format("%s MissionCoords: %s", LogPrefix, tostring(coords)))
+    LogInfo(string.format("%s MissionPreset: %s", LogPrefix, tostring(preset)))
 else
     return
 end
@@ -279,17 +279,17 @@ while true do
 
     Wait(1)
     if not WaitForFishingItem(500) then
-        LogInfo(string.format("%s Fishing step failed or timed out.", EchoPrefix))
+        LogInfo(string.format("%s Fishing step failed or timed out.", LogPrefix))
         WaitForPlayer()
         SubmitReport()
         SuccessCount = 0
     elseif GetItemCount(itemId) >= itemAmount then
-        LogInfo(string.format("%s Sufficient items available, starting crafting.", EchoPrefix))
+        LogInfo(string.format("%s Sufficient items available, starting crafting.", LogPrefix))
         WaitForPlayer()
         StartCrafting()
         SubmitReport()
         SuccessCount = SuccessCount + 1
-        LogInfo(string.format("%s SuccessCount: %s", EchoPrefix, tostring(SuccessCount)))
+        LogInfo(string.format("%s SuccessCount: %s", LogPrefix, tostring(SuccessCount)))
     end
 
     WaitForPlayer()

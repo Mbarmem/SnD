@@ -25,7 +25,7 @@ dependencies:
 
 Aetheryte  = { X = -1, Y = 3, Z = -1 }
 Npc        = { Name = "Mini Cactpot Broker", Position = { X = -50, Y = 1, Z = 22 } }
-EchoPrefix = "[MiniCactpot]"
+LogPrefix  = "[MiniCactpot]"
 
 --============================ CONSTANT ==========================--
 
@@ -50,7 +50,7 @@ function CharacterStates.ready()
         Teleport("Gold Saucer")
     else
         State = CharacterStates.goToCashier
-        LogInfo(string.format("%s State Change: GoToCashier", EchoPrefix))
+        LogInfo(string.format("%s State Change: GoToCashier", LogPrefix))
     end
 end
 
@@ -73,7 +73,7 @@ function CharacterStates.goToCashier()
     end
 
     State = CharacterStates.playMiniCactpot
-    LogInfo(string.format("%s State Change: PlayMiniCactpot", EchoPrefix))
+    LogInfo(string.format("%s State Change: PlayMiniCactpot", LogPrefix))
 end
 
 function CharacterStates.playMiniCactpot()
@@ -97,7 +97,7 @@ function CharacterStates.playMiniCactpot()
 
     elseif Tickets and IsPlayerAvailable() then
         State = CharacterStates.endState
-        LogInfo(string.format("%s State Change: EndState", EchoPrefix))
+        LogInfo(string.format("%s State Change: EndState", LogPrefix))
 
     elseif GetTargetName() ~= Npc.Name then
         Target(Npc.Name)
@@ -126,6 +126,6 @@ while not StopFlag do
     Wait(0.1)
 end
 
-LogInfo(string.format("%s Mini Cactpot script completed successfully!", EchoPrefix))
+LogInfo(string.format("%s Mini Cactpot script completed successfully!", LogPrefix))
 
 --============================== END =============================--

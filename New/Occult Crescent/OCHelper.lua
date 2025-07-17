@@ -1,297 +1,203 @@
---[[============================================================
-    Crescent Occult - FFXIV CE Farming Automation Script
-    ------------------------------------------------------------
-    Author   : Mo
-    Version  : 1.0.0
-    Purpose  : Automates CE farming in South Horn using
-               Phantom Jobs and navigation tools.
+--[=====[
+[[SND Metadata]]
+author: Mo
+version: 2.0.0
+description: Crescent Occult - Automates CE farming in South Horn
+plugin_dependencies:
+- RotationSolver
+- BossModReborn
+- TeleporterPlugin
+- Lifestream
+- vnavmesh
+- visland
+- YesAlready
+dependencies:
+- source: ''
+  name: SnD
+  type: git
+configs:
+  BuffMacro:
+    default: JobBuffs
+    description: The name of the macro used to apply job-specific buffs.
+    type: string
+  RunBuffs:
+    default: true
+    description: Whether to apply buffs before beginning of each run.
+    type: boolean
+  VislandRoute:
+    default: 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
+    description: Route or path used to farm chests.
+    type: string
+    required: true
+  RunChestsRoute:
+    default: true
+    description: If `true`, the script will farm chests.
+    type: boolean
 
-    Dependencies:
-        - RotationSolver
-        - BossModReborn
-        - Lifestream
-        - TeleporterPlugin
-        - vnavmesh
-        - visland
-        - YesAlready
+[[End Metadata]]
+--]=====]
 
-============================================================]]--
-
-
--------------------------------- Variables --------------------------------
+--=========================== VARIABLES ==========================--
 
 -------------------
 --    General    --
 -------------------
 
-local buffMacro = "Job Buffs"
-local runBuffs = false
-local mountCommand = '/gaction "Mount Roulette"'
-local vislandRoute = "Chests"
-local runChestsRoute = true
-local logPrefix = "[CEFarm] "
-local actionsOC = {
+BuffMacro       = Config.Get("BuffMacro")
+RunBuffs        = Config.Get("RunBuffs")
+VislandRoute    = Config.Get("VislandRoute")
+RunChestsRoute  = Config.Get("RunChestsRoute")
+LogPrefix       = "[CEFarm]"
+
+
+--============================ CONSTANT ==========================--
+
+------------------
+--    Actions   --
+------------------
+
+ActionsOC = {
     OccultReturn = 41343
 }
-
----------------------
---    Constants    --
----------------------
-
-local wait_Short = 1.0
-local wait_Medium = 2.0
-local wait_Long = 3.0
-local wait_vLong = 5.0
-local timeout_Moving = 120
-local timeout_Visland = 1200
-local timeout_OCHelper = 7200
 
 ----------------
 --    Zone    --
 ----------------
 
-local zoneID = GetZoneID()
-local zones = {
-    SouthHorn = 1252,
+Zones = {
+    SouthHorn      = 1252,
     PhantomVillage = 1278
 }
 
---------------------------------- Constant --------------------------------
+--=========================== FUNCTIONS ==========================--
 
--------------------
---    Plugins    --
--------------------
-
-requiredPlugins = {
-    "RotationSolver",
-    "BossModReborn",
-    "Lifestream",
-    "TeleporterPlugin",
-    "vnavmesh",
-    "visland",
-    "YesAlready"
-}
-
----------------------
---    Condition    --
----------------------
-
-characterCondition = {
-    mounted=4,
-    inCombat=26,
-    casting=27,
-    boundByDuty=34,
-    occupiedInCutSceneEvent=35,
-    occupied=39,
-    betweenAreas=45
-}
-
--------------------------------- Functions --------------------------------
-
--------------------
---    Plugins    --
--------------------
-
-function plugins()
-    local missing = {}
-    for _, plugin in ipairs(requiredPlugins) do
-        if not HasPlugin(plugin) then
-            table.insert(missing, plugin)
-        end
-    end
-    if #missing > 0 then
-        for _, plugin in ipairs(missing) do
-            yield("/echo ".. logPrefix .. "Missing required plugin: "..plugin)
-        end
-        yield("/echo ".. logPrefix .. "One or more required plugins are missing. Stopping the script.")
-        yield("/snd stop")
-    end
-end
-
-----------------
---    Wait    --
-----------------
-
-function wait(seconds)
-    yield(string.format("/wait %.1f", seconds))
-end
-
-function waitWhileMoving()
-    LogVerbose(logPrefix .. "Waiting until navigation is finished...")
-    local timeout = os.time() + (timeout_Moving or 120)  -- default 2 minutes if not specified
-    while (PathIsRunning() or PathfindInProgress()) and os.time() < timeout do
-        LogDebug(string.format(logPrefix .. "Looping: PathIsRunning=%s, PathfindInProgress=%s, TimeLeft=%d", tostring(PathIsRunning()), tostring(PathfindInProgress()), timeout - os.time()))
-        wait(wait_Short)
-    end
-    LogInfo(logPrefix .. "Navigation finished or timed out.")
-end
-
-function awaitReady()
-    LogVerbose(logPrefix .. "Checking Readiness...")
-    -- Wait until not busy
-    while GetCharacterCondition(characterCondition.inCombat) or GetCharacterCondition(characterCondition.casting) or IsMoving() or not IsPlayerAvailable() do
-        LogDebug(logPrefix .. "Waiting for Player...")
-        wait(wait_Short)
-    end
-    -- Wait for NavMesh
-    while not NavIsReady() do
-        LogDebug(logPrefix .. "Waiting for NavMesh...")
-        wait(wait_Short)
-    end
-    -- Cutscene check
-    while GetCharacterCondition(characterCondition.occupiedInCutSceneEvent) do
-        LogDebug(logPrefix .. "In cutscene. Waiting...")
-        wait(wait_Short)
-    end
-    -- Between areas
-    while GetCharacterCondition(characterCondition.betweenAreas) do
-        LogDebug(logPrefix .. "Waiting for inbetween Areas...")
-        wait(wait_Short)
-    end
-    wait(wait_Short)
-    LogInfo(logPrefix .. "Player is ready.")
-end
-
-function waitForLifeStream()
-    LogVerbose(logPrefix .. "Waiting for Lifestream...")
-    while LifestreamIsBusy() do
-        wait(wait_Short)
-    end
-    LogInfo(logPrefix .. "Lifestream complete. Awaiting readiness...")
-    awaitReady()
-end
- 
 ----------------
 --    Move    --
 ----------------
 
-function moveTo(x, y, z, randomness)
-    if not IsInZone(zones.SouthHorn) then
-        return
-    end
-    local randX = rand(x, randomness)
-    local randZ = rand(z, randomness)
-    awaitReady()
-    LogInfo(logPrefix .. "Moving to coordinates: " .. tostring(randX) .. ", " .. tostring(y) .. ", " .. tostring(randZ))
-    yield("/vnav moveto " .. randX .. " " .. y .. " " .. randZ)
-    wait(wait_Short)
-    waitWhileMoving()
-end
+function MoveToOC()
+    WaitForPlayer()
 
-function moveToOC()
-    awaitReady()
     local command = "/li Occult"
-    wait(wait_Short)
-    if IsInZone(zones.PhantomVillage) then
+    Wait(1)
+
+    if IsInZone(Zones.PhantomVillage) then
         command = "/li EnterOC"
     end
-    wait(wait_Short)
+
+    Wait(1)
     yield(command)
-    LogInfo(logPrefix .. "Teleporting to Occult Crescent...")
+
+    LogInfo(string.format("%s Teleporting to Occult Crescent...", LogPrefix))
+
     waitForLifeStream()
 end
+
 
 -----------------
 --    Mount    --
 -----------------
 
-function mountUp()
-    if not IsInZone(zones.SouthHorn) then
+function Dismount()
+    if not IsMounted() then
         return
     end
-    LogVerbose(logPrefix .. "Mounting...")
-    while not GetCharacterCondition(characterCondition.mounted) and IsInZone(zones.SouthHorn) do
-        yield(mountCommand)
-        wait(wait_Long)
+
+    LogInfo(string.format("%s Dismounting...", LogPrefix))
+
+    while IsMounted() do
+        yield("/gaction Dismount")
+        Wait(1)
     end
-    LogInfo(logPrefix .. "Mounted successfully.")
+
+    LogInfo(string.format("%s Dismounted successfully.", LogPrefix))
 end
 
-function dismount()
-    if not GetCharacterCondition(characterCondition.mounted) then
-        return
-    end
-    LogVerbose(logPrefix .. "Dismounting...")
-    while GetCharacterCondition(characterCondition.mounted) do
-        yield("/gaction Dismount")
-        wait(wait_Short)
-    end
-    LogInfo(logPrefix .. "Dismounted successfully.")
-end
 
 ----------------
 --    Misc    --
 ----------------
 
-function stanceOff()
+function StanceOff()
     if not IsPlayerAvailable() then
         return
     end
+
     if HasStatus("Defiance") then
-        LogInfo(logPrefix .. "Turning off Defiance stance...")
+        LogInfo(string.format("%s Turning off Defiance stance...", LogPrefix))
         yield("/action Defiance")
-        wait(wait_Short)
+        Wait(1)
     end
 end
 
-function rotationON()
-    LogInfo(logPrefix .. "Setting rotation to LowHP mode...")
+function RotationON()
+    LogInfo(string.format("%s Setting rotation to LowHP mode...", LogPrefix))
     yield("/rotation auto LowHP")
-    wait(wait_Short)
+    Wait(1)
 end
 
-function aiON()
-    LogInfo(logPrefix .. "Enabling BattleMod AI...")
+function AiON()
+    LogInfo(string.format("%s Enabling BattleMod AI...", LogPrefix))
     yield("/bmrai on")
-    wait(wait_Short)
+    Wait(1)
 end
 
-function useBuffs()
-    if not runBuffs or not IsInZone(zones.SouthHorn) then
+function UseBuffs()
+    if not RunBuffs or not IsInZone(Zones.SouthHorn) then
         return
     end
-    LogInfo(logPrefix .. "Applying support buffs...")
-    moveTo(836.92, 73.12, -707.14, 0.2)
-    dismount()
-    yield("/snd run "..buffMacro)
+
+    LogInfo(string.format("%s Applying support buffs...", LogPrefix))
+
+    MoveTo(836.92, 73.12, -707.14, 0.2)
+    Dismount()
+
+    yield("/snd run " .. BuffMacro)
     repeat
-        wait(wait_Short)
-    until not IsMacroRunningOrQueued(buffMacro)
-    wait(wait_Short)
+        Wait(1)
+    until not IsMacroRunningOrQueued(BuffMacro)
+
+    Wait(1)
 end
 
-function runVislandRoute(routeName, timeoutSeconds)
-    if not runChestsRoute or not IsInZone(zones.SouthHorn) then
+
+function RunVislandRoute(routeName, timeoutSeconds)
+    if not RunChestsRoute or not IsInZone(Zones.SouthHorn) then
         return
     end
-    -- Start the route via IPC
-    awaitReady()
-    yield("/visland execonce "..routeName)
-    wait(wait_Short)
+
+    WaitForPlayer()
+    VislandRouteStart(routeName)
+    Wait(1)
+
     if not IsVislandRouteRunning() then
-        LogDebug(logPrefix .. "Failed to start Visland route: " .. routeName)
+        LogInfo(string.format("%s Failed to start Visland route: %s", LogPrefix, routeName))
         return false
     end
-    LogInfo(logPrefix .. "Visland Route started: " .. routeName)
-    -- Wait for the route to complete via IPC
+
+    LogInfo(string.format("%s Visland Route started: %s", LogPrefix, routeName))
+
     local timeout = os.time() + (timeoutSeconds or 1200)  -- default 20 minutes if not specified
+
     while IsVislandRouteRunning() do
         if os.time() >= timeout then
-    -- Timeout reached
-            LogDebug(logPrefix .. "Timeout waiting for Visland route to finish.")
-            yield("/visland stop")
+            LogInfo(string.format("%s Timeout waiting for Visland route to finish.", LogPrefix))
+            VislandRouteStop()
             return false
         end
-        LogDebug(string.format(logPrefix .. "Looping: IsVislandRouteRunning=%s, TimeLeft=%d", tostring(IsVislandRouteRunning()), timeout - os.time()))
-        wait(wait_Long)
+
+        LogDebug(string.format("%s Looping: IsVislandRouteRunning=%s, TimeLeft=%d", LogPrefix, tostring(IsVislandRouteRunning()), timeout - os.time()))
+        Wait(3)
     end
-    LogInfo(logPrefix .. "Visland Route completed successfully.")
-    wait(wait_Short)
+
+    LogInfo(string.format("%s Visland Route completed successfully.", LogPrefix))
+    Wait(1)
+
     return true
 end
 
-function rand(value, range)
-    return value + (math.random() * 2 - 1) * (range or 0)
+function Rand(value, range)
+    return value + (math.Random() * 2 - 1) * (range or 0)
 end
 
 ----------------
@@ -299,55 +205,62 @@ end
 ----------------
 
 function startFarm()
-    if not IsInZone(zones.SouthHorn) then
+    if not IsInZone(Zones.SouthHorn) then
         return
     end
-    LogInfo(logPrefix .. "Starting CE farm...")
-    stanceOff()
-    rotationON()
-    aiON()
-    useBuffs()
+
+    LogInfo(string.format("%s Starting CE farm...", LogPrefix))
+
+    StanceOff()
+    RotationON()
+    AiON()
+    UseBuffs()
     yield("/ochillegal on")
-    local timeout = os.time() + (timeout_OCHelper or 7200)  -- default 2 hours in seconds (7200)
-    while IsInZone(zones.SouthHorn) do
+
+    local timeout = os.time() + 7200  -- default 2 hours in seconds
+
+    while IsInZone(Zones.SouthHorn) do
         if os.time() >= timeout then
-            LogInfo(logPrefix .. "Timeout reached. Exiting loop...")
-            awaitReady()
+            LogInfo(string.format("%s Timeout reached. Exiting loop...", LogPrefix))
+            WaitForPlayer()
             yield("/ochillegal off")
-            wait(wait_vLong)
-            awaitReady()
+            Wait(5)
+            WaitForPlayer()
             break
         end
-        stanceOff()
-        LogDebug(string.format(logPrefix .. "Looping: CEFarm, TimeLeft=%d", timeout - os.time()))
-        wait(wait_vLong)
+
+        StanceOff()
+        LogInfo(string.format("%s Looping: CEFarm, TimeLeft=%d", LogPrefix, timeout - os.time()))
+        Wait(5)
     end
-    awaitReady()
+
+    WaitForPlayer()
     yield("/rotation off")
     yield("/bmrai off")
-    awaitReady()
-    ExecuteAction(actionsOC.OccultReturn)
-    awaitReady()
-    runVislandRoute(vislandRoute, timeout_Visland)
-    if IsInZone(zones.SouthHorn) then
-        LeaveDuty()
+    WaitForPlayer()
+
+    Actions.ExecuteAction(ActionsOC.OccultReturn)
+    WaitForPlayer()
+
+    RunVislandRoute(VislandRoute, 1200)
+    if IsInZone(Zones.SouthHorn) then
+        LeaveInstance()
     end
 end
 
--------------------------------- Execution --------------------------------
+--=========================== EXECUTION ==========================--
 
-plugins()
 while true do
-    if IsInZone(zones.SouthHorn) then
-        LogInfo(logPrefix .. "In SouthHorn zone. Beginning CE farm cycle.")
+    if IsInZone(Zones.SouthHorn) then
+        LogInfo(string.format("%s In SouthHorn zone. Beginning CE farm cycle.", LogPrefix))
         startFarm()
-        awaitReady()
+        WaitForPlayer()
     else
-        LogInfo(logPrefix .. "Not in SouthHorn. Moving to Occult Crescent zone...")
-        moveToOC()
-        awaitReady()
+        LogInfo(string.format("%s Not in SouthHorn. Moving to Occult Crescent zone...", LogPrefix))
+        MoveToOC()
+        WaitForPlayer()
     end
-    wait(wait_Short)
+    Wait(1)
 end
 
------------------------------------ End -----------------------------------
+--============================== END =============================--

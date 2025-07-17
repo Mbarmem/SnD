@@ -34,7 +34,7 @@ configs:
 PackToBuy   = Config.Get("PackToBuy")
 CardID      = Config.Get("CardID")
 Npc         = { Name = "Triple Triad Trader", Position = { X = -52.42, Y = 1.6, Z = 15.77 } }
-EchoPrefix  = "[TTPacks]"
+LogPrefix   = "[TTPacks]"
 
 --============================ CONSTANT ==========================--
 
@@ -90,7 +90,7 @@ TTPacks = {
 function DistanceToSeller()
     if IsInZone(144) then -- The Gold Saucer
         Distance_Test = GetDistanceToPoint(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
-        LogInfo(string.format("%s Distance to seller: %.2f", EchoPrefix, Distance_Test))
+        LogInfo(string.format("%s Distance to seller: %.2f", LogPrefix, Distance_Test))
     end
 end
 
@@ -122,7 +122,7 @@ function Main()
     end
 
     if not SelectedPackToBuy then
-        LogInfo(string.format("%s PackToBuy not found in TTPacks.", EchoPrefix))
+        LogInfo(string.format("%s PackToBuy not found in TTPacks.", LogPrefix))
         return false
     end
 
@@ -134,7 +134,7 @@ function Main()
             yield("/item " .. SelectedPackToBuy.packName)
             WaitForPlayer()
             if Inventory.GetItemCount(CardID) > 0 then
-                LogInfo(string.format("%s Card obtained, stopping the script.", EchoPrefix))
+                LogInfo(string.format("%s Card obtained, stopping the script.", LogPrefix))
                 return false
             end
         end
@@ -157,7 +157,7 @@ function Main()
     end
 
     if IsAddonVisible("ShopExchangeCurrency") then
-        LogInfo(string.format("%s Buying a new pack: %s.", EchoPrefix, SelectedPackToBuy.packName))
+        LogInfo(string.format("%s Buying a new pack: %s.", LogPrefix, SelectedPackToBuy.packName))
         yield("/callback ShopExchangeCurrency true 0 "..SelectedPackToBuy.subcategoryMenu.." 10")
         return true
     end

@@ -28,7 +28,7 @@ configs:
 -------------------
 
 FateMacro  = Config.Get("FateMacro")
-EchoPrefix = "[MultiZoneFarming]"
+LogPrefix  = "[MultiZoneFarming]"
 
 --============================ CONSTANT ==========================--
 
@@ -55,26 +55,26 @@ OldBicolorGemCount   = GetItemCount(26807)
 while true do
     if IsPlayerAvailable() and not IsMacroRunningOrQueued(FateMacro) then
         if IsDead() or IsInCombat() or GetZoneID() == ZonesToFarm[FarmingZoneIndex].zoneId then
-            LogInfo(string.format("%s Starting FateMacro in zone: %s", EchoPrefix, ZonesToFarm[FarmingZoneIndex].zoneName))
+            LogInfo(string.format("%s Starting FateMacro in zone: %s", LogPrefix, ZonesToFarm[FarmingZoneIndex].zoneName))
             yield("/snd run " .. FateMacro)
 
             repeat
                 Wait(3)
             until not IsMacroRunningOrQueued(FateMacro)
 
-            LogInfo(string.format("%s FateMacro has stopped", EchoPrefix))
+            LogInfo(string.format("%s FateMacro has stopped", LogPrefix))
 
             NewBicolorGemCount = GetItemCount(26807)
 
             if NewBicolorGemCount == OldBicolorGemCount then
-                LogInfo(string.format("%s No FATE completed. Bicolor Gem count unchanged: %d", EchoPrefix, NewBicolorGemCount))
+                LogInfo(string.format("%s No FATE completed. Bicolor Gem count unchanged: %d", LogPrefix, NewBicolorGemCount))
                 FarmingZoneIndex = (FarmingZoneIndex % #ZonesToFarm) + 1
             else
-                LogInfo(string.format("%s FATE completed. Updated Bicolor Gem count: %d", EchoPrefix, NewBicolorGemCount))
+                LogInfo(string.format("%s FATE completed. Updated Bicolor Gem count: %d", LogPrefix, NewBicolorGemCount))
                 OldBicolorGemCount = NewBicolorGemCount
             end
         else
-            LogInfo(string.format("%s Teleporting to zone: %s", EchoPrefix, ZonesToFarm[FarmingZoneIndex].zoneName))
+            LogInfo(string.format("%s Teleporting to zone: %s", LogPrefix, ZonesToFarm[FarmingZoneIndex].zoneName))
             Teleport(GetAetheryteName(ZonesToFarm[FarmingZoneIndex].zoneId))
         end
     end

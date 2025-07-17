@@ -21,8 +21,8 @@ configs:
 
 --=========================== VARIABLES ==========================--
 
-MissionName= Config.Get("MissionName")
-EchoPrefix   = "[RedAlerts]"
+MissionName = Config.Get("MissionName")
+LogPrefix   = "[RedAlerts]"
 
 --============================ CONSTANT ==========================--
 
@@ -74,7 +74,7 @@ end
 local mission_id = Find_mission_id(MissionName)
 
 if not mission_id then
-    LogInfo(string.format("%s Mission name not found, stopping script", EchoPrefix))
+    LogInfo(string.format("%s Mission name not found, stopping script", LogPrefix))
     return
 end
 
@@ -85,7 +85,7 @@ while true do
 
     WaitForAddon("WKSMission")
 
-    LogInfo(string.format("%s Selecting mission ID: %s", EchoPrefix, tostring(mission_id)))
+    LogInfo(string.format("%s Selecting mission ID: %s", LogPrefix, tostring(mission_id)))
     yield("/callback WKSMission true 12 216 2 1")
     yield("/callback WKSMission true 13 " .. mission_id)
 
@@ -97,13 +97,13 @@ while true do
     until IsAddonReady("WKSRecipeNotebook")
 
     ArtisanSetEnduranceStatus(true)
-    LogInfo(string.format("%s Crafting started.", EchoPrefix))
+    LogInfo(string.format("%s Crafting started.", LogPrefix))
     Wait(5)
 
     WaitForPlayer()
     ArtisanSetEnduranceStatus(false)
 
-    LogInfo(string.format("%s Reporting to Collection Point.", EchoPrefix))
+    LogInfo(string.format("%s Reporting to Collection Point.", LogPrefix))
     MoveToTarget("Collection Point", 4)
     Interact("Collection Point")
     Wait(3)

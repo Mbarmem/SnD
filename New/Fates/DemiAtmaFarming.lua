@@ -42,7 +42,7 @@ configs:
 FateMacro      = Config.Get("FateMacro")
 NumberToFarm   = Config.Get("NumberToFarm")
 WaitBeforeLoop = Config.Get("WaitBeforeLoop")
-EchoPrefix     = "[DemiAtmaFarming]"
+LogPrefix      = "[DemiAtmaFarming]"
 
 --============================ CONSTANT ==========================--
 
@@ -74,11 +74,11 @@ function GetNextAtmaTable()
         FullPass = false
         return Atmas[FarmingZoneIndex]
     elseif FullPass then
-        LogInfo(string.format("%s Did full pass, no more zones to farm. Returning nil.", EchoPrefix))
+        LogInfo(string.format("%s Did full pass, no more zones to farm. Returning nil.", LogPrefix))
         return nil
     else
         if not DidFateOnPass then
-            LogInfo(string.format("%s No FATEs completed this pass. Waiting %s seconds.", EchoPrefix, WaitBeforeLoop))
+            LogInfo(string.format("%s No FATEs completed this pass. Waiting %s seconds.", LogPrefix, WaitBeforeLoop))
             Wait(WaitBeforeLoop)
         end
         FarmingZoneIndex = (FarmingZoneIndex % #Atmas) + 1
@@ -90,7 +90,7 @@ end
 
 --=========================== EXECUTION ==========================--
 
-LogInfo(string.format("%s Starting DemiAtma farming...", EchoPrefix))
+LogInfo(string.format("%s Starting DemiAtma farming...", LogPrefix))
 yield("/at y")
 
 OldBicolorGemCount = GetItemCount(26807)
@@ -99,30 +99,30 @@ NextAtmaTable = GetNextAtmaTable()
 while NextAtmaTable ~= nil do
     if IsPlayerAvailable() and not IsMacroRunningOrQueued(FateMacro) then
         if GetItemCount(NextAtmaTable.itemId) >= NumberToFarm then
-            LogInfo(string.format("%s Already have enough %s. Skipping zone: %s", EchoPrefix, NextAtmaTable.itemName, NextAtmaTable.zoneName))
+            LogInfo(string.format("%s Already have enough %s. Skipping zone: %s", LogPrefix, NextAtmaTable.itemName, NextAtmaTable.zoneName))
             NextAtmaTable = GetNextAtmaTable()
 
         elseif not IsInZone(NextAtmaTable.zoneId) then
-            LogInfo(string.format("%s Teleporting to: %s", EchoPrefix, NextAtmaTable.zoneName))
+            LogInfo(string.format("%s Teleporting to: %s", LogPrefix, NextAtmaTable.zoneName))
             Teleport(GetAetheryteName(NextAtmaTable.zoneId))
 
         else
-            LogInfo(string.format("%s Running FateMacro in zone: %s for %s", EchoPrefix, NextAtmaTable.zoneName, NextAtmaTable.itemName))
+            LogInfo(string.format("%s Running FateMacro in zone: %s for %s", LogPrefix, NextAtmaTable.zoneName, NextAtmaTable.itemName))
             yield("/snd run " .. FateMacro)
 
             repeat
                 Wait(1)
             until not IsMacroRunningOrQueued(FateMacro)
 
-            LogInfo(string.format("%s FateMacro has stopped", EchoPrefix))
+            LogInfo(string.format("%s FateMacro has stopped", LogPrefix))
             NewBicolorGemCount = GetItemCount(26807)
 
             if NewBicolorGemCount == OldBicolorGemCount then
-                LogInfo(string.format("%s FateMacro exited without completing any FATEs.", EchoPrefix))
+                LogInfo(string.format("%s FateMacro exited without completing any FATEs.", LogPrefix))
                 FarmingZoneIndex = FarmingZoneIndex + 1
                 NextAtmaTable    = GetNextAtmaTable()
             else
-                LogInfo(string.format("%s FateMacro completed a FATE successfully.", EchoPrefix))
+                LogInfo(string.format("%s FateMacro completed a FATE successfully.", LogPrefix))
                 DidFateOnPass      = true
                 OldBicolorGemCount = NewBicolorGemCount
             end
@@ -131,6 +131,6 @@ while NextAtmaTable ~= nil do
     Wait(1)
 end
 
-LogInfo(string.format("%s Farming complete. No more Atma needed.", EchoPrefix))
+LogInfo(string.format("%s Farming complete. No more Atma needed.", LogPrefix))
 
 --============================== END =============================--

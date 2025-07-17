@@ -106,7 +106,7 @@ ExtractMateria         = Config.Get("ExtractMateria")
 ReduceEphemerals       = Config.Get("ReduceEphemerals")
 MoveSpotsAfter         = Config.Get("MoveSpotsAfter")
 ResetHardAmissAfter    = Config.Get("ResetHardAmissAfter")
-EchoPrefix             = "[Forager]"
+LogPrefix              = "[Forager]"
 
 ------------------
 --    Scrips    --
@@ -266,12 +266,12 @@ function InterpolateCoordinates(startCoords, endCoords, n)
     local x = startCoords.x + n * (endCoords.x - startCoords.x)
     local y = startCoords.y + n * (endCoords.y - startCoords.y)
     local z = startCoords.z + n * (endCoords.z - startCoords.z)
-    LogInfo(string.format("%s Resulting coordinates: x=%.2f, y=%.2f, z=%.2f", EchoPrefix, x, y, z))
+    LogInfo(string.format("%s Resulting coordinates: x=%.2f, y=%.2f, z=%.2f", LogPrefix, x, y, z))
     return { waypointX = x, waypointY = y, waypointZ = z }
 end
 
 function GetWaypoint(coords, n)
-    LogInfo(string.format("%s Calculating waypoint for n = %.2f", EchoPrefix, n))
+    LogInfo(string.format("%s Calculating waypoint for n = %.2f", LogPrefix, n))
     local total_distance = 0
     local distances = {}
 
@@ -304,7 +304,7 @@ function GetWaypoint(coords, n)
 end
 
 function SelectNewFishingHole()
-    LogInfo(string.format("%s Selecting new fishing hole", EchoPrefix))
+    LogInfo(string.format("%s Selecting new fishing hole", LogPrefix))
 
     -- If there are waypoints defined, select a random interpolated waypoint
     SelectedFishingSpot = GetWaypoint(SelectedFish.fishingSpots.waypoints, math.random())
@@ -339,14 +339,14 @@ function TeleportFishingZone()
         SelectNewFishingHole()
         ResetHardAmissTime = os.clock()
         State = CharacterState.goToFishingHole
-        LogInfo(string.format("%s State Change: GoToFishingHole", EchoPrefix))
+        LogInfo(string.format("%s State Change: GoToFishingHole", LogPrefix))
     end
 end
 
 function GoToFishingHole()
     if not IsInZone(SelectedFish.zoneId) then
         State = CharacterState.TeleportFishingZone
-        LogInfo(string.format("%s State Change: TeleportFishingZone", EchoPrefix))
+        LogInfo(string.format("%s State Change: TeleportFishingZone", LogPrefix))
         return
     end
 
@@ -359,7 +359,7 @@ function GoToFishingHole()
         local z = GetPlayerRawZPos()
         local lastStuckCheckPosition = SelectedFishingSpot.lastStuckCheckPosition
         if GetDistanceToPoint(lastStuckCheckPosition.x, lastStuckCheckPosition.y, lastStuckCheckPosition.z) < 2 then
-            LogInfo(string.format("%s Stuck in same spot for over 10 seconds.", EchoPrefix))
+            LogInfo(string.format("%s Stuck in same spot for over 10 seconds.", LogPrefix))
             if PathfindInProgress() or PathIsRunning() then
                 PathStop()
             end
@@ -379,9 +379,9 @@ function GoToFishingHole()
         if not IsMounted() then
             UseMount()
             State = CharacterState.goToFishingHole
-            LogInfo(string.format("%s State Change: GoToFishingHole", EchoPrefix))
+            LogInfo(string.format("%s State Change: GoToFishingHole", LogPrefix))
         elseif not (PathfindInProgress() or PathIsRunning()) then
-            LogInfo(string.format("%s Moving to waypoint: (%.2f, %.2f, %.2f)", EchoPrefix, SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ))
+            LogInfo(string.format("%s Moving to waypoint: (%.2f, %.2f, %.2f)", LogPrefix, SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ))
             PathfindAndMoveTo(SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ, true)
             WaitForPathRunning()
         end
@@ -395,7 +395,7 @@ function GoToFishingHole()
     end
 
     State = CharacterState.fishing
-    LogInfo(string.format("%s State Change: Fishing", EchoPrefix))
+    LogInfo(string.format("%s State Change: Fishing", LogPrefix))
 end
 
 ResetHardAmissTime = os.clock()
@@ -403,18 +403,18 @@ ResetHardAmissTime = os.clock()
 function Fishing()
     if GetItemCount(29717) == 0 then
         State = CharacterState.buyFishingBait
-        LogInfo(string.format("%s State Change: Buy Fishing Bait", EchoPrefix))
+        LogInfo(string.format("%s State Change: Buy Fishing Bait", LogPrefix))
         return
     end
 
     if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
-        LogInfo(string.format("%s Not enough inventory space", EchoPrefix))
+        LogInfo(string.format("%s Not enough inventory space", LogPrefix))
         if IsGathering() then
             yield("/ac Quit")
             Wait(1)
         else
             State = CharacterState.turnIn
-            LogInfo(string.format("%s State Change: TurnIn", EchoPrefix))
+            LogInfo(string.format("%s State Change: TurnIn", LogPrefix))
         end
         return
     end
@@ -427,11 +427,11 @@ function Fishing()
             end
         else
             State = CharacterState.turnIn
-            LogInfo(string.format("%s State Change: Forced TurnIn to avoid hard amiss", EchoPrefix))
+            LogInfo(string.format("%s State Change: Forced TurnIn to avoid hard amiss", LogPrefix))
         end
         return
     elseif os.clock() - SelectedFishingSpot.startTime > (MoveSpotsAfter*60) then
-        LogInfo(string.format("%s Switching fishing spots", EchoPrefix))
+        LogInfo(string.format("%s Switching fishing spots", LogPrefix))
         if IsGathering() then
             if not IsFishing() then
                 yield("/ac Quit")
@@ -440,7 +440,7 @@ function Fishing()
         else
             SelectNewFishingHole()
             State = CharacterState.ready
-            LogInfo(string.format("%s State Change: Timeout Ready", EchoPrefix))
+            LogInfo(string.format("%s State Change: Timeout Ready", LogPrefix))
         end
         return
     elseif IsGathering() then
@@ -457,13 +457,13 @@ function Fishing()
         local z = GetPlayerRawZPos()
         local lastStuckCheckPosition = SelectedFishingSpot.lastStuckCheckPosition
         if GetDistanceToPoint(lastStuckCheckPosition.x, lastStuckCheckPosition.y, lastStuckCheckPosition.z) < 2 then
-            LogInfo(string.format("%s Stuck in same spot for over 10 seconds.", EchoPrefix))
+            LogInfo(string.format("%s Stuck in same spot for over 10 seconds.", LogPrefix))
             if PathfindInProgress() or PathIsRunning() then
                 PathStop()
             end
             SelectNewFishingHole()
             State = CharacterState.ready
-            LogInfo(string.format("%s State Change: Stuck Ready", EchoPrefix))
+            LogInfo(string.format("%s State Change: Stuck Ready", LogPrefix))
             return
         else
             SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
@@ -487,14 +487,14 @@ function BuyFishingBait()
             yield("/callback Shop true -1")
         else
             State = CharacterState.goToFishingHole
-            LogInfo(string.format("%s State Change: GoToFishingHole", EchoPrefix))
+            LogInfo(string.format("%s State Change: GoToFishingHole", LogPrefix))
         end
         return
     end
 
     if not IsInZone(FishingBaitMerchant.zoneId) then
         Teleport(FishingBaitMerchant.aetheryte)
-        LogInfo(string.format("%s Teleporting to %s", EchoPrefix, FishingBaitMerchant.aetheryte))
+        LogInfo(string.format("%s Teleporting to %s", LogPrefix, FishingBaitMerchant.aetheryte))
         return
     end
 
@@ -517,7 +517,7 @@ function BuyFishingBait()
         if not PathfindInProgress() and not PathIsRunning() then
             PathfindAndMoveTo(FishingBaitMerchant.x, FishingBaitMerchant.y, FishingBaitMerchant.z)
             WaitForPathRunning()
-            LogInfo(string.format("%s Moving to merchant at (%.2f, %.2f, %.2f)", EchoPrefix, FishingBaitMerchant.x, FishingBaitMerchant.y, FishingBaitMerchant.z))
+            LogInfo(string.format("%s Moving to merchant at (%.2f, %.2f, %.2f)", LogPrefix, FishingBaitMerchant.x, FishingBaitMerchant.y, FishingBaitMerchant.z))
         end
         return
     end
@@ -557,7 +557,7 @@ function Dismount(callbackState)
         yield('/ac dismount')
     elseif IsPlayerAvailable() and callbackState ~= nil then
         State = callbackState
-        LogInfo(string.format("%s State Change: %s", EchoPrefix, tostring(callbackState)))
+        LogInfo(string.format("%s State Change: %s", LogPrefix, tostring(callbackState)))
     end
     Wait(1)
 end
@@ -569,13 +569,13 @@ function GoToHubCity()
     end
 
     if not IsInZone(SelectedHubCity.zoneId) then
-        LogInfo(string.format("%s Not in hub city zone. Teleporting to %s.", EchoPrefix, tostring(SelectedHubCity.zoneName)))
+        LogInfo(string.format("%s Not in hub city zone. Teleporting to %s.", LogPrefix, tostring(SelectedHubCity.zoneName)))
         Teleport(SelectedHubCity.aetheryte)
         return
     end
 
     State = CharacterState.ready
-    LogInfo(string.format("%s State Change: Ready", EchoPrefix))
+    LogInfo(string.format("%s State Change: Ready", LogPrefix))
 end
 
 ------------------
@@ -588,15 +588,15 @@ function TurnIn()
             yield("/callback CollectablesShop true -1")
         elseif GetItemCount(GathererScripId) >= ScripExchangeItem.price then
             State = CharacterState.scripExchange
-            LogInfo(string.format("%s State Change: ScripExchange", EchoPrefix))
+            LogInfo(string.format("%s State Change: ScripExchange", LogPrefix))
         else
             State = CharacterState.ready
-            LogInfo(string.format("%s State Change: Ready", EchoPrefix))
+            LogInfo(string.format("%s State Change: Ready", LogPrefix))
         end
 
     elseif not IsInZone(SelectedHubCity.zoneId) then
         State = CharacterState.goToHubCity
-        LogInfo(string.format("%s State Change: GoToHubCity", EchoPrefix))
+        LogInfo(string.format("%s State Change: GoToHubCity", LogPrefix))
 
 ---@diagnostic disable-next-line: undefined-field
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
@@ -619,7 +619,7 @@ function TurnIn()
             yield("/callback CollectablesShop true -1")
         else
             State = CharacterState.scripExchange
-            LogInfo(string.format("%s State Change: ScripExchange", EchoPrefix))
+            LogInfo(string.format("%s State Change: ScripExchange", LogPrefix))
         end
 
     else
@@ -649,15 +649,15 @@ function ScripExchange()
             yield("/callback InclusionShop true -1")
         elseif GetItemCount(SelectedFish.fishId) > 0 then
             State = CharacterState.turnIn
-            LogInfo(string.format("%s State Change: TurnIn", EchoPrefix))
+            LogInfo(string.format("%s State Change: TurnIn", LogPrefix))
         else
             State = CharacterState.ready
-            LogInfo(string.format("%s State Change: Ready", EchoPrefix))
+            LogInfo(string.format("%s State Change: Ready", LogPrefix))
         end
 
     elseif not IsInZone(SelectedHubCity.zoneId) then
         State = CharacterState.goToHubCity
-        LogInfo(string.format("%s State Change: GoToHubCity", EchoPrefix))
+        LogInfo(string.format("%s State Change: GoToHubCity", LogPrefix))
 
 ---@diagnostic disable-next-line: undefined-field
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
@@ -670,7 +670,7 @@ function ScripExchange()
         yield("/callback TelepotTown false -1")
 
     elseif GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > 1 then
-        LogInfo(string.format("%s Moving to Scrip Exchange.", EchoPrefix))
+        LogInfo(string.format("%s Moving to Scrip Exchange.", LogPrefix))
         if not (PathfindInProgress() or PathIsRunning()) then
             PathfindAndMoveTo(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z)
             WaitForPathRunning()
@@ -714,11 +714,11 @@ function ProcessDoAutoRetainers()
             end
         elseif not ARRetainersWaitingToBeProcessed() and IsPlayerAvailable() then
             State = CharacterState.ready
-            LogInfo(string.format("%s State Change: Ready", EchoPrefix))
+            LogInfo(string.format("%s State Change: Ready", LogPrefix))
         end
 
     elseif not (IsInZone(SelectedHubCity.zoneId) or IsInZone(SelectedHubCity.aethernet.aethernetZoneId)) then
-        LogInfo(string.format("%s Not in hub city zone. Teleporting to hub city.", EchoPrefix))
+        LogInfo(string.format("%s Not in hub city zone. Teleporting to hub city.", LogPrefix))
         Teleport(SelectedHubCity.aetheryte)
 
     elseif SelectedHubCity.retainerBell.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) + 10) then
@@ -763,7 +763,7 @@ function ExecuteGrandCompanyTurnIn()
         }
 
         if not IsInZone(gcZoneIds[playerGC]) then
-            LogInfo(string.format("%s Not in Grand Company zone. Using Aethernet...", EchoPrefix))
+            LogInfo(string.format("%s Not in Grand Company zone. Using Aethernet...", LogPrefix))
             Lifestream("gc")
             Wait(1)
 
@@ -771,13 +771,13 @@ function ExecuteGrandCompanyTurnIn()
             return
 
         else
-            LogInfo(string.format("%s Starting Deliveroo turn-in.", EchoPrefix))
+            LogInfo(string.format("%s Starting Deliveroo turn-in.", LogPrefix))
             yield("/deliveroo enable")
         end
 
     else
         State = CharacterState.ready
-        LogInfo(string.format("%s State Change: Ready", EchoPrefix))
+        LogInfo(string.format("%s State Change: Ready", LogPrefix))
     end
 end
 
@@ -789,7 +789,7 @@ function ExecuteRepair()
 
     if IsAddonVisible("Repair") then
         if not NeedsRepair(RepairThreshold) then
-            LogInfo(string.format("%s Repair not needed. Closing Repair menu.", EchoPrefix))
+            LogInfo(string.format("%s Repair not needed. Closing Repair menu.", LogPrefix))
             yield("/callback Repair true -1")
         else
             yield("/callback Repair true 0")
@@ -807,16 +807,16 @@ function ExecuteRepair()
     if SelfRepair then
         if GetItemCount(33916) > 0 then -- Dark Matter
             if NeedsRepair(RepairThreshold) and not IsAddonVisible("Repair") then
-                LogInfo(string.format("%s Opening self-repair menu.", EchoPrefix))
+                LogInfo(string.format("%s Opening self-repair menu.", LogPrefix))
                 yield("/generalaction repair")
             elseif not NeedsRepair(RepairThreshold) then
                 State = CharacterState.ready
-                LogInfo(string.format("%s State Change: Ready", EchoPrefix))
+                LogInfo(string.format("%s State Change: Ready", LogPrefix))
             end
 
         elseif ShouldAutoBuyDarkMatter then
             if not IsInZone(129) then
-                LogInfo(string.format("%s Teleporting to Limsa to buy Dark Matter.", EchoPrefix))
+                LogInfo(string.format("%s Teleporting to Limsa to buy Dark Matter.", LogPrefix))
                 Teleport("Limsa Lominsa Lower Decks")
                 return
             end
@@ -845,14 +845,14 @@ function ExecuteRepair()
             end
 
         else
-            LogInfo(string.format("%s SelfRepair disabled. Using Limsa mender instead.", EchoPrefix))
+            LogInfo(string.format("%s SelfRepair disabled. Using Limsa mender instead.", LogPrefix))
             SelfRepair = false
         end
 
     else
         if NeedsRepair(RepairThreshold) then
             if not IsInZone(129) then
-                LogInfo(string.format("%s Teleporting to Limsa for mender.", EchoPrefix))
+                LogInfo(string.format("%s Teleporting to Limsa for mender.", LogPrefix))
                 Teleport("Limsa Lominsa Lower Decks")
                 return
             end
@@ -878,7 +878,7 @@ function ExecuteRepair()
 
         else
             State = CharacterState.ready
-            LogInfo(string.format("%s State Change: Ready", EchoPrefix))
+            LogInfo(string.format("%s State Change: Ready", LogPrefix))
         end
     end
 end
@@ -894,7 +894,7 @@ function ExecuteExtractMateria()
     end
 
     if CanExtractMateria() > 0 and GetInventoryFreeSlotCount() > 1 then
-        LogInfo(string.format("%s Extracting materia...", EchoPrefix))
+        LogInfo(string.format("%s Extracting materia...", LogPrefix))
         MateriaExtraction(true)
 
     else
@@ -902,21 +902,21 @@ function ExecuteExtractMateria()
             yield("/callback Materialize true -1")
         else
             State = CharacterState.ready
-            LogInfo(string.format("%s State Change: Ready", EchoPrefix))
+            LogInfo(string.format("%s State Change: Ready", LogPrefix))
         end
     end
 end
 
 function FoodCheck()
     if not Player.Status.StatusId == 48 and Food ~= "" then
-        LogInfo(string.format("%s Using food: %s", EchoPrefix, Food))
+        LogInfo(string.format("%s Using food: %s", LogPrefix, Food))
         yield("/item " .. Food)
     end
 end
 
 function PotionCheck()
     if not Player.Status.StatusId == 49 and Potion ~= "" then
-        LogInfo(string.format("%s Using potion: %s", EchoPrefix, Potion))
+        LogInfo(string.format("%s Using potion: %s", LogPrefix, Potion))
         yield("/item " .. Potion)
     end
 end
@@ -924,12 +924,12 @@ end
 function SelectFishTable()
     for _, fishTable in ipairs(FishTable) do
         if ScripColorToFarm == fishTable.scripColor then
-            LogInfo(string.format("%s Selected fish table for scrip color: %s", EchoPrefix, ScripColorToFarm))
+            LogInfo(string.format("%s Selected fish table for scrip color: %s", LogPrefix, ScripColorToFarm))
             return fishTable
         end
     end
 
-    LogInfo(string.format("%s No matching fish table found for scrip color: %s", EchoPrefix, ScripColorToFarm))
+    LogInfo(string.format("%s No matching fish table found for scrip color: %s", LogPrefix, ScripColorToFarm))
     return nil
 end
 
@@ -938,41 +938,41 @@ function Ready()
     PotionCheck()
 
     if not IsPlayerAvailable() then
-        LogInfo(string.format("%s Player not available. Waiting...", EchoPrefix))
+        LogInfo(string.format("%s Player not available. Waiting...", LogPrefix))
         return
     end
 
     if RepairThreshold > 0 and NeedsRepair(RepairThreshold) and (SelfRepair and GetItemCount(33916) > 0) then
         State = CharacterState.repair
-        LogInfo(string.format("%s State Change: Repair", EchoPrefix))
+        LogInfo(string.format("%s State Change: Repair", LogPrefix))
 
     elseif ExtractMateria and CanExtractMateria() > 0 and GetInventoryFreeSlotCount() > 1 then
         State = CharacterState.extractMateria
-        LogInfo(string.format("%s State Change: ExtractMateria", EchoPrefix))
+        LogInfo(string.format("%s State Change: ExtractMateria", LogPrefix))
 
     elseif DoAutoRetainers and ARRetainersWaitingToBeProcessed() and GetInventoryFreeSlotCount() > 1 then
         State = CharacterState.processDoAutoRetainers
-        LogInfo(string.format("%s State Change: ProcessingRetainers", EchoPrefix))
+        LogInfo(string.format("%s State Change: ProcessingRetainers", LogPrefix))
 
     elseif GetInventoryFreeSlotCount() <= MinInventoryFreeSlots and GetItemCount(SelectedFish.fishId) > 0 then
         State = CharacterState.turnIn
-        LogInfo(string.format("%s State Change: TurnIn", EchoPrefix))
+        LogInfo(string.format("%s State Change: TurnIn", LogPrefix))
 
     elseif GrandCompanyTurnIn and GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
         State = CharacterState.gcTurnIn
-        LogInfo(string.format("%s State Change: GCTurnIn", EchoPrefix))
+        LogInfo(string.format("%s State Change: GCTurnIn", LogPrefix))
 
     elseif GetInventoryFreeSlotCount() <= MinInventoryFreeSlots and GetItemCount(SelectedFish.fishId) == 0 then
         State = CharacterState.goToHubCity
-        LogInfo(string.format("%s State Change: GoToSolutionNine", EchoPrefix))
+        LogInfo(string.format("%s State Change: GoToSolutionNine", LogPrefix))
 
     elseif GetItemCount(29717) == 0 then -- no bait
         State = CharacterState.buyFishingBait
-        LogInfo(string.format("%s State Change: Buy Fishing Bait", EchoPrefix))
+        LogInfo(string.format("%s State Change: Buy Fishing Bait", LogPrefix))
 
     else
         State = CharacterState.goToFishingHole
-        LogInfo(string.format("%s State Change: GoToFishingHole", EchoPrefix))
+        LogInfo(string.format("%s State Change: GoToFishingHole", LogPrefix))
     end
 end
 
@@ -996,7 +996,7 @@ for _, item in ipairs(ScripExchangeItems) do
 end
 
 if ScripExchangeItem == nil then
-    LogInfo(string.format("%s Cannot recognize item: %s. Stopping script.", EchoPrefix, ItemToExchange))
+    LogInfo(string.format("%s Cannot recognize item: %s. Stopping script.", LogPrefix, ItemToExchange))
     yield("/snd stop all")
     return
 end
@@ -1004,15 +1004,15 @@ end
 SelectedFish = SelectFishTable()
 
 if IsInZone(SelectedFish.zoneId) then
-    LogInfo(string.format("%s In fishing zone already. Selecting new fishing hole.", EchoPrefix))
+    LogInfo(string.format("%s In fishing zone already. Selecting new fishing hole.", LogPrefix))
     SelectNewFishingHole()
 end
 
 yield("/ahon")
-LogInfo(string.format("%s AutoHook enabled.", EchoPrefix))
+LogInfo(string.format("%s AutoHook enabled.", LogPrefix))
 
 SetAutoHookPreset(SelectedFish.autoHookPreset)
-LogInfo(string.format("%s Set AutoHook preset: %s", EchoPrefix, SelectedFish.autoHookPreset))
+LogInfo(string.format("%s Set AutoHook preset: %s", LogPrefix, SelectedFish.autoHookPreset))
 
 SelectedHubCity = nil
 for _, city in ipairs(HubCities) do
@@ -1028,16 +1028,16 @@ end
 
 -- Validate hub city
 if SelectedHubCity == nil then
-    LogInfo(string.format("%s Could not find hub city: %s. Stopping script.", EchoPrefix, HubCity))
+    LogInfo(string.format("%s Could not find hub city: %s. Stopping script.", LogPrefix, HubCity))
     PathStop()
     return
 end
 
-LogInfo(string.format("%s Selected hub city: %s (%s)", EchoPrefix, SelectedHubCity.zoneName, SelectedHubCity.aetheryte or "Unknown Aetheryte"))
+LogInfo(string.format("%s Selected hub city: %s (%s)", LogPrefix, SelectedHubCity.zoneName, SelectedHubCity.aetheryte or "Unknown Aetheryte"))
 
 -- Ensure the player is using Fisher job
 if GetClassJobId() ~= 18 then
-    LogInfo(string.format("%s Switching to Fisher.", EchoPrefix))
+    LogInfo(string.format("%s Switching to Fisher.", LogPrefix))
     yield("/gs change Fisher")
     Wait(1)
 end

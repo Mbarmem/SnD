@@ -99,7 +99,7 @@ MinInventoryFreeSlots  = Config.Get("MinInventoryFreeSlots")
 RepairThreshold        = Config.Get("RepairThreshold")
 DoAutoRetainers        = Config.Get("DoAutoRetainers")
 ExtractMateria         = Config.Get("ExtractMateria")
-EchoPrefix             = "[Artisan]"
+LogPrefix              = "[Artisan]"
 
 ----------------
 --    Loop    --
@@ -432,15 +432,15 @@ function Checks()
     end
 
     if not ClassId then
-        LogInfo(string.format("%s Could not find crafter class: %s", EchoPrefix, CrafterClass))
+        LogInfo(string.format("%s Could not find crafter class: %s", LogPrefix, CrafterClass))
         yield("/snd stop all")
         return
     elseif GetClassJobId() ~= ClassId then
         yield("/gearset change " .. CrafterClass)
         Wait(1)
-        LogInfo(string.format("%s Crafter class changed to: %s", EchoPrefix, CrafterClass))
+        LogInfo(string.format("%s Crafter class changed to: %s", LogPrefix, CrafterClass))
     else
-        LogInfo(string.format("%s Crafter class is: %s", EchoPrefix, CrafterClass))
+        LogInfo(string.format("%s Crafter class is: %s", LogPrefix, CrafterClass))
     end
 
     if ScripColor == "Orange" then
@@ -448,7 +448,7 @@ function Checks()
     elseif ScripColor == "Purple" then
         CollectableScrip = PurpleScrips
     else
-        LogInfo(string.format("%s Cannot recognize crafter scrip color: %s", EchoPrefix, ScripColor))
+        LogInfo(string.format("%s Cannot recognize crafter scrip color: %s", LogPrefix, ScripColor))
         Wait(1)
         yield("/snd stop all")
         return
@@ -463,7 +463,7 @@ function Checks()
     end
 
     if SelectedItemToBuy == nil then
-        LogInfo(string.format("%s Could not find %s on the list of scrip exchange items.", EchoPrefix, ItemToBuy))
+        LogInfo(string.format("%s Could not find %s on the list of scrip exchange items.", LogPrefix, ItemToBuy))
         yield("/snd stop all")
         return
     end
@@ -482,13 +482,13 @@ function MoveForExchange()
     end
 
     if SelectedHubCity == nil then
-        LogInfo(string.format("%s Could not find hub city: %s", EchoPrefix, HubCity))
+        LogInfo(string.format("%s Could not find hub city: %s", LogPrefix, HubCity))
         yield("/snd stop all")
         return
     end
 
     StateReached = false
-    LogInfo(string.format("%s Moving to Collectable Appraiser", EchoPrefix))
+    LogInfo(string.format("%s Moving to Collectable Appraiser", LogPrefix))
 
     while not StateReached do
         ScripExchangeDistance = GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z)
@@ -522,7 +522,7 @@ function InitializeLoop()
         if numericLoop and numericLoop > 0 then
             LoopAmount = numericLoop
         else
-            LogInfo(string.format("%s Invalid loop count. Stopping script.", EchoPrefix))
+            LogInfo(string.format("%s Invalid loop count. Stopping script.", LogPrefix))
             yield("/snd stop all")
             return
         end
@@ -531,7 +531,7 @@ end
 
 function LoopCount()
     if StopFlag then
-        LogInfo(string.format("%s Stopping the script. Out of Mats...", EchoPrefix))
+        LogInfo(string.format("%s Stopping the script. Out of Mats...", LogPrefix))
         yield("/snd stop all")
         return
     end
@@ -549,12 +549,12 @@ function ArtisanCraftingList()
     end
 
     if not ArtisanListId or ArtisanListId == 0 then
-        LogInfo(string.format("%s No valid Artisan list found for this class.", EchoPrefix))
+        LogInfo(string.format("%s No valid Artisan list found for this class.", LogPrefix))
         yield("/snd stop all")
         return
     end
 
-    LogInfo(string.format("%s Preparing to Craft: %s", EchoPrefix, ItemName))
+    LogInfo(string.format("%s Preparing to Craft: %s", LogPrefix, ItemName))
 
     while GetInventoryFreeSlotCount() > MinInventoryFreeSlots do
         if not ArtisanIsListRunning() then
@@ -568,7 +568,7 @@ function ArtisanCraftingList()
 
             if not IsCrafting() then
                 StopFlag = true
-                LogInfo(string.format("%s Stopping Artisan Crafting List..Out of Mats..", EchoPrefix))
+                LogInfo(string.format("%s Stopping Artisan Crafting List..Out of Mats..", LogPrefix))
                 Wait(1)
                 return
             end
@@ -722,7 +722,7 @@ end
 Checks()
 InitializeLoop()
 while LoopAmount == true or Loop <= LoopAmount do
-    LogInfo(string.format("%s Loop Count: %s", EchoPrefix, Loop))
+    LogInfo(string.format("%s Loop Count: %s", LogPrefix, Loop))
     MoveToInn()
     DoAR(DoAutoRetainers)
     ArtisanCraftingList()

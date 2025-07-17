@@ -28,7 +28,7 @@ dependencies:
 --    General    --
 -------------------
 
-EchoPrefix = "[MinionFarmer]"
+LogPrefix = "[MinionFarmer]"
 
 --============================ CONSTANT ==========================--
 
@@ -93,7 +93,7 @@ Dungeons = {
 for _, minions in ipairs(Dungeons) do
     RunCount = 1
     while GetItemCount(minions.minionId) < 1 do
-        LogInfo(string.format("%s [Run: %d] DutyMode: %s - %s", EchoPrefix, RunCount, minions.dutyMode, minions.Name))
+        LogInfo(string.format("%s [Run: %d] DutyMode: %s - %s", LogPrefix, RunCount, minions.dutyMode, minions.Name))
         yield("/ad cfg Unsynced "..minions.dutyUnsynced)
         yield("/ad run "..minions.dutyMode.." "..minions.dutyId.." 1 true")
         yield("/bmrai on")
@@ -104,7 +104,7 @@ for _, minions in ipairs(Dungeons) do
         end
         RunCount = RunCount + 1
     end
-    LogInfo(string.format("%s %s is done.", EchoPrefix, minions.Name))
+    LogInfo(string.format("%s %s is done.", LogPrefix, minions.Name))
 end
 
 --============================== END =============================--

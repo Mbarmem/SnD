@@ -29,7 +29,7 @@ configs:
 -------------------
 
 DoAutoRetainers = Config.Get("DoAutoRetainers")
-EchoPrefix      = "[MGP]"
+LogPrefix       = "[MGP]"
 
 --============================ CONSTANT ==========================--
 
@@ -50,7 +50,7 @@ function PlayTTUntilNeeded()
         Wait(1)
     end
 
-    LogInfo(string.format("%s Starting Triple Triad...", EchoPrefix))
+    LogInfo(string.format("%s Starting Triple Triad...", LogPrefix))
     yield("/saucy tt go")
     Wait(1)
 
@@ -68,7 +68,7 @@ function PlayTTUntilNeeded()
     end
 
     Wait(1)
-    LogInfo(string.format("%s Done Playing... Heading to Summoning Bell", EchoPrefix))
+    LogInfo(string.format("%s Done Playing... Heading to Summoning Bell", LogPrefix))
 end
 
 function CharacterStates.goToFoundation()
@@ -78,20 +78,20 @@ function CharacterStates.goToFoundation()
         WaitForLifeStream()
 
         State = CharacterStates.goToLastVigil
-        LogInfo(string.format("%s State changed to: GoToLastVigil", EchoPrefix))
+        LogInfo(string.format("%s State changed to: GoToLastVigil", LogPrefix))
     else
         Teleport("Foundation")
         WaitForTeleport()
 
         State = CharacterStates.goToFoundation
-        LogInfo(string.format("%s State changed to: GoToFoundation", EchoPrefix))
+        LogInfo(string.format("%s State changed to: GoToFoundation", LogPrefix))
     end
 end
 
 function CharacterStates.goToLastVigil()
     if not IsInZone(419) then
         State = CharacterStates.goToFoundation
-        LogInfo(string.format("%s State changed to: GoToFoundation", EchoPrefix))
+        LogInfo(string.format("%s State changed to: GoToFoundation", LogPrefix))
         return
     end
 
@@ -100,13 +100,13 @@ function CharacterStates.goToLastVigil()
     WaitForZoneChange()
 
     State = CharacterStates.playTTandAR
-    LogInfo(string.format("%s State changed to: PlayTTandAR", EchoPrefix))
+    LogInfo(string.format("%s State changed to: PlayTTandAR", LogPrefix))
 end
 
 function CharacterStates.playTTandAR()
     if not IsInZone(433) then
         State = CharacterStates.goToLastVigil
-        LogInfo(string.format("%s State changed to: GoToLastVigil", EchoPrefix))
+        LogInfo(string.format("%s State changed to: GoToLastVigil", LogPrefix))
         return
     end
 
@@ -131,10 +131,10 @@ function CharacterStates.playTTandAR()
         WaitForLifeStream()
 
         State = CharacterStates.goToLastVigil
-        LogInfo(string.format("%s State changed to: GoToLastVigil", EchoPrefix))
+        LogInfo(string.format("%s State changed to: GoToLastVigil", LogPrefix))
     else
         State = CharacterStates.playTTandAR
-        LogInfo(string.format("%s State changed to: PlayTTandAR", EchoPrefix))
+        LogInfo(string.format("%s State changed to: PlayTTandAR", LogPrefix))
     end
 end
 
