@@ -349,7 +349,7 @@ function PerformAction(action)
     LogInfo(string.format("%s Attempting to perform actionId: %s with threshold: %s", EchoPrefix, tostring(action.actionId), tostring(threshold)))
 
     function tryExecute()
-        if not Svc.Condition[27] then
+        if not IsPlayerCasting() then
             Actions.ExecuteGeneralAction(action.actionId)
         end
     end
