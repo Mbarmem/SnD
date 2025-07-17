@@ -225,6 +225,31 @@ function GetPlayerRawZPos()
     return z
 end
 
+--------------------------------------------------------------------
+
+-- Checks if the player currently has a status with the specified StatusId.
+function HasStatusId(targetId)
+    local statusList = Player.Status
+    LogDebug(string.format("[MoLib] Checking for StatusId = %d", targetId))
+
+    if not statusList then
+        LogDebug("[MoLib] Player.Status is nil.")
+        return false
+    end
+
+    for i = 0, statusList.Count - 1 do
+        local status = statusList:get_Item(i)
+
+        if status and status.StatusId == targetId then
+            LogDebug(string.format("[MoLib] Found matching StatusId at index %d", i))
+            return true
+        end
+    end
+
+    LogDebug(string.format("[MoLib] StatusId %d not found in Player.Status list.", targetId))
+    return false
+end
+
 --============================= IPC ==============================--
 
 --===============--

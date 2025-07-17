@@ -530,6 +530,12 @@ function InitializeLoop()
 end
 
 function LoopCount()
+    if StopFlag then
+        LogInfo(string.format("%s Stopping the script. Out of Mats...", EchoPrefix))
+        yield("/snd stop all")
+        return
+    end
+
     Loop = (Loop or 0) + 1
 end
 
@@ -715,7 +721,7 @@ end
 
 Checks()
 InitializeLoop()
-while LoopAmount == true or Loop <= LoopAmount and not StopFlag do
+while LoopAmount == true or Loop <= LoopAmount do
     LogInfo(string.format("%s Loop Count: %s", EchoPrefix, Loop))
     MoveToInn()
     DoAR(DoAutoRetainers)
