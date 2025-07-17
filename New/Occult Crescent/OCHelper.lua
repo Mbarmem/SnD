@@ -77,19 +77,19 @@ Zones = {
 function MoveToOC()
     WaitForPlayer()
 
-    local command = "/li Occult"
+    local command = "Occult"
     Wait(1)
 
     if IsInZone(Zones.PhantomVillage) then
-        command = "/li EnterOC"
+        command = "EnterOC"
     end
 
     Wait(1)
-    yield(command)
+    Lifestream(command)
 
     LogInfo(string.format("%s Teleporting to Occult Crescent...", LogPrefix))
 
-    waitForLifeStream()
+    WaitForLifeStream()
 end
 
 
@@ -122,7 +122,7 @@ function StanceOff()
         return
     end
 
-    if HasStatus("Defiance") then
+    if HasStatusId(91) then
         LogInfo(string.format("%s Turning off Defiance stance...", LogPrefix))
         yield("/action Defiance")
         Wait(1)
