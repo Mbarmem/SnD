@@ -1,65 +1,60 @@
---[[
+--[=====[
+[[SND Metadata]]
+author: Mo
+version: 2.0.0
+description: Artisan - Script for Crafting & Turning In
+plugin_dependencies:
+- Artisan
+- TeleporterPlugin
+- Lifestream
+- vnavmesh
+- AutoRetainer
+dependencies:
+- source: ''
+  name: SnD
+  type: git
+configs:
+  Alexandrite:
+    default: 0
+    description: Initial Count of Alexandrtie in the Inventory.
+    type: int
+    required: true
+  DesiredCount:
+    default: 75
+    description: Desired Count of Alexandrtie required.
+    type: int
+    required: true
 
-***********************************************
-*              Alexandrite Farm               *
-*         Script for ARR Relic Farm           *
-***********************************************
+[[End Metadata]]
+--]=====]
 
-            **********************
-            *     Author: Mo     *
-            **********************
-
-            **********************
-            * Version  |  2.0.1  *
-            **********************
-
-]]
-
----------------------------------- Import ---------------------------------
-
-require("MoLib")
-
--------------------------------- Variables --------------------------------
+--=========================== VARIABLES ==========================--
 
 -------------------
 --    General    --
 -------------------
 
-local Alexandrite     = 0
-local Desired_count   = 75
-local EchoPrefix      = "[Alexandrite] "
+Alexandrite     = Config.Get("Alexandrite")
+DesiredCount    = Config.Get("DesiredCount")
+LogPrefix       = "[Alexandrite]"
 
---------------------------------- Constant --------------------------------
+--=========================== FUNCTIONS ==========================--
 
----------------------
---    Condition    --
----------------------
-
-CharacterCondition = {
-    mounted   = 4,
-    inCombat  = 26
-}
-
--------------------------------- Functions --------------------------------
-
--- Main routine: obtains maps, deciphers, travels, digs, fights, and loots.
 function Main()
-    LogInfo(string.format("%sStarting cycle. Alexandrite so far: %s", EchoPrefix, Alexandrite))
+    LogInfo(string.format("%s Starting cycle. Alexandrite so far: %s", LogPrefix, Alexandrite))
 
-    -- Acquire Mysterious Map if none in inventory
-    if Inventory.GetItemCount(7884) < 1 then
-        LogInfo(string.format("%sNo map found, teleporting to Revenant's Toll.", EchoPrefix))
+    if GetItemCount(7884) < 1 then
+        LogInfo(string.format("%s No map found, teleporting to Revenant's Toll.", LogPrefix))
         Teleport("Revenant's Toll")
 
-        LogInfo(string.format("%sTraveling to Auriana to purchase map.", EchoPrefix))
+        LogInfo(string.format("%s Traveling to Auriana to purchase map.", LogPrefix))
         MoveTo(63.3, 31.15, -736.3)
         WaitForNavMesh()
         yield("/ac Sprint")
         WaitForPathRunning()
         PlayerTest()
 
-        Target("Auriana")
-        yield("/interact")
+        Interact("Auriana")
         Wait(1)
         repeat
 
@@ -80,7 +75,7 @@ function Main()
     end
 
     -- Decipher the map
-    LogInfo(string.format("%sDeciphering the map.", EchoPrefix))
+    LogInfo(string.format("%s Deciphering the map.", LogPrefix))
     yield("/ac Decipher")
     WaitForAddon("SelectIconString")
     yield("/callback SelectIconString true 0")
@@ -100,8 +95,8 @@ function Main()
     TeleportFlagZone()
 
     -- Mount up and fly to flag
-    if not GetCharacterCondition(CharacterCondition.mounted) then
-        yield('/gaction "mount roulette"')
+    if not IsMounted() then
+        UseMount()
     end
     WaitForNavMesh()
 
@@ -110,7 +105,7 @@ function Main()
     WaitForPathRunning()
 
     -- Dig at flag and approach chest
-    LogInfo(string.format("%sDigging at flag.", EchoPrefix))
+    LogInfo(string.format("%s Digging at flag.", LogPrefix))
     yield("/generalaction Dig")
     Wait(5)
     PlayerTest()
@@ -122,7 +117,7 @@ function Main()
     -- Dismount and open chest
     yield("/ac dismount")
     Wait(2)
-    yield("/interact")
+    Interact("Treasure Coffer")
     WaitForAddon("SelectYesno")
     yield("/callback SelectYesno true 0")
 
@@ -130,32 +125,31 @@ function Main()
     repeat
         yield("/rotation auto")
         Wait(1)
-    until not GetCharacterCondition(CharacterCondition.inCombat)
+    until not IsInCombat()
     yield("/rotation off")
 
     -- Loot
-    Target("Treasure Coffer")
-    yield("/interact")
+    Interact("Treasure Coffer")
     Wait(1)
-    if GetCharacterCondition(CharacterCondition.inCombat) then
+    if IsInCombat() then
         repeat
             yield("/rotation auto")
             Wait(1)
-        until not GetCharacterCondition(CharacterCondition.inCombat)
+        until not IsInCombat()
         yield("/rotation off")
     end
 
-    LogInfo(string.format("%sCycle completed.", EchoPrefix))
+    LogInfo(string.format("%s Cycle completed.", LogPrefix))
 end
 
--------------------------------- Execution --------------------------------
+--=========================== EXECUTION ==========================--
 
-while Alexandrite < Desired_count do
+while Alexandrite < DesiredCount do
     Main()
     Alexandrite = Alexandrite + 5
-    Echo(string.format("Alexandrite Count: %d / %d", Alexandrite, Desired_count), EchoPrefix)
+    LogInfo(string.format("%s Alexandrite Count: %d / %d", LogPrefix, Alexandrite, DesiredCount))
 end
 
-Echo(string.format("Farming complete! Total Alexandrite: %d", Alexandrite), EchoPrefix)
+LogInfo(string.format("%s Farming complete! Total Alexandrite: %d", LogPrefix, Alexandrite))
 
------------------------------------ End -----------------------------------
+--============================== END =============================--
