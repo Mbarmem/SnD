@@ -122,19 +122,19 @@ PurpleGathererScripId = 33914
 ----------------------------
 
 CharacterState = {
-    ready = Ready,
-    TeleportFishingZone = TeleportFishingZone,
-    goToFishingHole = GoToFishingHole,
-    extractMateria = ExecuteExtractMateria,
-    repair = ExecuteRepair,
-    exchangingVouchers = ExecuteBicolorExchange,
+    ready                  = Ready,
+    TeleportFishingZone    = TeleportFishingZone,
+    goToFishingHole        = GoToFishingHole,
+    extractMateria         = ExecuteExtractMateria,
+    repair                 = ExecuteRepair,
+    exchangingVouchers     = ExecuteBicolorExchange,
     processDoAutoRetainers = ProcessDoAutoRetainers,
-    gcTurnIn = ExecuteGrandCompanyTurnIn,
-    fishing = Fishing,
-    turnIn = TurnIn,
-    scripExchange = ScripExchange,
-    goToHubCity = GoToHubCity,
-    buyFishingBait = BuyFishingBait
+    gcTurnIn               = ExecuteGrandCompanyTurnIn,
+    fishing                = Fishing,
+    turnIn                 = TurnIn,
+    scripExchange          = ScripExchange,
+    goToHubCity            = GoToHubCity,
+    buyFishingBait         = BuyFishingBait,
 }
 
 -----------------
@@ -978,8 +978,6 @@ end
 
 --=========================== EXECUTION ==========================--
 
-StopFlag = false
-
 LastStuckCheckTime = os.clock()
 LastStuckCheckPosition = {x=GetPlayerRawXPos(), y=GetPlayerRawYPos(), z=GetPlayerRawZPos()}
 
@@ -996,9 +994,9 @@ for _, item in ipairs(ScripExchangeItems) do
 end
 
 if ScripExchangeItem == nil then
+    Echo(string.format("Cannot recognize item: %s. Stopping script.", ItemToExchange), LogPrefix)
     LogInfo(string.format("%s Cannot recognize item: %s. Stopping script.", LogPrefix, ItemToExchange))
-    yield("/snd stop all")
-    return
+    StopRunningMacros()
 end
 
 SelectedFish = SelectFishTable()
@@ -1008,7 +1006,7 @@ if IsInZone(SelectedFish.zoneId) then
     SelectNewFishingHole()
 end
 
-yield("/ahon")
+SetAutoHookState(true)
 LogInfo(string.format("%s AutoHook enabled.", LogPrefix))
 
 SetAutoHookPreset(SelectedFish.autoHookPreset)
@@ -1028,9 +1026,9 @@ end
 
 -- Validate hub city
 if SelectedHubCity == nil then
+    Echo(string.format("Could not find hub city: %s. Stopping script.", HubCity), LogPrefix)
     LogInfo(string.format("%s Could not find hub city: %s. Stopping script.", LogPrefix, HubCity))
-    PathStop()
-    return
+    StopRunningMacros()
 end
 
 LogInfo(string.format("%s Selected hub city: %s (%s)", LogPrefix, SelectedHubCity.zoneName, SelectedHubCity.aetheryte or "Unknown Aetheryte"))
@@ -1045,7 +1043,7 @@ end
 -- Set initial state and run the loop
 State = CharacterState.ready
 
-while not StopFlag do
+while true do
     State()
     Wait(0.1)
 end

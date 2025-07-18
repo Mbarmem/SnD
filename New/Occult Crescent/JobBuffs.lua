@@ -417,4 +417,7 @@ if SwitchedJob and originalJob then
     ChangeSupportJob(originalJob)
 end
 
+Echo(string.format("Job Buufs script completed successfully..!!"), LogPrefix)
+LogInfo(string.format("%s Job Buufs MGP script completed successfully..!!", LogPrefix))
+
 --============================== END =============================--

@@ -107,4 +107,7 @@ for _, minions in ipairs(Dungeons) do
     LogInfo(string.format("%s %s is done.", LogPrefix, minions.Name))
 end
 
+Echo(string.format("Minion Farmer script completed successfully..!!"), LogPrefix)
+LogInfo(string.format("%s Minion Farmer script completed successfully..!!", LogPrefix))
+
 --============================== END =============================--

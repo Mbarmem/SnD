@@ -432,9 +432,9 @@ function Checks()
     end
 
     if not ClassId then
+        Echo(string.format("Could not find crafter class: %s", CrafterClass), LogPrefix)
         LogInfo(string.format("%s Could not find crafter class: %s", LogPrefix, CrafterClass))
-        yield("/snd stop all")
-        return
+        StopRunningMacros()
     elseif GetClassJobId() ~= ClassId then
         yield("/gearset change " .. CrafterClass)
         Wait(1)
@@ -448,10 +448,9 @@ function Checks()
     elseif ScripColor == "Purple" then
         CollectableScrip = PurpleScrips
     else
+        Echo(string.format("Cannot recognize crafter scrip color: %s", ScripColor), LogPrefix)
         LogInfo(string.format("%s Cannot recognize crafter scrip color: %s", LogPrefix, ScripColor))
-        Wait(1)
-        yield("/snd stop all")
-        return
+        StopRunningMacros()
     end
 
     local SelectedItemToBuy = nil
@@ -463,9 +462,9 @@ function Checks()
     end
 
     if SelectedItemToBuy == nil then
+        Echo(string.format("Could not find %s on the list of scrip exchange items.", ItemToBuy), LogPrefix)
         LogInfo(string.format("%s Could not find %s on the list of scrip exchange items.", LogPrefix, ItemToBuy))
-        yield("/snd stop all")
-        return
+        StopRunningMacros()
     end
 end
 
@@ -482,9 +481,9 @@ function MoveForExchange()
     end
 
     if SelectedHubCity == nil then
+        Echo(string.format("Could not find hub city: %s", HubCity), LogPrefix)
         LogInfo(string.format("%s Could not find hub city: %s", LogPrefix, HubCity))
-        yield("/snd stop all")
-        return
+        StopRunningMacros()
     end
 
     StateReached = false
@@ -522,18 +521,18 @@ function InitializeLoop()
         if numericLoop and numericLoop > 0 then
             LoopAmount = numericLoop
         else
+            Echo(string.format("Invalid loop count. Stopping script."), LogPrefix)
             LogInfo(string.format("%s Invalid loop count. Stopping script.", LogPrefix))
-            yield("/snd stop all")
-            return
+            StopRunningMacros()
         end
     end
 end
 
 function LoopCount()
     if StopFlag then
+        Echo(string.format("Stopping the script. Out of Mats..."), LogPrefix)
         LogInfo(string.format("%s Stopping the script. Out of Mats...", LogPrefix))
-        yield("/snd stop all")
-        return
+        StopRunningMacros()
     end
 
     Loop = (Loop or 0) + 1
@@ -549,9 +548,9 @@ function ArtisanCraftingList()
     end
 
     if not ArtisanListId or ArtisanListId == 0 then
+        Echo(string.format("No valid Artisan list found for this class."), LogPrefix)
         LogInfo(string.format("%s No valid Artisan list found for this class.", LogPrefix))
-        yield("/snd stop all")
-        return
+        StopRunningMacros()
     end
 
     LogInfo(string.format("%s Preparing to Craft: %s", LogPrefix, ItemName))
@@ -732,5 +731,8 @@ while LoopAmount == true or Loop <= LoopAmount do
     CollectableAppraiserScripExchange()
     LoopCount()
 end
+
+Echo(string.format("Artisan script completed successfully..!!"), LogPrefix)
+LogInfo(string.format("%s Artisan script completed successfully..!!", LogPrefix))
 
 --============================== END =============================--

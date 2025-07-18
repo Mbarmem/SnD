@@ -147,4 +147,7 @@ while State do
     Wait(1)
 end
 
+Echo(string.format("Triple Triad MGP script completed successfully..!!"), LogPrefix)
+LogInfo(string.format("%s Triple Triad MGP script completed successfully..!!", LogPrefix))
+
 --============================== END =============================--

@@ -114,4 +114,7 @@ for _, cards in ipairs(Dungeons) do
     LogInfo(string.format("%s %s is done.", LogPrefix, cards.Name))
 end
 
+Echo(string.format("Triple Triad Farmer script completed successfully..!!"), LogPrefix)
+LogInfo(string.format("%s Triple Triad Farmer script completed successfully..!!", LogPrefix))
+
 --============================== END =============================--

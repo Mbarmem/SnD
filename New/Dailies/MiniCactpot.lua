@@ -123,7 +123,7 @@ while not StopFlag do
     Wait(0.1)
 end
 
-Echo(string.format("Mini Cactpot script completed successfully!"), LogPrefix)
-LogInfo(string.format("%s Mini Cactpot script completed successfully!", LogPrefix))
+Echo(string.format("Mini Cactpot script completed successfully..!!"), LogPrefix)
+LogInfo(string.format("%s Mini Cactpot script completed successfully..!!", LogPrefix))
 
 --============================== END =============================--

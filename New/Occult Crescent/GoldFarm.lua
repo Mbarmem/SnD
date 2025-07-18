@@ -160,6 +160,7 @@ while true do
         VislandResume()
         yield("/rsr auto")
         yield("/bmrai on")
+        return
     elseif IsVislandRouteRunning() then
         Wait(1)
         return

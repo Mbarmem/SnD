@@ -177,4 +177,7 @@ while true do
     Wait(1)
 end
 
+Echo(string.format("Triple Triad Packs script completed successfully..!!"), LogPrefix)
+LogInfo(string.format("%s Triple Triad Packs script completed successfully..!!", LogPrefix))
+
 --============================== END =============================--

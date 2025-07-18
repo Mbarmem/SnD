@@ -94,7 +94,7 @@ end
 GoToSeller()
 Main()
 
-Echo(string.format("Cards sold. Stopping the script."), LogPrefix)
-LogInfo(string.format("%s Cards sold. Stopping the script.", LogPrefix))
+Echo(string.format("Triple Triad Seller script completed successfully..!!"), LogPrefix)
+LogInfo(string.format("%s Triple Triad Seller script completed successfully..!!", LogPrefix))
 
 --============================== END =============================--

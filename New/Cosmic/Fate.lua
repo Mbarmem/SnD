@@ -31,36 +31,39 @@ CharacterStates = {}
 
 --=========================== FUNCTIONS ==========================--
 
-function CharacterStates.Start()
+function CharacterStates.firstStep()
     MoveToTarget("Mini Rover")
     Interact("Mini Rover")
     WaitForPlayer()
-    State = "Charge"
-    LogInfo(string.format("%s State changed to: Charge", LogPrefix))
+    State = CharacterStates.secondStep
+    LogInfo(string.format("%s State changed to: SecondStep", LogPrefix))
 end
 
-function CharacterStates.Charge()
+function CharacterStates.secondStep()
     MoveToTarget("Charging Module")
     Interact("Charging Module")
     WaitForPlayer()
-    State = "End"
-    LogInfo(string.format("%s State changed to: End", LogPrefix))
+    State = CharacterStates.thirdStep
+    LogInfo(string.format("%s State changed to: ThirdStep", LogPrefix))
 end
 
-function CharacterStates.End()
+function CharacterStates.thirdStep()
     MoveToTarget("Depleted Mini Rover")
     Interact("Depleted Mini Rover")
     WaitForPlayer()
-    State = "Start"
-    LogInfo(string.format("%s State changed to: Start", LogPrefix))
+    State = CharacterStates.firstStep
+    LogInfo(string.format("%s State changed to: FirstStep", LogPrefix))
 end
 
 --=========================== EXECUTION ==========================--
 
-State = CharacterStates.Start
+State = CharacterStates.firstStep
 
 while State do
     State()
 end
+
+Echo(string.format("Cosmic Fate script completed successfully..!!"), LogPrefix)
+LogInfo(string.format("%s Cosmic Fate script completed successfully..!!", LogPrefix))
 
 --============================== END =============================--

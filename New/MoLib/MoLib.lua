@@ -1274,7 +1274,7 @@ end
 
 --------------------------------------------------------------------
 
---- Attempts to mount using a specific mount name or Mount Roulette if none is provided.
+-- Attempts to mount using a specific mount name or Mount Roulette if none is provided.
 function UseMount(mountName)
     if mountName ~= nil and mountName ~= "" then
         LogDebug(string.format("[MoLib] Attempting to mount: %s", mountName))
@@ -1283,6 +1283,14 @@ function UseMount(mountName)
         LogDebug("[MoLib] Attempting Mount Roulette")
         yield('/gaction "Mount Roulette"')
     end
+end
+
+--------------------------------------------------------------------
+
+-- Stops all currently running macros.
+function StopRunningMacros()
+    LogDebug(string.format("[MoLib] Stopping all macros..."))
+    yield("/snd stop all")
 end
 
 --=========================== INVENTORY ==========================--

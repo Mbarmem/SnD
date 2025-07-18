@@ -419,6 +419,7 @@ for _, alliedSociety in ipairs(ToDoList) do
     end
 end
 
-LogInfo(string.format("%s Daily quest script completed successfully.", LogPrefix))
+Echo(string.format("Daily Allied Quests script completed successfully..!!"), LogPrefix)
+LogInfo(string.format("%s Daily Allied Quests script completed successfully..!!", LogPrefix))
 
 --============================== END =============================--

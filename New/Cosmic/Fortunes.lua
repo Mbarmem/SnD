@@ -30,12 +30,22 @@ FullAuto           = Config.Get("FullAuto")
 MinimumCreditsLeft = Config.Get("MinimumCreditsLeft")
 LogPrefix          = "[CosmicFortunes]"
 
+--============================ CONSTANT ==========================--
+
+---------------
+--    NPC    --
+---------------
+
 Npc = {
-    name = "Orbitingway",
-    x = 17,
-    y = -1,
-    z = -16
+    Name = "Orbitingway",
+    X = 17,
+    Y = -1,
+    Z = -16
 }
+
+-----------------
+--    Items    --
+-----------------
 
 ItemsWanted = {
     ["Vacuum Suit Identification Key"]              = 200,
@@ -103,12 +113,12 @@ end
 --=========================== EXECUTION ==========================--
 
 if not IsAddonReady("WKSLottery") then
-    while GetDistanceToPoint(Npc.x, Npc.y, Npc.z) > 3 do
+    while GetDistanceToPoint(Npc.X, Npc.Y, Npc.Z) > 3 do
         if not PathfindInProgress() and not PathIsRunning() then
-            if GetDistanceToPoint(Npc.x, Npc.y, Npc.z) > 80 then
+            if GetDistanceToPoint(Npc.X, Npc.Y, Npc.Z) > 80 then
                 yield('/ac "Duty Action I"')
             else
-                MoveTo(Npc.x, Npc.y, Npc.z)
+                MoveTo(Npc.X, Npc.Y, Npc.Z)
             end
         end
         WaitForPlayer()
@@ -118,7 +128,7 @@ if not IsAddonReady("WKSLottery") then
         PathStop()
     end
 
-    Interact(Npc.name)
+    Interact(Npc.Name)
 
     while not IsPlayerAvailable() do
         Wait(0.1)
@@ -207,5 +217,8 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
         CloseAddons()
     end
 end
+
+Echo(string.format("Cosmic Fortunes script completed successfully..!!"), LogPrefix)
+LogInfo(string.format("%s Cosmic Fortunes script completed successfully..!!", LogPrefix))
 
 --============================== END =============================--
