@@ -2,9 +2,10 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Crescent Occult - Script for Gold Farming
+description: Occult Crescent - Script for Gold Farming
 plugin_dependencies:
 - RotationSolver
+- BossModReborn
 - TeleporterPlugin
 - Lifestream
 - vnavmesh

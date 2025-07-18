@@ -2,13 +2,12 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Artisan - Script for Crafting & Turning In
+description: Alexandrite - ARR Relic Helper
 plugin_dependencies:
-- Artisan
+- Globetrotter
 - TeleporterPlugin
 - Lifestream
 - vnavmesh
-- AutoRetainer
 dependencies:
 - source: ''
   name: SnD

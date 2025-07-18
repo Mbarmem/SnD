@@ -2,8 +2,9 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Crescent Occult - Automates CE farming in South Horn
+description: Occult Crescent - Automates CE farming in South Horn
 plugin_dependencies:
+- BOCCHI
 - RotationSolver
 - BossModReborn
 - TeleporterPlugin
@@ -154,7 +155,7 @@ function UseBuffs()
     yield("/snd run " .. BuffMacro)
     repeat
         Wait(1)
-    until not IsMacroRunningOrQueued(BuffMacro)
+    until IsPlayerAvailable()
 
     Wait(1)
 end

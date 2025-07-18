@@ -2,13 +2,9 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Artisan - Script for Crafting & Turning In
+description: Occult Crescent - Script for Quick Buffs
 plugin_dependencies:
-- Artisan
-- TeleporterPlugin
-- Lifestream
 - vnavmesh
-- AutoRetainer
 dependencies:
 - source: ''
   name: SnD
