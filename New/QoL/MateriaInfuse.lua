@@ -35,7 +35,7 @@ configs:
 -------------------
 
 SphereScroll  = Config.Get("SphereScroll")
-LogPrefix     = "[Materia Infuse]"
+LogPrefix     = "[MateriaInfuse]"
 
 MateriaToUse  = {
     [1] = Config.Get("FirstMateriaToUse"),
