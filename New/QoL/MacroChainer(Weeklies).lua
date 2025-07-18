@@ -2,7 +2,7 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Macro Chainer - Script for running multiple macros in sequence for daily tasks
+description: Macro Chainer - Script for running multiple macros in sequence for weekly tasks
 plugin_dependencies:
 - Lifestream
 - vnavmesh
@@ -24,11 +24,15 @@ local macroDone          = false
 local currentEchoTrigger = nil
 local LogPrefix          = "[MacroChainer]"
 
-local MacrosToRun        = {
-    { macroName = "MiniCactpot",            echoTrigger = "MiniCactpot"  },
-    { macroName = "TTSeller",               echoTrigger = "TTSeller"     },
-    { macroName = "AlliedSocietiesQuests", 	echoTrigger = "AlliedQuests" },
+local MacrosToRun = {
+    { macroName = "ChoboRacing",     echoTrigger = "ChoboRacing"     },
+    { macroName = "IslandSanctuary", echoTrigger = "IslandSanctuary" },
+    { macroName = "JumboCactpot",    echoTrigger = "JumboCactpot"    },
+    { macroName = "LoV",             echoTrigger = "LoV"             },
+    { macroName = "TT",              echoTrigger = "TT"              },
+    { macroName = "WondrousTails",   echoTrigger = "WondrousTails"   },
 }
+
 
 --=========================== FUNCTIONS ==========================--
 
