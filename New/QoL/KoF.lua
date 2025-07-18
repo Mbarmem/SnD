@@ -1,43 +1,46 @@
---[[
+--[=====[
+[[SND Metadata]]
+author: Mo
+version: 2.0.0
+description: Kupo Of Fortunes - Script for Diadem Fortunes
+plugin_dependencies:
+- TeleporterPlugin
+- Lifestream
+- vnavmesh
+dependencies:
+- source: ''
+  name: SnD
+  type: git
+configs:
+  Alexandrite:
+    default: 0
+    description: Initial Count of Alexandrtie in the Inventory.
+    type: int
+    required: true
+  DesiredCount:
+    default: 75
+    description: Desired Count of Alexandrtie required.
+    type: int
+    required: true
 
-***********************************************
-*              Kupo Of Fortunes               *
-*          Script for Diadem Fortunes         *
-***********************************************
+[[End Metadata]]
+--]=====]
 
-            **********************
-            *     Author: Mo     *
-            **********************
-
-            **********************
-            * Version  |  2.0.0  *
-            **********************
-
-]]
-
----------------------------------- Import ---------------------------------
-
-require("MoLib")
-
--------------------------------- Variables --------------------------------
+--=========================== VARIABLES ==========================--
 
 -------------------
 --    General    --
 -------------------
 
-local Loop          = 0
-local VoucherItemId = 26807    -- Kupo Voucher (adjust if needed)
-local LoopCount     = Inventory.GetItemCount(VoucherItemId)
-local EchoPrefix    = "[KoF] "
+LogPrefix  = "[KoF]"
 
--------------------------------- Functions --------------------------------
+--=========================== FUNCTIONS ==========================--
 
--- Moves to target, interacts, and handles dialogue prompts
 function MoveAndInteract()
-    MoveToTarget()
+    MoveToTarget("Lizbeth", 5)
     Wait(1)
 
-    yield("/interact")
+    Interact("Lizbeth")
     Wait(1)
 
     repeat
@@ -50,7 +53,6 @@ function MoveAndInteract()
     until IsPlayerAvailable()
 end
 
--- Core function: interacts with Lizbeth and processes a Kupo draw
 function KoF()
     Target("Lizbeth")
     MoveAndInteract()
@@ -58,22 +60,28 @@ function KoF()
     CloseAddons()
 end
 
--------------------------------- Execution --------------------------------
+--=========================== EXECUTION ==========================--
+
+local Loop          = 0
+local VoucherItemId = 26807    -- Kupo Voucher (adjust if needed)
+local LoopCount     = GetItemCount(VoucherItemId)
 
 if LoopCount == 0 then
-    Echo("No Kupo Vouchers found. Script stopped.", EchoPrefix)
-    yield("/snd stop all")
+    Echo("No Kupo Vouchers found. Script stopped..!!", LogPrefix)
+    LogInfo(string.format("%s No Kupo Vouchers found. Script stopped..!!", LogPrefix))
+    StopRunningMacros()
 end
 
-Echo(string.format("Starting KoF — Found %d Kupo Vouchers.", LoopCount), EchoPrefix)
+Echo(string.format("Starting KoF — Found %d Kupo Vouchers.", LoopCount), LogPrefix)
 
 while Loop < LoopCount do
-    LogInfo(string.format("%sRunning KoF iteration %d/%d...", EchoPrefix, Loop + 1, LoopCount))
+    LogInfo(string.format("%s Running KoF iteration %d/%d...", LogPrefix, Loop + 1, LoopCount))
     KoF()
     Loop = Loop + 1
     Wait(0.1)
 end
 
-Echo("Kupo of Fortunes complete!", EchoPrefix)
+Echo("Kupo of Fortunes script completed..!!", LogPrefix)
+LogInfo(string.format("%s Kupo of Fortunes script completed..!!", LogPrefix))
 
------------------------------------ End -----------------------------------
+--============================== END =============================--

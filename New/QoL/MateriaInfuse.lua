@@ -1,49 +1,48 @@
---[[
+--[=====[
+[[SND Metadata]]
+author: Mo
+version: 2.0.0
+description: Materia Infusion - Script for ARR Relic Materia Infusion
+plugin_dependencies:
+- TeleporterPlugin
+- Lifestream
+- vnavmesh
+dependencies:
+- source: ''
+  name: SnD
+  type: git
+configs:
+  SphereScroll:
+    description: Options - Curtana, Sphairai, Bravura, Gae Bolg, Artemis Bow, Thyrus, Stardust Rod, The Veil of Wiyu, Omnilex, Holy Shield, Yoshimitsu
+    type: string
+    required: true
+  FirstMateriaToUse:
+    description: Materia to use as a first option
+    type: string
+    required: true
+  SecondMateriaToUse:
+    description: Materia to use as a second option
+    type: string
+    required: true
 
-***********************************************
-*              Materia Infusion               *
-*    Script for ARR Relic Materia Infusion    *
-***********************************************
+[[End Metadata]]
+--]=====]
 
-            **********************
-            *     Author: Mo     *
-            **********************
-
-            **********************
-            * Version  |  2.0.0  *
-            **********************
-
-]]
-
----------------------------------- Import ---------------------------------
-
-require("MoLib")
-
--------------------------------- Variables --------------------------------
+--=========================== VARIABLES ==========================--
 
 -------------------
 --    General    --
 -------------------
 
-Sphere_Scroll = "Stardust Rod" -- Curtana, Sphairai, Bravura, Gae Bolg, Artemis Bow, Thyrus, Stardust Rod, The Veil of Wiyu, Omnilex, Holy Shield, Yoshimitsu
-MateriaToUse = {
-    [1] = "Quicktongue Materia",
-    [2] = "Quickarm Materia"
+SphereScroll  = Config.Get("SphereScroll")
+LogPrefix     = "[Materia Infuse]"
+
+MateriaToUse  = {
+    [1] = Config.Get("FirstMateriaToUse"),
+    [2] = Config.Get("SecondMateriaToUse"),
 }
 
-local ScrollId     = 0
-local InfusedCount = 0
-local EchoPrefix   = "[Materia Infuse] "
-
---------------------------------- Constant --------------------------------
-
----------------------
---    Condition    --
----------------------
-
-CharacterCondition = {
-    occupied = 39
-}
+--============================ CONSTANT ==========================--
 
 ----------------------
 --    Scroll Data   --
@@ -112,20 +111,21 @@ MateriaRange = {
     { itemName = MateriaToUse[2] .. " III", minRange = 66, maxRange = 75 }
 }
 
--------------------------------- Functions --------------------------------
+--=========================== FUNCTIONS ==========================--
 
 --- Checks for the selected Sphere Scroll in the ScrollList and validates its presence in the inventory.
 --- If not found, it logs an error and stops the script.
 function Checks()
     for _, scroll in ipairs(ScrollList) do
-        if Sphere_Scroll == scroll.itemName then
+        if SphereScroll == scroll.itemName then
             local item = Inventory.GetInventoryItem(scroll.itemId)
             ScrollId = scroll.itemId
 
             -- If the item isn't present in inventory, stop the script
             if not item or item.ItemId == 0 then
-                Echo(string.format("Stopping Script... Sphere Scroll not found in inventory!"), EchoPrefix)
-                yield("/snd stop all")
+                Echo(string.format("Sphere Scroll not found in inventory..Stopping Script..!!"), LogPrefix)
+                LogInfo(string.format("%s Sphere Scroll not found in inventory..Stopping Script..!!", LogPrefix))
+                StopRunningMacros()
             end
 
             return ScrollId
@@ -133,13 +133,14 @@ function Checks()
     end
 
     -- Scroll name was not found in the ScrollList
-    Echo(string.format("Stopping Script... Sphere Scroll '%s' is invalid!", Sphere_Scroll), EchoPrefix)
-    yield("/snd stop all")
+    Echo(string.format("Sphere Scroll '%s' is invalid..Stopping Script..!!", SphereScroll), LogPrefix)
+    LogInfo(string.format("%s Sphere Scroll '%s' is invalid..Stopping Script..!!", LogPrefix, SphereScroll))
+    StopRunningMacros()
 end
 
 -- Opens the Sphere Scroll UI and updates the InfusedCount
 function SphereScroll()
-    if Inventory.GetItemCount(ScrollId) > 0 and not IsAddonReady("RelicSphereScroll") then
+    if GetItemCount(ScrollId) > 0 and not IsAddonReady("RelicSphereScroll") then
         yield("/hold CONTROL")
         yield("/send KEY_1")
         yield("/release CONTROL")
@@ -150,7 +151,7 @@ function SphereScroll()
     InfusedCount = tonumber(infused) or 0
 end
 
--------------------------------- Execution --------------------------------
+--=========================== EXECUTION ==========================--
 
 -- Build fast lookup map for materia indices
 local ItemIndexMap = {}
@@ -165,7 +166,7 @@ for _, materia in ipairs(MateriaRange) do
     local itemIndex = ItemIndexMap[materia.itemName]
     if itemIndex then
         while InfusedCount >= materia.minRange and InfusedCount < materia.maxRange do
-            LogInfo(string.format("%sInfusing %s (Index %d)...", EchoPrefix, materia.itemName, itemIndex))
+            LogInfo(string.format("%sInfusing %s (Index %d)...", LogPrefix, materia.itemName, itemIndex))
 
             yield(string.format("/callback RelicSphereScroll true 1 %d", itemIndex))
             Wait(1)
@@ -178,21 +179,22 @@ for _, materia in ipairs(MateriaRange) do
             repeat
                 Wait(0.1)
                 retryCount = retryCount + 1
-            until not GetCharacterCondition(CharacterCondition.occupied) or retryCount > 100
+            until IsPlayerAvailable() or retryCount > 100
 
             if retryCount > 100 then
-                Echo("Timed out waiting for infusion to complete. Exiting loop.", EchoPrefix)
+                LogInfo(string.format("%s Timed out waiting for infusion to complete. Exiting loop.", LogPrefix))
                 break
             end
 
-            PlayerTest()
+            WaitForPlayer()
             SphereScroll()
         end
     else
-        Echo(string.format("No item index found for '%s'", tostring(materia.itemName)), EchoPrefix)
+        LogInfo(string.format("%s No item index found for '%s'", LogPrefix, tostring(materia.itemName)))
     end
 end
 
-Echo("Materia infusion complete!", EchoPrefix)
+Echo("Materia Infusion script completed succesfully..!!", LogPrefix)
+LogInfo(string.format("%s Materia Infusion script completed succesfully..!!", LogPrefix))
 
 ----------------------------------- End -------------------------------------

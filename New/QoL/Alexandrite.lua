@@ -149,6 +149,7 @@ while Alexandrite < DesiredCount do
     LogInfo(string.format("%s Alexandrite Count: %d / %d", LogPrefix, Alexandrite, DesiredCount))
 end
 
-LogInfo(string.format("%s Farming complete! Total Alexandrite: %d", LogPrefix, Alexandrite))
+Echo(string.format("Farming complete..!! Total Alexandrite: %d", Alexandrite), LogPrefix)
+LogInfo(string.format("%s Farming complete..!! Total Alexandrite: %d", LogPrefix, Alexandrite))
 
 --============================== END =============================--
