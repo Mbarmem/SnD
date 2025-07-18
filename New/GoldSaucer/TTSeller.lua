@@ -93,6 +93,8 @@ end
 
 GoToSeller()
 Main()
+
+Echo(string.format("Cards sold. Stopping the script."), LogPrefix)
 LogInfo(string.format("%s Cards sold. Stopping the script.", LogPrefix))
 
 --============================== END =============================--

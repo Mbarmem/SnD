@@ -99,9 +99,6 @@ function CharacterStates.playMiniCactpot()
         State = CharacterStates.endState
         LogInfo(string.format("%s State Change: EndState", LogPrefix))
 
-    elseif GetTargetName() ~= Npc.Name then
-        Target(Npc.Name)
-
     else
         Interact(Npc.Name)
         Tickets = true
@@ -126,6 +123,7 @@ while not StopFlag do
     Wait(0.1)
 end
 
+Echo(string.format("Mini Cactpot script completed successfully!"), LogPrefix)
 LogInfo(string.format("%s Mini Cactpot script completed successfully!", LogPrefix))
 
 --============================== END =============================--
