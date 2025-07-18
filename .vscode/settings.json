@@ -13,6 +13,6 @@
   "Lua.diagnostics.globals": [
     "import", "yield", "Sleep", "Wait",
     "Dalamud", "Entity", "Player", "Config",
-    "IPC", "Instances"
+    "IPC", "Instances", "TriggerData"
   ]
 }
