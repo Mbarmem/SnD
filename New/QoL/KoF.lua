@@ -11,17 +11,6 @@ dependencies:
 - source: ''
   name: SnD
   type: git
-configs:
-  Alexandrite:
-    default: 0
-    description: Initial Count of Alexandrtie in the Inventory.
-    type: int
-    required: true
-  DesiredCount:
-    default: 75
-    description: Desired Count of Alexandrtie required.
-    type: int
-    required: true
 
 [[End Metadata]]
 --]=====]
