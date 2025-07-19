@@ -11,8 +11,17 @@
 
   // Global symbols you want the LSP to treat as defined
   "Lua.diagnostics.globals": [
-    "import", "yield", "Sleep", "Wait",
-    "Dalamud", "Entity", "Player", "Config",
-    "IPC", "Instances", "TriggerData"
+    "import",
+    "yield",
+    "Sleep",
+    "Wait",
+    "Dalamud",
+    "Entity",
+    "Player",
+    "Config",
+    "IPC",
+    "Instances",
+    "TriggerData",
+    "ActionType"
   ]
 }

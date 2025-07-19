@@ -1,79 +1,40 @@
---[[
+--[=====[
+[[SND Metadata]]
+author: Mo
+version: 2.0.0
+description: Chocobo Racing - A barebones script for weeklies
+plugin_dependencies:
+- SkipCutscene
+dependencies:
+- source: ''
+  name: SnD
+  type: git
+configs:
+  RunsToPlay:
+    default: 20
+    description: Number of runs to play.
+    type: int
+    required: true
+  RunsPlayed:
+    default: 0
+    description: Initial run count.
+    type: int
+    required: true
 
-****************************************************
-*               Weekly Chocobo Racing              *
-*                A barebones script.               *
-****************************************************
+[[End Metadata]]
+--]=====]
 
-              **********************
-              *     Author: Mo     *
-              **********************
-
-              **********************
-              * Version  |  2.0.0  *
-              **********************
-
-]]
-
----------------------------------- Import ---------------------------------
-
-require("MoLib")
-
--------------------------------- Variables --------------------------------
+--=========================== VARIABLES ==========================--
 
 --------------------
 --    Genereal    --
 --------------------
 
-local RunsToPlay   = 20 -- Number of runs to play (20 = max for weekly challenge log reward)
-local RunsPlayed   = 0  -- Leave default; will auto-increment
-local EchoPrefix   = "[ChoboRacing] "
+RunsToPlay   = Config.Get("RunsToPlay")
+RunsPlayed   = Config.Get("RunsPlayed")
+LogPrefix    = "[ChoboRacing]"
 
---------------------------------- Constant --------------------------------
-
--------------------
---    Plugins    --
--------------------
-
-RequiredPlugins = {
-    "SkipCutscene"
-}
-
----------------------
---    Condition    --
----------------------
-
-CharacterCondition = {
-    choboRacing = 12,
-    occupiedInCutSceneEvent = 35
-}
-
--------------------------------- Functions --------------------------------
-
--------------------
---    Plugins    --
--------------------
-
-function Plugins()
-    local missingPlugins = {}
-
-    -- Check for required plugins
-    for _, plugin in ipairs(RequiredPlugins) do
-        if not HasPlugin(plugin) then
-            table.insert(missingPlugins, plugin)
-        end
-    end
-
-    -- Report and handle missing plugins
-    if #missingPlugins > 0 then
-        for _, plugin in ipairs(missingPlugins) do
-            Echo(string.format("Missing required plugin: %s", plugin), EchoPrefix)
-        end
-        Echo(string.format("Stopping the script due to missing plugins."), EchoPrefix)
-        yield("/snd stop all")
-    end
-end
-
+--=========================== FUNCTIONS ==========================--
 
 ----------------
 --    Main    --
@@ -84,18 +45,18 @@ function DutyFinder()
         yield("/dutyfinder")
     end
     Wait(1)
-    yield("/waitaddon JournalDetail")
+    WaitForAddon("JournalDetail")
     Wait(1)
-    yield("/callback ContentsFinder true 12 1") --clears duty selection if applicable
+    yield("/callback ContentsFinder true 12 1")
     Wait(1)
-    yield("/callback ContentsFinder true 1 9") --open gold saucer tab in DF
+    yield("/callback ContentsFinder true 1 9")
     Wait(1)
-    yield("/callback ContentsFinder true 3 11") --select duty
+    yield("/callback ContentsFinder true 3 11")
     Wait(1)
-    yield("/callback ContentsFinder true 12 0") --click join
+    yield("/callback ContentsFinder true 12 0")
     Wait(1)
 
-    while not GetCharacterCondition(CharacterCondition.occupiedInCutSceneEvent) do
+    while not IsOccupiedInCutScene() do
         Wait(1)
         if IsAddonReady("ContentsFinderConfirm") then
             Wait(1)
@@ -104,19 +65,17 @@ function DutyFinder()
     end
 end
 
--- Use Sprint skill during race
 function SuperSprint()
-    if GetCharacterCondition(CharacterCondition.occupiedInCutSceneEvent) then
+    if IsOccupiedInCutScene() then
         repeat
             Wait(1)
-        until not GetCharacterCondition(CharacterCondition.occupiedInCutSceneEvent)
+        until not IsOccupiedInCutScene()
     end
-    yield("/wait 6")
+    Wait(6)
     Actions.ExecuteAction(58, ActionType.ChocoboRaceAbility)
-    yield("/wait 3")
+    Wait(3)
 end
 
--- Spam movement/acceleration key
 function KeySpam()
     repeat
         yield("/send KEY_1")
@@ -124,12 +83,11 @@ function KeySpam()
     until IsAddonReady("RaceChocoboResult")
 end
 
--- End match and update count
 function EndMatch()
-    yield("/waitaddon RaceChocoboResult <maxwait.500>")
+    WaitForAddon("RaceChocoboResult", 500)
     RunsPlayed = RunsPlayed + 1
     yield("/callback RaceChocoboResult true 1")
-    Echo("Runs played: " .. RunsPlayed, EchoPrefix)
+    LogInfo(string.format("%s Runs played: %s", LogPrefix, RunsPlayed))
     Wait(1)
     repeat
         Wait(1)
@@ -137,9 +95,8 @@ function EndMatch()
     Wait(3)
 end
 
--------------------------------- Execution --------------------------------
+--=========================== EXECUTION ==========================--
 
-Plugins()
 while RunsPlayed < RunsToPlay do
     DutyFinder()
     SuperSprint()
@@ -147,6 +104,7 @@ while RunsPlayed < RunsToPlay do
     EndMatch()
 end
 
-Echo("Loop Finished..!!", EchoPrefix)
+Echo("Chocobo Racing script completed sucessfully..!!", LogPrefix)
+LogInfo(string.format("%s Chocobo Racing script completed sucessfully..!!", LogPrefix))
 
------------------------------------ End -----------------------------------
+--============================== END =============================--

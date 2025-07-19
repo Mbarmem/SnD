@@ -127,11 +127,29 @@ end
 
 ---------------------------------------------------------------------
 
+-- Checks if the player is currently occupied in a quest event (e.g., cutscene or interactive scene)
+function IsOccupiedInQuestEvent()
+    local inQuestEvent = Svc.Condition[CharacterCondition.occupiedInQuestEvent]
+    LogDebug(string.format("[MoLib] IsOccupiedInQuestEvent: %s", tostring(inQuestEvent)))
+    return inQuestEvent
+end
+
+---------------------------------------------------------------------
+
 -- Checks if the player is currently bound by duty
 function IsBoundByDuty()
     local isBoundByDuty = Svc.Condition[CharacterCondition.boundByDuty] or Svc.Condition[CharacterCondition.boundByDuty56]
     LogDebug(string.format("[MoLib] IsBoundByDuty: %s", tostring(isBoundByDuty)))
     return isBoundByDuty
+end
+
+---------------------------------------------------------------------
+
+-- Checks if the player is currently occupied in a cutscene
+function IsOccupiedInCutScene()
+    local inCutscene = Svc.Condition[CharacterCondition.occupiedInCutscene]
+    LogDebug(string.format("[MoLib] OccupiedInCutscene: %s", tostring(inCutscene)))
+    return inCutscene
 end
 
 ---------------------------------------------------------------------

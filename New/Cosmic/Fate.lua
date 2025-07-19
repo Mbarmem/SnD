@@ -27,37 +27,38 @@ LogPrefix  = "[CosmicFate]"
 --    State Management    --
 ----------------------------
 
-CharacterStates = {}
+CharacterState = {}
 
 --=========================== FUNCTIONS ==========================--
 
-function CharacterStates.firstStep()
+function CharacterState.firstStep()
     MoveToTarget("Mini Rover")
     Interact("Mini Rover")
     WaitForPlayer()
-    State = CharacterStates.secondStep
+    State = CharacterState.secondStep
     LogInfo(string.format("%s State changed to: SecondStep", LogPrefix))
 end
 
-function CharacterStates.secondStep()
+function CharacterState.secondStep()
     MoveToTarget("Charging Module")
     Interact("Charging Module")
     WaitForPlayer()
-    State = CharacterStates.thirdStep
+    State = CharacterState.thirdStep
     LogInfo(string.format("%s State changed to: ThirdStep", LogPrefix))
 end
 
-function CharacterStates.thirdStep()
+function CharacterState.thirdStep()
     MoveToTarget("Depleted Mini Rover")
     Interact("Depleted Mini Rover")
     WaitForPlayer()
-    State = CharacterStates.firstStep
+    State = CharacterState.firstStep
     LogInfo(string.format("%s State changed to: FirstStep", LogPrefix))
 end
 
 --=========================== EXECUTION ==========================--
 
-State = CharacterStates.firstStep
+State = CharacterState.firstStep
+LogInfo(string.format("%s State changed to: FirstStep", LogPrefix))
 
 while State do
     State()

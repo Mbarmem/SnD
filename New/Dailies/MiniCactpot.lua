@@ -33,7 +33,7 @@ LogPrefix  = "[MiniCactpot]"
 --    State Management    --
 ----------------------------
 
-CharacterStates = {}
+CharacterState = {}
 
 local StopFlag  = false
 local State     = nil
@@ -45,16 +45,16 @@ local Tickets   = false
 --    Main    --
 ----------------
 
-function CharacterStates.ready()
+function CharacterState.ready()
     if not IsInZone(144) then
         Teleport("Gold Saucer")
     else
-        State = CharacterStates.goToCashier
-        LogInfo(string.format("%s State Change: GoToCashier", LogPrefix))
+        State = CharacterState.goToCashier
+        LogInfo(string.format("%s State changed to: GoToCashier", LogPrefix))
     end
 end
 
-function CharacterStates.goToCashier()
+function CharacterState.goToCashier()
     if GetDistanceToPoint(Aetheryte.X, Aetheryte.Y, Aetheryte.Z) <= 8 and PathIsRunning() then
         yield("/gaction jump")  -- Prevents stuck pathing near aetheryte
         Wait(3)
@@ -72,11 +72,11 @@ function CharacterStates.goToCashier()
         PathStop()
     end
 
-    State = CharacterStates.playMiniCactpot
-    LogInfo(string.format("%s State Change: PlayMiniCactpot", LogPrefix))
+    State = CharacterState.playMiniCactpot
+    LogInfo(string.format("%s State changed to: PlayMiniCactpot", LogPrefix))
 end
 
-function CharacterStates.playMiniCactpot()
+function CharacterState.playMiniCactpot()
     if IsAddonReady("LotteryDaily") then
         Wait(1)
 
@@ -96,8 +96,8 @@ function CharacterStates.playMiniCactpot()
         PathStop()
 
     elseif Tickets and IsPlayerAvailable() then
-        State = CharacterStates.endState
-        LogInfo(string.format("%s State Change: EndState", LogPrefix))
+        State = CharacterState.endState
+        LogInfo(string.format("%s State changed to: EndState", LogPrefix))
 
     else
         Interact(Npc.Name)
@@ -105,22 +105,20 @@ function CharacterStates.playMiniCactpot()
     end
 end
 
-function CharacterStates.endState()
-    if IsAddonReady("SelectString") then
-        yield("/callback SelectString true -1")
-    else
-        StopFlag = true
-    end
+function CharacterState.endState()
+    CloseAddons()
+    StopFlag = true
 end
 
 --=========================== EXECUTION ==========================--
 
-State = CharacterStates.ready
 yield("/at y")
+State = CharacterState.ready
+LogInfo(string.format("%s State changed to: Ready", LogPrefix))
 
 while not StopFlag do
     State()
-    Wait(0.1)
+    Wait(1)
 end
 
 Echo(string.format("Mini Cactpot script completed successfully..!!"), LogPrefix)

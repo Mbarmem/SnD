@@ -1,249 +1,124 @@
---[[
+--[=====[
+[[SND Metadata]]
+author: Mo
+version: 2.0.0
+description: Jumbo Cactpot - A barebones script for weeklies
+plugin_dependencies:
+- TeleporterPlugin
+- Lifestream
+- vnavmesh
+- TextAdvance
+dependencies:
+- source: ''
+  name: SnD
+  type: git
 
-******************************************
-*             Jumbo Cactpot              *
-*           A barebones script.          *
-******************************************
+[[End Metadata]]
+--]=====]
 
-         **********************
-         *     Author: Mo     *
-         **********************
-
-         **********************
-         * Version  |  1.0.0  *
-         **********************
-
-         *********************
-         *  Required Plugins *
-         *********************
-
-Plugins that are used are:
-    -> Teleporter
-    -> Lifestream : https://github.com/NightmareXIV/Lifestream/blob/main/Lifestream/Lifestream.json
-    -> Something Need Doing [Expanded Edition] : https://puni.sh/api/repository/croizat
-    -> TextAdvance
-    -> Vnavmesh
-
-]]
-
---------------------------------- Constant --------------------------------
+--=========================== VARIABLES ==========================--
 
 -------------------
---    Plugins    --
+--    General    --
 -------------------
 
-RequiredPlugins = {
-    "Lifestream",
-    "TeleporterPlugin",
-    "vnavmesh",
-    "TextAdvance"
-}
+LogPrefix = "[JumboCactpot]"
 
----------------------
---    Condition    --
----------------------
+--============================ CONSTANT ==========================--
 
-CharacterCondition = {
-    casting=27,
-    occupiedInQuestEvent=32,
-    occupied=39,
-    betweenAreas=45,
-    occupiedSummoningBell=50
-}
+----------------------------
+--    State Management    --
+----------------------------
 
--------------------------------- Functions --------------------------------
+CharacterState = {}
 
--------------------
---    Plugins    --
--------------------
+local RewardClaimed = false
+local TicketsPurchased = false
+local StopFlag = false
 
-function Plugins()
-    for _, plugin in ipairs(RequiredPlugins) do
-        if not HasPlugin(plugin) then
-            yield("/echo [JumboCactpot] Missing required plugin: "..plugin)
-            StopFlag = true
-        end
-    end
-    if StopFlag then
-        yield("/echo [JumboCactpot] Stopping the script..!!")
-        yield("/snd stop")
-    end
-end
-
-----------------
---    Wait    --
-----------------
-
-function PlayerTest()
-    repeat
-        yield("/wait 1")
-    until IsPlayerAvailable()
-end
-
-function WaitForTp()
-    yield("/wait 1")
-    while Svc.Condition[CharacterCondition.casting] do
-        yield("/wait 1")
-    end
-    yield("/wait 1")
-    while Svc.Condition[CharacterCondition.betweenAreas] do
-        yield("/wait 1")
-    end
-    PlayerTest()
-end
-
-----------------
---    Move    --
-----------------
-
-function Teleport(aetheryteName)
-    yield("/tp "..aetheryteName)
-    WaitForTp()
-end
-
-function Target(destination)
-    attemptsCount = 0
-    yield("/target "..destination)
-    yield("/wait 0.5")
-    while GetTargetName():lower() ~= destination:lower() do
-        yield("/target "..destination)
-        attemptsCount = attemptsCount + 1
-        if attemptsCount > 5 then
-            yield("/e Unable to Target "..destination.." Stopping")
-            return
-        end
-        yield("/wait 0.5")
-    end
-end
-
-function PathFinding()
-    yield("/wait 0.2")
-    while PathfindInProgress() do
-        yield("/wait 0.5")
-    end
-end
-
-function moveToTarget(minDistanceOverride)
-    minDistance = minDistanceOverride or 7
-    targetX = GetTargetRawXPos()
-    targetY = GetTargetRawYPos()
-    targetZ = GetTargetRawZPos()
-    PathfindAndMoveTo(targetX, targetY, targetZ, false)
-    PathFinding()
-    while GetDistanceToPoint(targetX, targetY, targetZ) > minDistance do
-        yield("/wait 0.1")
-    end
-    PathStop()
-end
-
-----------------
---    Misc    --
-----------------
-
-function GetOUT()
-    repeat
-        yield("/wait 1")
-        if IsAddonVisible("SelectIconString") then
-            yield("/callback SelectIconString true -1")
-        end
-        if IsAddonVisible("SelectString") then
-            yield("/callback SelectString true -1")
-        end
-    until IsPlayerAvailable()
-end
+--=========================== FUNCTIONS ==========================--
 
 ----------------
 --    Main    --
 ----------------
 
-function Start()
-    PlayerTest()
+function CharacterState.startJumboCactpot()
+    WaitForPlayer()
+    LogInfo(string.format("%s Teleporting to Gold Saucer...", LogPrefix))
     Teleport("Gold Saucer")
-    WaitForTp()
-    Target("Aetheryte")
-    moveToTarget()
-    yield("/li Cactpot Board")
-    WaitForTp()
+    WaitForTeleport()
+
+    MoveToTarget("Aetheryte", 6)
+    Lifestream("Cactpot Board")
+    WaitForLifeStream()
+
+    MoveToTarget("Cactpot Cashier")
+    Wait(1)
+
+    State = CharacterState.claimPrize
+    LogInfo(string.format("%s State changed to: ClaimPrize", LogPrefix))
 end
 
-function MoveToPrizeClaim()
-    Target("Cactpot Cashier")
-    moveToTarget()
-    yield("/wait 1")
-end
-
-RewardClaimed = false
-purchaseNewTickets = false
-function ClaimPrize()
+function CharacterState.claimPrize()
     if IsAddonVisible("LotteryWeeklyRewardList") then
         yield("/callback LotteryWeeklyRewardList true -1")
     elseif IsAddonVisible("SelectYesno") then
         yield("/callback SelectYesno true 0")
-    elseif RewardClaimed and not GetCharacterCondition(CharacterCondition.occupiedInQuestEvent) then
-        purchaseNewTickets = true
-    elseif HasTarget() then
-        yield("/interact")
-        yield("/echo [JumboCactpot] Claiming Prize..!!")
+    elseif RewardClaimed and not IsOccupiedInQuestEvent() then
+        State = CharacterState.purchaseNewTickets
+        LogInfo(string.format("%s State changed to: PurchaseNewTickets", LogPrefix))
+    else
+        Interact("Cactpot Cashier")
+        LogInfo(string.format("%s Interacting with Cactpot Cashier to claim prize...", LogPrefix))
         RewardClaimed = true
-        yield("/wait 1")
+        Wait(1)
     end
 end
 
-function MoveToPurchaseNewTickets()
-    Target("Jumbo Cactpot Broker")
-    moveToTarget()
-    yield("/wait 1")
-end
-
-TicketsPurchased = false
-endState = false
-function PurchaseNewTickets()
+function CharacterState.purchaseNewTickets()
     if IsAddonVisible("LotteryWeeklyRewardList") then
-        yield("/echo [JumboCactpot] You have already purchased tickets this week!")
         yield("/callback LotteryWeeklyRewardList true -1")
-        endState = true
+        State = CharacterState.endJumboCactpot
+        LogInfo(string.format("%s State changed to: EndJumboCactpot", LogPrefix))
     elseif IsAddonVisible("SelectString") then
         yield("/callback SelectString true 0")
     elseif IsAddonVisible("SelectYesno") then
         yield("/callback SelectYesno true 0")
     elseif IsAddonVisible("LotteryWeeklyInput") then
-        yield("/wait 1")
-        yield("/callback LotteryWeeklyInput true "..math.random(9999))
-    elseif TicketsPurchased and not GetCharacterCondition(CharacterCondition.occupiedInQuestEvent) then
-        yield("/echo [JumboCactpot] Purchased New Tickets..!!")
-        endState = true
-    elseif not HasTarget() or GetTargetName() ~= "Jumbo Cactpot Broker" or GetDistanceToTarget() > 7 then
-        PathfindAndMoveTo(120.26, 13.00, -10.9)
-    elseif GetDistanceToTarget() <= 7 then
-        yield("/interact")
+        Wait(1)
+        local number = math.random(9999)
+        yield(string.format("/callback LotteryWeeklyInput true %d", number))
+    elseif TicketsPurchased and not IsOccupiedInQuestEvent() then
+        State = CharacterState.endJumboCactpot
+        LogInfo(string.format("%s State changed to: EndJumboCactpot", LogPrefix))
+    elseif GetTargetName() ~= "Jumbo Cactpot Broker" or GetDistanceToTarget() > 7 then
+        MoveToTarget("Jumbo Cactpot Broker", 4)
+    else
+        Interact("Jumbo Cactpot Broker")
         TicketsPurchased = true
-        yield("/wait 1")
+        Wait(1)
     end
 end
 
-function End()
-    GetOUT()
-    yield("/echo [JumboCactpot] Script Ended..!!")
+function CharacterState.endJumboCactpot()
+    CloseAddons()
     StopFlag = true
 end
 
--------------------------------- Execution --------------------------------
+--=========================== EXECUTION ==========================--
 
-import("System.Numerics")
-StopFlag = false
 yield("/at y")
-Plugins()
-Start()
-MoveToPrizeClaim()
-while not endState do
-    repeat
-        ClaimPrize()
-    until purchaseNewTickets
-    MoveToPurchaseNewTickets()
-    repeat
-        PurchaseNewTickets()
-    until endState
-end
-End()
+State = CharacterState.startJumboCactpot
+LogInfo(string.format("%s State changed to: StartJumboCactpot", LogPrefix))
 
------------------------------------ End -----------------------------------
+while not StopFlag do
+    if State then
+        State()
+    end
+    Wait(1)
+end
+
+Echo(string.format("Jumbo Cactpot script completed successfully..!!"), LogPrefix)
+LogInfo(string.format("%s Jumbo Cactpot script completed successfully..!!", LogPrefix))
+
+--============================== END =============================--

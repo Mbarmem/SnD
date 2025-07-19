@@ -37,7 +37,7 @@ LogPrefix       = "[MGP]"
 --    State Management    --
 ----------------------------
 
-CharacterStates = {}
+CharacterState = {}
 
 --=========================== FUNCTIONS ==========================--
 
@@ -71,26 +71,26 @@ function PlayTTUntilNeeded()
     LogInfo(string.format("%s Done Playing... Heading to Summoning Bell", LogPrefix))
 end
 
-function CharacterStates.goToFoundation()
+function CharacterState.goToFoundation()
     if IsInZone(418) then
         MoveToTarget("Aetheryte", 7)
         Lifestream("The Last Vigil")
         WaitForLifeStream()
 
-        State = CharacterStates.goToLastVigil
+        State = CharacterState.goToLastVigil
         LogInfo(string.format("%s State changed to: GoToLastVigil", LogPrefix))
     else
         Teleport("Foundation")
         WaitForTeleport()
 
-        State = CharacterStates.goToFoundation
+        State = CharacterState.goToFoundation
         LogInfo(string.format("%s State changed to: GoToFoundation", LogPrefix))
     end
 end
 
-function CharacterStates.goToLastVigil()
+function CharacterState.goToLastVigil()
     if not IsInZone(419) then
-        State = CharacterStates.goToFoundation
+        State = CharacterState.goToFoundation
         LogInfo(string.format("%s State changed to: GoToFoundation", LogPrefix))
         return
     end
@@ -99,13 +99,13 @@ function CharacterStates.goToLastVigil()
     Interact("House Fortemps Guard")
     WaitForZoneChange()
 
-    State = CharacterStates.playTTandAR
+    State = CharacterState.playTTandAR
     LogInfo(string.format("%s State changed to: PlayTTandAR", LogPrefix))
 end
 
-function CharacterStates.playTTandAR()
+function CharacterState.playTTandAR()
     if not IsInZone(433) then
-        State = CharacterStates.goToLastVigil
+        State = CharacterState.goToLastVigil
         LogInfo(string.format("%s State changed to: GoToLastVigil", LogPrefix))
         return
     end
@@ -130,17 +130,18 @@ function CharacterStates.playTTandAR()
         Lifestream("The Last Vigil")
         WaitForLifeStream()
 
-        State = CharacterStates.goToLastVigil
+        State = CharacterState.goToLastVigil
         LogInfo(string.format("%s State changed to: GoToLastVigil", LogPrefix))
     else
-        State = CharacterStates.playTTandAR
+        State = CharacterState.playTTandAR
         LogInfo(string.format("%s State changed to: PlayTTandAR", LogPrefix))
     end
 end
 
 --=========================== EXECUTION ==========================--
 
-State = CharacterStates.playTTandAR
+State = CharacterState.playTTandAR
+LogInfo(string.format("%s State changed to: PlayTTandAR", LogPrefix))
 
 while State do
     State()
