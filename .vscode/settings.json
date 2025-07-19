@@ -4,7 +4,7 @@
 
   // Clearly separated stub libraries
   "Lua.workspace.library": [
-    "${workspaceFolder}/.stubs/snd-stubs.lua",  // Local SND stubs
+    // "${workspaceFolder}/.stubs/snd-stubs.lua",  // Local SND stubs
     "${env:APPDATA}/XIVLauncher/pluginConfigs/SomethingNeedDoing/stubs", // PluginConfig stubs
     "C:/Users/Administrator/AppData/Roaming/XIVLauncher/pluginConfigs/SomethingNeedDoing/stubs" // PluginConfig stubs
   ],
