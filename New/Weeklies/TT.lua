@@ -33,7 +33,7 @@ LogPrefix = "[TT]"
 ----------------
 
 function BattleHall()
-    LogInfo(string.format("%s Starting Triple Triad script.", LogPrefix))
+    LogInfo(string.format("%s Moving to Battle Hall.", LogPrefix))
 
     if not IsAddonVisible("JournalDetail") then
         yield("/dutyfinder")
