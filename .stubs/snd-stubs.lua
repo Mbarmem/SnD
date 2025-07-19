@@ -481,7 +481,7 @@ function GetAetheryteName(aetheryteId) end
 
 --- Returns the raw position of a specific Aetheryte.
 ---@param aetheryteId number
----@return number, number, number x, y, z
+---@return number, number, number x
 function GetAetheryteRawPos(aetheryteId) end
 
 --- Returns a list of Aetherytes in the current zone.
