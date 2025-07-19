@@ -62,11 +62,14 @@ end
 function CharacterState.claimPrize()
     if IsAddonVisible("LotteryWeeklyRewardList") then
         yield("/callback LotteryWeeklyRewardList true -1")
+
     elseif IsAddonVisible("SelectYesno") then
         yield("/callback SelectYesno true 0")
+
     elseif RewardClaimed and not IsOccupiedInQuestEvent() then
         State = CharacterState.purchaseNewTickets
         LogInfo(string.format("%s State changed to: PurchaseNewTickets", LogPrefix))
+
     else
         Interact("Cactpot Cashier")
         LogInfo(string.format("%s Interacting with Cactpot Cashier to claim prize...", LogPrefix))
@@ -80,19 +83,25 @@ function CharacterState.purchaseNewTickets()
         yield("/callback LotteryWeeklyRewardList true -1")
         State = CharacterState.endJumboCactpot
         LogInfo(string.format("%s State changed to: EndJumboCactpot", LogPrefix))
+
     elseif IsAddonVisible("SelectString") then
         yield("/callback SelectString true 0")
+
     elseif IsAddonVisible("SelectYesno") then
         yield("/callback SelectYesno true 0")
+
     elseif IsAddonVisible("LotteryWeeklyInput") then
         Wait(1)
         local number = math.random(9999)
         yield(string.format("/callback LotteryWeeklyInput true %d", number))
+
     elseif TicketsPurchased and not IsOccupiedInQuestEvent() then
         State = CharacterState.endJumboCactpot
         LogInfo(string.format("%s State changed to: EndJumboCactpot", LogPrefix))
+
     elseif GetTargetName() ~= "Jumbo Cactpot Broker" or GetDistanceToTarget() > 7 then
         MoveToTarget("Jumbo Cactpot Broker", 4)
+
     else
         Interact("Jumbo Cactpot Broker")
         TicketsPurchased = true
