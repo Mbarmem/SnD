@@ -101,14 +101,20 @@ for _, cards in ipairs(Dungeons) do
     RunCount = 1
     while GetItemCount(cards.cardId) < 1 do
         LogInfo(string.format("%s [Run: %d] DutyMode: %s - %s", LogPrefix, RunCount, cards.dutyMode, cards.Name))
-        yield("/ad cfg Unsynced "..cards.dutyUnsynced)
-        yield("/ad run "..cards.dutyMode.." "..cards.dutyId.." 1 true")
+
+        AutoDutyConfig("Unsynced", cards.dutyUnsynced)
+        AutoDutyRun(cards.dutyId, 1, true)
+
         yield("/bmrai on")
         yield("/rotation auto")
-        Wait(10)
-        while IsBetweenAreas() or IsBoundByDuty() do -- wait for duty to be finished
+
+        WaitForCondition("BoundByDuty")
+
+        repeat
             Wait(1)
-        end
+        until not AutoDutyIsRunning()
+
+        WaitForPlayer()
         RunCount = RunCount + 1
     end
     LogInfo(string.format("%s %s is done.", LogPrefix, cards.Name))

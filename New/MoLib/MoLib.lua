@@ -340,18 +340,53 @@ end
 --    AutoDuty    --
 --================--
 
--- Starts an AutoDuty run with the specified territory and parameters.
-function AutoDutyRun(territoryType, loops, bareMode)
-    LogDebug(string.format("[MoLib] Running duty: territoryType=%s, loops=%s, bareMode=%s", tostring(territoryType), tostring(loops), tostring(bareMode)))
-    IPC.AutoDuty.Run(territoryType, loops, bareMode)
-end
-
---------------------------------------------------------------------
-
 -- Sets a configuration key-value pair for AutoDuty via IPC.
 function AutoDutyConfig(key, value)
     LogDebug(string.format("[MoLib] AutoDuty config: %s = %s", tostring(key), tostring(value)))
     return IPC.AutoDuty.SetConfig(key, value)
+end
+
+--------------------------------------------------------------------
+
+-- Starts an AutoDuty run with the specified territory and parameters.
+function AutoDutyRun(territoryType, loops, bareMode)
+    LogDebug(string.format("[MoLib] Running duty: territoryType=%s, loops=%s, bareMode=%s", tostring(territoryType), tostring(loops), tostring(bareMode)))
+    return IPC.AutoDuty.Run(territoryType, loops, bareMode)
+end
+
+--------------------------------------------------------------------
+
+-- Starts an AutoDuty run with the specified boolean flag.
+function AutoDutyStart(startFromZero)
+    LogDebug(string.format("[MoLib] Starting AutoDuty with startFromZero: %s", tostring(startFromZero)))
+    return IPC.AutoDuty.Start(startFromZero)
+end
+
+--------------------------------------------------------------------
+
+-- Stops the AutoDuty run.
+function AutoDutyStop()
+    local status = IPC.AutoDuty.Stop()
+    LogDebug(string.format("[MoLib] AutoDuty stopped."))
+    return status
+end
+
+--------------------------------------------------------------------
+
+-- Checks if AutoDuty is currently running.
+function AutoDutyIsRunning()
+    local isRunning = IPC.AutoDuty.IsLooping()
+    LogDebug(string.format("[MoLib] AutoDuty is running: %s", tostring(isRunning)))
+    return isRunning
+end
+
+--------------------------------------------------------------------
+
+-- Checks if AutoDuty is currently stopped.
+function AutoDutyIsStopped()
+    local isStopped = IPC.AutoDuty.IsStopped()
+    LogDebug(string.format("[MoLib] AutoDuty is stopped: %s", tostring(isStopped)))
+    return isStopped
 end
 
 --------------------------------------------------------------------
