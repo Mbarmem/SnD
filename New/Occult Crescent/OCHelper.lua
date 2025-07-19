@@ -52,9 +52,9 @@ LogPrefix            = "[CEFarm]"
 
 --============================ CONSTANT ==========================--
 
-------------------
---    Actions   --
-------------------
+-------------------
+--    Actions    --
+-------------------
 
 ActionsOC = {
     OccultReturn = 41343
@@ -93,7 +93,6 @@ function MoveToOC()
     WaitForLifeStream()
 end
 
-
 -----------------
 --    Mount    --
 -----------------
@@ -112,7 +111,6 @@ function Dismount()
 
     LogInfo(string.format("%s Dismounted successfully.", LogPrefix))
 end
-
 
 ----------------
 --    Misc    --
@@ -153,13 +151,9 @@ function UseBuffs()
     Dismount()
 
     yield("/snd run " .. BuffMacro)
-    repeat
-        Wait(1)
-    until IsPlayerAvailable()
-
+    WaitForPlayer()
     Wait(1)
 end
-
 
 function RunVislandRoute(routeName, timeoutSeconds)
     if not RunChestsRoute or not IsInZone(Zones.SouthHorn) then

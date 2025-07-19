@@ -237,7 +237,7 @@ while not StopFlag do
     Wait(0.1)
 end
 
-Echo("Daily Hunts script completed sucessfully. All Marks Obtained..!!", LogPrefix)
-LogInfo(string.format("%s Daily Hunts script completed sucessfully. All Marks Obtained..!!", LogPrefix))
+Echo("Daily Hunts script completed successfully. All Marks Obtained..!!", LogPrefix)
+LogInfo(string.format("%s Daily Hunts script completed successfully. All Marks Obtained..!!", LogPrefix))
 
 --============================== END =============================--

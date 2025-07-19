@@ -41,6 +41,7 @@ LogPrefix    = "[ChoboRacing]"
 ----------------
 
 function DutyFinder()
+    LogInfo(string.format("%s Starting new race. Currently at %s/%s runs.", LogPrefix, RunsPlayed, RunsToPlay))
     if not IsAddonReady("JournalDetail") then
         yield("/dutyfinder")
     end
@@ -104,7 +105,7 @@ while RunsPlayed < RunsToPlay do
     EndMatch()
 end
 
-Echo("Chocobo Racing script completed sucessfully..!!", LogPrefix)
-LogInfo(string.format("%s Chocobo Racing script completed sucessfully..!!", LogPrefix))
+Echo("Chocobo Racing script completed successfully..!!", LogPrefix)
+LogInfo(string.format("%s Chocobo Racing script completed successfully..!!", LogPrefix))
 
 --============================== END =============================--

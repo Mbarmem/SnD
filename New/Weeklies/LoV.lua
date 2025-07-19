@@ -1,123 +1,94 @@
---[[
+--[=====[
+[[SND Metadata]]
+author: Mo
+version: 2.0.0
+description: Lord of Verminion - A barebones script for weeklies
+dependencies:
+- source: ''
+  name: SnD
+  type: git
+configs:
+  RunsToPlay:
+    default: 5
+    description: Number of runs to play.
+    type: int
+    required: true
+  RunsPlayed:
+    default: 0
+    description: Initial run count.
+    type: int
+    required: true
 
-****************************************************
-*             Weekly Lord of Verminion             *
-*              A barebones LoV script.             *
-****************************************************
+[[End Metadata]]
+--]=====]
 
-              **********************
-              *     Author: Mo     *
-              **********************
-
-              **********************
-              * Version  |  1.0.0  *
-              **********************
-
-              *********************
-              *  Required Plugins *
-              *********************
-
-Plugins that are used are:
-    -> Something Need Doing [Expanded Edition] : Main Plugin for everything to work   (https://puni.sh/api/repository/croizat)
-
-]]
-
--------------------------------- Variables --------------------------------
-
---------------------
---    Genereal    --
---------------------
-
-games_to_lose = 5 --number of battles you want to run, 5 is default for max weekly challenge log reward
-games_played = 0 --leave default, no reason to change this
-
---master battle difficulty configs
-hard = "3 6"
-master = "3 7"
-
-difficulty = hard --set your difficulty here
-
---------------------------------- Constant --------------------------------
+--=========================== VARIABLES ==========================--
 
 -------------------
---    Plugins    --
+--    General    --
 -------------------
 
-RequiredPlugins = {
-}
+RunsToPlay   = Config.Get("RunsToPlay")
+RunsPlayed   = Config.Get("RunsPlayed")
+LogPrefix    = "[LoV]"
 
----------------------
---    Condition    --
----------------------
-
-CharacterCondition = {
-    PlayingLordOfVerminion=14
-}
-
--------------------------------- Functions --------------------------------
-
--------------------
---    Plugins    --
--------------------
-
-function Plugins()
-    for _, plugin in ipairs(RequiredPlugins) do
-        if not HasPlugin(plugin) then
-            yield("/echo [LoV] Missing required plugin: "..plugin)
-            StopFlag = true
-        end
-    end
-    if StopFlag then
-        yield("/echo [LoV] Stopping the script..!!")
-        yield("/snd stop")
-    end
-end
+--=========================== FUNCTIONS ==========================--
 
 ----------------
 --    Main    --
 ----------------
 
-function dutyFinder()
-    if IsAddonVisible("JournalDetail")==false then yield("/dutyfinder") end
-    yield("/wait 1")
-    yield("/waitaddon JournalDetail")
-    yield("/wait 1")
-    yield("/callback ContentsFinder true 12 1") --clears duty selection if applicable
-    yield("/wait 1")
-    yield("/callback ContentsFinder true 1 9") --open gold saucer tab in DF
-    yield("/wait 1")
-    yield("/callback ContentsFinder true "..difficulty) --select duty
-    yield("/wait 1")
-    yield("/callback ContentsFinder true 12 0") --click join
-    yield("/wait 1")
-    while not GetCharacterCondition(CharacterCondition.PlayingLordOfVerminion) do
-        yield("/wait 1")
+function DutyFinder()
+    LogInfo(string.format("%s Starting new match. Currently at %s/%s runs.", LogPrefix, RunsPlayed, RunsToPlay))
+
+    if not IsAddonVisible("JournalDetail") then
+        yield("/dutyfinder")
+    end
+
+    Wait(1)
+    WaitForAddon("JournalDetail")
+    Wait(1)
+
+    yield("/callback ContentsFinder true 12 1")
+    Wait(1)
+    yield("/callback ContentsFinder true 1 9")
+    Wait(1)
+    yield("/callback ContentsFinder true 3 6")
+    Wait(1)
+    yield("/callback ContentsFinder true 12 0")
+    Wait(1)
+
+    while not IsPlayingLordOfVerminion() do
+        Wait(1)
         if IsAddonVisible("ContentsFinderConfirm") then
-            yield("/wait 1")
+            Wait(1)
             yield("/click ContentsFinderConfirm Commence")
         end
     end
 end
 
-function endMatch()
-    yield("/waitaddon LovmResult <maxwait.500>")
-    games_played = games_played + 1
+function EndMatch()
+    WaitForAddon("LovmResult", 500)
+
+    RunsPlayed = RunsPlayed + 1
+
     yield("/callback LovmResult false -2")
     yield("/callback LovmResult true -1")
-    yield("/waitaddon NamePlate <maxwait.60><wait.5>")
-    yield("/echo [LoV] Matches played: "..games_played)
-    repeat
-        yield("/wait 1")
-    until IsPlayerAvailable()
+    WaitForAddon("NamePlate", 60)
+
+    LogInfo(string.format("%s Runs played: %s", LogPrefix, RunsPlayed))
+
+    WaitForPlayer()
 end
 
--------------------------------- Execution --------------------------------
+--=========================== EXECUTION ==========================--
 
-Plugins()
-while games_played < games_to_lose do
-    dutyFinder()
-    endMatch()
+while RunsPlayed < RunsToPlay do
+    DutyFinder()
+    EndMatch()
 end
-yield("/echo [LoV] Loop finished..!!")
 
------------------------------------ End -----------------------------------
+Echo("Lord of Verminion script completed successfully..!!", LogPrefix)
+LogInfo(string.format("%s Lord of Verminion script completed successfully..!!", LogPrefix))
+
+--============================== END =============================--

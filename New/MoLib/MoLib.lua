@@ -109,6 +109,15 @@ end
 
 ---------------------------------------------------------------------
 
+-- Checks if the player is currently playing Lord of Verminion.
+function IsPlayingLordOfVerminion()
+    local isPlaying = Svc.Condition[CharacterCondition.playingLordOfVerminion]
+    LogDebug(string.format("[MoLib] IsPlayingLordOfVerminion: %s", tostring(isPlaying)))
+    return isPlaying
+end
+
+---------------------------------------------------------------------
+
 -- Checks if the player is currently InCombat.
 function IsInCombat()
     local isInCombat = Entity.Player.IsInCombat
@@ -675,6 +684,7 @@ function WaitForCondition(name, timeout)
     until Svc.Condition[conditionKey]
 
     LogDebug(string.format("[MoLib] WaitForCondition: Condition '%s' has been cleared.", tostring(name)))
+    Wait(1)
     return true
 end
 
