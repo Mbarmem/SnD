@@ -25,7 +25,7 @@ local currentEchoTrigger = nil
 local LogPrefix          = "[MacroChainer]"
 
 local MacrosToRun = {
-    { macroName = "ChoboRacing",     echoTrigger = "ChoboRacing"     },
+    { macroName = "ChocoboRacing",   echoTrigger = "ChocoboRacing"   },
     { macroName = "IslandSanctuary", echoTrigger = "IslandSanctuary" },
     { macroName = "JumboCactpot",    echoTrigger = "JumboCactpot"    },
     { macroName = "LoV",             echoTrigger = "LoV"             },
