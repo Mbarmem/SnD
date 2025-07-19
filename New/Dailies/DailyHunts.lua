@@ -29,7 +29,7 @@ LogPrefix  = "[DailyHunts]"
 --    State Management    --
 ----------------------------
 
-CharacterStates   = {}
+CharacterState   = {}
 
 local StopFlag    = false
 local State       = nil
@@ -123,10 +123,10 @@ HuntBoards = {
 --    Main    --
 ----------------
 
-function CharacterStates.goToHuntBoard()
+function CharacterState.goToHuntBoard()
     if BoardNumber > #HuntBoards then
-        State = CharacterStates.endScript
-        LogInfo(string.format("%s State Change: EndScript", LogPrefix))
+        State = CharacterState.endScript
+        LogInfo(string.format("%s State changed to: EndScript", LogPrefix))
         Wait(0.5)
         return
     end
@@ -179,20 +179,20 @@ function CharacterStates.goToHuntBoard()
 
     if GetDistanceToPoint(Board.x, Board.y, Board.z) < 4 then
         BoardNumber = BoardNumber + 1
-        State = CharacterStates.pickUpHunts
-        LogInfo(string.format("%s State Change: PickUpHunts", LogPrefix))
+        State = CharacterState.pickUpHunts
+        LogInfo(string.format("%s State changed to: PickUpHunts", LogPrefix))
     end
 end
 
-function CharacterStates.pickUpHunts()
+function CharacterState.pickUpHunts()
     if HuntNumber >= #Board.bills then
         if IsAddonVisible("Mobhunt" .. BoardNumber) then
             local callback = "/callback Mobhunt"..BoardNumber.." true -1"
             yield(callback)
         else
             HuntNumber = 0
-            State = CharacterStates.goToHuntBoard
-            LogInfo(string.format("%s State Change: GoToHuntBoard %d", LogPrefix, BoardNumber))
+            State = CharacterState.goToHuntBoard
+            LogInfo(string.format("%s State changed to: GoToHuntBoard %d", LogPrefix, BoardNumber))
         end
 
     elseif GetItemCount(Board.bills[HuntNumber+1]) >= 1 then
@@ -224,13 +224,13 @@ function CharacterStates.pickUpHunts()
     end
 end
 
-function CharacterStates.endScript()
+function CharacterState.endScript()
     StopFlag = true
 end
 
 --=========================== EXECUTION ==========================--
 
-State = CharacterStates.goToHuntBoard
+State = CharacterState.goToHuntBoard
 
 while not StopFlag do
     State()
