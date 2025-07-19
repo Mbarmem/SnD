@@ -1,7 +1,7 @@
 --[=====[
 [[SND Metadata]]
 author: Mo
-version: 2.0.1
+version: 2.0.0
 description: Daily Hunts Doer - A barebones script to accept Daily Hunts
 plugin_dependencies:
 - vnavmesh
