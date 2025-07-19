@@ -42,12 +42,15 @@ LogPrefix    = "[ChoboRacing]"
 
 function DutyFinder()
     LogInfo(string.format("%s Starting new race. Currently at %s/%s runs.", LogPrefix, RunsPlayed, RunsToPlay))
+
     if not IsAddonReady("JournalDetail") then
         yield("/dutyfinder")
     end
+
     Wait(1)
     WaitForAddon("JournalDetail")
     Wait(1)
+
     yield("/callback ContentsFinder true 12 1")
     Wait(1)
     yield("/callback ContentsFinder true 1 9")
@@ -86,14 +89,14 @@ end
 
 function EndMatch()
     WaitForAddon("RaceChocoboResult", 500)
+
     RunsPlayed = RunsPlayed + 1
+
     yield("/callback RaceChocoboResult true 1")
     LogInfo(string.format("%s Runs played: %s", LogPrefix, RunsPlayed))
+
+    WaitForPlayer()
     Wait(1)
-    repeat
-        Wait(1)
-    until IsPlayerAvailable()
-    Wait(3)
 end
 
 --=========================== EXECUTION ==========================--
