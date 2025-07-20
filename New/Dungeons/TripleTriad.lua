@@ -103,6 +103,7 @@ for _, cards in ipairs(Dungeons) do
         LogInfo(string.format("%s [Run: %d] DutyMode: %s - %s", LogPrefix, RunCount, cards.dutyMode, cards.Name))
 
         AutoDutyConfig("Unsynced", cards.dutyUnsynced)
+        AutoDutyConfig("dutyModeEnum", cards.dutyMode)
         AutoDutyRun(cards.dutyId, 1, true)
 
         yield("/bmrai on")

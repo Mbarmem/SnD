@@ -96,6 +96,7 @@ for _, minions in ipairs(Dungeons) do
         LogInfo(string.format("%s [Run: %d] DutyMode: %s - %s", LogPrefix, RunCount, minions.dutyMode, minions.Name))
 
         AutoDutyConfig("Unsynced", minions.dutyUnsynced)
+        AutoDutyConfig("dutyModeEnum", minions.dutyMode)
         AutoDutyRun(minions.dutyId, 1, true)
 
         yield("/bmrai on")
