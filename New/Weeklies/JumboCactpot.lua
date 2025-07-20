@@ -52,7 +52,7 @@ function CharacterState.startJumboCactpot()
     Lifestream("Cactpot Board")
     WaitForLifeStream()
 
-    MoveToTarget("Cactpot Cashier")
+    MoveToTarget("Cactpot Cashier", 5)
     Wait(1)
 
     State = CharacterState.claimPrize

@@ -38,17 +38,6 @@ CharacterCondition = {
     diving                  = 81
 }
 
---===========--
---    Log    --
---===========--
-
--- Defines available log levels
-local LogLevel = {
-    Info    = "Info",
-    Debug   = "Debug",
-    Verbose = "Verbose"
-}
-
 --========================== FUNCTIONS ===========================--
 
 --==============--
@@ -1557,6 +1546,13 @@ end
 --===========--
 --    Log    --
 --===========--
+
+-- Defines available log levels
+local LogLevel = {
+    Info    = "Info",
+    Debug   = "Debug",
+    Verbose = "Verbose"
+}
 
 -- Core log function with support for formatting and log levels
 function Log(msg, level, ...)
