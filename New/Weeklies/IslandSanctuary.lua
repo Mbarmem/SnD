@@ -89,7 +89,7 @@ Locations = {
             name      = "Enterprising Exporter",
             x         = -267,
             y         = 41,
-            z         = 207,
+            z         = 210,
             addonName = "MJIDisposeShop",
         },
 
@@ -116,12 +116,10 @@ end
 
 function OpenNpc(npc, nextState)
     if GetDistanceToPoint(npc.x, npc.y, npc.z) > 20 then
-        if IsPlayerCasting() then return end
-        if not IsMounted() then
+        if not IsPlayerCasting() and not IsMounted() then
             UseMount()
             Wait(1)
         end
-        return
     end
 
     if GetDistanceToPoint(npc.x, npc.y, npc.z) > 5 then
