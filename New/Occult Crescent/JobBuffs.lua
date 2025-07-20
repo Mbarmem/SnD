@@ -344,7 +344,7 @@ function PerformAction(action)
 
     LogInfo(string.format("%s Attempting to perform actionId: %s with threshold: %s", LogPrefix, tostring(action.actionId), tostring(threshold)))
 
-    function tryExecute()
+    function TryExecute()
         if not IsPlayerCasting() then
             Actions.ExecuteGeneralAction(action.actionId)
         end
@@ -352,12 +352,12 @@ function PerformAction(action)
 
     if threshold <= 0 then
         repeat
-            tryExecute()
+            TryExecute()
             Wait(0.5)
         until HasStatusId(action.actionStatusId)
     else
         repeat
-            tryExecute()
+            TryExecute()
             Wait(0.5)
         until HasActiveStatus(action, threshold)
     end
