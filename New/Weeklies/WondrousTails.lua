@@ -242,23 +242,23 @@ for i = 0, 12 do
 
             elseif type == 0 then -- trials
                 AutoDutyConfig("Unsynced", "true")
-                dutyMode = "Trial"
+                AutoDutyConfig("dutyModeEnum", "Trial")
 
             elseif type == 4 then -- raids
                 AutoDutyConfig("Unsynced", "true")
-                dutyMode = "Raid"
+                AutoDutyConfig("dutyModeEnum", "Raid")
 
             elseif CurrentLevel - duty.minLevel < 20 then
                 AutoDutyConfig("Unsynced", "false")
-                dutyMode = "Support"
+                AutoDutyConfig("dutyModeEnum", "Support")
 
             else
                 AutoDutyConfig("Unsynced", "true")
-                dutyMode = "Regular"
+                AutoDutyConfig("dutyModeEnum", "Regular")
             end
 
             if duty.dutyId ~= nil then
-                LogInfo(string.format("%s Queuing duty TerritoryId#%s | DutyMode: %s for Wonderous Tails #%s", LogPrefix, duty.dutyId, dutyMode, i + 1))
+                LogInfo(string.format("%s Queuing duty TerritoryId#%s for Wonderous Tails #%s", LogPrefix, duty.dutyId, i + 1))
                 AutoDutyRun(duty.dutyId, 1, true)
 
                 WaitForCondition("BoundByDuty")
