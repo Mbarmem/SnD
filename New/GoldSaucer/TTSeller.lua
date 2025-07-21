@@ -1,7 +1,7 @@
 --[=====[
 [[SND Metadata]]
 author: Mo
-version: 2.0.2
+version: 2.0.3
 description: Triple Triad Seller - Sells your acumulated Triple Triad cards
 plugin_dependencies:
 - TeleporterPlugin
