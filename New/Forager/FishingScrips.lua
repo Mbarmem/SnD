@@ -11,7 +11,7 @@ plugin_dependencies:
 - AutoRetainer
 - YesAlready
 dependencies:
-- source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
+- source: ''
   name: SnD
   type: git
 configs:
@@ -121,21 +121,7 @@ PurpleGathererScripId = 33914
 --    State Management    --
 ----------------------------
 
-CharacterState = {
-    ready                  = Ready,
-    TeleportFishingZone    = TeleportFishingZone,
-    goToFishingHole        = GoToFishingHole,
-    extractMateria         = ExecuteExtractMateria,
-    repair                 = ExecuteRepair,
-    exchangingVouchers     = ExecuteBicolorExchange,
-    processDoAutoRetainers = ProcessDoAutoRetainers,
-    gcTurnIn               = ExecuteGrandCompanyTurnIn,
-    fishing                = Fishing,
-    turnIn                 = TurnIn,
-    scripExchange          = ScripExchange,
-    goToHubCity            = GoToHubCity,
-    buyFishingBait         = BuyFishingBait,
-}
+CharacterState = {}
 
 -----------------
 --    Items    --
@@ -331,7 +317,7 @@ function RandomAdjustCoordinates(x, y, z, maxDistance)
     return randomX, randomY, randomZ
 end
 
-function TeleportFishingZone()
+function CharacterState.teleportFishingZone()
     if not IsInZone(SelectedFish.zoneId) then
         Teleport(GetAetheryteName(SelectedFish.zoneId))
     elseif IsPlayerAvailable() then
@@ -343,9 +329,9 @@ function TeleportFishingZone()
     end
 end
 
-function GoToFishingHole()
+function CharacterState.goToFishingHole()
     if not IsInZone(SelectedFish.zoneId) then
-        State = CharacterState.TeleportFishingZone
+        State = CharacterState.teleportFishingZone
         LogInfo(string.format("%s State changed to: TeleportFishingZone", LogPrefix))
         return
     end
@@ -400,7 +386,7 @@ end
 
 ResetHardAmissTime = os.clock()
 
-function Fishing()
+function CharacterState.fishing()
     if GetItemCount(29717) == 0 then
         State = CharacterState.buyFishingBait
         LogInfo(string.format("%s State changed to: Buy Fishing Bait", LogPrefix))
@@ -439,8 +425,8 @@ function Fishing()
             end
         else
             SelectNewFishingHole()
-            State = CharacterState.ready
-            LogInfo(string.format("%s State changed to: Timeout Ready", LogPrefix))
+            State = CharacterState.awaitingAction
+            LogInfo(string.format("%s State changed to: Timeout AwaitingAction", LogPrefix))
         end
         return
     elseif IsGathering() then
@@ -462,8 +448,8 @@ function Fishing()
                 PathStop()
             end
             SelectNewFishingHole()
-            State = CharacterState.ready
-            LogInfo(string.format("%s State changed to: Stuck Ready", LogPrefix))
+            State = CharacterState.awaitingAction
+            LogInfo(string.format("%s State changed to: Stuck AwaitingAction", LogPrefix))
             return
         else
             SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
@@ -481,7 +467,7 @@ function Fishing()
     Wait(0.5)
 end
 
-function BuyFishingBait()
+function CharacterState.buyFishingBait()
     if GetItemCount(29717) >= 1 then
         if IsAddonVisible("Shop") then
             yield("/callback Shop true -1")
@@ -562,7 +548,7 @@ function Dismount(callbackState)
     Wait(1)
 end
 
-function GoToHubCity()
+function CharacterState.goToHubCity()
     if not IsPlayerAvailable() then
         Wait(1)
         return
@@ -574,15 +560,15 @@ function GoToHubCity()
         return
     end
 
-    State = CharacterState.ready
-    LogInfo(string.format("%s State changed to: Ready", LogPrefix))
+    State = CharacterState.awaitingAction
+    LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
 end
 
 ------------------
 --    TurnIn    --
 ------------------
 
-function TurnIn()
+function CharacterState.turnIn()
     if GetItemCount(SelectedFish.fishId) == 0 then
         if IsAddonVisible("CollectablesShop") then
             yield("/callback CollectablesShop true -1")
@@ -590,8 +576,8 @@ function TurnIn()
             State = CharacterState.scripExchange
             LogInfo(string.format("%s State changed to: ScripExchange", LogPrefix))
         else
-            State = CharacterState.ready
-            LogInfo(string.format("%s State changed to: Ready", LogPrefix))
+            State = CharacterState.awaitingAction
+            LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
         end
 
     elseif not IsInZone(SelectedHubCity.zoneId) then
@@ -643,7 +629,7 @@ end
 --    Scrips Exchange    --
 ---------------------------
 
-function ScripExchange()
+function CharacterState.scripExchange()
     if GetItemCount(GathererScripId) < ScripExchangeItem.price then
         if IsAddonVisible("InclusionShop") then
             yield("/callback InclusionShop true -1")
@@ -651,8 +637,8 @@ function ScripExchange()
             State = CharacterState.turnIn
             LogInfo(string.format("%s State changed to: TurnIn", LogPrefix))
         else
-            State = CharacterState.ready
-            LogInfo(string.format("%s State changed to: Ready", LogPrefix))
+            State = CharacterState.awaitingAction
+            LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
         end
 
     elseif not IsInZone(SelectedHubCity.zoneId) then
@@ -706,15 +692,15 @@ end
 --    Misc    --
 ----------------
 
-function ProcessDoAutoRetainers()
+function CharacterState.processAutoRetainers()
     if (not ARRetainersWaitingToBeProcessed() or GetInventoryFreeSlotCount() <= 1) then
         if IsAddonVisible("RetainerList") then
             if IsAddonReady("RetainerList") then
                 yield("/callback RetainerList true -1")
             end
         elseif not ARRetainersWaitingToBeProcessed() and IsPlayerAvailable() then
-            State = CharacterState.ready
-            LogInfo(string.format("%s State changed to: Ready", LogPrefix))
+            State = CharacterState.awaitingAction
+            LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
         end
 
     elseif not (IsInZone(SelectedHubCity.zoneId) or IsInZone(SelectedHubCity.aethernet.aethernetZoneId)) then
@@ -753,7 +739,7 @@ function ProcessDoAutoRetainers()
     end
 end
 
-function ExecuteGrandCompanyTurnIn()
+function CharacterState.gcTurnIn()
     if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
         local playerGC = Player.GrandCompany
         local gcZoneIds = {
@@ -776,12 +762,12 @@ function ExecuteGrandCompanyTurnIn()
         end
 
     else
-        State = CharacterState.ready
-        LogInfo(string.format("%s State changed to: Ready", LogPrefix))
+        State = CharacterState.awaitingAction
+        LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
     end
 end
 
-function ExecuteRepair()
+function CharacterState.executeRepair()
     if IsAddonVisible("SelectYesno") then
         yield("/callback SelectYesno true 0")
         return
@@ -810,8 +796,8 @@ function ExecuteRepair()
                 LogInfo(string.format("%s Opening self-repair menu.", LogPrefix))
                 yield("/generalaction repair")
             elseif not NeedsRepair(RepairThreshold) then
-                State = CharacterState.ready
-                LogInfo(string.format("%s State changed to: Ready", LogPrefix))
+                State = CharacterState.awaitingAction
+                LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
             end
 
         elseif ShouldAutoBuyDarkMatter then
@@ -877,19 +863,19 @@ function ExecuteRepair()
             end
 
         else
-            State = CharacterState.ready
-            LogInfo(string.format("%s State changed to: Ready", LogPrefix))
+            State = CharacterState.awaitingAction
+            LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
         end
     end
 end
 
-function ExecuteExtractMateria()
+function CharacterState.extractMateria()
     if IsMounted() then
         Dismount()
         return
     end
 
-    if Svc.Condition[39] then
+    if not IsPlayerAvailable() then
         return
     end
 
@@ -901,8 +887,8 @@ function ExecuteExtractMateria()
         if IsAddonVisible("Materialize") then
             yield("/callback Materialize true -1")
         else
-            State = CharacterState.ready
-            LogInfo(string.format("%s State changed to: Ready", LogPrefix))
+            State = CharacterState.awaitingAction
+            LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
         end
     end
 end
@@ -933,7 +919,7 @@ function SelectFishTable()
     return nil
 end
 
-function Ready()
+function CharacterState.awaitingAction()
     FoodCheck()
     PotionCheck()
 
@@ -943,15 +929,15 @@ function Ready()
     end
 
     if RepairThreshold > 0 and NeedsRepair(RepairThreshold) and (SelfRepair and GetItemCount(33916) > 0) then
-        State = CharacterState.repair
-        LogInfo(string.format("%s State changed to: Repair", LogPrefix))
+        State = CharacterState.executeRepair
+        LogInfo(string.format("%s State changed to: ExecuteRepair", LogPrefix))
 
     elseif ExtractMateria and CanExtractMateria() > 0 and GetInventoryFreeSlotCount() > 1 then
         State = CharacterState.extractMateria
         LogInfo(string.format("%s State changed to: ExtractMateria", LogPrefix))
 
     elseif DoAutoRetainers and ARRetainersWaitingToBeProcessed() and GetInventoryFreeSlotCount() > 1 then
-        State = CharacterState.processDoAutoRetainers
+        State = CharacterState.processAutoRetainers
         LogInfo(string.format("%s State changed to: ProcessingRetainers", LogPrefix))
 
     elseif GetInventoryFreeSlotCount() <= MinInventoryFreeSlots and GetItemCount(SelectedFish.fishId) > 0 then
@@ -1038,8 +1024,8 @@ if GetClassJobId() ~= 18 then
     Wait(1)
 end
 
-State = CharacterState.ready
-LogInfo(string.format("%s State changed to: Ready", LogPrefix))
+State = CharacterState.awaitingAction
+LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
 
 while true do
     State()
