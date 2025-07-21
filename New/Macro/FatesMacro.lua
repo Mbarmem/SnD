@@ -4,7 +4,7 @@ author: Mo
 version: 2.0.0
 description: Fates Macro - Macro for enabling or disabling Fates collection
 dependencies:
-- source: ''
+- source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD
   type: git
 

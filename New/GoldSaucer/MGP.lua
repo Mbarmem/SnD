@@ -10,7 +10,7 @@ plugin_dependencies:
 - vnavmesh
 - YesAlready
 dependencies:
-- source: ''
+- source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD
   type: git
 configs:

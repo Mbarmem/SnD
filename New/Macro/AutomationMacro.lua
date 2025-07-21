@@ -4,7 +4,7 @@ author: Mo
 version: 2.0.0
 description: Automation Macro - Macro for enabling or disabling Automation collection
 dependencies:
-- source: ''
+- source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD
   type: git
 
