@@ -61,7 +61,7 @@ end
 if AreAllPluginsEnabled() then
     Echo("|| Automation Disabled ||")
     LogInfo("|| Automation Disabled ||")
-    yield("/xldisablecollection Automation")
+    yield("/xldisablecollection Dailies")
 else
     Echo("|| Dailies Enabled ||")
     LogInfo("|| Dailies Enabled ||")
