@@ -1,5 +1,3 @@
-
-
 --[=====[
 [[SND Metadata]]
 author: Mo
