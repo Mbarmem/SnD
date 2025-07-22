@@ -32,7 +32,7 @@ configs:
 
 RunsToPlay   = Config.Get("RunsToPlay")
 RunsPlayed   = Config.Get("RunsPlayed")
-LogPrefix    = "[ChoboRacing]"
+LogPrefix    = "[ChocoboRacing]"
 
 --=========================== FUNCTIONS ==========================--
 
