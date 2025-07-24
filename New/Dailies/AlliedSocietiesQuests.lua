@@ -389,8 +389,8 @@ for _, alliedSociety in ipairs(ToDoList) do
                 repeat
                     if not QuestionableIsRunning() then
                         yield("/qst start")
-                    elseif os.time() - timeout > 5 then
-                        LogInfo(string.format("%s Took more than 5 seconds to pick up the quest. Reloading...", LogPrefix))
+                    elseif os.time() - timeout > 15 then
+                        LogInfo(string.format("%s Took more than 15 seconds to pick up the quest. Reloading...", LogPrefix))
                         yield("/qst reload")
                         timeout = os.time()
                     end
