@@ -59,8 +59,8 @@ end
 --=========================== EXECUTION ==========================--
 
 if AreAllPluginsEnabled() then
-    Echo("|| Automation Disabled ||")
-    LogInfo("|| Automation Disabled ||")
+    Echo("|| Dailies Disabled ||")
+    LogInfo("|| Dailies Disabled ||")
     yield("/xldisablecollection Dailies")
 else
     Echo("|| Dailies Enabled ||")
