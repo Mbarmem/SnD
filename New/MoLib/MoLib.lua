@@ -579,9 +579,26 @@ end
 -- Can optionally enable flying movement if supported.
 function PathMoveTo(x, y, z, fly)
     fly = fly or false
+    local playerPos = Entity.Player.Position
     local destination = Vector3(x, y, z)
     LogDebug(string.format("[MoLib] PathMoveTo: Destination = %s, Fly = %s", tostring(destination), tostring(fly)))
-    return IPC.vnavmesh.PathfindAndMoveTo(destination, fly)
+
+    -- Local await function for asynchronous task handling
+    local function await(o)
+        while not o.IsCompleted do
+            Wait(0.1)
+        end
+        return o.Result
+    end
+
+    local task = IPC.vnavmesh.Pathfind(playerPos, destination, fly)
+    if type(task) ~= "userdata" then
+        LogDebug(string.format("[MoLib] Pathfinding failed."))
+        return
+    end
+
+    local path = await(task)
+    IPC.vnavmesh.MoveTo(path, fly)
 end
 
 --------------------------------------------------------------------
@@ -714,6 +731,7 @@ end
 
 --------------------------------------------------------------------
 
+-- Function to wait for teleport to fully complete (casting → zoning → player ready)
 function WaitForTeleport()
     LogDebug("[MoLib] Waiting for teleport to begin...")
 
