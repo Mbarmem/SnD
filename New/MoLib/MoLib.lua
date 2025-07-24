@@ -1270,12 +1270,9 @@ end
 -- Initiates teleport to the given location and waits for it to complete
 function Teleport(location)
     LogDebug(string.format("[MoLib] Initiating teleport to '%s'.", location))
-    yield("/tp " .. location)
+    yield("/li tp " .. location)
     Wait(0.1)
-    LogDebug("[MoLib] Waiting for teleport to complete...")
     WaitForTeleport()
-    WaitForPlayer()
-    LogDebug("[MoLib] Teleport completed and player is available.")
 end
 
 --------------------------------------------------------------------
