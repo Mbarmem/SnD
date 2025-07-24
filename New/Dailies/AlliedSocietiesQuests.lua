@@ -394,7 +394,7 @@ for _, alliedSociety in ipairs(ToDoList) do
                         yield("/qst reload")
                         timeout = os.time()
                     end
-                    Wait(2)
+                    Wait(0.1)
                 until Quests.IsQuestAccepted(questId)
 
                 timeout = os.time()
