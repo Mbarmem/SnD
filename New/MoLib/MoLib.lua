@@ -1074,6 +1074,7 @@ function Interact(name, maxRetries, sleepTime)
     if success then
         yield('/interact')
         LogDebug(string.format("[MoLib] Interacted with: %s", Entity.Target.Name))
+        Wait(1)
     else
         LogDebug("[MoLib] Interact() failed to acquire target.")
     end
