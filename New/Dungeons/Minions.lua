@@ -101,7 +101,7 @@ for _, minions in ipairs(Dungeons) do
         yield("/bmrai on")
         yield("/rotation auto")
 
-        WaitForCondition("BoundByDuty")
+        WaitForCondition("BoundByDuty", true)
 
         repeat
             Wait(1)

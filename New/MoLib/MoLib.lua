@@ -243,6 +243,23 @@ end
 
 --------------------------------------------------------------------
 
+-- Checks if the player has a target, optionally matching a given name.
+function HasTarget(target)
+    local currentTarget = Entity.Player.Target
+
+    if target then
+        local result = currentTarget and currentTarget.Name == target
+        LogDebug(string.format("[MoLib] HasTarget '%s': %s", target, tostring(result)))
+        return result
+    else
+        local result = currentTarget ~= nil
+        LogDebug(string.format("[MoLib] HasTarget : %s", tostring(result)))
+        return result
+    end
+end
+
+--------------------------------------------------------------------
+
 -- Checks if the player currently has a status with the specified StatusId.
 function HasStatusId(targetId)
     local statusList = Player.Status
@@ -531,7 +548,7 @@ end
 -- Starts the specified Visland route, with optional looping
 function VislandRouteStart(routeName, loop)
     loop = loop or false
-    LogInfo(string.format("[MoLib] Starting Visland route: %s (Loop: %s)", routeName, tostring(loop)))
+    LogDebug(string.format("[MoLib] Starting Visland route: %s (Loop: %s)", routeName, tostring(loop)))
     return IPC.visland.StartRoute(routeName, loop)
 end
 
@@ -707,10 +724,12 @@ end
 
 --------------------------------------------------------------------
 
--- Waits until the specified condition is cleared, or until a timeout is reached
--- Returns true if the condition was cleared, false if it timed out
-function WaitForCondition(name, timeout)
-    LogDebug(string.format("[MoLib] WaitForCondition: Waiting for condition '%s' to clear...", tostring(name)))
+-- Waits until the specified condition becomes true or false, depending on the `expectedState`, or until a timeout is reached.
+-- Returns true if the condition matched the expected state, false if it timed out or was not found.
+function WaitForCondition(name, expectedState, timeout)
+    timeout = timeout or 300  -- Default to 5 minutes if not specified
+
+    LogDebug(string.format("[MoLib] WaitForCondition: Waiting for condition '%s' to become %s (timeout: %.0fs)...", tostring(name), tostring(expectedState), timeout))
 
     local conditionName = string.lower(name)
     local conditionKey = nil
@@ -731,14 +750,15 @@ function WaitForCondition(name, timeout)
 
     repeat
         if timeout and (os.clock() - startTime) >= timeout then
-            LogDebug(string.format("[MoLib] WaitForCondition: Timeout reached while waiting for '%s' to clear.", tostring(name)))
+            LogDebug(string.format("[MoLib] WaitForCondition: Timeout reached while waiting for condition '%s' to become %s.", tostring(name), tostring(expectedState)))
             return false
         end
 
         Wait(0.1)
-    until Svc.Condition[conditionKey]
+    until Svc.Condition[conditionKey] == expectedState
 
-    LogDebug(string.format("[MoLib] WaitForCondition: Condition '%s' has been cleared.", tostring(name)))
+    LogDebug(string.format("[MoLib] WaitForCondition: Condition '%s' is now %s.", tostring(name), tostring(expectedState)))
+
     Wait(1)
     return true
 end
@@ -1413,7 +1433,7 @@ end
 -- Attempts to leave the current instanced content if allowed
 function LeaveInstance()
     if CanLeaveInstance() then
-        LogInfo(string.format("[MoLib] Leaving instanced content"))
+        LogDebug(string.format("[MoLib] Leaving instanced content"))
         return InstancedContent.LeaveCurrentContent()
     else
         LogDebug(string.format("[MoLib] Cannot leave instance at this time"))

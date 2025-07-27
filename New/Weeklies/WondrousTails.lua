@@ -259,7 +259,7 @@ for i = 0, 12 do
                 LogInfo(string.format("%s Queuing duty TerritoryId#%s for Wonderous Tails #%s", LogPrefix, duty.dutyId, i + 1))
                 AutoDutyRun(duty.dutyId, 1, true)
 
-                WaitForCondition("BoundByDuty")
+                WaitForCondition("BoundByDuty", true)
 
                 repeat
                     Wait(1)

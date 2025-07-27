@@ -44,7 +44,7 @@ function TryExecute()
     for i = 1, 3 do
         LogInfo(string.format("%s Attempting to use action: %s", LogPrefix, Actions[i]))
 
-        if not Entity.Player.Target then
+        if not HasTarget() then
             LogInfo(string.format("%s No target found, acquiring new target...", LogPrefix))
             yield("/targetenemy")
             Wait(1)
@@ -57,7 +57,7 @@ end
 
 --=========================== EXECUTION ==========================--
 
-if Actions.GetActionInfo(Feint).SpellCooldown < 1 and Entity.Player.Target then
+if Actions.GetActionInfo(Feint).SpellCooldown < 1 and HasTarget() then
     LogInfo(string.format("%s Executing Feint on: %s", LogPrefix, Entity.Player.Target.Name))
 
     yield("/ac Feint")
@@ -73,7 +73,7 @@ while Loop < LoopCount do
     Loop = Loop + 1
 end
 
+Echo(string.format("Script execution completed successfully..!!"), LogPrefix)
 LogInfo(string.format("%s Script execution completed succesfully..!!", LogPrefix))
 
 --============================== END =============================--
-

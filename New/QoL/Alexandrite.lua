@@ -50,7 +50,7 @@ function Main()
         WaitForNavMesh()
         yield("/ac Sprint")
         WaitForPathRunning()
-        PlayerTest()
+        WaitForPlayer()
 
         Interact("Auriana")
         Wait(1)
@@ -87,7 +87,7 @@ function Main()
     repeat
         yield("/tmap")
     until IsAddonReady("AreaMap")
-    PlayerTest()
+    WaitForPlayer()
 
     -- Travel to flagged zone
     TeleportFlagZone()
@@ -106,7 +106,7 @@ function Main()
     LogInfo(string.format("%s Digging at flag.", LogPrefix))
     yield("/generalaction Dig")
     Wait(5)
-    PlayerTest()
+    WaitForPlayer()
 
     Target("Treasure Coffer")
     yield("/vnav flytarget")

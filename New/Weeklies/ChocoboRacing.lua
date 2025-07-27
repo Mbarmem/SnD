@@ -71,9 +71,7 @@ end
 
 function SuperSprint()
     if IsOccupiedInCutScene() then
-        repeat
-            Wait(1)
-        until not IsOccupiedInCutScene()
+        WaitForCondition("OccupiedInCutscene", false)
     end
     Wait(6)
     Actions.ExecuteAction(58, ActionType.ChocoboRaceAbility)

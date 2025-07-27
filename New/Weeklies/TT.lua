@@ -65,7 +65,7 @@ end
 -----------------
 
 function PlayTTUntilNeeded()
-    WaitForCondition("PlayingMiniGame")
+    WaitForCondition("PlayingMiniGame", true)
 
     LogInfo(string.format("%s Starting Triple Triad...", LogPrefix))
     yield("/saucy tt play 15")
@@ -78,9 +78,7 @@ function PlayTTUntilNeeded()
 
     LeaveInstance()
 
-    repeat
-        Wait(1)
-    until not IsBoundByDuty()
+    WaitForCondition("BoundByDuty", false)
 
     WaitForPlayer()
 end

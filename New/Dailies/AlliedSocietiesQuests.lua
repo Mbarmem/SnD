@@ -367,7 +367,7 @@ for _, alliedSociety in ipairs(ToDoList) do
             UseMount()
         end
 
-        WaitForCondition("Mounted", 20)
+        WaitForCondition("Mounted", true)
         MoveTo(alliedSocietyTable.x, alliedSocietyTable.y, alliedSocietyTable.z, 2, true)
         WaitForPathRunning()
 

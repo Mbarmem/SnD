@@ -45,7 +45,7 @@ function TryExecute()
     for i = 1, 4 do
         LogInfo(string.format("%s Attempting to use action: %s", LogPrefix, Actions[i]))
 
-        if not Entity.Player.Target then
+        if not HasTarget() then
             LogInfo(string.format("%s No target found, acquiring new target...", LogPrefix))
             yield("/targetenemy")
             Wait(1)
@@ -66,9 +66,7 @@ if IsInCombat() then
     yield("/rotation auto HighHP")
     yield("/bmrai on")
 
-    repeat
-        Wait(1)
-    until not IsInCombat()
+    WaitForCondition("InCombat", false)
 
     LogInfo(string.format("%s Stopping RSR Rotation and BMR-AI.", LogPrefix))
 end
@@ -76,6 +74,7 @@ end
 yield("/rotation off")
 yield("/bmrai off")
 
+Echo(string.format("Script execution completed successfully..!!"), LogPrefix)
 LogInfo(string.format("%s Script execution completed successfully..!!", LogPrefix))
 
 --============================== END =============================--
