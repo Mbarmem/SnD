@@ -4,8 +4,8 @@ author: Mo
 version: 2.0.0
 description: Triple Triad + Auto Retainer - Play TT and process AR when needed
 plugin_dependencies:
-- Saucy
 - Lifestream
+- Saucy
 - vnavmesh
 - YesAlready
 dependencies:

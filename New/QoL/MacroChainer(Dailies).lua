@@ -3,9 +3,6 @@
 author: Mo
 version: 2.0.0
 description: Macro Chainer - Script for running multiple macros in sequence for daily tasks
-plugin_dependencies:
-- Lifestream
-- vnavmesh
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD

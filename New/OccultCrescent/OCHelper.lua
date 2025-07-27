@@ -5,11 +5,11 @@ version: 2.0.0
 description: Occult Crescent - Automates CE farming in South Horn
 plugin_dependencies:
 - BOCCHI
-- RotationSolver
 - BossModReborn
 - Lifestream
-- vnavmesh
+- RotationSolver
 - visland
+- vnavmesh
 - YesAlready
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua

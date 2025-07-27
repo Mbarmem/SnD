@@ -5,9 +5,9 @@ version: 2.0.0
 description: Artisan - Script for Crafting & Turning In
 plugin_dependencies:
 - Artisan
+- AutoRetainer
 - Lifestream
 - vnavmesh
-- AutoRetainer
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD

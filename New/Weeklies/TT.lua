@@ -4,10 +4,10 @@ author: Mo
 version: 2.0.0
 description: Triple Triad - A barebones script for weeklies
 plugin_dependencies:
-- Saucy
 - Lifestream
-- vnavmesh
+- Saucy
 - TextAdvance
+- vnavmesh
 - YesAlready
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua

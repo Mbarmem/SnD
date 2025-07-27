@@ -4,11 +4,11 @@ author: Mo
 version: 2.0.0
 description: Occult Crescent - Script for Gold Farming
 plugin_dependencies:
-- RotationSolver
 - BossModReborn
 - Lifestream
-- vnavmesh
+- RotationSolver
 - visland
+- vnavmesh
 - YesAlready
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua

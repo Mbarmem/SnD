@@ -5,9 +5,9 @@ version: 2.0.0
 description: Forager - Script for Fishing Gatherer Scrips
 plugin_dependencies:
 - AutoHook
+- AutoRetainer
 - Lifestream
 - vnavmesh
-- AutoRetainer
 - YesAlready
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua

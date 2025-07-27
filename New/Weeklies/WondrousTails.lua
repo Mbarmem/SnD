@@ -5,14 +5,14 @@ version: 2.0.0
 description: Wondrous Tails Doer - A barebones script for weeklies
 plugin_dependencies:
 - AutoDuty
-- RotationSolver
+- Automaton
 - BossModReborn
 - Lifestream
+- RotationSolver
+- SkipCutscene
+- TextAdvance
 - vnavmesh
 - YesAlready
-- SkipCutscene
-- Automaton
-- TextAdvance
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD

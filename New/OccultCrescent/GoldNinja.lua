@@ -4,8 +4,8 @@ author: Mo
 version: 2.0.0
 description: Occult Crescent - Script for Supporting Gold Farm on Ninja
 plugin_dependencies:
-- RotationSolver
 - BossModReborn
+- RotationSolver
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD

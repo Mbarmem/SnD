@@ -4,10 +4,10 @@ author: Mo
 version: 2.0.0
 description: Mini Cactpot - Script for Daily Mini Cactpot
 plugin_dependencies:
-- Saucy
 - Lifestream
-- vnavmesh
+- Saucy
 - TextAdvance
+- vnavmesh
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD

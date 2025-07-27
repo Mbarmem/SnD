@@ -4,11 +4,11 @@ author: Mo
 version: 2.0.0
 description: Cosmic Exploration - Hybrid Fishing and Crafting
 plugin_dependencies:
-- AutoHook
 - Artisan
+- AutoHook
+- ICE
 - Lifestream
 - vnavmesh
-- ICE
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD

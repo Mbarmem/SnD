@@ -4,10 +4,10 @@ author: Mo
 version: 2.0.0
 description: Island Sanctuary - A barebones script for weeklies
 plugin_dependencies:
-- visland
 - Lifestream
-- vnavmesh
 - TextAdvance
+- visland
+- vnavmesh
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD

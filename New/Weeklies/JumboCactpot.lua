@@ -5,8 +5,8 @@ version: 2.0.0
 description: Jumbo Cactpot - A barebones script for weeklies
 plugin_dependencies:
 - Lifestream
-- vnavmesh
 - TextAdvance
+- vnavmesh
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD
