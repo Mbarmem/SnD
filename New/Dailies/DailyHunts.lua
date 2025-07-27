@@ -4,9 +4,8 @@ author: Mo
 version: 2.0.0
 description: Daily Hunts Doer - A barebones script to accept Daily Hunts
 plugin_dependencies:
-- vnavmesh
 - Lifestream
-- TeleporterPlugin
+- vnavmesh
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD

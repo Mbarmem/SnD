@@ -5,7 +5,6 @@ version: 2.0.0
 description: Alexandrite - ARR Relic Helper
 plugin_dependencies:
 - Globetrotter
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
 dependencies:

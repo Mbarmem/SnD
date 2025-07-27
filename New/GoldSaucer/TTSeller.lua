@@ -4,7 +4,6 @@ author: Mo
 version: 2.0.0
 description: Triple Triad Seller - Sells your acumulated Triple Triad cards
 plugin_dependencies:
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
 dependencies:

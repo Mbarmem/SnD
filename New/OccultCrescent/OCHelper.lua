@@ -7,7 +7,6 @@ plugin_dependencies:
 - BOCCHI
 - RotationSolver
 - BossModReborn
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
 - visland

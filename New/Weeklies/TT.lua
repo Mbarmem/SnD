@@ -5,7 +5,6 @@ version: 2.0.0
 description: Triple Triad - A barebones script for weeklies
 plugin_dependencies:
 - Saucy
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
 - TextAdvance

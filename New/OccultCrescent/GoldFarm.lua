@@ -6,7 +6,6 @@ description: Occult Crescent - Script for Gold Farming
 plugin_dependencies:
 - RotationSolver
 - BossModReborn
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
 - visland

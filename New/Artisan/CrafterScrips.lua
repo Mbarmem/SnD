@@ -5,7 +5,6 @@ version: 2.0.0
 description: Artisan - Script for Crafting & Turning In
 plugin_dependencies:
 - Artisan
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
 - AutoRetainer

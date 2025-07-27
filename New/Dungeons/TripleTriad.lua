@@ -7,9 +7,8 @@ plugin_dependencies:
 - AutoDuty
 - RotationSolver
 - BossModReborn
-- vnavmesh
-- TeleporterPlugin
 - Lifestream
+- vnavmesh
 - YesAlready
 - SkipCutscene
 - Automaton

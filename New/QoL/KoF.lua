@@ -4,7 +4,6 @@ author: Mo
 version: 2.0.0
 description: Kupo Of Fortunes - Script for Diadem Fortunes
 plugin_dependencies:
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
 dependencies:

@@ -4,7 +4,6 @@ author: Mo
 version: 2.0.0
 description: TT Packs Buying Script - Buys Triple Triad Packs and opens them
 plugin_dependencies:
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
 dependencies:

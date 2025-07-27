@@ -4,7 +4,6 @@ author: Mo
 version: 2.0.0
 description: Jumbo Cactpot - A barebones script for weeklies
 plugin_dependencies:
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
 - TextAdvance

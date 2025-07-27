@@ -7,9 +7,8 @@ plugin_dependencies:
 - Questionable
 - RotationSolver
 - Artisan
-- vnavmesh
 - Lifestream
-- TeleporterPlugin
+- vnavmesh
 - TextAdvance
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua

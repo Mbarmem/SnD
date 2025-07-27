@@ -5,7 +5,6 @@ version: 2.0.0
 description: Island Sanctuary - A barebones script for weeklies
 plugin_dependencies:
 - visland
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
 - TextAdvance

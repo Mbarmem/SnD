@@ -4,7 +4,6 @@ author: Mo
 version: 2.0.0
 description: Materia Infusion - Script for ARR Relic Materia Infusion
 plugin_dependencies:
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
 dependencies:
