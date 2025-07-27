@@ -130,8 +130,7 @@ function GetWeatherType(weatherId)
 end
 
 function MoveToSpot()
-    Lifestream("Cosmic")
-    WaitForLifeStream()
+    Teleport("Cosmic")
     Wait(1)
     MoveTo(-89.203, -3.337, -27.259)
     WaitForPathRunning()

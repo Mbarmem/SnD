@@ -431,6 +431,20 @@ end
 
 --------------------------------------------------------------------
 
+-- Executes a Lifestream Aethernet destination and waits for its completion
+function LifestreamAethernet(destination)
+    if not destination or destination == "" then
+        LogDebug("[MoLib] No Lifestream Aethernet destination provided.")
+        return
+    end
+
+    LogDebug("[MoLib] Executing Lifestream Aethernet destination: '%s'", destination)
+    IPC.Lifestream.AethernetTeleport(destination)
+    WaitForLifeStream()
+end
+
+--------------------------------------------------------------------
+
 -- Checks whether Lifestream is currently performing a teleport or is otherwise busy.
 function LifestreamIsBusy()
     local busy = IPC.Lifestream.IsBusy()
@@ -951,8 +965,7 @@ function MoveToInn()
     -- Only move if not already in an Inn zone
     if (WhereAmI ~= 177) and (WhereAmI ~= 178) and (WhereAmI ~= 179) and (WhereAmI ~= 1205) then
         LogDebug("[MoLib] Moving to Inn.")
-        IPC.Lifestream.ExecuteCommand("Inn")
-        WaitForLifeStream()
+        Lifestream("Inn")
     else
         LogDebug("[MoLib] Already in an Inn zone, no action taken.")
     end
@@ -984,7 +997,7 @@ function AcquireTarget(name, maxRetries, sleepTime)
     maxRetries = maxRetries or 20 -- Default retries if not provided
     sleepTime = sleepTime or 0.1 -- Default sleep interval if not provided
 
-    yield('/target ' .. tostring(name))
+    Entity.GetEntityByName(name):SetAsTarget()
 
     local retries = 0
     while (Entity == nil or Entity.Target == nil) and retries < maxRetries do
@@ -1072,7 +1085,7 @@ end
 function Interact(name, maxRetries, sleepTime)
     local success = AcquireTarget(name, maxRetries, sleepTime)
     if success then
-        yield('/interact')
+        Entity.Target:Interact()
         LogDebug(string.format("[MoLib] Interacted with: %s", Entity.Target.Name))
         Wait(1)
     else
@@ -1271,7 +1284,7 @@ end
 -- Initiates teleport to the given location and waits for it to complete
 function Teleport(location)
     LogDebug(string.format("[MoLib] Initiating teleport to '%s'.", location))
-    yield("/li tp " .. location)
+    Lifestream(location)
     Wait(0.1)
     WaitForTeleport()
 end

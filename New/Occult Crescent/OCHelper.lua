@@ -86,11 +86,8 @@ function MoveToOC()
     end
 
     Wait(1)
-    Lifestream(command)
-
+    Teleport(command)
     LogInfo(string.format("%s Teleporting to Occult Crescent...", LogPrefix))
-
-    WaitForLifeStream()
 end
 
 -----------------

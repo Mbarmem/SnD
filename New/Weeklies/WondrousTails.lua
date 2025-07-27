@@ -183,8 +183,7 @@ end
 
 if Player.Bingo.IsWeeklyBingoExpired or Player.Bingo.WeeklyBingoNumPlacedStickers == 9 or not Player.Bingo.HasWeeklyBingoJournal then
     if not IsInZone(478) then
-        Lifestream("Idyllshire")
-        WaitForLifeStream()
+        Teleport("Idyllshire")
     end
 
     MoveTo(Khloe.X, Khloe.Y, Khloe.Z)

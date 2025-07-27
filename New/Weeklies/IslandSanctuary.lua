@@ -176,8 +176,7 @@ function CharacterState.enterIslandSanctuary()
     end
 
     LogInfo(string.format("%s Teleporting to Island Sanctuary...", LogPrefix))
-    Lifestream("Island")
-    WaitForLifeStream()
+    Teleport("Island")
 
     State = CharacterState.openWorkshop
     LogInfo(string.format("%s State changed to: OpenWorkshop", LogPrefix))

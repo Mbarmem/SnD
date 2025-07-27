@@ -498,11 +498,7 @@ function MoveForExchange()
                 StateReached = true
             end
         else
-            Teleport(SelectedHubCity.aetheryte)
-            if not LifestreamIsBusy() then
-                Lifestream(SelectedHubCity.aethernet.aethernetName)
-                WaitForTeleport()
-            end
+            Teleport(SelectedHubCity.aethernet.aethernetName)
         end
     end
 end

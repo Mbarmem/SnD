@@ -92,8 +92,7 @@ function MoveToOC()
 
     if not IsInZone(Zones.PhantomVillage) then
         LogInfo(string.format("%s Moving to Occult Crescent", LogPrefix))
-        Lifestream("Occult")
-        WaitForLifeStream()
+        Teleport("Occult")
         return
     end
 
@@ -123,8 +122,7 @@ function MoveToEG()
     VislandRouteStop()
 
     LogInfo(string.format("%s Moving to Eldergrowth", LogPrefix))
-    Lifestream("Eldergrowth")
-    WaitForLifeStream()
+    Teleport("Eldergrowth")
 end
 
 ----------------

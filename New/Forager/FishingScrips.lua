@@ -489,7 +489,7 @@ function CharacterState.buyFishingBait()
 
     if distanceToMerchant > distanceViaAethernet + 20 then
         if not LifestreamIsBusy() then
-            Lifestream(FishingBaitMerchant.aethernet.name)
+            Teleport(FishingBaitMerchant.aethernet.name)
         end
         return
     end
@@ -587,7 +587,7 @@ function CharacterState.turnIn()
 ---@diagnostic disable-next-line: undefined-field
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
-            Lifestream(SelectedHubCity.aethernet.aethernetName)
+            Teleport(SelectedHubCity.aethernet.aethernetName)
         end
         Wait(1)
 
@@ -648,7 +648,7 @@ function CharacterState.scripExchange()
 ---@diagnostic disable-next-line: undefined-field
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
-            Lifestream(SelectedHubCity.aethernet.aethernetName)
+            Teleport(SelectedHubCity.aethernet.aethernetName)
         end
         Wait(1)
 
@@ -709,7 +709,7 @@ function CharacterState.processAutoRetainers()
 
     elseif SelectedHubCity.retainerBell.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) + 10) then
         if not LifestreamIsBusy() then
-            Lifestream(SelectedHubCity.aethernet.aethernetName)
+            Teleport(SelectedHubCity.aethernet.aethernetName)
         end
         Wait(1)
 
@@ -750,7 +750,7 @@ function CharacterState.gcTurnIn()
 
         if not IsInZone(gcZoneIds[playerGC]) then
             LogInfo(string.format("%s Not in Grand Company zone. Using Aethernet...", LogPrefix))
-            Lifestream("gc")
+            Teleport("GC")
             Wait(1)
 
         elseif IPC.Deliveroo.IsTurnInRunning() then
@@ -809,7 +809,7 @@ function CharacterState.executeRepair()
 
             local vendor = { npcName = "Unsynrael", x = -257.71, y = 16.19, z = 50.11, wait = 0.08 }
             if GetDistanceToPoint(vendor.x, vendor.y, vendor.z) > DistanceBetween(hawkersAlleyAethernetShard.x, hawkersAlleyAethernetShard.y, hawkersAlleyAethernetShard.z, vendor.x, vendor.y, vendor.z) + 10 then
-                Lifestream("Hawkers' Alley")
+                Teleport("Hawkers' Alley")
                 Wait(1)
             elseif IsAddonVisible("TelepotTown") then
                 yield("/callback TelepotTown false -1")
@@ -821,7 +821,7 @@ function CharacterState.executeRepair()
             else
                 if GetTargetName() ~= vendor.npcName then
                     Target(vendor.npcName)
-                elseif not Svc.Condition[32] then
+                elseif not IsOccupiedInQuestEvent() then
                     Interact(vendor.npcName)
                 elseif IsAddonVisible("SelectYesno") then
                     yield("/callback SelectYesno true 0")
@@ -845,7 +845,7 @@ function CharacterState.executeRepair()
 
             local mender = { npcName = "Alistair", x = -246.87, y = 16.19, z = 49.83 }
             if GetDistanceToPoint(mender.x, mender.y, mender.z) > DistanceBetween(hawkersAlleyAethernetShard.x, hawkersAlleyAethernetShard.y, hawkersAlleyAethernetShard.z, mender.x, mender.y, mender.z) + 10 then
-                Lifestream("Hawkers' Alley")
+                Teleport("Hawkers' Alley")
                 Wait(1)
             elseif IsAddonVisible("TelepotTown") then
                 yield("/callback TelepotTown false -1")

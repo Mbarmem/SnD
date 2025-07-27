@@ -74,14 +74,12 @@ end
 function CharacterState.goToFoundation()
     if IsInZone(418) then
         MoveToTarget("Aetheryte", 7)
-        Lifestream("The Last Vigil")
-        WaitForLifeStream()
+        Teleport("The Last Vigil")
 
         State = CharacterState.goToLastVigil
         LogInfo(string.format("%s State changed to: GoToLastVigil", LogPrefix))
     else
         Teleport("Foundation")
-        WaitForTeleport()
 
         State = CharacterState.goToFoundation
         LogInfo(string.format("%s State changed to: GoToFoundation", LogPrefix))
@@ -121,14 +119,12 @@ function CharacterState.playTTandAR()
         WaitForZoneChange()
 
         MoveToTarget("Aethernet Shard", 5)
-        Lifestream("The Jeweled Crozier")
-        WaitForLifeStream()
+        Teleport("The Jeweled Crozier")
 
         DoAR(DoAutoRetainers)
 
         MoveToTarget("Aethernet Shard", 5)
-        Lifestream("The Last Vigil")
-        WaitForLifeStream()
+        Teleport("The Last Vigil")
 
         State = CharacterState.goToLastVigil
         LogInfo(string.format("%s State changed to: GoToLastVigil", LogPrefix))

@@ -46,11 +46,9 @@ function CharacterState.startJumboCactpot()
     WaitForPlayer()
     LogInfo(string.format("%s Teleporting to Gold Saucer...", LogPrefix))
     Teleport("Gold Saucer")
-    WaitForTeleport()
 
     MoveToTarget("Aetheryte", 6)
-    Lifestream("Cactpot Board")
-    WaitForLifeStream()
+    Teleport("Cactpot Board")
 
     MoveToTarget("Cactpot Cashier", 5)
     Wait(1)

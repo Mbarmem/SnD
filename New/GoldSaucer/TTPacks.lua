@@ -105,7 +105,6 @@ function GoToSeller()
     end
 
     Teleport("The Gold Saucer")
-    WaitForTeleport()
     MoveTo(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
 end
 

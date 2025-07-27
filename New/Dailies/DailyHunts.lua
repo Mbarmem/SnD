@@ -165,8 +165,7 @@ function CharacterState.goToHuntBoard()
             MoveToTarget("Aetheryte", 7)
             WaitForPathRunning()
             Wait(1)
-            Lifestream(Board.miniAethernet.name)
-            WaitForLifeStream()
+            Teleport(Board.miniAethernet.name)
         end
     end
 
