@@ -244,12 +244,12 @@ end
 --------------------------------------------------------------------
 
 -- Checks if the player has a target, optionally matching a given name.
-function HasTarget(target)
+function HasTarget(targetName)
     local currentTarget = Entity.Player.Target
 
-    if target then
-        local result = currentTarget and currentTarget.Name == target
-        LogDebug(string.format("[MoLib] HasTarget '%s': %s", target, tostring(result)))
+    if targetName then
+        local result = currentTarget and currentTarget.Name == targetName
+        LogDebug(string.format("[MoLib] HasTarget '%s': %s", targetName, tostring(result)))
         return result
     else
         local result = currentTarget ~= nil
