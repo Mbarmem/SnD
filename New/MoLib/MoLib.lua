@@ -114,6 +114,16 @@ end
 
 ---------------------------------------------------------------------
 
+--- Checks if the player is currently in an occupied state
+-- @return boolean true if player is occupied; false otherwise
+function IsOccupied()
+    local isOccupied = Svc.Condition[CharacterCondition.occupied] or Svc.Condition[CharacterCondition.occupied39]
+    LogDebug(string.format("[MoLib] IsOccupied: %s", tostring(isOccupied)))
+    return isOccupied
+end
+
+---------------------------------------------------------------------
+
 --- Checks if the player is currently InCombat
 -- @return boolean true if player is in combat; false otherwise
 function IsInCombat()
@@ -180,6 +190,16 @@ function IsBetweenAreas()
     local isBetweenAreas = Svc.Condition[CharacterCondition.betweenAreas]
     LogDebug(string.format("[MoLib] IsBetweenAreas: %s", tostring(isBetweenAreas)))
     return isBetweenAreas
+end
+
+---------------------------------------------------------------------
+
+--- Checks if the player is currently occupied with the Summoning Bell
+-- @return boolean true if player is occupied with the Summoning Bell; false otherwise
+function IsOccupiedSummoningBell()
+    local isOccupiedSummoningBell = Svc.Condition[CharacterCondition.occupiedSummoningBell]
+    LogDebug(string.format("[MoLib] IsOccupiedSummoningBell: %s", tostring(isOccupiedSummoningBell)))
+    return isOccupiedSummoningBell
 end
 
 ---------------------------------------------------------------------
@@ -837,14 +857,14 @@ function WaitForTeleport()
 
     repeat
         Wait(0.1)
-    until not Svc.Condition[CharacterCondition.casting]
+    until not IsPlayerCasting()
     Wait(0.1)
 
     LogDebug("[MoLib] Teleport started, waiting for zoning to complete...")
 
     repeat
         Wait(0.1)
-    until not Svc.Condition[CharacterCondition.betweenAreas] and IsPlayerAvailable()
+    until not IsBetweenAreas() and IsPlayerAvailable()
     Wait(0.1)
 
     LogDebug("[MoLib] Teleport complete.")
@@ -858,13 +878,13 @@ function WaitForZoneChange()
     LogDebug("[MoLib] Waiting for zoning to start...")
     repeat
         Wait(0.1)
-    until Svc.Condition[CharacterCondition.betweenAreas]
+    until IsBetweenAreas()
 
     LogDebug("[MoLib] Zoning detected! Now waiting for zoning to complete...")
 
     repeat
         Wait(0.1)
-    until not Svc.Condition[CharacterCondition.betweenAreas] and IsPlayerAvailable()
+    until not IsBetweenAreas() and IsPlayerAvailable()
 
     LogDebug("[MoLib] Zoning complete. Player is available.")
 end
@@ -1614,7 +1634,7 @@ function Repair(RepairThreshold)
         Wait(1)
     end
 
-    while Svc.Condition[CharacterCondition.occupied] do
+    while IsOccupied() do
         Wait(1)
     end
 
@@ -1671,7 +1691,7 @@ function MateriaExtraction(ExtractMateria)
                 Wait(1)
             end
 
-            while Svc.Condition[CharacterCondition.occupied] do
+            while IsOccupied() do
                 Wait(1)
             end
         end
@@ -1731,7 +1751,7 @@ function WaitForAR(DoAutoRetainers)
     LogDebug(string.format("%[MoLib] Waiting for AutoRetainers to complete."))
     Wait(1)
 
-    while Svc.Condition[CharacterCondition.occupiedSummoningBell] do
+    while IsOccupiedSummoningBell() do
         WaitForPlayer()
     end
 end
@@ -1781,12 +1801,16 @@ function LogInfo(msg, ...)
     Log(msg, LogLevel.Info, ...)
 end
 
+--------------------------------------------------------------------
+
 --- Logs a message at the Debug level
 -- @param msg string The message format string
 -- @param ... any Optional arguments to format into the message
 function LogDebug(msg, ...)
     Log(msg, LogLevel.Debug, ...)
 end
+
+--------------------------------------------------------------------
 
 --- Logs a message at the Verbose level
 -- @param msg string The message format string
