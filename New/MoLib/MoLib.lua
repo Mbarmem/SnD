@@ -44,7 +44,8 @@ CharacterCondition = {
 --    Player    --
 --==============--
 
--- Wrapper for Player.Available
+--- Wrapper for Player.Available
+-- @return boolean True if player is available; false otherwise
 function IsPlayerAvailable()
     local isAvailable = Player and Player.Available and not Player.IsBusy
     LogDebug(string.format("[MoLib] IsPlayerAvailable: %s", tostring(isAvailable)))
@@ -53,7 +54,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently dead.
+--- Checks if the player is currently dead
+-- @return boolean True if player is dead; false otherwise
 function IsDead()
     local isDead = Svc.Condition[CharacterCondition.dead]
     LogDebug(string.format("[MoLib] IsDead: %s", tostring(isDead)))
@@ -62,7 +64,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently mounted.
+--- Checks if the player is currently mounted
+-- @return boolean True if player is mounted; false otherwise
 function IsMounted()
     local isMounted = Svc.Condition[CharacterCondition.mounted]
     LogDebug(string.format("[MoLib] IsMounted: %s", tostring(isMounted)))
@@ -71,7 +74,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently crafting.
+--- Checks if the player is currently crafting
+-- @return boolean True if player is crafting; false otherwise
 function IsCrafting()
     local isCrafting = Svc.Condition[CharacterCondition.crafting]
     LogDebug(string.format("[MoLib] IsCrafting: %s", tostring(isCrafting)))
@@ -80,7 +84,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently gathering.
+--- Checks if the player is currently gathering
+-- @return boolean True if player is gathering; false otherwise
 function IsGathering()
     local isGathering = Svc.Condition[CharacterCondition.gathering]
     LogDebug(string.format("[MoLib] IsGathering: %s", tostring(isGathering)))
@@ -89,7 +94,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently occupied in a mini-game.
+--- Checks if the player is currently occupied in a mini-game
+-- @return boolean True if player is playing mini game; false otherwise
 function IsPlayingMiniGame()
     local isMiniGame = Svc.Condition[CharacterCondition.playingMiniGame]
     LogDebug(string.format("[MoLib] IsPlayingMiniGame: %s", tostring(isMiniGame)))
@@ -98,7 +104,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently playing Lord of Verminion.
+--- Checks if the player is currently playing Lord of Verminion
+-- @return boolean True if player is lord of verminion; false otherwise
 function IsPlayingLordOfVerminion()
     local isPlaying = Svc.Condition[CharacterCondition.playingLordOfVerminion]
     LogDebug(string.format("[MoLib] IsPlayingLordOfVerminion: %s", tostring(isPlaying)))
@@ -107,7 +114,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently InCombat.
+--- Checks if the player is currently InCombat
+-- @return boolean True if player is in combat; false otherwise
 function IsInCombat()
     local isInCombat = Entity.Player.IsInCombat
     LogDebug(string.format("[MoLib] IsInCombat: %s", tostring(isInCombat)))
@@ -116,7 +124,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Wrapper for Player.Entity.IsCasting
+--- Wrapper for Player.Entity.IsCasting
+-- @return boolean True if player is casting; false otherwise
 function IsPlayerCasting()
     local isCasting = Player.Entity and Player.Entity.IsCasting
     LogDebug(string.format("[MoLib] IsPlayerCasting: %s", tostring(isCasting)))
@@ -125,7 +134,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently occupied in a quest event (e.g., cutscene or interactive scene)
+--- Checks if the player is currently occupied in a quest event (e.g., cutscene or interactive scene)
+-- @return boolean True if player is occupied in quest event; false otherwise
 function IsOccupiedInQuestEvent()
     local inQuestEvent = Svc.Condition[CharacterCondition.occupiedInQuestEvent]
     LogDebug(string.format("[MoLib] IsOccupiedInQuestEvent: %s", tostring(inQuestEvent)))
@@ -134,7 +144,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently bound by duty
+--- Checks if the player is currently bound by duty
+-- @return boolean True if player is bound by duty; false otherwise
 function IsBoundByDuty()
     local isBoundByDuty = Svc.Condition[CharacterCondition.boundByDuty] or Svc.Condition[CharacterCondition.boundByDuty56]
     LogDebug(string.format("[MoLib] IsBoundByDuty: %s", tostring(isBoundByDuty)))
@@ -143,7 +154,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently occupied in a cutscene
+--- Checks if the player is currently occupied in a cutscene
+-- @return boolean True if player is occupied in cutscene; false otherwise
 function IsOccupiedInCutScene()
     local inCutscene = Svc.Condition[CharacterCondition.occupiedInCutscene]
     LogDebug(string.format("[MoLib] OccupiedInCutscene: %s", tostring(inCutscene)))
@@ -152,7 +164,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently fishing
+--- Checks if the player is currently fishing
+-- @return boolean True if player is fishing; false otherwise
 function IsFishing()
     local isFishing = Svc.Condition[CharacterCondition.fishing]
     LogDebug(string.format("[MoLib] IsFishing: %s", tostring(isFishing)))
@@ -161,7 +174,8 @@ end
 
 ---------------------------------------------------------------------
 
--- Checks if the player is currently between Areas
+--- Checks if the player is currently between Areas
+-- @return boolean True if player is in between areas; false otherwise
 function IsBetweenAreas()
     local isBetweenAreas = Svc.Condition[CharacterCondition.betweenAreas]
     LogDebug(string.format("[MoLib] IsBetweenAreas: %s", tostring(isBetweenAreas)))
@@ -170,7 +184,7 @@ end
 
 ---------------------------------------------------------------------
 
--- WaitForPlayer function to wait until the player is available
+--- WaitForPlayer function to wait until the player is available
 -- Continuously yields in defined intervals until IsPlayerAvailable() returns true
 function WaitForPlayer()
     LogDebug("[MoLib] WaitForPlayer: Waiting for player to become available...")
@@ -183,7 +197,8 @@ end
 
 --------------------------------------------------------------------
 
--- Returns the current character's name.
+--- Returns the current player's character name
+-- @return string The character's name, or nil if unavailable
 function GetCharacterName()
     local name = Entity and Entity.Player and Entity.Player.Name
     LogDebug(string.format("[MoLib] GetCharacterName: %s", tostring(name)))
@@ -192,7 +207,8 @@ end
 
 --------------------------------------------------------------------
 
--- Get the current player's class/job ID.
+--- Returns the current player's class/job ID
+-- @return number The job ID, or nil if unavailable
 function GetClassJobId()
     local jobId = Player and Player.Job and Player.Job.Id
     LogDebug(string.format("[MoLib] GetClassJobId: %s", tostring(jobId)))
@@ -201,8 +217,9 @@ end
 
 --------------------------------------------------------------------
 
--- Wrapper for Character Condition
--- Returns a specific condition value by index, or the full condition table if no index is provided
+--- Wrapper for Character Condition
+-- @param index number|nil Optional condition index from CharacterCondition
+-- @return boolean|table|nil The condition value (if index provided), or the full condition table
 function GetCharacterCondition(index)
     if index then
         local condition = Svc.Condition and Svc.Condition[index] or nil
@@ -216,7 +233,8 @@ end
 
 --------------------------------------------------------------------
 
--- Retrieves the player's current X position in the game world
+--- Returns the player's current X position in the game world
+-- @return number The X coordinate
 function GetPlayerRawXPos()
     local x = Player.Entity.Position.X
     LogDebug(string.format("[MoLib] Player X Position: %.2f", x))
@@ -225,7 +243,8 @@ end
 
 --------------------------------------------------------------------
 
--- Retrieves the player's current Y position in the game world
+--- Returns the player's current Y position in the game world
+-- @return number The Y coordinate
 function GetPlayerRawYPos()
     local y = Player.Entity.Position.Y
     LogDebug(string.format("[MoLib] Player Y Position: %.2f", y))
@@ -234,7 +253,8 @@ end
 
 --------------------------------------------------------------------
 
--- Retrieves the player's current Z position in the game world
+--- Returns the player's current Z position in the game world
+-- @return number The Z coordinate
 function GetPlayerRawZPos()
     local z = Player.Entity.Position.Z
     LogDebug(string.format("[MoLib] Player Z Position: %.2f", z))
@@ -243,7 +263,9 @@ end
 
 --------------------------------------------------------------------
 
--- Checks if the player has a target, optionally matching a given name.
+--- Checks if the player has a target, optionally matching a given name
+-- @param targetName string|nil Optional target name to match
+-- @return boolean True if a target exists and matches (if provided); false otherwise
 function HasTarget(targetName)
     local currentTarget = Entity.Player.Target
 
@@ -260,7 +282,9 @@ end
 
 --------------------------------------------------------------------
 
--- Checks if the player currently has a status with the specified StatusId.
+--- Checks if the player currently has a status with the specified StatusId
+-- @param targetId number The status ID to check for
+-- @return boolean True if the status is found; false otherwise
 function HasStatusId(targetId)
     local statusList = Player.Status
     LogDebug(string.format("[MoLib] Checking for StatusId = %d", targetId))
@@ -285,7 +309,9 @@ end
 
 --------------------------------------------------------------------
 
--- Checks if the player has a specific status and returns its remaining time.
+--- Checks if the player has a specific status and returns its remaining time
+-- @param targetId number The status ID to check for
+-- @return number|nil Remaining time in seconds if the status is found; nil otherwise
 function GetStatusTimeRemaining(targetId)
     local statusList = Player.Status
     LogDebug(string.format("[MoLib] Checking remaining time for StatusId = %d", targetId))
@@ -308,15 +334,14 @@ function GetStatusTimeRemaining(targetId)
     return nil
 end
 
---------------------------------------------------------------------
-
 --============================= IPC ==============================--
 
 --===============--
 --    Artisan    --
 --===============--
 
--- Checks if an Artisan crafting list is currently running.
+--- Checks if an Artisan crafting list is currently running
+-- @return boolean
 function ArtisanIsListRunning()
     local isRunning = IPC.Artisan.IsListRunning()
     LogDebug(string.format("[MoLib] Artisan list running: %s", tostring(isRunning)))
@@ -325,7 +350,8 @@ end
 
 --------------------------------------------------------------------
 
--- Retrieves the current endurance status from the Artisan system.
+--- Retrieves the current endurance status from the Artisan system
+-- @return any The current endurance status value
 function ArtisanGetEnduranceStatus()
     local status = IPC.Artisan.GetEnduranceStatus()
     LogDebug(string.format("[MoLib] Artisan endurance status retrieved: %s", tostring(status)))
@@ -334,10 +360,11 @@ end
 
 --------------------------------------------------------------------
 
--- Sets the endurance status for the Artisan system.
+--- Sets the endurance status for the Artisan system
+-- @param status any The endurance status value to set
 function ArtisanSetEnduranceStatus(status)
     LogDebug(string.format("[MoLib] Artisan endurance status set to: %s", tostring(status)))
-    return IPC.Artisan.SetEnduranceStatus(status)
+    IPC.Artisan.SetEnduranceStatus(status)
 end
 
 --------------------------------------------------------------------
@@ -346,40 +373,46 @@ end
 --    AutoDuty    --
 --================--
 
--- Sets a configuration key-value pair for AutoDuty via IPC.
+--- Sets a configuration key-value pair for AutoDuty via IPC
+-- @param key string The configuration key
+-- @param value any The configuration value
 function AutoDutyConfig(key, value)
     LogDebug(string.format("[MoLib] AutoDuty config: %s = %s", tostring(key), tostring(value)))
-    return IPC.AutoDuty.SetConfig(key, value)
+    IPC.AutoDuty.SetConfig(key, value)
 end
 
 --------------------------------------------------------------------
 
--- Starts an AutoDuty run with the specified territory and parameters.
+--- Starts an AutoDuty run with the specified territory and parameters
+-- @param territoryType number|string The territory ID or type
+-- @param loops number The number of loops to run
+-- @param bareMode boolean Whether to run in bare mode
 function AutoDutyRun(territoryType, loops, bareMode)
     LogDebug(string.format("[MoLib] Running duty: territoryType=%s, loops=%s, bareMode=%s", tostring(territoryType), tostring(loops), tostring(bareMode)))
-    return IPC.AutoDuty.Run(territoryType, loops, bareMode)
+    IPC.AutoDuty.Run(territoryType, loops, bareMode)
 end
 
 --------------------------------------------------------------------
 
--- Starts an AutoDuty run with the specified boolean flag.
+--- Starts an AutoDuty run with the specified start flag
+-- @param startFromZero boolean Whether to start from zero
 function AutoDutyStart(startFromZero)
     LogDebug(string.format("[MoLib] Starting AutoDuty with startFromZero: %s", tostring(startFromZero)))
-    return IPC.AutoDuty.Start(startFromZero)
+    IPC.AutoDuty.Start(startFromZero)
 end
 
 --------------------------------------------------------------------
 
--- Stops the AutoDuty run.
+--- Stops the AutoDuty run
 function AutoDutyStop()
-    local status = IPC.AutoDuty.Stop()
     LogDebug(string.format("[MoLib] AutoDuty stopped."))
-    return status
+    IPC.AutoDuty.Stop()
 end
 
 --------------------------------------------------------------------
 
--- Checks if AutoDuty is currently running.
+--- Checks if AutoDuty is currently running
+-- @return boolean True if AutoDuty is running; false otherwise
 function AutoDutyIsRunning()
     local isRunning = IPC.AutoDuty.IsLooping()
     LogDebug(string.format("[MoLib] AutoDuty is running: %s", tostring(isRunning)))
@@ -388,7 +421,8 @@ end
 
 --------------------------------------------------------------------
 
--- Checks if AutoDuty is currently stopped.
+--- Checks if AutoDuty is currently stopped
+-- @return boolean True if AutoDuty is stopped; false otherwise
 function AutoDutyIsStopped()
     local isStopped = IPC.AutoDuty.IsStopped()
     LogDebug(string.format("[MoLib] AutoDuty is stopped: %s", tostring(isStopped)))
@@ -401,18 +435,20 @@ end
 --    AutoHook    --
 --================--
 
--- Sets the AutoHook plugin to use a specific preset.
+--- Sets the AutoHook plugin to use a specific preset
+-- @param presetName string The name of the preset to set
 function SetAutoHookPreset(presetName)
     LogDebug(string.format("[MoLib] AutoHook preset set to: %s", tostring(presetName)))
-    return IPC.AutoHook.SetPreset(presetName)
+    IPC.AutoHook.SetPreset(presetName)
 end
 
 --------------------------------------------------------------------
 
--- Sets the AutoHook state.
+--- Sets the AutoHook plugin state
+-- @param state boolean The desired plugin state (true to enable, false to disable)
 function SetAutoHookState(state)
     LogDebug(string.format("[MoLib] AutoHook state set to: %s", tostring(state)))
-    return IPC.AutoHook.SetPluginState(state)
+    IPC.AutoHook.SetPluginState(state)
 end
 
 --------------------------------------------------------------------
@@ -421,7 +457,8 @@ end
 --    AutoRetainer    --
 --====================--
 
--- Checks if there are any AutoRetainers waiting to be processed for the current character.
+--- Checks if there are any AutoRetainers waiting to be processed for the current character
+-- @return boolean True if any retainers are waiting; false otherwise
 function ARRetainersWaitingToBeProcessed()
     local hasRetainers = IPC.AutoRetainer.AreAnyRetainersAvailableForCurrentChara()
     LogDebug(string.format("[MoLib] Retainers waiting to be processed: %s", tostring(hasRetainers)))
@@ -434,7 +471,8 @@ end
 --    Lifestream    --
 --==================--
 
--- Executes a Lifestream command and waits for its completion
+--- Executes a Lifestream command and waits for its completion
+-- @param command string The Lifestream command to execute
 function Lifestream(command)
     if not command or command == "" then
         LogDebug("[MoLib] No Lifestream command provided.")
@@ -448,7 +486,8 @@ end
 
 --------------------------------------------------------------------
 
--- Executes a Lifestream Aethernet destination and waits for its completion
+--- Executes a Lifestream Aethernet teleport to the specified destination and waits for its completion
+-- @param destination string The Aethernet destination to teleport to
 function LifestreamAethernet(destination)
     if not destination or destination == "" then
         LogDebug("[MoLib] No Lifestream Aethernet destination provided.")
@@ -462,7 +501,8 @@ end
 
 --------------------------------------------------------------------
 
--- Checks whether Lifestream is currently performing a teleport or is otherwise busy.
+--- Checks whether Lifestream is currently busy performing a teleport or other action
+-- @return boolean True if Lifestream is busy; false otherwise
 function LifestreamIsBusy()
     local busy = IPC.Lifestream.IsBusy()
     LogDebug(string.format("[MoLib] LifestreamIsBusy: %s", tostring(busy)))
@@ -471,14 +511,14 @@ end
 
 --------------------------------------------------------------------
 
--- WaitForLifeStream function to pause execution until Lifestream is no longer busy
--- Then ensures the player is available before continuing
+--- WaitForLifeStream function to pause execution until Lifestream is no longer busy
+-- @return boolean True if Lifestream is not busy and player in available; false otherwise
 function WaitForLifeStream()
     LogDebug("[MoLib] Waiting for Lifestream to become not busy and player to be available...")
 
     repeat
         Wait(0.1)
-    until not IPC.Lifestream.IsBusy() and IsPlayerAvailable()
+    until not LifestreamIsBusy() and IsPlayerAvailable()
 
     LogDebug("[MoLib] Lifestream is no longer busy and player is available.")
 end
@@ -489,7 +529,8 @@ end
 --    Questionable    --
 --====================--
 
--- Returns whether Questionable is currently running.
+--- Returns whether the Questionable plugin is currently running
+-- @return boolean True if Questionable is running; false otherwise
 function QuestionableIsRunning()
     local running = IPC.Questionable.IsRunning()
     LogDebug(string.format("[MoLib] QuestionableIsRunning: %s", tostring(running)))
@@ -498,23 +539,26 @@ end
 
 --------------------------------------------------------------------
 
--- Adds a quest to the priority list in Questionable.
+--- Adds a quest to the priority list in Questionable
+-- @param questId number The ID of the quest to prioritize
 function QuestionableAddQuestPriority(questId)
     LogDebug(string.format("[MoLib] QuestionableAddQuestPriority: QuestID=%d", questId))
-    return IPC.Questionable.AddQuestPriority(questId)
+    IPC.Questionable.AddQuestPriority(questId)
 end
 
 --------------------------------------------------------------------
 
--- Clears all quest priorities in Questionable.
+--- Clears all quest priorities in Questionable
 function QuestionableClearQuestPriority()
     LogDebug("[MoLib] QuestionableClearQuestPriority called")
-    return IPC.Questionable.ClearQuestPriority()
+    IPC.Questionable.ClearQuestPriority()
 end
 
 --------------------------------------------------------------------
 
--- Checks if a specific quest is locked in Questionable.
+--- Checks if a specific quest is locked in Questionable
+-- @param questId number The ID of the quest to check
+-- @return boolean True if the quest is locked; false otherwise
 function QuestionableIsQuestLocked(questId)
     local locked = IPC.Questionable.IsQuestLocked(questId)
     LogDebug(string.format("[MoLib] QuestionableIsQuestLocked: QuestID=%d, Locked=%s", questId, tostring(locked)))
@@ -527,7 +571,8 @@ end
 --    Visland    --
 --===============--
 
--- Checks if the Visland route is currently running
+--- Checks if the Visland route is currently running
+-- @return boolean True if Visland route is running; false otherwise
 function IsVislandRouteRunning()
     local running = IPC.visland.IsRouteRunning()
     LogDebug(string.format("[MoLib] Visland route running status: %s", tostring(running)))
@@ -536,7 +581,8 @@ end
 
 --------------------------------------------------------------------
 
--- Checks if the Visland route is currently paused
+--- Checks if the Visland route is currently paused
+-- @return boolean True if Visland route is paused; false otherwise
 function IsVislandRoutePaused()
     local paused = IPC.visland.IsRoutePaused()
     LogDebug(string.format("[MoLib] Visland route paused status: %s", tostring(paused)))
@@ -545,29 +591,32 @@ end
 
 --------------------------------------------------------------------
 
--- Starts the specified Visland route, with optional looping
+--- Starts the specified Visland route, with optional looping
+-- @param routeName string The name of the route to start
+-- @param loop boolean Optional; whether to loop the route. Defaults to false
 function VislandRouteStart(routeName, loop)
     loop = loop or false
     LogDebug(string.format("[MoLib] Starting Visland route: %s (Loop: %s)", routeName, tostring(loop)))
-    return IPC.visland.StartRoute(routeName, loop)
+    IPC.visland.StartRoute(routeName, loop)
 end
 
 --------------------------------------------------------------------
 
--- Stops the Visland route if it is running
+--- Stops the Visland route if it is currently running
 function VislandRouteStop()
     if IsVislandRouteRunning() then
         LogDebug(string.format("[MoLib] Stopping Visland route"))
-        return IPC.visland.StopRoute()
+        IPC.visland.StopRoute()
     end
 end
 
 --------------------------------------------------------------------
 
--- Sets the Visland route pause state to true or false
+--- Sets the Visland route to pause state
+-- @param paused boolean True to pause the route, false to resume
 function VislandSetRoutePaused(paused)
     LogDebug(string.format("[MoLib] Setting Visland route paused: %s", tostring(paused)))
-    return IPC.visland.SetRoutePaused(paused)
+    IPC.visland.SetRoutePaused(paused)
 end
 
 --------------------------------------------------------------------
@@ -576,7 +625,8 @@ end
 --    Vnavmesn    --
 --================--
 
--- Checks whether a vnavmesh pathfinding operation is currently in progress.
+--- Checks whether a vnavmesh pathfinding operation is currently in progress
+-- @return boolean True if pathfinding is in progress; false otherwise
 function PathfindInProgress()
     local inProgress = IPC.vnavmesh.PathfindInProgress()
     LogDebug(string.format("[MoLib] PathfindInProgress: %s", tostring(inProgress)))
@@ -585,8 +635,8 @@ end
 
 --------------------------------------------------------------------
 
--- Checks whether the vnavmesh path is currently running.
--- This indicates whether the navigation system is actively moving toward a target.
+--- Checks whether the vnavmesh path is currently running
+-- @return boolean True if the path is running; false otherwise
 function PathIsRunning()
     local isRunning = IPC.vnavmesh.IsRunning()
     LogDebug(string.format("[MoLib] PathIsRunning: %s", tostring(isRunning)))
@@ -595,19 +645,25 @@ end
 
 --------------------------------------------------------------------
 
--- Initiates pathfinding and movement to the specified 3D coordinates using vnavmesh.
--- Can optionally enable flying movement if supported.
+--- Initiates pathfinding and movement to the specified 3D coordinates using vnavmesh
+-- @param x number X coordinate
+-- @param y number Y coordinate
+-- @param z number Z coordinate
+-- @param fly boolean Optional; whether to enable flying movement. Defaults to false
 function PathfindAndMoveTo(x, y, z, fly)
     fly = fly or false
     local destination = Vector3(x, y, z)
     LogDebug(string.format("[MoLib] PathfindAndMoveTo: Destination = %s, Fly = %s", tostring(destination), tostring(fly)))
-    return IPC.vnavmesh.PathfindAndMoveTo(destination, fly)
+    IPC.vnavmesh.PathfindAndMoveTo(destination, fly)
 end
 
 --------------------------------------------------------------------
 
--- Initiates movement without pathfinding to the specified 3D coordinates using vnavmesh.
--- Can optionally enable flying movement if supported.
+--- Initiates movement without pathfinding to the specified 3D coordinates using vnavmesh
+-- @param x number X coordinate
+-- @param y number Y coordinate
+-- @param z number Z coordinate
+-- @param fly boolean Optional; whether to enable flying movement. Defaults to false
 function PathMoveTo(x, y, z, fly)
     fly = fly or false
     local playerPos = Entity.Player.Position
@@ -634,7 +690,7 @@ end
 
 --------------------------------------------------------------------
 
--- Waits until the navigation mesh system is ready before continuing
+--- Waits until the navigation mesh system is ready before continuing
 function WaitForNavMesh()
     LogDebug("[MoLib] Waiting for navmesh to become ready...")
     while not IPC.vnavmesh.IsReady() do
@@ -645,11 +701,11 @@ end
 
 --------------------------------------------------------------------
 
--- Waits for the Navmesh pathing process to complete.
--- Typically used after starting a pathing command to ensure it finishes before proceeding.
--- Default timeout is 300 seconds (5 minutes).
+--- Waits for the Navmesh pathing process to complete
+-- @param timeout number Optional timeout in seconds (default 300 seconds)
+-- @return boolean True if pathing completed before timeout; false if timed out
 function WaitForPathRunning(timeout)
-    timeout = timeout or 300  -- Default timeout to 5 minutes (300 seconds)
+    timeout = timeout or 300
     LogDebug("[MoLib] Waiting for navmesh pathing to complete...")
 
     local startTime = os.clock()
@@ -667,15 +723,21 @@ end
 
 --------------------------------------------------------------------
 
--- Stops the current vnavmesh pathfinding movement, if any is active.
+-- Stops the current vnavmesh pathfinding movement, if any is active
 function PathStop()
     LogDebug("[MoLib] PathStop: Attempting to stop pathfinding.")
-    return IPC.vnavmesh.Stop()
+    IPC.vnavmesh.Stop()
 end
 
 --------------------------------------------------------------------
 
--- Queries the nearest point on the navigation mesh floor from a Vector3 or x/y/z coordinates.
+--- Queries the nearest point on the navigation mesh floor from a Vector3 or x/y/z coordinates
+-- @param positionOrX Vector3|number Either a Vector3 position or the X coordinate
+-- @param y number|boolean Y coordinate if positionOrX is number, or allowUnlandable if positionOrX is Vector3
+-- @param z number|number Z coordinate if positionOrX is number, or halfExtentXZ if positionOrX is Vector3
+-- @param allowUnlandable boolean Optional; whether to allow unlandable positions
+-- @param halfExtentXZ number Optional; horizontal search radius
+-- @return userdata The nearest point on the navmesh floor
 function QueryMeshPointOnFloor(positionOrX, y, z, allowUnlandable, halfExtentXZ)
     local position
 
@@ -702,11 +764,12 @@ end
 --    YesAlready    --
 --==================--
 
--- Pauses the YesAlready plugin.
+--- Pauses the YesAlready plugin for the specified duration
+-- @param sleepTime number Optional pause duration in seconds (default is 300)
 function PauseYesAlready(sleepTime)
     sleepTime = sleepTime or 300
     LogDebug(string.format("[MoLib] YesAlready plugin paused for: %s seconds", tostring(sleepTime)))
-    return IPC.YesAlready.PausePlugin(sleepTime)
+    IPC.YesAlready.PausePlugin(sleepTime)
 end
 
 --============================= WAIT =============================--
@@ -715,8 +778,8 @@ end
 --    Wait    --
 --============--
 
--- Wait function to pause execution for a specified time
--- @param time (number) - Duration to wait in seconds
+--- Pauses execution for the specified duration
+-- @param time number Duration to wait in seconds
 function Wait(time)
     -- Yield control and issue a wait command for the given duration
     yield("/wait " .. time)
@@ -724,8 +787,11 @@ end
 
 --------------------------------------------------------------------
 
--- Waits until the specified condition becomes true or false, depending on the `expectedState`, or until a timeout is reached.
--- Returns true if the condition matched the expected state, false if it timed out or was not found.
+--- Waits until the specified condition becomes true or false, depending on the `expectedState`, or until a timeout is reached
+-- @param name string The name of the condition to wait for (case-insensitive)
+-- @param expectedState boolean If true, waits for the condition to become true; if false, waits for it to clear
+-- @param timeout number|nil Optional timeout in seconds (defaults to 300 seconds)
+-- @return boolean Returns true if the condition matched the expected state, false if it timed out or was not found
 function WaitForCondition(name, expectedState, timeout)
     timeout = timeout or 300  -- Default to 5 minutes if not specified
 
@@ -786,8 +852,8 @@ end
 
 --------------------------------------------------------------------
 
--- Function to pause execution until the player is no longer zoning.
--- This prevents issues from mounting or moving while teleporting/loading.
+-- Function to pause execution until the player is no longer zoning
+-- This prevents issues from mounting or moving while teleporting/loading
 function WaitForZoneChange()
     LogDebug("[MoLib] Waiting for zoning to start...")
     repeat
@@ -809,13 +875,15 @@ end
 --    Move    --
 --============--
 
--- Function to use vnavmesh IPC to pathfind and move to a XYZ coordinate.
--- Issues PathfindAndMoveTo request, waits for pathing to begin, and monitors movement.
--- Optionally stops early if player reaches specified stopDistance from destination.
--- Returns true if path completed successfully or stopped early, false if path could not start.
--- Usage: MoveTo(-67.457, -0.502, -8.274)           -- Normal ground movement
---        MoveTo(x, y, z, true)                     -- Flying movement
---        MoveTo(x, y, z, false, 4.0)               -- Ground path, stop within 4.0 units
+--- Uses vnavmesh IPC to pathfind and move to a XYZ coordinate
+-- Issues PathfindAndMoveTo request, waits for pathing to begin, and monitors movement
+-- Optionally stops early if player reaches specified stopDistance from destination
+-- @param x number X coordinate
+-- @param y number Y coordinate
+-- @param z number Z coordinate
+-- @param stopDistance number Optional distance threshold to stop early (default 0, disables early stop)
+-- @param fly boolean Optional; whether to enable flying movement (default false)
+-- @return boolean True if path completed successfully or stopped early, false if path failed to start
 function MoveTo(x, y, z, stopDistance, fly)
     fly = fly or false
     stopDistance = stopDistance or 0.0
@@ -867,7 +935,10 @@ end
 
 --------------------------------------------------------------------
 
--- Function to find nearest object by name substring (case-insensitive)
+--- Finds the nearest object whose name contains the given substring (case-insensitive)
+-- @param targetName string Substring to search for in object names
+-- @return table|nil The nearest matching object, or nil if none found
+-- @return number Distance to the nearest object, or math.huge if none found
 function FindNearestObjectByName(targetName)
     local player = Svc.ClientState.LocalPlayer
     if not player or not player.Position then
@@ -905,9 +976,12 @@ end
 
 --------------------------------------------------------------------
 
--- Function to pathfind directly to an entity by name
--- Looks up the entity, retrieves its position, and calls MoveTo()
--- Usage: PathToObject("Summoning Bell"), PathToObject("Retainer Vocate", false, 4.0)
+--- Pathfinds to the nearest entity matching the given name substring
+-- Finds the object, gets its position, and calls MoveTo()
+-- @param targetName string The name substring to search for (case-insensitive)
+-- @param fly boolean Whether to allow flying movement (default: false)
+-- @param stopDistance number Optional distance to stop short of the object (default: 0)
+-- @return boolean True if pathing succeeded, false if object not found or pathing failed
 function PathToObject(targetName, fly, stopDistance)
     fly = fly or false
     stopDistance = stopDistance or 0.0
@@ -928,7 +1002,10 @@ end
 
 --------------------------------------------------------------------
 
--- Calculates distance between two Vector3 positions
+--- Calculates the 3D distance between two Vector3 positions
+-- @param pos1 Vector3 The first position
+-- @param pos2 Vector3 The second position
+-- @return number Distance between the two points, or math.huge if either is nil
 function GetDistance(pos1, pos2)
     if not pos1 or not pos2 then
         return math.huge
@@ -943,7 +1020,14 @@ end
 
 --------------------------------------------------------------------
 
--- Calculates the 3D Euclidean distance between two points
+--- Calculates the 3D Euclidean distance between two coordinate points
+-- @param px1 number X coordinate of the first point
+-- @param py1 number Y coordinate of the first point
+-- @param pz1 number Z coordinate of the first point
+-- @param px2 number X coordinate of the second point
+-- @param py2 number Y coordinate of the second point
+-- @param pz2 number Z coordinate of the second point
+-- @return number The distance between the two points
 function DistanceBetween(px1, py1, pz1, px2, py2, pz2)
     local dx = px2 - px1
     local dy = py2 - py1
@@ -954,7 +1038,11 @@ end
 
 --------------------------------------------------------------------
 
--- Calculates the distance from the player to a given 3D point.
+--- Calculates the 3D distance from the player to a given coordinate point
+-- @param dX number Destination X coordinate
+-- @param dY number Destination Y coordinate
+-- @param dZ number Destination Z coordinate
+-- @return number The distance to the point, or math.huge if player position is unavailable
 function GetDistanceToPoint(dX, dY, dZ)
     local player = Svc.ClientState.LocalPlayer
     if not player or not player.Position then
@@ -977,7 +1065,7 @@ end
 
 --------------------------------------------------------------------
 
--- Teleports the player to their Inn room if they are not already in one of the Inn zones.
+--- Teleports the player to their Inn room if they are not already in one of the Inn zones
 -- Zone IDs: 177 (Limsa), 178 (Gridania), 179 (Ul'dah), 1205 (Solution Nine)
 function MoveToInn()
     local WhereAmI = GetZoneID()
@@ -997,8 +1085,11 @@ end
 --    Targets    --
 --===============--
 
--- Function to perform a case-insensitive "startsWith" string comparison
--- Allows partial name targeting similar to how /target works in-game
+--- Performs a case-insensitive "startsWith" comparison between two strings
+-- Useful for partial name matching like in-game /target behavior
+-- @param fullString string The full string to check
+-- @param partialString string The prefix to compare against
+-- @return boolean True if fullString starts with partialString (case-insensitive), false otherwise
 function StringStartsWithIgnoreCase(fullString, partialString)
     if not fullString or not partialString then
         return false
@@ -1010,9 +1101,12 @@ end
 
 --------------------------------------------------------------------
 
--- Core targeting function to attempt acquiring a target based on name
--- Issues /target, then waits for client to update Entity.Target, validates match
--- Returns true if successful, false if target not acquired after retries
+--- Attempts to acquire a target by name using /target-like behavior
+-- Waits for Entity.Target to update and validates via case-insensitive prefix match
+-- @param name string The name (or prefix) of the target to acquire
+-- @param maxRetries number Optional. Maximum retry attempts (default: 20)
+-- @param sleepTime number Optional. Wait time between retries in seconds (default: 0.1)
+-- @return boolean True if target was successfully acquired, false otherwise
 function AcquireTarget(name, maxRetries, sleepTime)
     maxRetries = maxRetries or 20 -- Default retries if not provided
     sleepTime = sleepTime or 0.1 -- Default sleep interval if not provided
@@ -1037,9 +1131,10 @@ end
 
 --------------------------------------------------------------------
 
--- Simplified function to acquire a target
--- Calls AcquireTarget and logs failure if unsuccessful
--- Usage: Target("Aetheryte"), Target("Aetheryte", 50, 0.05)
+--- Simplified wrapper for AcquireTarget that logs on failure
+-- @param name string The name (or prefix) of the target to acquire
+-- @param maxRetries number Optional. Max number of retries (default handled in AcquireTarget)
+-- @param sleepTime number Optional. Wait time between retries (default handled in AcquireTarget)
 function Target(name, maxRetries, sleepTime)
     local success = AcquireTarget(name, maxRetries, sleepTime)
 
@@ -1050,7 +1145,8 @@ end
 
 --------------------------------------------------------------------
 
--- Gets the name of the current target, if any.
+--- Gets the name of the current target, if available
+-- @return string|nil The name of the current target, or nil if no target exists
 function GetTargetName()
     local name = Entity.Target and Entity.Target.Name or nil
     LogDebug(string.format("[MoLib] Current target name: %s", name or "None"))
@@ -1059,7 +1155,7 @@ end
 
 --------------------------------------------------------------------
 
--- Clears the current target if one is selected.
+--- Clears the current target if one is selected
 function ClearTarget()
     if Entity.Target and Entity.Target.IsValid then
         LogDebug(string.format("[MoLib] Clearing target: %s", Entity.Target.Name))
@@ -1071,8 +1167,13 @@ end
 
 --------------------------------------------------------------------
 
--- Moves the player to a target entity using IPC.vnavmesh
--- Will stop when within a specified distance of the target
+--- Moves the player to a named target entity, stopping within a specified distance
+-- @param targetName string The name of the target entity to move toward
+-- @param distanceThreshold number Optional. Distance at which to stop near the target (default 2.0)
+-- @param maxRetries number Optional. Number of target acquisition retries (default 20)
+-- @param sleepTime number Optional. Wait time between retries in seconds (default 0.1)
+-- @param fly boolean Optional. Whether to enable flying movement (default false)
+-- @return boolean True if move command was issued successfully, false otherwise
 function MoveToTarget(targetName, distanceThreshold, maxRetries, sleepTime, fly)
     distanceThreshold = distanceThreshold or 2.0
     maxRetries = maxRetries or 20
@@ -1100,8 +1201,10 @@ end
 
 --------------------------------------------------------------------
 
--- Function to interact with a target.
--- Attempts to acquire the target first, then issues the '/interact' command if successful.
+--- Attempts to acquire a target by name and interact with it
+-- @param name string Target name
+-- @param maxRetries number? Optional max retries for targeting
+-- @param sleepTime number? Optional sleep time between retries
 function Interact(name, maxRetries, sleepTime)
     local success = AcquireTarget(name, maxRetries, sleepTime)
     if success then
@@ -1115,7 +1218,8 @@ end
 
 --------------------------------------------------------------------
 
--- Calculates the distance between the player and the current target
+--- Calculates the distance between the player and the current target
+-- @return number|nil Distance in game units, or nil if player or target is unavailable
 function GetDistanceToTarget()
     if not Entity or not Entity.Player then
         LogDebug("[MoLib] Entity.Player is not available.")
