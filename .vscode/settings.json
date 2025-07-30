@@ -10,7 +10,7 @@
 
   // ❌ Exclude legacy folders completely
   "Lua.workspace.ignoreDir": [
-    "${workspaceFolder}/.stubs/snd-stubs.lua",
+    "${workspaceFolder}/.stubs",
     "${workspaceFolder}/Legacy"
   ],
 
