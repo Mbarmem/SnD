@@ -160,6 +160,7 @@ end
 function OpenAndCloseNpc(npc, nextState)
     if IsAddonVisible(npc.addonName) then
         Wait(1)
+        yield("/callback "..npc.addonName.." true -1")
         State = nextState
         LogInfo(string.format("%s State changed to: %s", LogPrefix, GetStateName(nextState)))
     else
@@ -221,7 +222,7 @@ TalkedToFurball = false
 function CharacterState.talkToFurball()
     local npc = Locations.sanctuary.furball
 
-    if GetDistanceToPoint(npc.x, npc.y, npc.z) > 20 then
+    if GetDistanceToPoint(npc.x, npc.y, npc.z) > 20 and not IsVislandRouteRunning() then
         if not IsMounted() then
             LogInfo(string.format("%s Not mounted, using mount to approach Furball.", LogPrefix))
             UseMount()
