@@ -1,0 +1,5 @@
+# 🗃 Ignore legacy code folder
+Legacy/
+
+# ⚙ Ignore local Lua Language Server config
+.luarc.json
