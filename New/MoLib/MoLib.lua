@@ -1147,32 +1147,36 @@ end
 
 --------------------------------------------------------------------
 
---- Attempts to acquire a target by name using /target-like behavior
---- Waits for Entity.Target to update and validates via case-insensitive prefix match
---- @param name string The name (or prefix) of the target to acquire
---- @param maxRetries number|nil [Optional] Maximum retry attempts (default: 20)
---- @param sleepTime number|nil [Optional] Wait time between retries in seconds (default: 0.1)
+--- Attempts to acquire a target by (partial) name using in-game /target-like behavior.
+--- Uses Entity.GetEntityByName() and retries until Entity.Target is updated.
+--- @param name string The full or partial name of the target (prefix match, case-insensitive)
+--- @param maxRetries number? [Optional] Maximum retry attempts (default: 20)
+--- @param sleepTime number? [Optional] Wait time between retries in seconds (default: 0.1)
 --- @return boolean true if target was successfully acquired, false otherwise
 function AcquireTarget(name, maxRetries, sleepTime)
-    maxRetries = maxRetries or 20 -- Default retries if not provided
-    sleepTime = sleepTime or 0.1 -- Default sleep interval if not provided
+    maxRetries = maxRetries or 20
+    sleepTime = sleepTime or 0.1
 
-    Entity.GetEntityByName(name):SetAsTarget()
+    local targetEntity = Entity.GetEntityByName(name)
+    if not targetEntity then
+        LogDebug(string.format("[MoLib] No entity found with name matching [%s]", name))
+        return false
+    end
+
+    targetEntity:SetAsTarget()
 
     local retries = 0
-    while (Entity == nil or Entity.Target == nil) and retries < maxRetries do
+    while retries < maxRetries do
         Wait(sleepTime)
+        if Entity.Target and StringStartsWithIgnoreCase(Entity.Target.Name, name) then
+            LogDebug(string.format("[MoLib] Target acquired: %s [Word: %s]", Entity.Target.Name, name))
+            return true
+        end
         retries = retries + 1
     end
 
-    if Entity and Entity.Target and StringStartsWithIgnoreCase(Entity.Target.Name, name) then
-        Entity.Target:SetAsTarget()
-        LogDebug(string.format("[MoLib] Target acquired: %s [Word: %s]", Entity.Target.Name, name))
-        return true
-    else
-        LogDebug(string.format("[MoLib] Failed to acquire target [%s] after %d retries", name, retries))
-        return false
-    end
+    LogDebug(string.format("[MoLib] Failed to acquire target [%s] after %d retries", name, retries))
+    return false
 end
 
 --------------------------------------------------------------------
