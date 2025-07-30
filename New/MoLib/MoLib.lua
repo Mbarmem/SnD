@@ -559,7 +559,7 @@ end
 --------------------------------------------------------------------
 
 --- Adds a quest to the priority list in Questionable
---- @param questId number The ID of the quest to prioritize
+--- @param questId number|string? The ID of the quest to prioritize
 function QuestionableAddQuestPriority(questId)
     LogDebug(string.format("[MoLib] QuestionableAddQuestPriority: QuestID=%d", questId))
     IPC.Questionable.AddQuestPriority(questId)
@@ -576,7 +576,7 @@ end
 --------------------------------------------------------------------
 
 --- Checks if a specific quest is locked in Questionable
---- @param questId number The ID of the quest to check
+--- @param questId number|string The ID of the quest to check
 --- @return boolean true if the quest is locked; false otherwise
 function QuestionableIsQuestLocked(questId)
     local locked = IPC.Questionable.IsQuestLocked(questId)
@@ -612,7 +612,7 @@ end
 
 --- Starts the specified Visland route, with optional looping
 --- @param routeName string The name of the route to start
---- @param loop boolean [Optional] whether to loop the route. Defaults to false
+--- @param loop boolean|nil [Optional] whether to loop the route. Defaults to false
 function VislandRouteStart(routeName, loop)
     loop = loop or false
     LogDebug(string.format("[MoLib] Starting Visland route: %s (Loop: %s)", routeName, tostring(loop)))
@@ -668,7 +668,7 @@ end
 --- @param x number X coordinate
 --- @param y number Y coordinate
 --- @param z number Z coordinate
---- @param fly boolean [Optional] whether to enable flying movement. Defaults to false
+--- @param fly boolean|nil [Optional] whether to enable flying movement. Defaults to false
 function PathfindAndMoveTo(x, y, z, fly)
     fly = fly or false
     local destination = Vector3(x, y, z)
@@ -682,7 +682,7 @@ end
 --- @param x number X coordinate
 --- @param y number Y coordinate
 --- @param z number Z coordinate
---- @param fly boolean [Optional] whether to enable flying movement. Defaults to false
+--- @param fly boolean|nil [Optional] whether to enable flying movement. Defaults to false
 function PathMoveTo(x, y, z, fly)
     fly = fly or false
     local playerPos = Entity.Player.Position
@@ -721,7 +721,7 @@ end
 --------------------------------------------------------------------
 
 --- Waits for the Navmesh pathing process to complete
---- @param timeout number [Optional] timeout in seconds (default 300 seconds)
+--- @param timeout number|nil [Optional] timeout in seconds (default 300 seconds)
 --- @return boolean true if pathing completed before timeout; false if timed out
 function WaitForPathRunning(timeout)
     timeout = timeout or 300
@@ -754,9 +754,9 @@ end
 --- @param positionOrX userdata|number Either a Vector3 position or the X coordinate
 --- @param y number|boolean Y coordinate if positionOrX is number, or allowUnlandable if positionOrX is Vector3
 --- @param z number|number Z coordinate if positionOrX is number, or halfExtentXZ if positionOrX is Vector3
---- @param allowUnlandable boolean [Optional] whether to allow unlandable positions
---- @param halfExtentXZ number [Optional] horizontal search radius
---- @return userdata result returns the nearest point on the navmesh floor
+--- @param allowUnlandable boolean|nil [Optional] whether to allow unlandable positions
+--- @param halfExtentXZ number|nil [Optional] horizontal search radius
+--- @return Vector3 result returns the nearest point on the navmesh floor
 function QueryMeshPointOnFloor(positionOrX, y, z, allowUnlandable, halfExtentXZ)
     local position
     local allowUnlandableBool = false
@@ -811,7 +811,7 @@ end
 --==================--
 
 --- Pauses the YesAlready plugin for the specified duration
---- @param sleepTime number [Optional] pause duration in seconds (default is 300)
+--- @param sleepTime number|nil [Optional] pause duration in seconds (default is 300)
 function PauseYesAlready(sleepTime)
     sleepTime = sleepTime or 300
     LogDebug(string.format("[MoLib] YesAlready plugin paused for: %s seconds", tostring(sleepTime)))
@@ -927,8 +927,8 @@ end
 --- @param x number X coordinate
 --- @param y number Y coordinate
 --- @param z number Z coordinate
---- @param stopDistance number [Optional] distance threshold to stop early (default 0, disables early stop)
---- @param fly boolean [Optional] whether to enable flying movement (default false)
+--- @param stopDistance number|nil [Optional] distance threshold to stop early (default 0, disables early stop)
+--- @param fly boolean|nil [Optional] whether to enable flying movement (default false)
 --- @return boolean true if path completed successfully or stopped early, false if path failed to start
 function MoveTo(x, y, z, stopDistance, fly)
     fly = fly or false
@@ -1026,7 +1026,7 @@ end
 --- Finds the object, gets its position, and calls MoveTo()
 --- @param targetName string The name substring to search for (case-insensitive)
 --- @param fly boolean Whether to allow flying movement (default: false)
---- @param stopDistance number [Optional] distance to stop short of the object (default: 0)
+--- @param stopDistance number|nil [Optional] distance to stop short of the object (default: 0)
 --- @return boolean true if pathing succeeded, false if object not found or pathing failed
 function PathToObject(targetName, stopDistance, fly)
     stopDistance = stopDistance or 0.0
@@ -1179,8 +1179,8 @@ end
 
 --- Simplified wrapper for AcquireTarget that logs on failure
 --- @param name string The name (or prefix) of the target to acquire
---- @param maxRetries number [Optional] Max number of retries (default handled in AcquireTarget)
---- @param sleepTime number [Optional] Wait time between retries (default handled in AcquireTarget)
+--- @param maxRetries number|nil [Optional] Max number of retries (default handled in AcquireTarget)
+--- @param sleepTime number|nil [Optional] Wait time between retries (default handled in AcquireTarget)
 function Target(name, maxRetries, sleepTime)
     local success = AcquireTarget(name, maxRetries, sleepTime)
 
@@ -1634,7 +1634,7 @@ end
 --------------------------------------------------------------------
 
 --- Attempts to repair gear if any items fall below the repair threshold
---- @param RepairThreshold number [Optional] durability percentage threshold (default 20)
+--- @param RepairThreshold number|nil [Optional] durability percentage threshold (default 20)
 function Repair(RepairThreshold)
     RepairThreshold = RepairThreshold or 20
 
@@ -1797,7 +1797,7 @@ local LogLevel = {
 
 --- Core log function with support for formatting and log levels
 --- @param msg string The message format string
---- @param level string [Optional] log level (Info, Debug, Verbose), default is Info
+--- @param level string|nil [Optional] log level (Info, Debug, Verbose), default is Info
 --- @param ... any [Optional] arguments to format into the message
 function Log(msg, level, ...)
     level = level or LogLevel.Info
