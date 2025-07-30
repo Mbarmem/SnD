@@ -238,8 +238,8 @@ end
 --------------------------------------------------------------------
 
 --- Wrapper for Character Condition
---- @param index number|nil [Optional] condition index from CharacterCondition
---- @return boolean|table|nil condition returns the condition value (if index provided), or the full condition table
+--- @param index number? [Optional] condition index from CharacterCondition
+--- @return boolean|table? condition returns the condition value (if index provided), or the full condition table
 function GetCharacterCondition(index)
     if index then
         local condition = Svc.Condition and Svc.Condition[index] or nil
@@ -284,7 +284,7 @@ end
 --------------------------------------------------------------------
 
 --- Checks if the player has a target, optionally matching a given name
---- @param targetName string|nil [Optional] target name to match
+--- @param targetName string? [Optional] target name to match
 --- @return boolean true if a target exists and matches (if provided); false otherwise
 function HasTarget(targetName)
     local currentTarget = Entity.Player.Target
@@ -331,7 +331,7 @@ end
 
 --- Checks if the player has a specific status and returns its remaining time
 --- @param targetId number The status ID to check for
---- @return number|nil status.RemainingTime returns the remaining time in seconds if the status is found; nil otherwise
+--- @return number? status.RemainingTime returns the remaining time in seconds if the status is found; nil otherwise
 function GetStatusTimeRemaining(targetId)
     local statusList = Player.Status
     LogDebug(string.format("[MoLib] Checking remaining time for StatusId = %d", targetId))
@@ -612,7 +612,7 @@ end
 
 --- Starts the specified Visland route, with optional looping
 --- @param routeName string The name of the route to start
---- @param loop boolean|nil [Optional] whether to loop the route. Defaults to false
+--- @param loop boolean? [Optional] whether to loop the route. Defaults to false
 function VislandRouteStart(routeName, loop)
     loop = loop or false
     LogDebug(string.format("[MoLib] Starting Visland route: %s (Loop: %s)", routeName, tostring(loop)))
@@ -668,7 +668,7 @@ end
 --- @param x number X coordinate
 --- @param y number Y coordinate
 --- @param z number Z coordinate
---- @param fly boolean|nil [Optional] whether to enable flying movement. Defaults to false
+--- @param fly boolean? [Optional] whether to enable flying movement. Defaults to false
 function PathfindAndMoveTo(x, y, z, fly)
     fly = fly or false
     local destination = Vector3(x, y, z)
@@ -682,7 +682,7 @@ end
 --- @param x number X coordinate
 --- @param y number Y coordinate
 --- @param z number Z coordinate
---- @param fly boolean|nil [Optional] whether to enable flying movement. Defaults to false
+--- @param fly boolean? [Optional] whether to enable flying movement. Defaults to false
 function PathMoveTo(x, y, z, fly)
     fly = fly or false
     local playerPos = Entity.Player.Position
@@ -721,7 +721,7 @@ end
 --------------------------------------------------------------------
 
 --- Waits for the Navmesh pathing process to complete
---- @param timeout number|nil [Optional] timeout in seconds (default 300 seconds)
+--- @param timeout number? [Optional] timeout in seconds (default 300 seconds)
 --- @return boolean true if pathing completed before timeout; false if timed out
 function WaitForPathRunning(timeout)
     timeout = timeout or 300
@@ -754,8 +754,8 @@ end
 --- @param positionOrX userdata|number Either a Vector3 position or the X coordinate
 --- @param y number|boolean Y coordinate if positionOrX is number, or allowUnlandable if positionOrX is Vector3
 --- @param z number|number Z coordinate if positionOrX is number, or halfExtentXZ if positionOrX is Vector3
---- @param allowUnlandable boolean|nil [Optional] whether to allow unlandable positions
---- @param halfExtentXZ number|nil [Optional] horizontal search radius
+--- @param allowUnlandable boolean? [Optional] whether to allow unlandable positions
+--- @param halfExtentXZ number? [Optional] horizontal search radius
 --- @return Vector3 result returns the nearest point on the navmesh floor
 function QueryMeshPointOnFloor(positionOrX, y, z, allowUnlandable, halfExtentXZ)
     local position
@@ -811,7 +811,7 @@ end
 --==================--
 
 --- Pauses the YesAlready plugin for the specified duration
---- @param sleepTime number|nil [Optional] pause duration in seconds (default is 300)
+--- @param sleepTime number? [Optional] pause duration in seconds (default is 300)
 function PauseYesAlready(sleepTime)
     sleepTime = sleepTime or 300
     LogDebug(string.format("[MoLib] YesAlready plugin paused for: %s seconds", tostring(sleepTime)))
@@ -836,7 +836,7 @@ end
 --- Waits until the specified condition becomes true or false, depending on the `expectedState`, or until a timeout is reached
 --- @param name string The name of the condition to wait for (case-insensitive)
 --- @param expectedState boolean If true, waits for the condition to become true; if false, waits for it to clear
---- @param timeout number|nil [Optional] timeout in seconds (defaults to 300 seconds)
+--- @param timeout number? [Optional] timeout in seconds (defaults to 300 seconds)
 --- @return boolean true if the condition matched the expected state, false if it timed out or was not found
 function WaitForCondition(name, expectedState, timeout)
     timeout = timeout or 300  -- Default to 5 minutes if not specified
@@ -927,8 +927,8 @@ end
 --- @param x number X coordinate
 --- @param y number Y coordinate
 --- @param z number Z coordinate
---- @param stopDistance number|nil [Optional] distance threshold to stop early (default 0, disables early stop)
---- @param fly boolean|nil [Optional] whether to enable flying movement (default false)
+--- @param stopDistance number? [Optional] distance threshold to stop early (default 0, disables early stop)
+--- @param fly boolean? [Optional] whether to enable flying movement (default false)
 --- @return boolean true if path completed successfully or stopped early, false if path failed to start
 function MoveTo(x, y, z, stopDistance, fly)
     fly = fly or false
@@ -983,7 +983,7 @@ end
 
 --- Finds the nearest object whose name contains the given substring (case-insensitive)
 --- @param targetName string Substring to search for in object names
---- @return object|nil closestObject The nearest matching object, or nil if none found
+--- @return object? closestObject The nearest matching object, or nil if none found
 --- @return number closestDistance returns the distance to the nearest object, or math.huge if none found
 function FindNearestObjectByName(targetName)
     local player = Svc.ClientState.LocalPlayer
@@ -1026,7 +1026,7 @@ end
 --- Finds the object, gets its position, and calls MoveTo()
 --- @param targetName string The name substring to search for (case-insensitive)
 --- @param fly boolean Whether to allow flying movement (default: false)
---- @param stopDistance number|nil [Optional] distance to stop short of the object (default: 0)
+--- @param stopDistance number? [Optional] distance to stop short of the object (default: 0)
 --- @return boolean true if pathing succeeded, false if object not found or pathing failed
 function PathToObject(targetName, stopDistance, fly)
     stopDistance = stopDistance or 0.0
@@ -1183,8 +1183,8 @@ end
 
 --- Simplified wrapper for AcquireTarget that logs on failure
 --- @param name string The name (or prefix) of the target to acquire
---- @param maxRetries number|nil [Optional] Max number of retries (default handled in AcquireTarget)
---- @param sleepTime number|nil [Optional] Wait time between retries (default handled in AcquireTarget)
+--- @param maxRetries number? [Optional] Max number of retries (default handled in AcquireTarget)
+--- @param sleepTime number? [Optional] Wait time between retries (default handled in AcquireTarget)
 function Target(name, maxRetries, sleepTime)
     local success = AcquireTarget(name, maxRetries, sleepTime)
 
@@ -1196,7 +1196,7 @@ end
 --------------------------------------------------------------------
 
 --- Gets the name of the current target, if available
---- @return string|nil name returns the name of the current target, or nil if no target exists
+--- @return string? name returns the name of the current target, or nil if no target exists
 function GetTargetName()
     local name = Entity.Target and Entity.Target.Name or nil
     LogDebug(string.format("[MoLib] Current target name: %s", name or "None"))
@@ -1219,10 +1219,10 @@ end
 
 --- Moves the player to a named target entity, stopping within a specified distance
 --- @param targetName string The name of the target entity to move toward
---- @param distanceThreshold number|nil [Optional] Distance at which to stop near the target (default 2.0)
---- @param maxRetries number|nil [Optional] Number of target acquisition retries (default 20)
---- @param sleepTime number|nil [Optional] Wait time between retries in seconds (default 0.1)
---- @param fly boolean|nil [Optional] Whether to enable flying movement (default false)
+--- @param distanceThreshold number? [Optional] Distance at which to stop near the target (default 2.0)
+--- @param maxRetries number? [Optional] Number of target acquisition retries (default 20)
+--- @param sleepTime number? [Optional] Wait time between retries in seconds (default 0.1)
+--- @param fly boolean? [Optional] Whether to enable flying movement (default false)
 --- @return boolean true if move command was issued successfully, false otherwise
 function MoveToTarget(targetName, distanceThreshold, maxRetries, sleepTime, fly)
     distanceThreshold = distanceThreshold or 2.0
@@ -1253,8 +1253,8 @@ end
 
 --- Attempts to acquire a target by name and interact with it
 --- @param name string Target name
---- @param maxRetries number|nil [Optional] max retries for targeting (default: 20)
---- @param sleepTime number|nil [Optional] sleep time between retries (default: 0.1)
+--- @param maxRetries number? [Optional] max retries for targeting (default: 20)
+--- @param sleepTime number? [Optional] sleep time between retries (default: 0.1)
 function Interact(name, maxRetries, sleepTime)
     local success = AcquireTarget(name, maxRetries, sleepTime)
     if success then
@@ -1269,7 +1269,7 @@ end
 --------------------------------------------------------------------
 
 --- Calculates the distance between the player and the current target
---- @return number|nil distance returns the distance in game units, or nil if player or target is unavailable
+--- @return number? distance returns the distance in game units, or nil if player or target is unavailable
 function GetDistanceToTarget()
     if not Entity or not Entity.Player then
         LogDebug("[MoLib] Entity.Player is not available.")
@@ -1371,7 +1371,7 @@ end
 
 --- Waits until the specified addon is ready before continuing execution
 --- @param name string The name of the addon to wait for
---- @param timeout number|nil [Optional] timeout in seconds (default 60)
+--- @param timeout number? [Optional] timeout in seconds (default 60)
 --- @return boolean true if the addon became ready within the timeout, false if timed out
 function WaitForAddon(name, timeout)
     timeout = timeout or 60
@@ -1500,7 +1500,7 @@ end
 
 --- Returns the aetheryte name for a given ZoneID
 --- @param ZoneID number The ID of the zone
---- @return string|nil name returns the name of the aetheryte, or nil if not found
+--- @return string? name returns the name of the aetheryte, or nil if not found
 function GetAetheryteName(ZoneID)
     local territoryData = Excel.GetRow("TerritoryType", ZoneID)
 
@@ -1520,7 +1520,7 @@ end
 
 --- Wrapper for /echo that safely converts and outputs any message type (string, number, boolean, etc)
 --- @param msg any The message to output
---- @param echoprefix string|nil [Optional] prefix to prepend (default: "[MoLib]")
+--- @param echoprefix string? [Optional] prefix to prepend (default: "[MoLib]")
 function Echo(msg, echoprefix)
     local prefix = echoprefix or "[MoLib]"
     local message = msg ~= nil and tostring(msg) or "nil"
@@ -1547,7 +1547,7 @@ end
 --------------------------------------------------------------------
 
 --- Attempts to mount using a specific mount name or Mount Roulette if none is provided
---- @param mountName string|nil The name of the mount to use; if nil or empty, uses Mount Roulette
+--- @param mountName string? The name of the mount to use; if nil or empty, uses Mount Roulette
 function UseMount(mountName)
     if mountName ~= nil and mountName ~= "" then
         LogDebug(string.format("[MoLib] Attempting to mount: %s", mountName))
@@ -1561,7 +1561,7 @@ end
 --------------------------------------------------------------------
 
 --- Stops a specific macro by name, or all macros if no name is provided
---- @param macroName string|nil The name of the macro to stop; stops all if nil or empty
+--- @param macroName string? The name of the macro to stop; stops all if nil or empty
 function StopRunningMacros(macroName)
     if macroName and macroName ~= "" then
         LogDebug(string.format("[MoLib] Stopping macro: %s", macroName))
@@ -1638,7 +1638,7 @@ end
 --------------------------------------------------------------------
 
 --- Attempts to repair gear if any items fall below the repair threshold
---- @param RepairThreshold number|nil [Optional] durability percentage threshold (default 20)
+--- @param RepairThreshold number? [Optional] durability percentage threshold (default 20)
 function Repair(RepairThreshold)
     RepairThreshold = RepairThreshold or 20
 
@@ -1801,7 +1801,7 @@ local LogLevel = {
 
 --- Core log function with support for formatting and log levels
 --- @param msg string The message format string
---- @param level string|nil [Optional] log level (Info, Debug, Verbose), default is Info
+--- @param level string? [Optional] log level (Info, Debug, Verbose), default is Info
 --- @param ... any [Optional] arguments to format into the message
 function Log(msg, level, ...)
     level = level or LogLevel.Info
