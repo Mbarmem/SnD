@@ -31,8 +31,7 @@ LogPrefix = "[IslandSanctuary]"
 ----------------------------
 
 CharacterState = {}
-
-local StopFlag = false
+StopFlag = false
 
 ---------------------
 --    Locations    --
@@ -107,7 +106,7 @@ Locations = {
 function GetStateName(stateFn)
     for key, fn in pairs(CharacterState) do
         if fn == stateFn then
-            return key
+            return string.upper(key:sub(1,1)) .. key:sub(2)
         end
     end
     return "Unknown"
