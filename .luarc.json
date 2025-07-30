@@ -1,0 +1,33 @@
+{
+    "runtime": {
+        "version": "Lua 5.4"
+    },
+    "workspace": {
+        "checkThirdParty": false,
+        "library": [
+            "${env:APPDATA}/XIVLauncher/pluginConfigs/SomethingNeedDoing/stubs",
+            "C:/Users/Administrator/AppData/Roaming/XIVLauncher/pluginConfigs/SomethingNeedDoing/stubs"
+        ],
+        "ignoreDir": [
+            "Legacy",
+            ".stubs"
+        ]
+    },
+    "diagnostics": {
+        "globals": [
+            "import",
+            "yield",
+            "Sleep",
+            "Wait",
+            "Dalamud",
+            "Entity",
+            "Player",
+            "Config",
+            "IPC",
+            "Instances",
+            "TriggerData",
+            "ActionType",
+            "WeeklyBingoTaskStatus"
+        ]
+    }
+}

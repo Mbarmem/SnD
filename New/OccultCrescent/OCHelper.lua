@@ -228,7 +228,7 @@ function StartFarm()
     Actions.ExecuteAction(ActionsOC.OccultReturn)
     WaitForPlayer()
 
-    RunVislandRoute(VislandRoute, 1200)
+    RunVislandRoute(VislandChestRoute, 1200)
     if IsInZone(Zones.SouthHorn) then
         LeaveInstance()
     end
