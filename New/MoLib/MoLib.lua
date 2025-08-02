@@ -207,11 +207,11 @@ end
 --- WaitForPlayer function to wait until the player is available
 --- Continuously yields in defined intervals until IsPlayerAvailable() returns true
 function WaitForPlayer()
-    LogDebug("[MoLib] WaitForPlayer: Waiting for player to become available...")
+    LogDebug(string.format("[MoLib] WaitForPlayer: Waiting for player to become available..."))
     repeat
         Wait(0.1)
     until IsPlayerAvailable()
-    LogDebug("[MoLib] WaitForPlayer: Player is now available.")
+    LogDebug(string.format("[MoLib] WaitForPlayer: Player is now available."))
     Wait(0.1)
 end
 
@@ -246,7 +246,7 @@ function GetCharacterCondition(index)
         LogDebug(string.format("[MoLib] GetCharacterCondition[%s]: %s", tostring(index), tostring(condition)))
         return condition
     else
-        LogDebug("[MoLib] GetCharacterCondition: Returning full condition table")
+        LogDebug(string.format("[MoLib] GetCharacterCondition: Returning full condition table"))
         return Svc.Condition
     end
 end
@@ -310,7 +310,7 @@ function HasStatusId(targetId)
     LogDebug(string.format("[MoLib] Checking for StatusId = %d", targetId))
 
     if not statusList then
-        LogDebug("[MoLib] Player.Status is nil.")
+        LogDebug(string.format("[MoLib] Player.Status is nil."))
         return false
     end
 
@@ -337,7 +337,7 @@ function GetStatusTimeRemaining(targetId)
     LogDebug(string.format("[MoLib] Checking remaining time for StatusId = %d", targetId))
 
     if not statusList then
-        LogDebug("[MoLib] Player.Status is nil.")
+        LogDebug(string.format("[MoLib] Player.Status is nil."))
         return nil
     end
 
@@ -495,11 +495,11 @@ end
 --- @param command string The Lifestream command to execute
 function Lifestream(command)
     if not command or command == "" then
-        LogDebug("[MoLib] No Lifestream command provided.")
+        LogDebug(string.format("[MoLib] No Lifestream command provided."))
         return
     end
 
-    LogDebug("[MoLib] Executing Lifestream command: '%s'", command)
+    LogDebug(string.format("[MoLib] Executing Lifestream command: '%s'", command))
     IPC.Lifestream.ExecuteCommand(command)
     WaitForLifeStream()
 end
@@ -510,11 +510,11 @@ end
 --- @param destination string The Aethernet destination to teleport to
 function LifestreamAethernet(destination)
     if not destination or destination == "" then
-        LogDebug("[MoLib] No Lifestream Aethernet destination provided.")
+        LogDebug(string.format("[MoLib] No Lifestream Aethernet destination provided."))
         return
     end
 
-    LogDebug("[MoLib] Executing Lifestream Aethernet destination: '%s'", destination)
+    LogDebug(string.format("[MoLib] Executing Lifestream Aethernet destination: '%s'", destination))
     IPC.Lifestream.AethernetTeleport(destination)
     WaitForLifeStream()
 end
@@ -533,13 +533,13 @@ end
 
 --- WaitForLifeStream function to pause execution until Lifestream is no longer busy
 function WaitForLifeStream()
-    LogDebug("[MoLib] Waiting for Lifestream to become not busy and player to be available...")
+    LogDebug(string.format("[MoLib] Waiting for Lifestream to become not busy and player to be available..."))
 
     repeat
         Wait(0.1)
     until not LifestreamIsBusy() and IsPlayerAvailable()
 
-    LogDebug("[MoLib] Lifestream is no longer busy and player is available.")
+    LogDebug(string.format("[MoLib] Lifestream is no longer busy and player is available."))
 end
 
 --------------------------------------------------------------------
@@ -569,7 +569,7 @@ end
 
 --- Clears all quest priorities in Questionable
 function QuestionableClearQuestPriority()
-    LogDebug("[MoLib] QuestionableClearQuestPriority called")
+    LogDebug(string.format("[MoLib] QuestionableClearQuestPriority called"))
     IPC.Questionable.ClearQuestPriority()
 end
 
@@ -711,11 +711,11 @@ end
 
 --- Waits until the navigation mesh system is ready before continuing
 function WaitForNavMesh()
-    LogDebug("[MoLib] Waiting for navmesh to become ready...")
+    LogDebug(string.format("[MoLib] Waiting for navmesh to become ready..."))
     while not IPC.vnavmesh.IsReady() do
         Wait(0.1)
     end
-    LogDebug("[MoLib] Navmesh is ready.")
+    LogDebug(string.format("[MoLib] Navmesh is ready."))
 end
 
 --------------------------------------------------------------------
@@ -725,18 +725,18 @@ end
 --- @return boolean true if pathing completed before timeout; false if timed out
 function WaitForPathRunning(timeout)
     timeout = timeout or 300
-    LogDebug("[MoLib] Waiting for navmesh pathing to complete...")
+    LogDebug(string.format("[MoLib] Waiting for navmesh pathing to complete..."))
 
     local startTime = os.clock()
     while IPC.vnavmesh.PathfindInProgress() or IPC.vnavmesh.IsRunning() do
         if (os.clock() - startTime) >= timeout then
-            LogDebug("[MoLib] WaitForPathRunning: Timeout reached waiting for pathing to complete.")
+            LogDebug(string.format("[MoLib] WaitForPathRunning: Timeout reached waiting for pathing to complete."))
             return false
         end
         Wait(0.1)
     end
 
-    LogDebug("[MoLib] Pathing complete.")
+    LogDebug(string.format("[MoLib] Pathing complete."))
     return true
 end
 
@@ -744,7 +744,7 @@ end
 
 --- Stops the current vnavmesh pathfinding movement, if any is active
 function PathStop()
-    LogDebug("[MoLib] PathStop: Attempting to stop pathfinding.")
+    LogDebug(string.format("[MoLib] PathStop: Attempting to stop pathfinding."))
     IPC.vnavmesh.Stop()
 end
 
@@ -879,21 +879,21 @@ end
 
 --- Function to wait for teleport to fully complete (casting → zoning → player ready)
 function WaitForTeleport()
-    LogDebug("[MoLib] Waiting for teleport to begin...")
+    LogDebug(string.format("[MoLib] Waiting for teleport to begin..."))
 
     repeat
         Wait(0.1)
     until not IsPlayerCasting()
     Wait(0.1)
 
-    LogDebug("[MoLib] Teleport started, waiting for zoning to complete...")
+    LogDebug(string.format("[MoLib] Teleport started, waiting for zoning to complete..."))
 
     repeat
         Wait(0.1)
     until not IsBetweenAreas() and IsPlayerAvailable()
     Wait(0.1)
 
-    LogDebug("[MoLib] Teleport complete.")
+    LogDebug(string.format("[MoLib] Teleport complete."))
 end
 
 --------------------------------------------------------------------
@@ -901,18 +901,18 @@ end
 --- Function to pause execution until the player is no longer zoning
 --- This prevents issues from mounting or moving while teleporting/loading
 function WaitForZoneChange()
-    LogDebug("[MoLib] Waiting for zoning to start...")
+    LogDebug(string.format("[MoLib] Waiting for zoning to start..."))
     repeat
         Wait(0.1)
     until IsBetweenAreas()
 
-    LogDebug("[MoLib] Zoning detected! Now waiting for zoning to complete...")
+    LogDebug(string.format("[MoLib] Zoning detected! Now waiting for zoning to complete..."))
 
     repeat
         Wait(0.1)
     until not IsBetweenAreas() and IsPlayerAvailable()
 
-    LogDebug("[MoLib] Zoning complete. Player is available.")
+    LogDebug(string.format("[MoLib] Zoning complete. Player is available."))
 end
 
 --============================= MOVE =============================--
@@ -938,7 +938,7 @@ function MoveTo(x, y, z, stopDistance, fly)
 
     local success = IPC.vnavmesh.PathfindAndMoveTo(destination, fly)
     if not success then
-        LogDebug("[MoLib] Navmesh's PathfindAndMoveTo() failed to start pathing!")
+        LogDebug(string.format("[MoLib] Navmesh's PathfindAndMoveTo() failed to start pathing!"))
         return false
     end
 
@@ -952,7 +952,7 @@ function MoveTo(x, y, z, stopDistance, fly)
     end
 
     if not IPC.vnavmesh.IsRunning() then
-        LogDebug("[MoLib] Navmesh failed to start movement after creating a path.")
+        LogDebug(string.format("[MoLib] Navmesh failed to start movement after creating a path."))
         return false
     end
 
@@ -975,7 +975,7 @@ function MoveTo(x, y, z, stopDistance, fly)
         end
     end
 
-    LogDebug("[MoLib] Navmesh is done pathing")
+    LogDebug(string.format("[MoLib] Navmesh is done pathing"))
     return true
 end
 
@@ -988,7 +988,7 @@ end
 function FindNearestObjectByName(targetName)
     local player = Svc.ClientState.LocalPlayer
     if not player or not player.Position then
-        LogDebug("[MoLib] FindNearestObjectByName: Player position unavailable.")
+        LogDebug(string.format("[MoLib] FindNearestObjectByName: Player position unavailable."))
         return nil, math.huge
     end
 
@@ -1054,6 +1054,7 @@ end
 --- @return number distance returns the distance between the two points, or math.huge if either position is nil
 function GetDistance(pos1, pos2)
     if not pos1 or not pos2 then
+        LogDebug(string.format("[MoLib] [GetDistance] One or both positions are nil. Returning math.huge."))
         return math.huge
     end
 
@@ -1061,7 +1062,10 @@ function GetDistance(pos1, pos2)
     local dy = pos1.Y - pos2.Y
     local dz = pos1.Z - pos2.Z
 
-    return math.sqrt(dx * dx + dy * dy + dz * dz)
+    local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
+    LogDebug(string.format("[MoLib] [GetDistance] pos1=(%.2f, %.2f, %.2f), pos2=(%.2f, %.2f, %.2f), distance=%.2f", pos1.X, pos1.Y, pos1.Z, pos2.X, pos2.Y, pos2.Z, distance))
+
+    return distance
 end
 
 --------------------------------------------------------------------
@@ -1079,7 +1083,10 @@ function DistanceBetween(px1, py1, pz1, px2, py2, pz2)
     local dy = py2 - py1
     local dz = pz2 - pz1
 
-    return math.sqrt(dx * dx + dy * dy + dz * dz)
+    local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
+    LogDebug(string.format("[MoLib] [DistanceBetween] pos1=(%.2f, %.2f, %.2f), pos2=(%.2f, %.2f, %.2f), distance=%.2f", px1, py1, pz1, px2, py2, pz2, distance))
+
+    return distance
 end
 
 --------------------------------------------------------------------
@@ -1092,7 +1099,7 @@ end
 function GetDistanceToPoint(dX, dY, dZ)
     local player = Svc.ClientState.LocalPlayer
     if not player or not player.Position then
-        LogDebug("[MoLib] GetDistanceToPoint: Player position unavailable.")
+        LogDebug(string.format("[MoLib] GetDistanceToPoint: Player position unavailable."))
         return math.huge
     end
 
@@ -1118,10 +1125,10 @@ function MoveToInn()
 
     -- Only move if not already in an Inn zone
     if (WhereAmI ~= 177) and (WhereAmI ~= 178) and (WhereAmI ~= 179) and (WhereAmI ~= 1205) then
-        LogDebug("[MoLib] Moving to Inn.")
+        LogDebug(string.format("[MoLib] Moving to Inn."))
         Lifestream("Inn")
     else
-        LogDebug("[MoLib] Already in an Inn zone, no action taken.")
+        LogDebug(string.format("[MoLib] Already in an Inn zone, no action taken."))
     end
 end
 
@@ -1138,11 +1145,16 @@ end
 --- @return boolean true if fullString starts with partialString (case-insensitive), false otherwise
 function StringStartsWithIgnoreCase(fullString, partialString)
     if not fullString or not partialString then
+        LogDebug(string.format("[MoLib] [StringStartsWithIgnoreCase] One or both input strings are nil."))
         return false
     end
-    fullString = string.lower(fullString)
-    partialString = string.lower(partialString)
-    return string.sub(fullString, 1, #partialString) == partialString
+
+    local fullLower = string.lower(fullString)
+    local partialLower = string.lower(partialString)
+    local result = string.sub(fullLower, 1, #partialLower) == partialLower
+
+    LogDebug(string.format("[MoLib] [StringStartsWithIgnoreCase] Comparing '%s' with '%s' -> %s", fullString, partialString, tostring(result)))
+    return result
 end
 
 --------------------------------------------------------------------
@@ -1153,7 +1165,7 @@ end
 --- @param maxRetries number? [Optional] Maximum retry attempts (default: 20)
 --- @param sleepTime number? [Optional] Wait time between retries in seconds (default: 0.1)
 --- @return boolean true if target was successfully acquired, false otherwise
-function AcquireTarget(name, maxRetries, sleepTime)
+function Target(name, maxRetries, sleepTime)
     maxRetries = maxRetries or 20
     sleepTime = sleepTime or 0.1
 
@@ -1181,20 +1193,6 @@ end
 
 --------------------------------------------------------------------
 
---- Simplified wrapper for AcquireTarget that logs on failure
---- @param name string The name (or prefix) of the target to acquire
---- @param maxRetries number? [Optional] Max number of retries (default handled in AcquireTarget)
---- @param sleepTime number? [Optional] Wait time between retries (default handled in AcquireTarget)
-function Target(name, maxRetries, sleepTime)
-    local success = AcquireTarget(name, maxRetries, sleepTime)
-
-    if not success then
-        LogDebug("[MoLib] Target() failed.")
-    end
-end
-
---------------------------------------------------------------------
-
 --- Gets the name of the current target, if available
 --- @return string? name returns the name of the current target, or nil if no target exists
 function GetTargetName()
@@ -1207,11 +1205,11 @@ end
 
 --- Clears the current target if one is selected
 function ClearTarget()
-    if Entity.Target and Entity.Target.IsValid then
+    if Entity.Target then
         LogDebug(string.format("[MoLib] Clearing target: %s", Entity.Target.Name))
         Entity.Target:ClearTarget()
     else
-        LogDebug("[MoLib] ClearTarget() called, but no valid target was selected.")
+        LogDebug(string.format("[MoLib] ClearTarget() called, but no valid target was selected."))
     end
 end
 
@@ -1231,7 +1229,7 @@ function MoveToTarget(targetName, distanceThreshold, maxRetries, sleepTime, fly)
     fly = fly or false
 
     -- Try to acquire the target
-    local success = AcquireTarget(targetName, maxRetries, sleepTime)
+    local success = Target(targetName, maxRetries, sleepTime)
     if not success then
         LogDebug(string.format("[MoLib] MoveToTarget() failed: Unable to target [%s]", targetName))
         return false
@@ -1239,7 +1237,7 @@ function MoveToTarget(targetName, distanceThreshold, maxRetries, sleepTime, fly)
 
     local target = Entity.Target
     if not target or not target.Position.X or not target.Position.Y or not target.Position.Z then
-        LogDebug("[MoLib] MoveToTarget() failed: Target entity position is nil.")
+        LogDebug(string.format("[MoLib] MoveToTarget() failed: Target entity position is nil."))
         return false
     end
 
@@ -1256,13 +1254,13 @@ end
 --- @param maxRetries number? [Optional] max retries for targeting (default: 20)
 --- @param sleepTime number? [Optional] sleep time between retries (default: 0.1)
 function Interact(name, maxRetries, sleepTime)
-    local success = AcquireTarget(name, maxRetries, sleepTime)
+    local success = Target(name, maxRetries, sleepTime)
     if success then
         Entity.Target:Interact()
         LogDebug(string.format("[MoLib] Interacted with: %s", Entity.Target.Name))
         Wait(1)
     else
-        LogDebug("[MoLib] Interact() failed to acquire target.")
+        LogDebug(string.format("[MoLib] Interact() failed to acquire target."))
     end
 end
 
@@ -1272,12 +1270,12 @@ end
 --- @return number? distance returns the distance in game units, or nil if player or target is unavailable
 function GetDistanceToTarget()
     if not Entity or not Entity.Player then
-        LogDebug("[MoLib] Entity.Player is not available.")
+        LogDebug(string.format("[MoLib] Entity.Player is not available."))
         return nil
     end
 
     if not Entity.Target then
-        LogDebug("[MoLib] No valid target selected.")
+        LogDebug(string.format("[MoLib] No valid target selected."))
         return nil
     end
 
@@ -1406,7 +1404,7 @@ function CloseAddons()
         "Talk"
     }
 
-    LogDebug("[MoLib] CloseAddons() started. Waiting for player to become available...")
+    LogDebug(string.format("[MoLib] CloseAddons() started. Waiting for player to become available..."))
 
     repeat
         Wait(0.1)
@@ -1424,7 +1422,7 @@ function CloseAddons()
 
     until IsPlayerAvailable()
 
-    LogDebug("[MoLib] Player is now available. CloseAddons() complete.")
+    LogDebug(string.format("[MoLib] Player is now available. CloseAddons() complete."))
 end
 
 
@@ -1489,10 +1487,10 @@ function TeleportFlagZone()
             LogDebug(string.format("[MoLib] Teleporting to map zone: '%s'.", flagAetheryte))
             Teleport(flagAetheryte)
         else
-            LogDebug("[MoLib] Failed to retrieve Aetheryte information for teleportation.")
+            LogDebug(string.format("[MoLib] Failed to retrieve Aetheryte information for teleportation."))
         end
     else
-        LogDebug("[MoLib] Already in the correct zone. No teleport needed.")
+        LogDebug(string.format("[MoLib] Already in the correct zone. No teleport needed."))
     end
 end
 
@@ -1553,7 +1551,7 @@ function UseMount(mountName)
         LogDebug(string.format("[MoLib] Attempting to mount: %s", mountName))
         yield(string.format('/mount "%s"', mountName))
     else
-        LogDebug("[MoLib] Attempting Mount Roulette")
+        LogDebug(string.format("[MoLib] Attempting Mount Roulette"))
         yield('/gaction "Mount Roulette"')
     end
 end
@@ -1567,7 +1565,7 @@ function StopRunningMacros(macroName)
         LogDebug(string.format("[MoLib] Stopping macro: %s", macroName))
         yield(string.format("/snd stop %s", macroName))
     else
-        LogDebug("[MoLib] Stopping all macros")
+        LogDebug(string.format("[MoLib] Stopping all macros"))
         yield("/snd stop all")
     end
 end
@@ -1599,6 +1597,43 @@ function GetItemCount(itemId)
     end
 
     return count
+end
+
+--------------------------------------------------------------------
+
+--- Returns the total number of Triple Triad cards currently in the player's inventory
+--- Scans all items in the Item sheet and matches those with category name "Triple Triad Card"
+--- Only counts cards physically present in inventory (unregistered or duplicate cards)
+--- @return number total The total number of Triple Triad card items in inventory
+function CountTripleTriadCards()
+    local total = 0
+    local itemSheet = Excel.GetSheet("Item")
+    LogDebug(string.format("[MoLib] Loaded Item sheet for Triple Triad card scan"))
+
+    if not itemSheet then
+        LogInfo("[MoLib] Failed to get Item sheet")
+        return 0
+    end
+
+    local index = 0
+    local row = itemSheet:GetRow(index)
+
+    while row do
+        if row.ItemUICategory and row.ItemUICategory.Name == "Triple Triad Card" then
+            local count = Inventory.GetItemCount(row.RowId)
+            LogDebug(string.format("[MoLib] Checking card: %s (ID=%d) => Count: %d", row.Name, row.RowId, count or 0))
+
+            if count and count > 0 then
+                total = total + count
+            end
+        end
+
+        index = index + 1
+        row = itemSheet:GetRow(index)
+    end
+
+    LogDebug(string.format("[MoLib] Total Triple Triad cards in inventory: %d", total))
+    return total
 end
 
 --=========================== INSTANCE ===========================--
@@ -1671,7 +1706,7 @@ function Repair(RepairThreshold)
     Wait(1)
     yield("/callback Repair true -1")
 
-    LogDebug("[MoLib] Gear repair process completed.")
+    LogDebug(string.format("[MoLib] Gear repair process completed."))
 
     WaitForPlayer()
     Wait(1)

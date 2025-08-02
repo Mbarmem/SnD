@@ -5,7 +5,6 @@ version: 2.0.0
 description: Wondrous Tails Doer - A barebones script for weeklies
 plugin_dependencies:
 - AutoDuty
-- Automaton
 - BossModReborn
 - Lifestream
 - RotationSolver
