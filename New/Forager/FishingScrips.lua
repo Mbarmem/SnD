@@ -318,7 +318,10 @@ end
 
 function CharacterState.teleportFishingZone()
     if not IsInZone(SelectedFish.zoneId) then
-        Teleport(GetAetheryteName(SelectedFish.zoneId))
+        local aetheryteName = GetAetheryteName(SelectedFish.zoneId)
+        if aetheryteName then
+            Teleport(aetheryteName)
+        end
     elseif IsPlayerAvailable() then
         Wait(3)
         SelectNewFishingHole()
@@ -456,12 +459,10 @@ function CharacterState.fishing()
     end
 
     -- run towards fishing hole and cast until the fishing line hits the water
-    if not PathfindInProgress() and not PathIsRunning() and not Player.IsMoving then
-        MoveTo(30.640678, 21.700165, 485.11768)
-        WaitForPathRunning()
+    if not PathfindInProgress() and not PathIsRunning() then
+        PathMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
     end
 
-    yield("/vnavmesh movedir 1 0 1")
     yield("/ac Cast")
     Wait(0.5)
 end
