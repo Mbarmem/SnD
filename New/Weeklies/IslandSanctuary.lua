@@ -115,7 +115,7 @@ end
 function OpenNpc(npc, nextState)
     if GetDistanceToPoint(npc.x, npc.y, npc.z) > 20 then
         if not IsPlayerCasting() and not IsMounted() then
-            UseMount()
+            Mount()
             Wait(1)
         end
     end
@@ -224,7 +224,7 @@ function CharacterState.talkToFurball()
     if GetDistanceToPoint(npc.x, npc.y, npc.z) > 20 and not IsVislandRouteRunning() then
         if not IsMounted() then
             LogInfo(string.format("%s Not mounted, using mount to approach Furball.", LogPrefix))
-            UseMount()
+            Mount()
             Wait(1)
             return
         elseif not IsVislandRouteRunning() then

@@ -94,7 +94,7 @@ function Main()
 
     -- Mount up and fly to flag
     if not IsMounted() then
-        UseMount()
+        Mount()
     end
     WaitForNavMesh()
 

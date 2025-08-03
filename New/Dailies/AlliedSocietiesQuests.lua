@@ -364,7 +364,7 @@ for _, alliedSociety in ipairs(ToDoList) do
         end
 
         if not IsMounted() then
-            UseMount()
+            Mount()
         end
 
         WaitForCondition("Mounted", true)

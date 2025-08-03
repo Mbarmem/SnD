@@ -370,7 +370,7 @@ function CharacterState.goToFishingHole()
     local distanceToWaypoint = GetDistanceToPoint(SelectedFishingSpot.waypointX, GetPlayerRawYPos(), SelectedFishingSpot.waypointZ)
     if distanceToWaypoint > 10 then
         if not IsMounted() then
-            UseMount()
+            Mount()
             State = CharacterState.goToFishingHole
             LogInfo(string.format("%s State changed to: GoToFishingHole", LogPrefix))
         elseif not (PathfindInProgress() or PathIsRunning()) then
@@ -382,10 +382,7 @@ function CharacterState.goToFishingHole()
         return
     end
 
-    if IsMounted() then
-        Dismount()
-        return
-    end
+    Dismount()
 
     State = CharacterState.fishing
     LogInfo(string.format("%s State changed to: Fishing", LogPrefix))
@@ -550,21 +547,6 @@ end
 --    Movement    --
 --------------------
 
-function Dismount(callbackState)
-    if PathIsRunning() or PathfindInProgress() then
-        PathStop()
-        return
-    end
-
-    if IsMounted() then
-        ExecuteAction(10057)
-    elseif IsPlayerAvailable() and callbackState ~= nil then
-        State = callbackState
-        LogInfo(string.format("%s State changed to: %s", LogPrefix, tostring(callbackState)))
-    end
-    Wait(1)
-end
-
 function CharacterState.goToHubCity()
     if not IsPlayerAvailable() then
         Wait(1)
@@ -601,7 +583,6 @@ function CharacterState.turnIn()
         State = CharacterState.goToHubCity
         LogInfo(string.format("%s State changed to: GoToHubCity", LogPrefix))
 
----@diagnostic disable-next-line: undefined-field
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
             Teleport(SelectedHubCity.aethernet.aethernetName)
@@ -662,7 +643,6 @@ function CharacterState.scripExchange()
         State = CharacterState.goToHubCity
         LogInfo(string.format("%s State changed to: GoToHubCity", LogPrefix))
 
----@diagnostic disable-next-line: undefined-field
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
             Teleport(SelectedHubCity.aethernet.aethernetName)
@@ -679,7 +659,7 @@ function CharacterState.scripExchange()
             WaitForPathRunning()
         end
 
-        elseif IsAddonVisible("ShopExchangeItemDialog") then
+    elseif IsAddonVisible("ShopExchangeItemDialog") then
         if IsAddonReady("ShopExchangeItemDialog") then
             yield("/callback ShopExchangeItemDialog true 0")
         end
@@ -750,7 +730,7 @@ function CharacterState.processAutoRetainers()
     elseif IsPlayerAvailable() then
         Interact("Summoning Bell")
 
-    elseif IsAddonReady("RetainerList") and IsAddonVisible("RetainerList") then
+    elseif IsAddonReady("RetainerList") then
         yield("/ays e")
         Wait(1)
     end
@@ -911,14 +891,14 @@ function CharacterState.extractMateria()
 end
 
 function FoodCheck()
-    if not Player.Status.StatusId == 48 and Food ~= "" then
+    if not HasStatusId(48) and Food ~= "" then
         LogInfo(string.format("%s Using food: %s", LogPrefix, Food))
         yield("/item " .. Food)
     end
 end
 
 function PotionCheck()
-    if not Player.Status.StatusId == 49 and Potion ~= "" then
+    if not HasStatusId(49) and Potion ~= "" then
         LogInfo(string.format("%s Using potion: %s", LogPrefix, Potion))
         yield("/item " .. Potion)
     end

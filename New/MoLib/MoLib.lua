@@ -4,6 +4,18 @@ import("System.Numerics")
 
 --=========================== CONSTANT ===========================--
 
+--==============--
+--    Action    --
+--==============--
+
+-- Defines character action constants
+CharacterAction = {
+    repair            =  6,
+    mount             =  9,
+    materiaExtraction = 14,
+    dismount          = 23
+}
+
 --=================--
 --    Condition    --
 --=================--
@@ -1567,13 +1579,28 @@ end
 
 --- Attempts to mount using a specific mount name or Mount Roulette if none is provided
 --- @param mountName string? The name of the mount to use; if nil or empty, uses Mount Roulette
-function UseMount(mountName)
-    if mountName ~= nil and mountName ~= "" then
+function Mount(mountName)
+    if IsMounted() then
+        LogDebug(string.format("[MoLib] Already mounted"))
+        return
+    end
+
+    if mountName and mountName ~= "" then
         LogDebug(string.format("[MoLib] Attempting to mount: %s", mountName))
         yield(string.format('/mount "%s"', mountName))
     else
         LogDebug(string.format("[MoLib] Attempting Mount Roulette"))
-        yield('/gaction "Mount Roulette"')
+        ExecuteGeneralAction(CharacterAction.mount)
+    end
+end
+
+--------------------------------------------------------------------
+
+--- Attempts to dismount if currently mounted
+function Dismount()
+    if IsMounted() then
+        LogDebug(string.format("[MoLib] Attempting to dismount"))
+        ExecuteGeneralAction(CharacterAction.dismount)
     end
 end
 
@@ -1728,7 +1755,7 @@ function Repair(RepairThreshold)
     LogDebug(string.format("[MoLib] Initiating gear repair process."))
 
     while not IsAddonVisible("Repair") do
-        yield("/generalaction repair")
+        ExecuteGeneralAction(CharacterAction.repair)
         Wait(1)
     end
 
@@ -1781,12 +1808,12 @@ function MateriaExtraction(ExtractMateria)
     local extractable = CanExtractMateria()
 
     if extractable > 0 then
-        yield("/generalaction \"Materia Extraction\"")
-        yield("/waitaddon Materialize")
+        ExecuteGeneralAction(CharacterAction.materiaExtraction)
+        WaitForAddon("Materialize")
 
         while CanExtractMateria() > 0 do
             if not IsAddonVisible("Materialize") then
-                yield("/generalaction \"Materia Extraction\"")
+                ExecuteGeneralAction(CharacterAction.materiaExtraction)
             end
 
             yield("/callback Materialize true 2")
