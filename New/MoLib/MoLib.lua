@@ -1418,6 +1418,7 @@ function CloseAddons()
         "SelectString",
         "SelectYesno",
         "ShopExchangeItem",
+        "Synthesis",
         "ContentsInfo",
         "RetainerList",
         "InventoryRetainer",

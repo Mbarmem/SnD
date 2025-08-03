@@ -579,14 +579,15 @@ function ArtisanCrafting()
 
             if not IsCrafting() then
                 StopFlag = true
-                LogInfo(string.format("%s Stopping Artisan Crafting List..Out of Mats..", LogPrefix))
+                LogInfo(string.format("%s Stopping Artisan Crafting..Out of Mats..", LogPrefix))
                 Wait(1)
-                return
+                break
             end
         else
             Wait(1)
         end
     end
+    CloseAddons()
     WaitForPlayer()
 end
 
