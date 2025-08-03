@@ -575,7 +575,7 @@ function ArtisanCrafting()
             ArtisanTimeoutStartTime = os.clock()
             repeat
                 Wait(2)
-            until os.clock() - ArtisanTimeoutStartTime > 30 or IsCrafting()
+            until os.clock() - ArtisanTimeoutStartTime > 20 or IsCrafting()
 
             if not IsCrafting() then
                 StopFlag = true
