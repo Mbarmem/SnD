@@ -38,7 +38,7 @@ configs:
     min: 0
     max: 4000
   ItemToBuy:
-    default: Crafter's Command Materia XII
+    default: Craftsman's Command Materia XII
     description: Name of the item to purchase using scrips.
     type: string
   HubCity:
@@ -143,71 +143,71 @@ ScripExchangeItems = {
         categoryMenu    = 1,
         subcategoryMenu = 10,
         listIndex       = 0,
-        price           = 125,
+        price           = 125
     },
     {
-        itemName        = "Crafter's Competence Materia XII",
+        itemName        = "Craftsman's Competence Materia XII",
         categoryMenu    = 2,
         subcategoryMenu = 2,
         listIndex       = 0,
-        price           = 500,
+        price           = 500
     },
     {
-        itemName        = "Crafter's Cunning Materia XII",
+        itemName        = "Craftsman's Cunning Materia XII",
         categoryMenu    = 2,
         subcategoryMenu = 2,
         listIndex       = 1,
-        price           = 500,
+        price           = 500
     },
     {
-        itemName        = "Crafter's Command Materia XII",
+        itemName        = "Craftsman's Command Materia XII",
         categoryMenu    = 2,
         subcategoryMenu = 2,
         listIndex       = 2,
-        price           = 500,
+        price           = 500
     },
     {
-        itemName        = "Crafter's Competence Materia XI",
+        itemName        = "Craftsman's Competence Materia XI",
         categoryMenu    = 2,
         subcategoryMenu = 1,
         listIndex       = 0,
-        price           = 250,
+        price           = 250
     },
     {
-        itemName        = "Crafter's Cunning Materia XI",
+        itemName        = "Craftsman's Cunning Materia XI",
         categoryMenu    = 2,
         subcategoryMenu = 1,
         listIndex       = 1,
-        price           = 250,
+        price           = 250
     },
     {
-        itemName        = "Crafter's Command Materia XI",
+        itemName        = "Craftsman's Command Materia XI",
         categoryMenu    = 2,
         subcategoryMenu = 1,
         listIndex       = 2,
-        price           = 250,
+        price           = 250
     },
     {
-        itemName        = "Crafter's Cunning Materia IX",
+        itemName        = "Craftsman's Cunning Materia IX",
         categoryMenu    = 2,
         subcategoryMenu = 1,
         listIndex       = 7,
-        price           = 200,
+        price           = 200
     },
     {
-        itemName        = "Crafter's Cunning Materia VII",
+        itemName        = "Craftsman's Cunning Materia VII",
         categoryMenu    = 2,
         subcategoryMenu = 1,
         listIndex       = 13,
-        price           = 200,
+        price           = 200
     },
     {
-        itemName        = "Crafter's Cunning Materia V",
+        itemName        = "Craftsman's Cunning Materia V",
         categoryMenu    = 2,
         subcategoryMenu = 1,
         listIndex       = 19,
-        price           = 200,
-    },
+        price           = 200
+    }
 }
 
 ------------------------
@@ -220,81 +220,89 @@ OrangeScrips = {
         classId        = 8,
         itemName       = "Rarefied Claro Walnut Fishing Rod",
         itemId         = 44190,
+        recipeId       = 35787,
         turninRow      = 0,
         turninIndex    = 0,
         turninType     = 15,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Blacksmith",
         classId        = 9,
         itemName       = "Rarefied Ra'Kaznar Round Knife",
         itemId         = 44196,
+        recipeId       = 35793,
         turninRow      = 0,
         turninIndex    = 1,
         turninType     = 15,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Armorer",
         classId        = 10,
         itemName       = "Rarefied Ra'Kaznar Ring",
         itemId         = 44202,
+        recipeId       = 35799,
         turninRow      = 0,
         turninIndex    = 2,
         turninType     = 15,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Goldsmith",
         classId        = 11,
         itemName       = "Rarefied Black Star Earrings",
         itemId         = 44208,
+        recipeId       = 35805,
         turninRow      = 0,
         turninIndex    = 3,
         turninType     = 15,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Leatherworker",
         classId        = 12,
         itemName       = "Rarefied Gargantuaskin Hat",
         itemId         = 44214,
+        recipeId       = 35817,
         turninRow      = 0,
         turninIndex    = 4,
         turninType     = 15,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Weaver",
         classId        = 13,
         itemName       = "Rarefied Thunderyard Silk Culottes",
         itemId         = 44220,
+        recipeId       = 35817,
         turninRow      = 0,
         turninIndex    = 5,
         turninType     = 15,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Alchemist",
         classId        = 14,
         itemName       = "Rarefied Claro Walnut Flat Brush",
         itemId         = 44226,
+        recipeId       = 35823,
         turninRow      = 0,
         turninIndex    = 6,
         turninType     = 15,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Culinarian",
         classId        = 15,
         itemName       = "Rarefied Tacos de Carne Asada",
         itemId         = 44232,
+        recipeId       = 35829,
         turninRow      = 0,
         turninIndex    = 7,
         turninType     = 15,
-        artisanListId  = 14783,  -- 14783 / 21193
-    },
+        artisanListId  = 14783  -- 14783 / 21193
+    }
 }
 
 PurpleScrips = {
@@ -303,81 +311,89 @@ PurpleScrips = {
         classId        = 8,
         itemName       = "Rarefied Claro Walnut Grinding Wheel",
         itemId         = 44189,
+        recipeId       = 35786,
         turninRow      = 1,
         turninIndex    = 0,
         turninType     = 16,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Blacksmith",
         classId        = 9,
         itemName       = "Rarefied Ra'Kaznar War Scythe",
         itemId         = 44195,
+        recipeId       = 35792,
         turninRow      = 1,
         turninIndex    = 1,
         turninType     = 16,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Armorer",
         classId        = 10,
         itemName       = "Rarefied Ra'Kaznar Greaves",
         itemId         = 44201,
+        recipeId       = 35798,
         turninRow      = 1,
         turninIndex    = 2,
         turninType     = 16,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Goldsmith",
         classId        = 11,
         itemName       = "Rarefied Ra'Kaznar Orrery",
         itemId         = 44207,
+        recipeId       = 35804,
         turninRow      = 1,
         turninIndex    = 3,
         turninType     = 16,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Leatherworker",
         classId        = 12,
         itemName       = "Rarefied Gargantuaskin Trouser",
         itemId         = 44213,
+        recipeId       = 35816,
         turninRow      = 1,
         turninIndex    = 4,
         turninType     = 16,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Weaver",
         classId        = 13,
         itemName       = "Rarefied Thunderyards Silk Gloves",
         itemId         = 44219,
+        recipeId       = 35816,
         turninRow      = 1,
         turninIndex    = 5,
         turninType     = 16,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Alchemist",
         classId        = 14,
         itemName       = "Rarefied Gemdraught of Vitality",
         itemId         = 44225,
+        recipeId       = 35822,
         turninRow      = 1,
         turninIndex    = 6,
         turninType     = 16,
-        artisanListId  = 0,
+        artisanListId  = 0
     },
     {
         className      = "Culinarian",
         classId        = 15,
         itemName       = "Rarefied Sykon Bavarois",
         itemId         = 36626,
+        recipeId       = 34908,
         turninRow      = 6,
         turninIndex    = 7,
         turninType     = 16,
-        artisanListId  = 14291,  -- 14291 / 46432
-    },
+        artisanListId  = 14291  -- 14291 / 46432
+    }
 }
 
 -------------------
@@ -390,29 +406,29 @@ HubCities = {
         zoneId        = 129,
         aethernet     = { aethernetZoneId = 129, aethernetName = "Hawkers' Alley", x = -213.61108, y = 16.739136, z = 51.80432 },
         retainerBell  = { x = -124.703, y = 18, z = 19.887, requiresAethernet = false },
-        scripExchange = { x = -258.52585, y = 16.2, z = 40.65883, requiresAethernet = true },
+        scripExchange = { x = -258.52585, y = 16.2, z = 40.65883, requiresAethernet = true }
     },
     {
         zoneName      = "Gridania",
         zoneId        = 132,
         aethernet     = { aethernetZoneId = 133, aethernetName = "Leatherworkers' Guild & Shaded Bower", x = 131.9447, y = 4.714966, z = -29.800903 },
         retainerBell  = { x = 168.72, y = 15.5, z = -100.06, requiresAethernet = true },
-        scripExchange = { x = 142.15, y = 13.74, z = -105.39, requiresAethernet = true },
+        scripExchange = { x = 142.15, y = 13.74, z = -105.39, requiresAethernet = true }
     },
     {
         zoneName      = "Ul'dah",
         zoneId        = 130,
         aethernet     = { aethernetZoneId = 131, aethernetName = "Sapphire Avenue Exchange", x = 101, y = 9, z = -112 },
         retainerBell  = { x = 146.760, y = 4, z = -42.992, requiresAethernet = true },
-        scripExchange = { x = 147.73, y = 4, z = -18.19, requiresAethernet = true },
+        scripExchange = { x = 147.73, y = 4, z = -18.19, requiresAethernet = true }
     },
     {
         zoneName      = "Solution Nine",
         zoneId        = 1186,
         aethernet     = { aethernetZoneId = 1186, aethernetName = "Nexus Arcade", x = -161, y = -1, z = 212 },
         retainerBell  = { x = -152.465, y = 0.660, z = -13.557, requiresAethernet = true },
-        scripExchange = { x = -158.019, y = 0.922, z = -37.884, requiresAethernet = true },
-    },
+        scripExchange = { x = -158.019, y = 0.922, z = -37.884, requiresAethernet = true }
+    }
 }
 
 --=========================== FUNCTIONS ==========================--
@@ -533,32 +549,33 @@ function LoopCount()
     Loop = (Loop or 0) + 1
 end
 
-function ArtisanCraftingList()
+function ArtisanCrafting()
     for _, item in ipairs(CollectableScrip) do
         if ClassId == item.classId then
             ItemName = item.itemName
+            RecipeId = item.recipeId
             ArtisanListId = item.artisanListId
             break
         end
     end
 
-    if not ArtisanListId or ArtisanListId == 0 then
-        Echo(string.format("No valid Artisan list found for this class."), LogPrefix)
-        LogInfo(string.format("%s No valid Artisan list found for this class.", LogPrefix))
+    if not RecipeId or RecipeId == 0 then
+        Echo(string.format("No valid Recipe Id found for this class."), LogPrefix)
+        LogInfo(string.format("%s No valid Recipe Id found for this class.", LogPrefix))
         StopRunningMacros()
     end
 
     LogInfo(string.format("%s Preparing to Craft: %s", LogPrefix, ItemName))
 
     while GetInventoryFreeSlotCount() > MinInventoryFreeSlots do
-        if not ArtisanIsListRunning() then
-            yield("/artisan lists ".. ArtisanListId .." start")
+        if not ArtisanGetEnduranceStatus() and not ArtisanIsListRunning() then
+            ArtisanCraftItem(RecipeId, GetInventoryFreeSlotCount() - MinInventoryFreeSlots)
             Wait(3)
 
             ArtisanTimeoutStartTime = os.clock()
             repeat
                 Wait(2)
-            until os.clock() - ArtisanTimeoutStartTime > 15 or IsCrafting()
+            until os.clock() - ArtisanTimeoutStartTime > 30 or IsCrafting()
 
             if not IsCrafting() then
                 StopFlag = true
@@ -719,7 +736,7 @@ while LoopAmount == true or Loop <= LoopAmount do
     LogInfo(string.format("%s Loop Count: %s", LogPrefix, Loop))
     MoveToInn()
     DoAR(DoAutoRetainers)
-    ArtisanCraftingList()
+    ArtisanCrafting()
     Repair()
     MateriaExtraction(ExtractMateria)
     MoveForExchange()

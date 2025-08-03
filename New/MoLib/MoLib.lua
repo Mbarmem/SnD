@@ -370,6 +370,16 @@ end
 
 --------------------------------------------------------------------
 
+--- Checks if an Artisan crafting list is currently paused
+--- @return boolean true if Artisan crafting list is paused; false otherwise
+function ArtisanIsListPaused()
+    local isPaused = IPC.Artisan.IsListPaused()
+    LogDebug(string.format("[MoLib] Artisan list paused: %s", tostring(isPaused)))
+    return isPaused
+end
+
+--------------------------------------------------------------------
+
 --- Retrieves the current endurance status from the Artisan system
 --- @return any status returns the current endurance status value
 function ArtisanGetEnduranceStatus()
@@ -385,6 +395,16 @@ end
 function ArtisanSetEnduranceStatus(status)
     LogDebug(string.format("[MoLib] Artisan endurance status set to: %s", tostring(status)))
     IPC.Artisan.SetEnduranceStatus(status)
+end
+
+--------------------------------------------------------------------
+
+--- Queues a crafting request in Artisan for the specified item and quantity
+--- @param itemId number The Recipe ID of the item to craft
+--- @param quantity number The number of items to craft
+function ArtisanCraftItem(itemId, quantity)
+    LogDebug(string.format("[MoLib] Queuing Artisan craft: itemId = %s, quantity = %s", tostring(itemId), tostring(quantity)))
+    IPC.Artisan.CraftItem(itemId, quantity)
 end
 
 --------------------------------------------------------------------
