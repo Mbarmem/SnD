@@ -223,8 +223,7 @@ OrangeScrips = {
         recipeId       = 35787,
         turninRow      = 0,
         turninIndex    = 0,
-        turninType     = 15,
-        artisanListId  = 0
+        turninType     = 15
     },
     {
         className      = "Blacksmith",
@@ -234,8 +233,7 @@ OrangeScrips = {
         recipeId       = 35793,
         turninRow      = 0,
         turninIndex    = 1,
-        turninType     = 15,
-        artisanListId  = 0
+        turninType     = 15
     },
     {
         className      = "Armorer",
@@ -245,8 +243,7 @@ OrangeScrips = {
         recipeId       = 35799,
         turninRow      = 0,
         turninIndex    = 2,
-        turninType     = 15,
-        artisanListId  = 0
+        turninType     = 15
     },
     {
         className      = "Goldsmith",
@@ -256,8 +253,7 @@ OrangeScrips = {
         recipeId       = 35805,
         turninRow      = 0,
         turninIndex    = 3,
-        turninType     = 15,
-        artisanListId  = 0
+        turninType     = 15
     },
     {
         className      = "Leatherworker",
@@ -267,8 +263,7 @@ OrangeScrips = {
         recipeId       = 35817,
         turninRow      = 0,
         turninIndex    = 4,
-        turninType     = 15,
-        artisanListId  = 0
+        turninType     = 15
     },
     {
         className      = "Weaver",
@@ -278,8 +273,7 @@ OrangeScrips = {
         recipeId       = 35817,
         turninRow      = 0,
         turninIndex    = 5,
-        turninType     = 15,
-        artisanListId  = 0
+        turninType     = 15
     },
     {
         className      = "Alchemist",
@@ -289,8 +283,7 @@ OrangeScrips = {
         recipeId       = 35823,
         turninRow      = 0,
         turninIndex    = 6,
-        turninType     = 15,
-        artisanListId  = 0
+        turninType     = 15
     },
     {
         className      = "Culinarian",
@@ -300,8 +293,7 @@ OrangeScrips = {
         recipeId       = 35829,
         turninRow      = 0,
         turninIndex    = 7,
-        turninType     = 15,
-        artisanListId  = 14783  -- 14783 / 21193
+        turninType     = 15
     }
 }
 
@@ -314,8 +306,7 @@ PurpleScrips = {
         recipeId       = 35786,
         turninRow      = 1,
         turninIndex    = 0,
-        turninType     = 16,
-        artisanListId  = 0
+        turninType     = 16
     },
     {
         className      = "Blacksmith",
@@ -325,8 +316,7 @@ PurpleScrips = {
         recipeId       = 35792,
         turninRow      = 1,
         turninIndex    = 1,
-        turninType     = 16,
-        artisanListId  = 0
+        turninType     = 16
     },
     {
         className      = "Armorer",
@@ -336,8 +326,7 @@ PurpleScrips = {
         recipeId       = 35798,
         turninRow      = 1,
         turninIndex    = 2,
-        turninType     = 16,
-        artisanListId  = 0
+        turninType     = 16
     },
     {
         className      = "Goldsmith",
@@ -347,8 +336,7 @@ PurpleScrips = {
         recipeId       = 35804,
         turninRow      = 1,
         turninIndex    = 3,
-        turninType     = 16,
-        artisanListId  = 0
+        turninType     = 16
     },
     {
         className      = "Leatherworker",
@@ -358,8 +346,7 @@ PurpleScrips = {
         recipeId       = 35816,
         turninRow      = 1,
         turninIndex    = 4,
-        turninType     = 16,
-        artisanListId  = 0
+        turninType     = 16
     },
     {
         className      = "Weaver",
@@ -369,8 +356,7 @@ PurpleScrips = {
         recipeId       = 35816,
         turninRow      = 1,
         turninIndex    = 5,
-        turninType     = 16,
-        artisanListId  = 0
+        turninType     = 16
     },
     {
         className      = "Alchemist",
@@ -380,8 +366,7 @@ PurpleScrips = {
         recipeId       = 35822,
         turninRow      = 1,
         turninIndex    = 6,
-        turninType     = 16,
-        artisanListId  = 0
+        turninType     = 16
     },
     {
         className      = "Culinarian",
@@ -391,8 +376,7 @@ PurpleScrips = {
         recipeId       = 34908,
         turninRow      = 6,
         turninIndex    = 7,
-        turninType     = 16,
-        artisanListId  = 14291  -- 14291 / 46432
+        turninType     = 16
     }
 }
 
@@ -554,7 +538,6 @@ function ArtisanCrafting()
         if ClassId == item.classId then
             ItemName = item.itemName
             RecipeId = item.recipeId
-            ArtisanListId = item.artisanListId
             break
         end
     end
