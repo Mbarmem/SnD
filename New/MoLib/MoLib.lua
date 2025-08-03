@@ -1591,6 +1591,26 @@ function StopRunningMacros(macroName)
     end
 end
 
+--============================ ACTIONS ===========================--
+
+--- Executes an action based on its ID and type
+--- @param actionID number The ID of the action to execute
+--- @param actionType number? The type of the action; defaults to ActionType.Action
+function ExecuteAction(actionID, actionType)
+    actionType = actionType or ActionType.Action
+    LogDebug(string.format("[MoLib] Executing action. ID: %d, Type: %d", actionID, actionType))
+    Actions.ExecuteAction(actionID, actionType)
+end
+
+--------------------------------------------------------------------
+
+--- Executes a general action based on its ID
+--- @param actionID number The ID of the general action to execute
+function ExecuteGeneralAction(actionID)
+    LogDebug(string.format("[MoLib] Executing general action. ID: %d", actionID))
+    Actions.ExecuteGeneralAction(actionID)
+end
+
 --=========================== INVENTORY ==========================--
 
 --- Returns the number of free inventory slots the player currently has

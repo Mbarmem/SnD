@@ -216,29 +216,29 @@ HubCities = {
         zoneId        = 129,
         aethernet     = { aethernetZoneId = 129, aethernetName = "Hawkers' Alley", x = -213.61108, y = 16.739136, z = 51.80432 },
         retainerBell  = { x = -124.703, y = 18, z = 19.887, requiresAethernet = false },
-        scripExchange = { x = -258.52585, y = 16.2, z = 40.65883, requiresAethernet = true },
+        scripExchange = { x = -258.52585, y = 16.2, z = 40.65883, requiresAethernet = true }
     },
     {
         zoneName      = "Gridania",
         zoneId        = 132,
         aethernet     = { aethernetZoneId = 133, aethernetName = "Leatherworkers' Guild & Shaded Bower", x = 101, y = 9, z = -112 },
         retainerBell  = { x = 168.72, y = 15.5, z = -100.06, requiresAethernet = true },
-        scripExchange = { x = 142.15, y = 13.74, z = -105.39, requiresAethernet = true },
+        scripExchange = { x = 142.15, y = 13.74, z = -105.39, requiresAethernet = true }
     },
     {
         zoneName      = "Ul'dah",
         zoneId        = 130,
         aethernet     = { aethernetZoneId = 131, aethernetName = "Sapphire Avenue Exchange", x = 131.9447, y = 4.714966, z = -29.800903 },
         retainerBell  = { x = 148, y = 3, z = -45, requiresAethernet = true },
-        scripExchange = { x = 148.39, y = 3.99, z = -18.4, requiresAethernet = true },
+        scripExchange = { x = 148.39, y = 3.99, z = -18.4, requiresAethernet = true }
     },
     {
         zoneName      = "Solution Nine",
         zoneId        = 1186,
         aethernet     = { aethernetZoneId = 1186, aethernetName = "Nexus Arcade", x = -161, y = -1, z = 21 },
         retainerBell  = { x = -152.465, y = 0.66, z = -13.557, requiresAethernet = true },
-        scripExchange = { x = -158.019, y = 0.922, z = -37.884, requiresAethernet = true },
-    },
+        scripExchange = { x = -158.019, y = 0.922, z = -37.884, requiresAethernet = true }
+    }
 }
 
 --=========================== FUNCTIONS ==========================--
@@ -345,21 +345,26 @@ function CharacterState.goToFishingHole()
         local x = GetPlayerRawXPos()
         local y = GetPlayerRawYPos()
         local z = GetPlayerRawZPos()
+
         local lastStuckCheckPosition = SelectedFishingSpot.lastStuckCheckPosition
-        if GetDistanceToPoint(lastStuckCheckPosition.x, lastStuckCheckPosition.y, lastStuckCheckPosition.z) < 2 then
-            LogInfo(string.format("%s Stuck in same spot for over 10 seconds.", LogPrefix))
-            if PathfindInProgress() or PathIsRunning() then
-                PathStop()
+
+        if lastStuckCheckPosition and lastStuckCheckPosition.x and lastStuckCheckPosition.y and lastStuckCheckPosition.z then
+            if GetDistanceToPoint(lastStuckCheckPosition.x, lastStuckCheckPosition.y, lastStuckCheckPosition.z) < 2 then
+                LogInfo(string.format("%s Stuck in same spot for over 10 seconds.", LogPrefix))
+                if PathfindInProgress() or PathIsRunning() then
+                    PathStop()
+                end
+                local rX, rY, rZ = RandomAdjustCoordinates(x, y, z, 20)
+                if rX and rY and rZ then
+                    PathfindAndMoveTo(rX, rY, rZ, IsMounted())
+                    WaitForPathRunning()
+                end
+                return
             end
-            local randomX, randomY, randomZ = RandomAdjustCoordinates(x, y, z, 20)
-            if randomX ~= nil and randomY ~= nil and randomZ ~= nil then
-                PathfindAndMoveTo(randomX, randomY, randomZ, IsMounted())
-                WaitForPathRunning()
-            end
-            return
-        else
-            SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
         end
+
+        -- Update the last check position if it's nil or we moved
+        SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
     end
 
     local distanceToWaypoint = GetDistanceToPoint(SelectedFishingSpot.waypointX, GetPlayerRawYPos(), SelectedFishingSpot.waypointZ)
@@ -398,7 +403,7 @@ function CharacterState.fishing()
     if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
         LogInfo(string.format("%s Not enough inventory space", LogPrefix))
         if IsGathering() then
-            yield("/ac Quit")
+            ExecuteAction(299)
             Wait(1)
         else
             State = CharacterState.turnIn
@@ -410,7 +415,7 @@ function CharacterState.fishing()
     if os.clock() - ResetHardAmissTime > (ResetHardAmissAfter*60) then
         if IsGathering() then
             if not IsFishing() then
-                yield("/ac Quit")
+                ExecuteAction(299)
                 Wait(1)
             end
         else
@@ -422,7 +427,7 @@ function CharacterState.fishing()
         LogInfo(string.format("%s Switching fishing spots", LogPrefix))
         if IsGathering() then
             if not IsFishing() then
-                yield("/ac Quit")
+                ExecuteAction(299)
                 Wait(1)
             end
         else
@@ -439,31 +444,43 @@ function CharacterState.fishing()
         return
     end
 
-    if os.clock() - SelectedFishingSpot.startTime > 10 then
+    local now = os.clock()
+    if now - SelectedFishingSpot.startTime > 10 then
+        SelectedFishingSpot.startTime = now
         local x = GetPlayerRawXPos()
         local y = GetPlayerRawYPos()
         local z = GetPlayerRawZPos()
+
         local lastStuckCheckPosition = SelectedFishingSpot.lastStuckCheckPosition
-        if GetDistanceToPoint(lastStuckCheckPosition.x, lastStuckCheckPosition.y, lastStuckCheckPosition.z) < 2 then
-            LogInfo(string.format("%s Stuck in same spot for over 10 seconds.", LogPrefix))
-            if PathfindInProgress() or PathIsRunning() then
-                PathStop()
+
+        if lastStuckCheckPosition and lastStuckCheckPosition.x and lastStuckCheckPosition.y and lastStuckCheckPosition.z then
+            if GetDistanceToPoint(lastStuckCheckPosition.x, lastStuckCheckPosition.y, lastStuckCheckPosition.z) < 2 then
+                LogInfo(string.format("%s Stuck in same spot for over 10 seconds.", LogPrefix))
+                if PathfindInProgress() or PathIsRunning() then
+                    PathStop()
+                end
+                local rX, rY, rZ = RandomAdjustCoordinates(x, y, z, 20)
+                if rX and rY and rZ then
+                    PathfindAndMoveTo(rX, rY, rZ, IsMounted())
+                    WaitForPathRunning()
+                end
+                return
             end
-            SelectNewFishingHole()
-            State = CharacterState.awaitingAction
-            LogInfo(string.format("%s State changed to: Stuck AwaitingAction", LogPrefix))
-            return
-        else
-            SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
         end
+
+        -- Update the last check position if it's nil or we moved
+        SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
     end
 
     -- run towards fishing hole and cast until the fishing line hits the water
     if not PathfindInProgress() and not PathIsRunning() then
-        PathMoveTo(SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z)
+        MoveTo(30.640678, 21.700165, 485.11768)
+        WaitForPathRunning()
     end
 
-    yield("/ac Cast")
+    yield("/vnavmesh movedir 1 0 1")
+    Wait(1)
+    ExecuteAction(289)
     Wait(0.5)
 end
 
@@ -540,7 +557,7 @@ function Dismount(callbackState)
     end
 
     if IsMounted() then
-        yield('/ac dismount')
+        ExecuteAction(10057)
     elseif IsPlayerAvailable() and callbackState ~= nil then
         State = callbackState
         LogInfo(string.format("%s State changed to: %s", LogPrefix, tostring(callbackState)))
@@ -750,7 +767,7 @@ function CharacterState.gcTurnIn()
 
         if not IsInZone(gcZoneIds[playerGC]) then
             LogInfo(string.format("%s Not in Grand Company zone. Using Aethernet...", LogPrefix))
-            Teleport("GC")
+            Teleport("gc")
             Wait(1)
 
         elseif IPC.Deliveroo.IsTurnInRunning() then
@@ -783,7 +800,7 @@ function CharacterState.executeRepair()
         return
     end
 
-    if Svc.Condition[39] then
+    if IsOccupied() then
         Wait(1)
         return
     end
