@@ -168,7 +168,7 @@ function WaitForFishingItem(maxWaitSeconds)
         SetAutoHookState(false)
         Wait(1)
         while IsGathering() do
-            yield("/ac Quit")
+            ExecuteAction(CharacterAction.quitFishing)
             Wait(0.1)
         end
         LogInfo(string.format("%s Timeout acquiring item ID %s", LogPrefix, tostring(itemId)))
@@ -250,14 +250,11 @@ while true do
     if SuccessCount == 0 then
         MoveToSpot()
         MoveTo(-264.005, 22.156, -94.770)
-        WaitForPathRunning()
     elseif SuccessCount == 5 then
         MoveTo(-297.165, 22.075, -91.238)
-        WaitForPathRunning()
     elseif SuccessCount == 10 then
         MoveTo(-269.529, 26.526, -132.304)
         MoveTo(-277.559, 26.449, -134.192)
-        WaitForPathRunning()
     end
 
     local currentWeatherType = GetWeatherType(Instances.EnvManager.ActiveWeather)

@@ -171,7 +171,6 @@ function CharacterState.goToHuntBoard()
     if GetDistanceToPoint(Board.x, Board.y, Board.z) > 3 then
         if not PathIsRunning() and not PathfindInProgress() then
             MoveTo(Board.x, Board.y, Board.z, 3)
-            WaitForPathRunning()
         end
     end
 

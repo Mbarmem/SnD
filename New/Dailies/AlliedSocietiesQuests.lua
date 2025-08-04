@@ -363,13 +363,10 @@ for _, alliedSociety in ipairs(ToDoList) do
             Teleport(alliedSocietyTable.aetheryteName)
         end
 
-        if not IsMounted() then
-            Mount()
-        end
-
+        Mount()
         WaitForCondition("Mounted", true)
+
         MoveTo(alliedSocietyTable.x, alliedSocietyTable.y, alliedSocietyTable.z, 2, true)
-        WaitForPathRunning()
 
         yield("/gs change " .. alliedSociety.class)
         Wait(3)

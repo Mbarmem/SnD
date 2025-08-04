@@ -10,10 +10,14 @@ import("System.Numerics")
 
 -- Defines character action constants
 CharacterAction = {
-    repair            =  6,
-    mount             =  9,
-    materiaExtraction = 14,
-    dismount          = 23
+    jump               =      2,
+    repair             =      6,
+    mount              =      9,
+    materiaExtraction  =     14,
+    dismount           =     23,
+    castFishing        =    289,
+    quitFishing        =    299,
+    stellarReturn      =  42149
 }
 
 --=================--
@@ -1443,7 +1447,7 @@ function CloseAddons()
         Wait(0.1)
 
         for _, addon in ipairs(closableAddons) do
-            if IsAddonVisible(addon) then
+            if IsAddonReady(addon) then
                 LogDebug(string.format("[MoLib] Closing addon: %s", addon))
                 if addon == "Talk" then
                     yield(string.format("/callback %s true 0", addon))
@@ -1757,7 +1761,7 @@ function Repair(RepairThreshold)
 
     LogDebug(string.format("[MoLib] Initiating gear repair process."))
 
-    while not IsAddonVisible("Repair") do
+    while not IsAddonReady("Repair") do
         ExecuteGeneralAction(CharacterAction.repair)
         Wait(1)
     end
@@ -1765,7 +1769,7 @@ function Repair(RepairThreshold)
     yield("/callback Repair true 0")
     Wait(1)
 
-    if IsAddonVisible("SelectYesno") then
+    if IsAddonReady("SelectYesno") then
         yield("/callback SelectYesno true 0")
         Wait(1)
     end
@@ -1815,14 +1819,14 @@ function MateriaExtraction(ExtractMateria)
         WaitForAddon("Materialize")
 
         while CanExtractMateria() > 0 do
-            if not IsAddonVisible("Materialize") then
+            if not IsAddonReady("Materialize") then
                 ExecuteGeneralAction(CharacterAction.materiaExtraction)
             end
 
             yield("/callback Materialize true 2")
             Wait(1)
 
-            if IsAddonVisible("MaterializeDialog") then
+            if IsAddonReady("MaterializeDialog") then
                 yield("/callback MaterializeDialog true 0")
                 Wait(1)
             end
