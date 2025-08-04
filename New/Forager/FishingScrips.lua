@@ -294,7 +294,7 @@ function SelectNewFishingHole()
     -- If there are waypoints defined, select a random interpolated waypoint
     SelectedFishingSpot = GetWaypoint(SelectedFish.fishingSpots.waypoints, math.random())
     local point = QueryMeshPointOnFloor(SelectedFishingSpot.waypointX, SelectedFish.fishingSpots.maxHeight, SelectedFishingSpot.waypointZ, false, 50)
-    SelectedFishingSpot.waypointY = point and point.Y
+    SelectedFishingSpot.waypointY = (point and point.Y) or SelectedFishingSpot.waypointY or 0
 
     -- Set facing direction coordinates
     SelectedFishingSpot.x = SelectedFish.fishingSpots.pointToFace.x
