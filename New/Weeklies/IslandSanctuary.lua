@@ -135,7 +135,7 @@ function OpenNpc(npc, nextState)
     end
 
     if IsMounted() then
-        yield("/ac dismount")
+        Dismount()
         Wait(1)
         return
     end
@@ -238,7 +238,7 @@ function CharacterState.talkToFurball()
     end
 
     if IsMounted() then
-        yield("/ac dismount")
+        Dismount()
         Wait(1)
         return
     end

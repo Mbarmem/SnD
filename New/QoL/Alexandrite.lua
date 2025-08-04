@@ -47,7 +47,7 @@ function Main()
 
         LogInfo(string.format("%s Traveling to Auriana to purchase map.", LogPrefix))
         MoveTo(63.3, 31.15, -736.3)
-        yield("/ac Sprint")
+        ExecuteGeneralAction(CharacterAction.GeneralActions.sprint)
         WaitForPlayer()
 
         Interact("Auriana")
@@ -72,7 +72,7 @@ function Main()
 
     -- Decipher the map
     LogInfo(string.format("%s Deciphering the map.", LogPrefix))
-    yield("/ac Decipher")
+    ExecuteGeneralAction(CharacterAction.GeneralActions.decipher)
     WaitForAddon("SelectIconString")
     yield("/callback SelectIconString true 0")
     Wait(1)
@@ -91,9 +91,7 @@ function Main()
     TeleportFlagZone()
 
     -- Mount up and fly to flag
-    if not IsMounted() then
-        Mount()
-    end
+    Mount()
     WaitForNavMesh()
 
     yield("/vnav flyflag")
@@ -102,7 +100,7 @@ function Main()
 
     -- Dig at flag and approach chest
     LogInfo(string.format("%s Digging at flag.", LogPrefix))
-    yield("/generalaction Dig")
+    ExecuteGeneralAction(CharacterAction.GeneralActions.dig)
     Wait(5)
     WaitForPlayer()
 
@@ -111,7 +109,7 @@ function Main()
     WaitForPathRunning()
 
     -- Dismount and open chest
-    yield("/ac dismount")
+    Dismount()
     Wait(2)
     Interact("Treasure Coffer")
     WaitForAddon("SelectYesno")

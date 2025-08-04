@@ -346,7 +346,7 @@ function PerformAction(action)
 
     function TryExecute()
         if not IsPlayerCasting() then
-            Actions.ExecuteGeneralAction(action.actionId)
+            ExecuteGeneralAction(action.actionId)
         end
     end
 

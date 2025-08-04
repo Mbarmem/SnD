@@ -51,14 +51,6 @@ LogPrefix            = "[CEFarm]"
 
 --============================ CONSTANT ==========================--
 
--------------------
---    Actions    --
--------------------
-
-ActionsOC = {
-    OccultReturn = 41343
-}
-
 ----------------
 --    Zone    --
 ----------------
@@ -89,25 +81,6 @@ function MoveToOC()
     LogInfo(string.format("%s Teleporting to Occult Crescent...", LogPrefix))
 end
 
------------------
---    Mount    --
------------------
-
-function Dismount()
-    if not IsMounted() then
-        return
-    end
-
-    LogInfo(string.format("%s Dismounting...", LogPrefix))
-
-    while IsMounted() do
-        yield("/gaction Dismount")
-        Wait(1)
-    end
-
-    LogInfo(string.format("%s Dismounted successfully.", LogPrefix))
-end
-
 ----------------
 --    Misc    --
 ----------------
@@ -119,7 +92,7 @@ function StanceOff()
 
     if HasStatusId(91) then
         LogInfo(string.format("%s Turning off Defiance stance...", LogPrefix))
-        yield("/action Defiance")
+        ExecuteAction(CharacterAction.Actions.defiance)
         Wait(1)
     end
 end
@@ -225,7 +198,7 @@ function StartFarm()
     yield("/bmrai off")
     WaitForPlayer()
 
-    Actions.ExecuteAction(ActionsOC.OccultReturn)
+    ExecuteAction(CharacterAction.Actions.occultReturn)
     WaitForPlayer()
 
     RunVislandRoute(VislandChestRoute, 1200)

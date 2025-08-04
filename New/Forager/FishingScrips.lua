@@ -400,7 +400,7 @@ function CharacterState.fishing()
     if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
         LogInfo(string.format("%s Not enough inventory space", LogPrefix))
         if IsGathering() then
-            ExecuteAction(CharacterAction.quitFishing)
+            ExecuteAction(CharacterAction.Actions.quitFishing)
             Wait(1)
         else
             State = CharacterState.turnIn
@@ -412,7 +412,7 @@ function CharacterState.fishing()
     if os.clock() - ResetHardAmissTime > (ResetHardAmissAfter*60) then
         if IsGathering() then
             if not IsFishing() then
-                ExecuteAction(CharacterAction.quitFishing)
+                ExecuteAction(CharacterAction.Actions.quitFishing)
                 Wait(1)
             end
         else
@@ -424,7 +424,7 @@ function CharacterState.fishing()
         LogInfo(string.format("%s Switching fishing spots", LogPrefix))
         if IsGathering() then
             if not IsFishing() then
-                ExecuteAction(CharacterAction.quitFishing)
+                ExecuteAction(CharacterAction.Actions.quitFishing)
                 Wait(1)
             end
         else
@@ -471,7 +471,7 @@ function CharacterState.fishing()
 
     yield("/vnavmesh movedir 0 0 10")
     Wait(1)
-    ExecuteAction(CharacterAction.castFishing)
+    ExecuteAction(CharacterAction.Actions.castFishing)
     Wait(0.5)
 end
 
@@ -725,14 +725,11 @@ end
 local deliveroo = false
 function CharacterState.gcTurnIn()
     if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots and not deliveroo then
-        IPC.Lifestream.ExecuteCommand("gc")
-        repeat
-            yield("/wait 1")
-        until not IPC.Lifestream.IsBusy()
-        yield("/wait 1")
+        Teleport("gc")
+        Wait(1)
         LogInfo(string.format("%s Starting Deliveroo turn-in.", LogPrefix))
         yield("/deliveroo enable")
-        yield("/wait 1")
+        Wait(1)
         deliveroo = true
         return
 
@@ -773,7 +770,7 @@ function CharacterState.executeRepair()
         if GetItemCount(33916) > 0 then -- Dark Matter
             if NeedsRepair(RepairThreshold) and not IsAddonReady("Repair") then
                 LogInfo(string.format("%s Opening self-repair menu.", LogPrefix))
-                ExecuteGeneralAction(CharacterAction.repair)
+                ExecuteGeneralAction(CharacterAction.GeneralActions.repair)
             elseif not NeedsRepair(RepairThreshold) then
                 State = CharacterState.awaitingAction
                 LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))

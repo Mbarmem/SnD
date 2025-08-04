@@ -24,14 +24,14 @@ LogPrefix = "[PSkillsFT]"
 
 --============================ CONSTANT ==========================--
 
----------------------
---    Condition    --
----------------------
+------------------
+--    Action    --
+------------------
 
-Actions = {
-    [1] = '"Phantom Action I"',
-    [2] = '"Phantom Action II"',
-    [3] = '"Phantom Action III"'
+Action = {
+    [1] = { id = CharacterAction.GeneralActions.phantomActionI,   name = "Phantom Action I"   },
+    [2] = { id = CharacterAction.GeneralActions.phantomActionII,  name = "Phantom Action II"  },
+    [3] = { id = CharacterAction.GeneralActions.phantomActionIII, name = "Phantom Action III" }
 }
 
 --=========================== FUNCTIONS ==========================--
@@ -41,8 +41,9 @@ Actions = {
 ----------------
 
 function TryExecute()
-    for i = 1, 3 do
-        LogInfo(string.format("%s Attempting to use action: %s", LogPrefix, Actions[i]))
+    for i = 1, #Action do
+        local action = Action[i]
+        LogInfo(string.format("%s Attempting to use action: %s (ID: %d)", LogPrefix, action.name, action.id))
 
         if not HasTarget() then
             LogInfo(string.format("%s No target found, acquiring new target...", LogPrefix))
@@ -50,7 +51,7 @@ function TryExecute()
             Wait(1)
         end
 
-        yield("/ac " .. Actions[i])
+        ExecuteGeneralAction(action.id)
         Wait(2)
     end
 end
@@ -60,7 +61,7 @@ end
 if Actions.GetActionInfo(Feint).SpellCooldown < 1 and HasTarget() then
     LogInfo(string.format("%s Executing Feint on: %s", LogPrefix, Entity.Player.Target.Name))
 
-    yield("/ac Feint")
+    ExecuteAction(CharacterAction.Actions.feint)
     Wait(0.5)
 else
     LogInfo(string.format("%s Feint not used. Cooldown active or no valid target.", LogPrefix))
@@ -74,6 +75,6 @@ while Loop < LoopCount do
 end
 
 Echo(string.format("Script execution completed successfully..!!"), LogPrefix)
-LogInfo(string.format("%s Script execution completed succesfully..!!", LogPrefix))
+LogInfo(string.format("%s Script execution completed successfully..!!", LogPrefix))
 
 --============================== END =============================--

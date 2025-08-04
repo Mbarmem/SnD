@@ -8,23 +8,45 @@ import("System.Numerics")
 --    Action    --
 --==============--
 
--- Defines character action constants
+--- Defines character action constants
 CharacterAction = {
-    jump               =      2,
-    repair             =      6,
-    mount              =      9,
-    materiaExtraction  =     14,
-    dismount           =     23,
-    castFishing        =    289,
-    quitFishing        =    299,
-    stellarReturn      =  42149
+    GeneralActions = {
+        jump               =      2,
+        sprint             =      4,
+        desynthesis        =      5,
+        repair             =      6,
+        mount              =      9,
+        materiaExtraction  =     14,
+        decipher           =     19,
+        dig                =     20,
+        aetherialReduction =     21,
+        dismount           =     23,
+        dutyActionI        =     26,
+        dutyActionII       =     27,
+        phantomActionI     =     31,
+        phantomActionII    =     32,
+        phantomActionIII   =     33,
+        phantomActionIV    =     34,
+        phantomActionV     =     35
+    },
+
+    Actions = {
+        defiance           =     48,
+        superSprint        =     58,
+        castFishing        =    289,
+        quitFishing        =    299,
+        feint              =   7549,
+        dokumori           =  36957,
+        occultReturn       =  41343,
+        stellarReturn      =  42149
+    }
 }
 
 --=================--
 --    Condition    --
 --=================--
 
--- Defines character condition constants
+--- Defines character condition constants
 CharacterCondition = {
     normalConditions        =  1,
     dead                    =  2,

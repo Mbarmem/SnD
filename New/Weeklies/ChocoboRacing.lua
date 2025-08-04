@@ -74,7 +74,7 @@ function SuperSprint()
         WaitForCondition("OccupiedInCutscene", false)
     end
     Wait(6)
-    Actions.ExecuteAction(58, ActionType.ChocoboRaceAbility)
+    ExecuteAction(CharacterAction.Actions.superSprint, ActionType.ChocoboRaceAbility)
     Wait(3)
 end
 

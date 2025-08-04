@@ -116,7 +116,7 @@ if not IsAddonReady("WKSLottery") then
     while GetDistanceToPoint(Npc.X, Npc.Y, Npc.Z) > 3 do
         if not PathfindInProgress() and not PathIsRunning() then
             if GetDistanceToPoint(Npc.X, Npc.Y, Npc.Z) > 80 then
-                ExecuteAction(CharacterAction.stellarReturn)
+                ExecuteAction(CharacterAction.Actions.stellarReturn)
             else
                 MoveTo(Npc.X, Npc.Y, Npc.Z)
             end

@@ -167,7 +167,7 @@ function WaitForFishingItem(maxWaitSeconds)
         SetAutoHookState(false)
         Wait(1)
         while IsGathering() do
-            ExecuteAction(CharacterAction.quitFishing)
+            ExecuteAction(CharacterAction.Actions.quitFishing)
             Wait(0.1)
         end
         LogInfo(string.format("%s Timeout acquiring item ID %s", LogPrefix, tostring(itemId)))

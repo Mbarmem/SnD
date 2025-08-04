@@ -190,7 +190,7 @@ for _, materia in ipairs(MateriaRange) do
     end
 end
 
-Echo("Materia Infusion script completed succesfully..!!", LogPrefix)
-LogInfo(string.format("%s Materia Infusion script completed succesfully..!!", LogPrefix))
+Echo("Materia Infusion script completed successfully..!!", LogPrefix)
+LogInfo(string.format("%s Materia Infusion script completed successfully..!!", LogPrefix))
 
 ----------------------------------- End -------------------------------------

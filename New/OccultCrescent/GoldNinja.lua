@@ -24,15 +24,15 @@ LogPrefix = "[GoldNinja]"
 
 --============================ CONSTANT ==========================--
 
----------------------
---    Condition    --
----------------------
+------------------
+--    Action    --
+------------------
 
-Actions = {
-    [1] = '"Dokumori"',
-    [2] = '"Phantom Action I"',
-    [3] = '"Phantom Action II"',
-    [4] = '"Phantom Action III"'
+Action = {
+    [1] = { id = CharacterAction.Actions.dokumori,                name = "Dokumori"           },
+    [2] = { id = CharacterAction.GeneralActions.phantomActionI,   name = "Phantom Action I"   },
+    [3] = { id = CharacterAction.GeneralActions.phantomActionII,  name = "Phantom Action II"  },
+    [4] = { id = CharacterAction.GeneralActions.phantomActionIII, name = "Phantom Action III" }
 }
 
 --=========================== FUNCTIONS ==========================--
@@ -42,8 +42,9 @@ Actions = {
 ----------------
 
 function TryExecute()
-    for i = 1, 4 do
-        LogInfo(string.format("%s Attempting to use action: %s", LogPrefix, Actions[i]))
+    for i = 1, #Action do
+        local action = Action[i]
+        LogInfo(string.format("%s Attempting to use action: %s (ID: %d)", LogPrefix, action.name, action.id))
 
         if not HasTarget() then
             LogInfo(string.format("%s No target found, acquiring new target...", LogPrefix))
@@ -51,10 +52,16 @@ function TryExecute()
             Wait(1)
         end
 
-        yield("/ac " .. Actions[i])
+        if i == 1 then
+            ExecuteAction(action.id)
+        else
+            ExecuteGeneralAction(action.id)
+        end
+
         Wait(2)
     end
 end
+
 
 --=========================== EXECUTION ==========================--
 
