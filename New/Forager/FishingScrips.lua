@@ -469,7 +469,7 @@ function CharacterState.fishing()
         SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
     end
 
-    yield("/vnavmesh movedir 0 0 5")
+    yield("/vnavmesh movedir 0 0 10")
     Wait(1)
     ExecuteAction(289)
     Wait(0.5)
