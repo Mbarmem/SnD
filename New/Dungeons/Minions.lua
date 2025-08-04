@@ -98,8 +98,8 @@ for _, minions in ipairs(Dungeons) do
         AutoDutyConfig("dutyModeEnum", minions.dutyMode)
         AutoDutyRun(minions.dutyId, 1, true)
 
-        yield("/bmrai on")
-        yield("/rotation auto")
+        Execute("/bmrai on")
+        Execute("/rotation auto")
 
         WaitForCondition("BoundByDuty", true)
 

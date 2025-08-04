@@ -41,11 +41,11 @@ end
 if AreAllPluginsEnabled() then
     Echo("|| Artisan Disabled ||")
     LogInfo("|| Artisan Disabled ||")
-    yield("/xldisablecollection Artisan")
+    Execute("/xldisablecollection Artisan")
 else
     Echo("|| Artisan Enabled ||")
     LogInfo("|| Artisan Enabled ||")
-    yield("/xlenablecollection Artisan")
+    Execute("/xlenablecollection Artisan")
 end
 
 --============================== END =============================--

@@ -35,27 +35,27 @@ function BattleHall()
     LogInfo(string.format("%s Moving to Battle Hall.", LogPrefix))
 
     if not IsAddonVisible("JournalDetail") then
-        yield("/dutyfinder")
+        Execute("/dutyfinder")
     end
 
     Wait(1)
     WaitForAddon("JournalDetail")
     Wait(1)
 
-    yield("/callback ContentsFinder true 12 1")
+    Execute("/callback ContentsFinder true 12 1")
     Wait(1)
-    yield("/callback ContentsFinder true 1 9")
+    Execute("/callback ContentsFinder true 1 9")
     Wait(1)
-    yield("/callback ContentsFinder true 3 1")
+    Execute("/callback ContentsFinder true 3 1")
     Wait(1)
-    yield("/callback ContentsFinder true 12 0")
+    Execute("/callback ContentsFinder true 12 0")
     Wait(1)
 
     while not IsBoundByDuty() do
         Wait(1)
         if IsAddonVisible("ContentsFinderConfirm") then
             Wait(1)
-            yield("/click ContentsFinderConfirm Commence")
+            Execute("/click ContentsFinderConfirm Commence")
         end
     end
 end
@@ -68,8 +68,8 @@ function PlayTTUntilNeeded()
     WaitForCondition("PlayingMiniGame", true)
 
     LogInfo(string.format("%s Starting Triple Triad...", LogPrefix))
-    yield("/saucy tt play 15")
-    yield("/saucy tt go")
+    Execute("/saucy tt play 15")
+    Execute("/saucy tt go")
     Wait(1)
 
     while IsPlayingMiniGame() do

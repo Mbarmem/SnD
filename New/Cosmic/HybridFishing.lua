@@ -133,7 +133,7 @@ function MoveToSpot()
     Teleport("Cosmic")
     Wait(1)
     MoveTo(-89.203, -3.337, -27.259)
-    yield("/ice start")
+    Execute("/ice start")
 end
 
 function WaitForFishingItem(maxWaitSeconds)
@@ -147,7 +147,7 @@ function WaitForFishingItem(maxWaitSeconds)
 
     while not IsFishing() and retryCount < maxRetries do
         LogInfo(string.format("%s Attempting to start fishing (retry %d)", LogPrefix, retryCount))
-        yield("/ahstart")
+        Execute("/ahstart")
         Wait(5)
         retryCount = retryCount + 1
     end
@@ -189,12 +189,12 @@ end
 function StartCrafting()
     if not IsAddonReady("WKSRecipeNotebook") then
         if not IsAddonReady("WKSMissionInfomation") then
-            yield("/callback WKSHud true 11")
+            Execute("/callback WKSHud true 11")
             Wait(0.2)
         end
 
         if not IsAddonReady("WKSRecipeNotebook") then
-            yield("/callback WKSMissionInfomation true 14 1")
+            Execute("/callback WKSMissionInfomation true 14 1")
         end
     end
 
@@ -214,12 +214,12 @@ end
 function SubmitReport()
     LogInfo(string.format("%s Reporting the Mission..", LogPrefix))
     if not IsAddonReady("WKSMissionInfomation") then
-        yield("/callback WKSHud true 11")
+        Execute("/callback WKSHud true 11")
         Wait(0.2)
     end
 
     if IsAddonReady("WKSRecipeNotebook") then
-        yield("/callback WKSMissionInfomation true 14 1")
+        Execute("/callback WKSMissionInfomation true 14 1")
     end
 
     while IsCrafting() do
@@ -228,9 +228,9 @@ function SubmitReport()
 
     Wait(1)
     LogInfo(string.format("%s Changing Gearset to %s", LogPrefix, tostring(Class)))
-    yield("/gs change "..Class)
+    Execute("/gs change "..Class)
     Wait(1)
-    yield("/callback WKSMissionInfomation true 11 1")
+    Execute("/callback WKSMissionInfomation true 11 1")
     Wait(1)
 end
 

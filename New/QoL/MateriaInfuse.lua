@@ -137,9 +137,9 @@ end
 -- Opens the Sphere Scroll UI and updates the InfusedCount
 function SphereScroll()
     if GetItemCount(ScrollId) > 0 and not IsAddonReady("RelicSphereScroll") then
-        yield("/hold CONTROL")
-        yield("/send KEY_1")
-        yield("/release CONTROL")
+        Execute("/hold CONTROL")
+        Execute("/send KEY_1")
+        Execute("/release CONTROL")
         WaitForAddon("RelicSphereScroll")
     end
 
@@ -164,10 +164,10 @@ for _, materia in ipairs(MateriaRange) do
         while InfusedCount >= materia.minRange and InfusedCount < materia.maxRange do
             LogInfo(string.format("%sInfusing %s (Index %d)...", LogPrefix, materia.itemName, itemIndex))
 
-            yield(string.format("/callback RelicSphereScroll true 1 %d", itemIndex))
+            Execute(string.format("/callback RelicSphereScroll true 1 %d", itemIndex))
             Wait(1)
 
-            yield("/callback RelicSphereScroll true 2")
+            Execute("/callback RelicSphereScroll true 2")
             Wait(1)
 
             -- Retry loop to avoid infinite wait

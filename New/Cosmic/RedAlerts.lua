@@ -80,18 +80,18 @@ end
 
 while true do
     if not IsAddonReady("WKSMission") then
-        yield("/callback WKSHud true 11")
+        Execute("/callback WKSHud true 11")
     end
 
     WaitForAddon("WKSMission")
 
     LogInfo(string.format("%s Selecting mission ID: %s", LogPrefix, tostring(mission_id)))
-    yield("/callback WKSMission true 12 216 2 1")
-    yield("/callback WKSMission true 13 " .. mission_id)
+    Execute("/callback WKSMission true 12 216 2 1")
+    Execute("/callback WKSMission true 13 " .. mission_id)
 
     repeat
         if IsAddonReady("SelectYesno") then
-            yield("/callback SelectYesno true 0")
+            Execute("/callback SelectYesno true 0")
         end
         Wait(0.1)
     until IsAddonReady("WKSRecipeNotebook")

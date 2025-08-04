@@ -46,18 +46,18 @@ end
 if AreAllPluginsEnabled() then
     Echo("|| Weeklies Disabled ||")
     LogInfo("|| Weeklies Disabled ||")
-    yield("/xldisablecollection Weeklies")
+    Execute("/xldisablecollection Weeklies")
 else
     Echo("|| Weeklies Enabled ||")
     LogInfo("|| Weeklies Enabled ||")
-    yield("/xlenablecollection Weeklies")
+    Execute("/xlenablecollection Weeklies")
     if not Player.Bingo.HasWeeklyBingoJournal or Player.Bingo.IsWeeklyBingoExpired or Player.Bingo.WeeklyBingoNumPlacedStickers == 9 then
         Echo("|| Running Weekly Tasks ||")
-        yield("/snd")
+        Execute("/snd")
         repeat
             Wait(1)
         until AreAllPluginsEnabled()
-        yield("/snd run MacroChainer(Weeklies)")
+        Execute("/snd run MacroChainer(Weeklies)")
     end
 end
 

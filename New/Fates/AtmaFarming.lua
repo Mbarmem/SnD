@@ -71,7 +71,7 @@ end
 --=========================== EXECUTION ==========================--
 
 LogInfo(string.format("%s Starting Atma farming process...", LogPrefix))
-yield("/at y")
+Execute("/at y")
 
 NextAtmaTable = GetNextAtmaTable()
 
@@ -85,7 +85,7 @@ while NextAtmaTable ~= nil do
             Teleport(GetAetheryteName(NextAtmaTable.zoneId))
         else
             LogInfo(string.format("%s Starting FateMacro in %s for %s...", LogPrefix, NextAtmaTable.zoneName, NextAtmaTable.itemName))
-            yield("/snd run ".. FateMacro)
+            Execute("/snd run ".. FateMacro)
         end
     end
     Wait(1)

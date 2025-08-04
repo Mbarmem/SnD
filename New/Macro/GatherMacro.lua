@@ -44,11 +44,11 @@ end
 if AreAllPluginsEnabled() then
     Echo("|| Gather Disabled ||")
     LogInfo("|| Gather Disabled ||")
-    yield("/xldisablecollection Gather")
+    Execute("/xldisablecollection Gather")
 else
     Echo("|| Gather Enabled ||")
     LogInfo("|| Gather Enabled ||")
-    yield("/xlenablecollection Gather")
+    Execute("/xlenablecollection Gather")
 end
 
 --============================== END =============================--

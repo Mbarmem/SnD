@@ -47,7 +47,7 @@ function TryExecute()
 
         if not HasTarget() then
             LogInfo(string.format("%s No target found, acquiring new target...", LogPrefix))
-            yield("/targetenemy")
+            Execute("/targetenemy")
             Wait(1)
         end
 

@@ -435,7 +435,7 @@ function Checks()
         LogInfo(string.format("%s Could not find crafter class: %s", LogPrefix, CrafterClass))
         StopRunningMacros()
     elseif GetClassJobId() ~= ClassId then
-        yield("/gearset change " .. CrafterClass)
+        Execute("/gs change " .. CrafterClass)
         Wait(1)
         LogInfo(string.format("%s Crafter class changed to: %s", LogPrefix, CrafterClass))
     else
@@ -583,7 +583,7 @@ function CollectableAppraiser()
         if not IsAddonReady("SelectIconString") then
             Interact("Collectable Appraiser")
         else
-            yield("/callback SelectIconString true 0")
+            Execute("/callback SelectIconString true 0")
         end
         Wait(1)
     end
@@ -605,9 +605,9 @@ function CollectableAppraiser()
         end
 
         if GetItemCount(ItemId) > 0 then
-            yield("/callback CollectablesShop true 14 "..CollectableTurninIndex)
+            Execute("/callback CollectablesShop true 14 "..CollectableTurninIndex)
             Wait(1)
-            yield("/callback CollectablesShop true 12 "..CollectableTurninRow)
+            Execute("/callback CollectablesShop true 12 "..CollectableTurninRow)
             Wait(1)
 
             ScripsRaw = GetNodeText("CollectablesShop", 1, 14, CollectableTurninType, 4)
@@ -615,18 +615,18 @@ function CollectableAppraiser()
             Scrips_Owned = tonumber(ScripsConv)
 
             while (Scrips_Owned <= ScripOvercapLimit) and (not IsAddonReady("SelectYesno")) and (GetItemCount(ItemId) > 0) do
-                yield("/callback CollectablesShop true 15 0")
+                Execute("/callback CollectablesShop true 15 0")
                 Wait(1)
                 Scrips_Owned = tonumber(GetNodeText("CollectablesShop", 1, 14, CollectableTurninType, 4):gsub(",", ""):match("^([%d,]+)/"))
             end
         end
 
         if IsAddonReady("Selectyesno") then
-            yield("/callback Selectyesno true 1")
+            Execute("/callback Selectyesno true 1")
             Wait(1)
         end
 
-        yield("/callback CollectablesShop true -1")
+        Execute("/callback CollectablesShop true -1")
         ClearTarget()
         Wait(1)
     end
@@ -641,7 +641,7 @@ function ScripExchange()
         if not IsAddonReady("SelectIconString") then
             Interact("Scrip Exchange")
         else
-            yield("/callback SelectIconString true 0")
+            Execute("/callback SelectIconString true 0")
         end
         Wait(1)
     end
@@ -655,9 +655,9 @@ function ScripExchange()
         end
     end
 
-    yield("/callback InclusionShop true 12 "..ScripCategoryMenu)
+    Execute("/callback InclusionShop true 12 "..ScripCategoryMenu)
     Wait(1)
-    yield("/callback InclusionShop true 13 "..ScripSubcategoryMenu)
+    Execute("/callback InclusionShop true 13 "..ScripSubcategoryMenu)
     Wait(1)
 
     ScripsRaw = GetNodeText("InclusionShop", 1, 2, 4)
@@ -668,16 +668,16 @@ function ScripExchange()
         Scrip_Item_Number_To_Buy = Scrips_Owned // ScripPrice
         Scrip_Item_Number_To_Buy_Final = math.min(Scrip_Item_Number_To_Buy, 99)
 
-        yield("/callback InclusionShop true 14 "..ScripListIndex.." "..Scrip_Item_Number_To_Buy_Final)
+        Execute("/callback InclusionShop true 14 "..ScripListIndex.." "..Scrip_Item_Number_To_Buy_Final)
         Wait(1)
 
         if IsAddonReady("ShopExchangeItemDialog") then
-            yield("/callback ShopExchangeItemDialog true 0")
+            Execute("/callback ShopExchangeItemDialog true 0")
             Wait(1)
         end
     end
 
-    yield("/callback InclusionShop true -1")
+    Execute("/callback InclusionShop true -1")
     ClearTarget()
     Wait(1)
 end

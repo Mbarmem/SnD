@@ -51,14 +51,14 @@ for _, macro in ipairs(MacrosToRun) do
     macroDone = false
 
     LogInfo(string.format("%s Starting macro: %s", LogPrefix, macro.macroName))
-    yield("/snd run " .. macro.macroName)
+    Execute("/snd run " .. macro.macroName)
 
     while not macroDone do
-        yield("/wait 1")
+        Execute("/wait 1")
     end
 
     LogInfo(string.format("%s Completed macro: %s", LogPrefix, macro.macroName))
-    yield("/wait 1")
+    Execute("/wait 1")
 end
 
 currentEchoTrigger = nil

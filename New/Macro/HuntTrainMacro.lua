@@ -37,11 +37,11 @@ end
 if AreAllPluginsEnabled() then
     Echo("|| HuntTrain Disabled ||")
     LogInfo("|| HuntTrain Disabled ||")
-    yield("/xldisablecollection HuntTrain")
+    Execute("/xldisablecollection HuntTrain")
 else
     Echo("|| HuntTrain Enabled ||")
     LogInfo("|| HuntTrain Enabled ||")
-    yield("/xlenablecollection HuntTrain")
+    Execute("/xlenablecollection HuntTrain")
 end
 
 --============================== END =============================--

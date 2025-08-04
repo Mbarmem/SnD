@@ -58,10 +58,10 @@ end
 
 function CharacterState.claimPrize()
     if IsAddonVisible("LotteryWeeklyRewardList") then
-        yield("/callback LotteryWeeklyRewardList true -1")
+        Execute("/callback LotteryWeeklyRewardList true -1")
 
     elseif IsAddonVisible("SelectYesno") then
-        yield("/callback SelectYesno true 0")
+        Execute("/callback SelectYesno true 0")
 
     elseif RewardClaimed and not IsOccupiedInQuestEvent() then
         State = CharacterState.purchaseNewTickets
@@ -77,20 +77,20 @@ end
 
 function CharacterState.purchaseNewTickets()
     if IsAddonVisible("LotteryWeeklyRewardList") then
-        yield("/callback LotteryWeeklyRewardList true -1")
+        Execute("/callback LotteryWeeklyRewardList true -1")
         State = CharacterState.endJumboCactpot
         LogInfo(string.format("%s State changed to: EndJumboCactpot", LogPrefix))
 
     elseif IsAddonVisible("SelectString") then
-        yield("/callback SelectString true 0")
+        Execute("/callback SelectString true 0")
 
     elseif IsAddonVisible("SelectYesno") then
-        yield("/callback SelectYesno true 0")
+        Execute("/callback SelectYesno true 0")
 
     elseif IsAddonVisible("LotteryWeeklyInput") then
         Wait(1)
         local number = math.random(9999)
-        yield(string.format("/callback LotteryWeeklyInput true %d", number))
+        Execute(string.format("/callback LotteryWeeklyInput true %d", number))
 
     elseif TicketsPurchased and not IsOccupiedInQuestEvent() then
         State = CharacterState.endJumboCactpot
@@ -113,7 +113,7 @@ end
 
 --=========================== EXECUTION ==========================--
 
-yield("/at y")
+Execute("/at y")
 State = CharacterState.startJumboCactpot
 LogInfo(string.format("%s State changed to: StartJumboCactpot", LogPrefix))
 

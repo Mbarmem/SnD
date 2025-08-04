@@ -469,7 +469,7 @@ function CharacterState.fishing()
         SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
     end
 
-    yield("/vnavmesh movedir 0 0 10")
+    Execute("/vnavmesh movedir 0 0 10")
     Wait(1)
     ExecuteAction(CharacterAction.Actions.castFishing)
     Wait(0.5)
@@ -478,7 +478,7 @@ end
 function CharacterState.buyFishingBait()
     if GetItemCount(29717) >= 1 then
         if IsAddonReady("Shop") then
-            yield("/callback Shop true -1")
+            Execute("/callback Shop true -1")
         else
             State = CharacterState.goToFishingHole
             LogInfo(string.format("%s State changed to: GoToFishingHole", LogPrefix))
@@ -503,7 +503,7 @@ function CharacterState.buyFishingBait()
     end
 
     if IsAddonReady("TelepotTown") then
-        yield("/callback TelepotTown true -1")
+        Execute("/callback TelepotTown true -1")
         return
     end
 
@@ -527,11 +527,11 @@ function CharacterState.buyFishingBait()
     end
 
     if IsAddonReady("SelectIconString") then
-        yield("/callback SelectIconString true 0")
+        Execute("/callback SelectIconString true 0")
     elseif IsAddonReady("SelectYesno") then
-        yield("/callback SelectYesno true 0")
+        Execute("/callback SelectYesno true 0")
     elseif IsAddonReady("Shop") then
-        yield("/callback Shop true 0 3 99 0")
+        Execute("/callback Shop true 0 3 99 0")
     else
         Interact(FishingBaitMerchant.npcName)
     end
@@ -564,7 +564,7 @@ end
 function CharacterState.turnIn()
     if GetItemCount(SelectedFish.fishId) == 0 then
         if IsAddonReady("CollectablesShop") then
-            yield("/callback CollectablesShop true -1")
+            Execute("/callback CollectablesShop true -1")
         elseif GetItemCount(GathererScripId) >= ScripExchangeItem.price then
             State = CharacterState.scripExchange
             LogInfo(string.format("%s State changed to: ScripExchange", LogPrefix))
@@ -584,7 +584,7 @@ function CharacterState.turnIn()
         Wait(1)
 
     elseif IsAddonReady("TelepotTown") then
-        yield("/callback TelepotTown false -1")
+        Execute("/callback TelepotTown false -1")
 
     elseif GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > 1 then
         if not (PathfindInProgress() or PathIsRunning()) then
@@ -594,7 +594,7 @@ function CharacterState.turnIn()
 
     elseif GetItemCount(GathererScripId) >= 3800 then
         if IsAddonReady("CollectablesShop") then
-            yield("/callback CollectablesShop true -1")
+            Execute("/callback CollectablesShop true -1")
         else
             State = CharacterState.scripExchange
             LogInfo(string.format("%s State changed to: ScripExchange", LogPrefix))
@@ -609,9 +609,9 @@ function CharacterState.turnIn()
             Interact("Collectable Appraiser")
             Wait(0.5)
         else
-            yield("/callback CollectablesShop true 12 " .. SelectedFish.collectiblesTurnInListIndex)
+            Execute("/callback CollectablesShop true 12 " .. SelectedFish.collectiblesTurnInListIndex)
             Wait(0.1)
-            yield("/callback CollectablesShop true 15 0")
+            Execute("/callback CollectablesShop true 15 0")
             Wait(1)
         end
     end
@@ -624,7 +624,7 @@ end
 function CharacterState.scripExchange()
     if GetItemCount(GathererScripId) < ScripExchangeItem.price then
         if IsAddonReady("InclusionShop") then
-            yield("/callback InclusionShop true -1")
+            Execute("/callback InclusionShop true -1")
         elseif GetItemCount(SelectedFish.fishId) > 0 then
             State = CharacterState.turnIn
             LogInfo(string.format("%s State changed to: TurnIn", LogPrefix))
@@ -644,7 +644,7 @@ function CharacterState.scripExchange()
         Wait(1)
 
     elseif IsAddonReady("TelepotTown") then
-        yield("/callback TelepotTown false -1")
+        Execute("/callback TelepotTown false -1")
 
     elseif GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > 1 then
         LogInfo(string.format("%s Moving to Scrip Exchange.", LogPrefix))
@@ -654,17 +654,17 @@ function CharacterState.scripExchange()
         end
 
     elseif IsAddonReady("ShopExchangeItemDialog") then
-        yield("/callback ShopExchangeItemDialog true 0")
+        Execute("/callback ShopExchangeItemDialog true 0")
 
     elseif IsAddonReady("SelectIconString") then
-        yield("/callback SelectIconString true 0")
+        Execute("/callback SelectIconString true 0")
 
     elseif IsAddonReady("InclusionShop") then
-        yield("/callback InclusionShop true 12 " .. ScripExchangeItem.categoryMenu)
+        Execute("/callback InclusionShop true 12 " .. ScripExchangeItem.categoryMenu)
         Wait(1)
-        yield("/callback InclusionShop true 13 " .. ScripExchangeItem.subcategoryMenu)
+        Execute("/callback InclusionShop true 13 " .. ScripExchangeItem.subcategoryMenu)
         Wait(1)
-        yield("/callback InclusionShop true 14 " .. ScripExchangeItem.listIndex .. " " .. math.min(99, GetItemCount(GathererScripId) // ScripExchangeItem.price))
+        Execute("/callback InclusionShop true 14 " .. ScripExchangeItem.listIndex .. " " .. math.min(99, GetItemCount(GathererScripId) // ScripExchangeItem.price))
         Wait(1)
 
     else
@@ -680,7 +680,7 @@ end
 function CharacterState.processAutoRetainers()
     if (not ARRetainersWaitingToBeProcessed() or GetInventoryFreeSlotCount() <= 1) then
         if IsAddonReady("RetainerList") then
-            yield("/callback RetainerList true -1")
+            Execute("/callback RetainerList true -1")
         elseif not ARRetainersWaitingToBeProcessed() and IsPlayerAvailable() then
             State = CharacterState.awaitingAction
             LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
@@ -697,7 +697,7 @@ function CharacterState.processAutoRetainers()
         Wait(1)
 
     elseif IsAddonReady("TelepotTown") then
-        yield("/callback TelepotTown false -1")
+        Execute("/callback TelepotTown false -1")
 
     elseif GetDistanceToPoint(SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) > 1 then
         if not (PathfindInProgress() or PathIsRunning()) then
@@ -717,7 +717,7 @@ function CharacterState.processAutoRetainers()
         Interact("Summoning Bell")
 
     elseif IsAddonReady("RetainerList") then
-        yield("/ays e")
+        Execute("/ays e")
         Wait(1)
     end
 end
@@ -728,7 +728,7 @@ function CharacterState.gcTurnIn()
         Teleport("gc")
         Wait(1)
         LogInfo(string.format("%s Starting Deliveroo turn-in.", LogPrefix))
-        yield("/deliveroo enable")
+        Execute("/deliveroo enable")
         Wait(1)
         deliveroo = true
         return
@@ -745,16 +745,16 @@ end
 
 function CharacterState.executeRepair()
     if IsAddonReady("SelectYesno") then
-        yield("/callback SelectYesno true 0")
+        Execute("/callback SelectYesno true 0")
         return
     end
 
     if IsAddonReady("Repair") then
         if not NeedsRepair(RepairThreshold) then
             LogInfo(string.format("%s Repair not needed. Closing Repair menu.", LogPrefix))
-            yield("/callback Repair true -1")
+            Execute("/callback Repair true -1")
         else
-            yield("/callback Repair true 0")
+            Execute("/callback Repair true 0")
         end
         return
     end
@@ -788,7 +788,7 @@ function CharacterState.executeRepair()
                 Teleport("Hawkers' Alley")
                 Wait(1)
             elseif IsAddonReady("TelepotTown") then
-                yield("/callback TelepotTown false -1")
+                Execute("/callback TelepotTown false -1")
             elseif GetDistanceToPoint(vendor.x, vendor.y, vendor.z) > 5 then
                 if not (PathfindInProgress() or PathIsRunning()) then
                     PathfindAndMoveTo(vendor.x, vendor.y, vendor.z)
@@ -800,9 +800,9 @@ function CharacterState.executeRepair()
                 elseif not IsOccupiedInQuestEvent() then
                     Interact(vendor.npcName)
                 elseif IsAddonReady("SelectYesno") then
-                    yield("/callback SelectYesno true 0")
+                    Execute("/callback SelectYesno true 0")
                 elseif IsAddonReady("Shop") then
-                    yield("/callback Shop true 0 40 99")
+                    Execute("/callback Shop true 0 40 99")
                 end
             end
 
@@ -824,7 +824,7 @@ function CharacterState.executeRepair()
                 Teleport("Hawkers' Alley")
                 Wait(1)
             elseif IsAddonReady("TelepotTown") then
-                yield("/callback TelepotTown false -1")
+                Execute("/callback TelepotTown false -1")
             elseif GetDistanceToPoint(mender.x, mender.y, mender.z) > 5 then
                 if not (PathfindInProgress() or PathIsRunning()) then
                     PathfindAndMoveTo(mender.x, mender.y, mender.z)
@@ -861,7 +861,7 @@ function CharacterState.extractMateria()
 
     else
         if IsAddonReady("Materialize") then
-            yield("/callback Materialize true -1")
+            Execute("/callback Materialize true -1")
         else
             State = CharacterState.awaitingAction
             LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
@@ -872,14 +872,14 @@ end
 function FoodCheck()
     if not HasStatusId(48) and Food ~= "" then
         LogInfo(string.format("%s Using food: %s", LogPrefix, Food))
-        yield("/item " .. Food)
+        Execute("/item " .. Food)
     end
 end
 
 function PotionCheck()
     if not HasStatusId(49) and Potion ~= "" then
         LogInfo(string.format("%s Using potion: %s", LogPrefix, Potion))
-        yield("/item " .. Potion)
+        Execute("/item " .. Potion)
     end
 end
 
@@ -996,7 +996,7 @@ LogInfo(string.format("%s Selected hub city: %s (%s)", LogPrefix, SelectedHubCit
 
 if GetClassJobId() ~= 18 then
     LogInfo(string.format("%s Switching to Fisher.", LogPrefix))
-    yield("/gs change Fisher")
+    Execute("/gs change Fisher")
     Wait(1)
 end
 

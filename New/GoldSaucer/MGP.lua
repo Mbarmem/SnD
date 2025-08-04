@@ -50,7 +50,7 @@ function PlayTTUntilNeeded()
     end
 
     LogInfo(string.format("%s Starting Triple Triad...", LogPrefix))
-    yield("/saucy tt go")
+    Execute("/saucy tt go")
     Wait(1)
 
     while not ARRetainersWaitingToBeProcessed() do
@@ -58,7 +58,7 @@ function PlayTTUntilNeeded()
     end
 
     if IsPlayingMiniGame() then
-        yield("/saucy tt play 1")
+        Execute("/saucy tt play 1")
         Wait(1)
     end
 

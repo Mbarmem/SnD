@@ -91,7 +91,7 @@ end
 --=========================== EXECUTION ==========================--
 
 LogInfo(string.format("%s Starting DemiAtma farming...", LogPrefix))
-yield("/at y")
+Execute("/at y")
 
 OldBicolorGemCount = GetItemCount(26807)
 NextAtmaTable = GetNextAtmaTable()
@@ -108,7 +108,7 @@ while NextAtmaTable ~= nil do
 
         else
             LogInfo(string.format("%s Running FateMacro in zone: %s for %s", LogPrefix, NextAtmaTable.zoneName, NextAtmaTable.itemName))
-            yield("/snd run " .. FateMacro)
+            Execute("/snd run " .. FateMacro)
 
             repeat
                 Wait(1)

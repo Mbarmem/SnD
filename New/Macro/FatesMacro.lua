@@ -44,17 +44,17 @@ end
 if AreAllPluginsEnabled() then
     Echo("|| Fates Disabled ||")
     LogInfo("|| Fates Disabled ||")
-    yield("/xldisablecollection Fates")
+    Execute("/xldisablecollection Fates")
 else
     Echo("|| Fates Enabled ||")
     LogInfo("|| Fates Enabled ||")
-    yield("/xlenablecollection Fates")
+    Execute("/xlenablecollection Fates")
     Echo("|| Running Fates ||")
-    yield("/snd")
+    Execute("/snd")
     repeat
         Wait(1)
     until AreAllPluginsEnabled()
-    yield("/snd run MultiZoneFarming")
+    Execute("/snd run MultiZoneFarming")
 end
 
 --============================== END =============================--

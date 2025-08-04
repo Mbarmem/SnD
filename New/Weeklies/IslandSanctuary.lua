@@ -146,7 +146,7 @@ function OpenNpc(npc, nextState)
     end
 
     if IsAddonVisible("SelectString") then
-        yield("/callback SelectString true 0")
+        Execute("/callback SelectString true 0")
         return
     end
 
@@ -159,7 +159,7 @@ end
 function OpenAndCloseNpc(npc, nextState)
     if IsAddonVisible(npc.addonName) then
         Wait(1)
-        yield("/callback "..npc.addonName.." true -1")
+        Execute("/callback "..npc.addonName.." true -1")
         State = nextState
         LogInfo(string.format("%s State changed to: %s", LogPrefix, GetStateName(nextState)))
     else
@@ -190,12 +190,12 @@ function CharacterState.setWorkshopSchedule()
     LogInfo(string.format("%s Setting workshop schedule...", LogPrefix))
 
     repeat
-        yield("/callback MJICraftSchedule true -1")
+        Execute("/callback MJICraftSchedule true -1")
         Wait(0.5)
     until not IsAddonVisible("MJICraftSchedule")
 
     repeat
-        yield("/callback SelectString true -1")
+        Execute("/callback SelectString true -1")
         Wait(0.5)
     until not IsAddonVisible("SelectString")
 
@@ -256,7 +256,7 @@ function CharacterState.talkToFurball()
 
     if IsAddonVisible("SelectString") then
         TalkedToFurball = true
-        yield("/callback SelectString true 2")
+        Execute("/callback SelectString true 2")
         return
     end
 end
@@ -272,7 +272,7 @@ end
 
 --=========================== EXECUTION ==========================--
 
-yield("/at y")
+Execute("/at y")
 State = CharacterState.enterIslandSanctuary
 LogInfo(string.format("%s State changed to: EnterIslandSanctuary", LogPrefix))
 

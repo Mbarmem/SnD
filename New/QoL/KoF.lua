@@ -29,9 +29,9 @@ function MoveAndInteract()
 
     repeat
         if IsAddonReady("Talk") then
-            yield("/click Talk Click")
+            Execute("/click Talk Click")
         elseif IsAddonReady("SelectYesno") then
-            yield("/click SelectYesno Yes")
+            Execute("/click SelectYesno Yes")
         end
         Wait(1)
     until IsPlayerAvailable()

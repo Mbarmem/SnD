@@ -44,27 +44,27 @@ function DutyFinder()
     LogInfo(string.format("%s Starting new race. Currently at %s/%s runs.", LogPrefix, RunsPlayed, RunsToPlay))
 
     if not IsAddonReady("JournalDetail") then
-        yield("/dutyfinder")
+        Execute("/dutyfinder")
     end
 
     Wait(1)
     WaitForAddon("JournalDetail")
     Wait(1)
 
-    yield("/callback ContentsFinder true 12 1")
+    Execute("/callback ContentsFinder true 12 1")
     Wait(1)
-    yield("/callback ContentsFinder true 1 9")
+    Execute("/callback ContentsFinder true 1 9")
     Wait(1)
-    yield("/callback ContentsFinder true 3 11")
+    Execute("/callback ContentsFinder true 3 11")
     Wait(1)
-    yield("/callback ContentsFinder true 12 0")
+    Execute("/callback ContentsFinder true 12 0")
     Wait(1)
 
     while not IsOccupiedInCutScene() do
         Wait(1)
         if IsAddonReady("ContentsFinderConfirm") then
             Wait(1)
-            yield("/click ContentsFinderConfirm Commence")
+            Execute("/click ContentsFinderConfirm Commence")
         end
     end
 end
@@ -80,7 +80,7 @@ end
 
 function KeySpam()
     repeat
-        yield("/send KEY_1")
+        Execute("/send KEY_1")
         Wait(5)
     until IsAddonReady("RaceChocoboResult")
 end
@@ -90,7 +90,7 @@ function EndMatch()
 
     RunsPlayed = RunsPlayed + 1
 
-    yield("/callback RaceChocoboResult true 1")
+    Execute("/callback RaceChocoboResult true 1")
     LogInfo(string.format("%s Runs played: %s", LogPrefix, RunsPlayed))
 
     WaitForPlayer()

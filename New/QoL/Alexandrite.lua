@@ -55,15 +55,15 @@ function Main()
         repeat
 
             if IsAddonReady("SelectIconString") then
-                yield("/callback SelectIconString true 5")
+                Execute("/callback SelectIconString true 5")
             end
 
             if IsAddonReady("Talk") then
-                yield("/callback Talk true 0")
+                Execute("/callback Talk true 0")
             end
 
             if IsAddonReady("SelectYesno") then
-                yield("/callback SelectYesno true 0")
+                Execute("/callback SelectYesno true 0")
             end
 
             Wait(1)
@@ -74,16 +74,16 @@ function Main()
     LogInfo(string.format("%s Deciphering the map.", LogPrefix))
     ExecuteGeneralAction(CharacterAction.GeneralActions.decipher)
     WaitForAddon("SelectIconString")
-    yield("/callback SelectIconString true 0")
+    Execute("/callback SelectIconString true 0")
     Wait(1)
 
     WaitForAddon("SelectYesno")
-    yield("/callback SelectYesno true 0")
+    Execute("/callback SelectYesno true 0")
     Wait(4)
 
     -- Open treasure map
     repeat
-        yield("/tmap")
+        Execute("/tmap")
     until IsAddonReady("AreaMap")
     WaitForPlayer()
 
@@ -94,7 +94,7 @@ function Main()
     Mount()
     WaitForNavMesh()
 
-    yield("/vnav flyflag")
+    Execute("/vnav flyflag")
     Wait(3)
     WaitForPathRunning()
 
@@ -105,7 +105,7 @@ function Main()
     WaitForPlayer()
 
     Target("Treasure Coffer")
-    yield("/vnav flytarget")
+    Execute("/vnav flytarget")
     WaitForPathRunning()
 
     -- Dismount and open chest
@@ -113,24 +113,24 @@ function Main()
     Wait(2)
     Interact("Treasure Coffer")
     WaitForAddon("SelectYesno")
-    yield("/callback SelectYesno true 0")
+    Execute("/callback SelectYesno true 0")
 
     -- Fight if necessary
     repeat
-        yield("/rotation auto")
+        Execute("/rotation auto")
         Wait(1)
     until not IsInCombat()
-    yield("/rotation off")
+    Execute("/rotation off")
 
     -- Loot
     Interact("Treasure Coffer")
     Wait(1)
     if IsInCombat() then
         repeat
-            yield("/rotation auto")
+            Execute("/rotation auto")
             Wait(1)
         until not IsInCombat()
-        yield("/rotation off")
+        Execute("/rotation off")
     end
 
     LogInfo(string.format("%s Cycle completed.", LogPrefix))

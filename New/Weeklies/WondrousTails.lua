@@ -188,22 +188,22 @@ if Player.Bingo.IsWeeklyBingoExpired or Player.Bingo.WeeklyBingoNumPlacedSticker
     Interact(Khloe.Name)
 
     while not IsAddonReady("SelectString") do
-        yield("/click Talk Click")
+        Execute("/click Talk Click")
         Wait(1)
     end
 
     if IsAddonReady("SelectString")then
         if not Player.Bingo.HasWeeklyBingoJournal then
-            yield("/callback SelectString true 0")
+            Execute("/callback SelectString true 0")
         elseif Player.Bingo.IsWeeklyBingoExpired then
-            yield("/callback SelectString true 1")
+            Execute("/callback SelectString true 1")
         elseif Player.Bingo.WeeklyBingoNumPlacedStickers == 9 then
-            yield("/callback SelectString true 0")
+            Execute("/callback SelectString true 0")
         end
     end
 
     while IsOccupiedInQuestEvent() do
-        yield("/click Talk Click")
+        Execute("/click Talk Click")
         Wait(1)
     end
 

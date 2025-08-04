@@ -134,12 +134,12 @@ if not IsAddonReady("WKSLottery") then
         Wait(0.1)
 
         if IsAddonReady("Talk") then
-            yield("/callback Talk true 0")
+            Execute("/callback Talk true 0")
         end
 
         if IsAddonReady("SelectString") then
             Wait(0.5)
-            yield("/callback SelectString true 0")
+            Execute("/callback SelectString true 0")
         end
 
         if IsAddonReady("WKSLottery") then
@@ -163,27 +163,27 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
         Echo(string.format("First wheel is better with total weight: %s", weightFirstWheel), LogPrefix)
 
         if FullAuto then
-            yield("/callback WKSLottery true 0 0")
+            Execute("/callback WKSLottery true 0 0")
             Wait(1)
-            yield("/callback WKSLottery true 1 0")
+            Execute("/callback WKSLottery true 1 0")
         end
 
     elseif weightSecondWheel > weightFirstWheel then
         Echo(string.format("Second wheel is better with total weight: %s", weightSecondWheel), LogPrefix)
 
         if FullAuto then
-            yield("/callback WKSLottery true 0 1")
+            Execute("/callback WKSLottery true 0 1")
             Wait(1)
-            yield("/callback WKSLottery true 1 0")
+            Execute("/callback WKSLottery true 1 0")
         end
 
     else
         Echo(string.format("Both wheels are equal in weight."), LogPrefix)
 
         if FullAuto then
-            yield("/callback WKSLottery true 0 0")
+            Execute("/callback WKSLottery true 0 0")
             Wait(1)
-            yield("/callback WKSLottery true 1 0")
+            Execute("/callback WKSLottery true 1 0")
         end
     end
 
@@ -195,21 +195,21 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
         Wait(1)
     end
 
-    yield("/callback WKSLottery true 0 0")
+    Execute("/callback WKSLottery true 0 0")
     Wait(0.1)
-    yield("/callback WKSLottery true 1 0")
+    Execute("/callback WKSLottery true 1 0")
     Wait(0.1)
-    yield("/callback WKSLottery true 2 0")
+    Execute("/callback WKSLottery true 2 0")
     Wait(0.5)
 
     if MinimumCreditsLeft >= 1000 and GetItemCount(45691) < MinimumCreditsLeft + 1000 then
         if IsAddonReady("SelectYesno") then
-            yield("/callback SelectYesno true 1")
+            Execute("/callback SelectYesno true 1")
         end
         break
     else
         if IsAddonReady("SelectYesno") then
-            yield("/callback SelectYesno true 0")
+            Execute("/callback SelectYesno true 0")
         end
     end
 

@@ -105,8 +105,8 @@ for _, cards in ipairs(Dungeons) do
         AutoDutyConfig("dutyModeEnum", cards.dutyMode)
         AutoDutyRun(cards.dutyId, 1, true)
 
-        yield("/bmrai on")
-        yield("/rotation auto")
+        Execute("/bmrai on")
+        Execute("/rotation auto")
 
         WaitForCondition("BoundByDuty", true)
 

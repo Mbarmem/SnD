@@ -80,13 +80,13 @@ function CharacterState.playMiniCactpot()
         Wait(1)
 
     elseif IsAddonReady("SelectIconString") then
-        yield("/callback SelectIconString true 0")
+        Execute("/callback SelectIconString true 0")
 
     elseif IsAddonReady("Talk") then
-        yield("/click Talk Click")
+        Execute("/click Talk Click")
 
     elseif IsAddonReady("SelectYesno") then
-        yield("/callback SelectYesno true 0")
+        Execute("/callback SelectYesno true 0")
 
     elseif GetDistanceToPoint(Npc.Position.X, Npc.Position.Y, Npc.Position.Z) > 5 then
         MoveTo(Npc.Position.X, Npc.Position.Y, Npc.Position.Z, 5)
@@ -111,7 +111,7 @@ end
 
 --=========================== EXECUTION ==========================--
 
-yield("/at y")
+Execute("/at y")
 State = CharacterState.ready
 LogInfo(string.format("%s State changed to: Ready", LogPrefix))
 

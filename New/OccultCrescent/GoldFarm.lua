@@ -77,7 +77,7 @@ Zones = {
 function Checks()
     if GetClassJobId() ~= 21 then
         LogInfo(string.format("%s Crafter class changed to: %s", LogPrefix, ClassName))
-        yield("/gearset change ".. ClassName)
+        Execute("/gs change ".. ClassName)
         Wait(1)
     end
 end
@@ -100,13 +100,13 @@ function MoveToOC()
 
     while not IsBoundByDuty() do
         if IsAddonReady("SelectString") then
-            yield("/callback SelectString true 0")
+            Execute("/callback SelectString true 0")
             LogInfo(string.format("%s Confirmed SelectString", LogPrefix))
         elseif IsAddonReady("SelectYesno") then
-            yield("/callback SelectYesno true 0")
+            Execute("/callback SelectYesno true 0")
             LogInfo(string.format("%s Confirmed SelectYesno", LogPrefix))
         elseif IsAddonReady("ContentsFinderConfirm") then
-            yield("/click ContentsFinderConfirm Commence")
+            Execute("/click ContentsFinderConfirm Commence")
             LogInfo(string.format("%s Commenced duty via ContentsFinderConfirm", LogPrefix))
         end
         Wait(1)
@@ -155,8 +155,8 @@ while true do
         MoveToOC()
         MoveToEG()
         VislandResume()
-        yield("/rsr auto")
-        yield("/bmrai on")
+        Execute("/rsr auto")
+        Execute("/bmrai on")
         return
     elseif IsVislandRouteRunning() then
         Wait(1)

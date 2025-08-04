@@ -42,27 +42,27 @@ function DutyFinder()
     LogInfo(string.format("%s Starting new match. Currently at %s/%s runs.", LogPrefix, RunsPlayed, RunsToPlay))
 
     if not IsAddonVisible("JournalDetail") then
-        yield("/dutyfinder")
+        Execute("/dutyfinder")
     end
 
     Wait(1)
     WaitForAddon("JournalDetail")
     Wait(1)
 
-    yield("/callback ContentsFinder true 12 1")
+    Execute("/callback ContentsFinder true 12 1")
     Wait(1)
-    yield("/callback ContentsFinder true 1 9")
+    Execute("/callback ContentsFinder true 1 9")
     Wait(1)
-    yield("/callback ContentsFinder true 3 6")
+    Execute("/callback ContentsFinder true 3 6")
     Wait(1)
-    yield("/callback ContentsFinder true 12 0")
+    Execute("/callback ContentsFinder true 12 0")
     Wait(1)
 
     while not IsPlayingLordOfVerminion() do
         Wait(1)
         if IsAddonVisible("ContentsFinderConfirm") then
             Wait(1)
-            yield("/click ContentsFinderConfirm Commence")
+            Execute("/click ContentsFinderConfirm Commence")
         end
     end
 end
@@ -72,8 +72,8 @@ function EndMatch()
 
     RunsPlayed = RunsPlayed + 1
 
-    yield("/callback LovmResult false -2")
-    yield("/callback LovmResult true -1")
+    Execute("/callback LovmResult false -2")
+    Execute("/callback LovmResult true -1")
     WaitForAddon("NamePlate", 60)
 
     LogInfo(string.format("%s Runs played: %s", LogPrefix, RunsPlayed))

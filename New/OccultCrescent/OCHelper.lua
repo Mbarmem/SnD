@@ -99,13 +99,13 @@ end
 
 function RotationON()
     LogInfo(string.format("%s Setting rotation to LowHP mode...", LogPrefix))
-    yield("/rotation auto LowHP")
+    Execute("/rotation auto LowHP")
     Wait(1)
 end
 
 function AiON()
     LogInfo(string.format("%s Enabling BattleMod AI...", LogPrefix))
-    yield("/bmrai on")
+    Execute("/bmrai on")
     Wait(1)
 end
 
@@ -119,7 +119,7 @@ function UseBuffs()
     MoveTo(836.92, 73.12, -707.14, 0.2)
     Dismount()
 
-    yield("/snd run " .. BuffMacro)
+    Execute("/snd run " .. BuffMacro)
     WaitForPlayer()
     Wait(1)
 end
@@ -174,7 +174,7 @@ function StartFarm()
     RotationON()
     AiON()
     UseBuffs()
-    yield("/ochillegal on")
+    Execute("/ochillegal on")
 
     local timeout = os.time() + 7200  -- default 2 hours in seconds
 
@@ -182,7 +182,7 @@ function StartFarm()
         if os.time() >= timeout then
             LogInfo(string.format("%s Timeout reached. Exiting loop...", LogPrefix))
             WaitForPlayer()
-            yield("/ochillegal off")
+            Execute("/ochillegal off")
             Wait(5)
             WaitForPlayer()
             break
@@ -194,8 +194,8 @@ function StartFarm()
     end
 
     WaitForPlayer()
-    yield("/rotation off")
-    yield("/bmrai off")
+    Execute("/rotation off")
+    Execute("/bmrai off")
     WaitForPlayer()
 
     ExecuteAction(CharacterAction.Actions.occultReturn)

@@ -40,7 +40,7 @@ end
 
 function CheckAllowances()
     if not IsAddonReady("ContentsInfo") then
-        yield("/timers")
+        Execute("/timers")
         Wait(3)
     end
 
@@ -61,20 +61,20 @@ end
 if AreAllPluginsEnabled() then
     Echo("|| Dailies Disabled ||")
     LogInfo("|| Dailies Disabled ||")
-    yield("/xldisablecollection Dailies")
+    Execute("/xldisablecollection Dailies")
 else
     Echo("|| Dailies Enabled ||")
     LogInfo("|| Dailies Enabled ||")
-    yield("/xlenablecollection Dailies")
+    Execute("/xlenablecollection Dailies")
     local Allowance = CheckAllowances()
     Wait(5)
     if Allowance == 12 then
         Echo("|| Running Daily Tasks ||")
-        yield("/snd")
+        Execute("/snd")
         repeat
             Wait(1)
         until AreAllPluginsEnabled()
-        yield("/snd run MacroChainer(Dailies)")
+        Execute("/snd run MacroChainer(Dailies)")
     end
 end
 

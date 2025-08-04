@@ -127,9 +127,9 @@ function Main()
     local packCount = GetItemCount(SelectedPackToBuy.packId)
     if packCount > 0 then
         if IsAddonReady("ShopExchangeCurrency") then
-            yield("/callback ShopExchangeCurrency true -1")
+            Execute("/callback ShopExchangeCurrency true -1")
         else
-            yield("/item " .. SelectedPackToBuy.packName)
+            Execute("/item " .. SelectedPackToBuy.packName)
             WaitForPlayer()
             if Inventory.GetItemCount(CardID) > 0 then
                 LogInfo(string.format("%s Card obtained, stopping the script.", LogPrefix))
@@ -145,18 +145,18 @@ function Main()
     end
 
     if IsAddonReady("SelectIconString") then
-        yield("/callback SelectIconString true 0")
+        Execute("/callback SelectIconString true 0")
         return true
     end
 
     if IsAddonReady("SelectYesno") then
-        yield("/callback SelectYesno true 0")
+        Execute("/callback SelectYesno true 0")
         return true
     end
 
     if IsAddonReady("ShopExchangeCurrency") then
         LogInfo(string.format("%s Buying a new pack: %s.", LogPrefix, SelectedPackToBuy.packName))
-        yield("/callback ShopExchangeCurrency true 0 "..SelectedPackToBuy.subcategoryMenu.." 10")
+        Execute("/callback ShopExchangeCurrency true 0 "..SelectedPackToBuy.subcategoryMenu.." 10")
         return true
     end
 

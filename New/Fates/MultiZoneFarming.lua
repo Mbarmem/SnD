@@ -47,7 +47,7 @@ ZonesToFarm = {
 
 --=========================== EXECUTION ==========================--
 
-yield("/at y")
+Execute("/at y")
 
 FarmingZoneIndex     = 1
 OldBicolorGemCount   = GetItemCount(26807)
@@ -56,7 +56,7 @@ while true do
     if IsPlayerAvailable() and not IsMacroRunningOrQueued(FateMacro) then
         if IsDead() or IsInCombat() or GetZoneID() == ZonesToFarm[FarmingZoneIndex].zoneId then
             LogInfo(string.format("%s Starting FateMacro in zone: %s", LogPrefix, ZonesToFarm[FarmingZoneIndex].zoneName))
-            yield("/snd run " .. FateMacro)
+            Execute("/snd run " .. FateMacro)
 
             repeat
                 Wait(3)

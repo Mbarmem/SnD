@@ -212,7 +212,7 @@ end
 
 function OpenSupportJob()
     while not IsAddonVisible("MKDSupportJob") do
-        yield("/callback MKDInfo true 1 0")
+        Execute("/callback MKDInfo true 1 0")
         Wait(0.5)
     end
 end
@@ -220,7 +220,7 @@ end
 function OpenSupportJobList()
     while not IsAddonVisible("MKDSupportJobList") do
         OpenSupportJob()
-        yield("/callback MKDSupportJob true 0 0 0")
+        Execute("/callback MKDSupportJob true 0 0 0")
         Wait(0.5)
     end
 end
@@ -294,13 +294,13 @@ function ChangeSupportJob(jobName)
 
     if UseSimpleTweaksCommand then
         repeat
-            yield(string.format("%s %d", JobChangeCommand, jobData.jobId))
+            Execute(string.format("%s %d", JobChangeCommand, jobData.jobId))
             Wait(0.5)
         until isFreelancer or HasStatusId(jobData.jobStatusId)
     else
         repeat
             OpenSupportJobList()
-            yield(string.format("/callback MKDSupportJobList true 0 %d", jobData.jobId))
+            Execute(string.format("/callback MKDSupportJobList true 0 %d", jobData.jobId))
             Wait(0.5)
         until isFreelancer or HasStatusId(jobData.jobStatusId)
     end

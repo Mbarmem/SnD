@@ -39,11 +39,11 @@ end
 if AreAllPluginsEnabled() then
     Echo("|| Automation Disabled ||")
     LogInfo("|| Automation Disabled ||")
-    yield("/xldisablecollection Automation")
+    Execute("/xldisablecollection Automation")
 else
     Echo("|| Automation Enabled ||")
     LogInfo("|| Automation Enabled ||")
-    yield("/xlenablecollection Automation")
+    Execute("/xlenablecollection Automation")
 end
 
 --============================== END =============================--

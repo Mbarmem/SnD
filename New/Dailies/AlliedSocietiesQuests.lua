@@ -326,7 +326,7 @@ end
 
 function CheckAllowances()
     if not IsAddonReady("ContentsInfo") then
-        yield("/timers")
+        Execute("/timers")
         Wait(3)
     end
 
@@ -344,7 +344,7 @@ end
 
 --=========================== EXECUTION ==========================--
 
-yield("/at y")
+Execute("/at y")
 
 for _, alliedSociety in ipairs(ToDoList) do
     local remainingAllowances = CheckAllowances()
@@ -368,7 +368,7 @@ for _, alliedSociety in ipairs(ToDoList) do
 
         MoveTo(alliedSocietyTable.x, alliedSocietyTable.y, alliedSocietyTable.z, 2, true)
 
-        yield("/gs change " .. alliedSociety.class)
+        Execute("/gs change " .. alliedSociety.class)
         Wait(3)
 
         -- pick up quests and add them to Questionable's priority list
@@ -384,17 +384,17 @@ for _, alliedSociety in ipairs(ToDoList) do
 
                 repeat
                     if not QuestionableIsRunning() then
-                        yield("/qst start")
+                        Execute("/qst start")
                     elseif os.time() - timeout > 15 then
                         LogInfo(string.format("%s Took more than 15 seconds to pick up the quest. Reloading...", LogPrefix))
-                        yield("/qst reload")
+                        Execute("/qst reload")
                         timeout = os.time()
                     end
                     Wait(0.1)
                 until Quests.IsQuestAccepted(questId)
 
                 timeout = os.time()
-                yield("/qst stop")
+                Execute("/qst stop")
             end
         end
 
@@ -404,12 +404,12 @@ for _, alliedSociety in ipairs(ToDoList) do
 
         repeat
             if not QuestionableIsRunning() then
-                yield("/qst start")
+                Execute("/qst start")
             end
             Wait(2)
         until #GetAcceptedAlliedSocietyQuests(alliedSociety.alliedSocietyName) == 0
 
-        yield("/qst stop")
+        Execute("/qst stop")
     else
         LogInfo(string.format("%s Allied society '%s' not found in data table.", LogPrefix, alliedSociety.alliedSocietyName))
     end

@@ -886,7 +886,7 @@ end
 --- @param time number Duration to wait in seconds
 function Wait(time)
     -- Yield control and issue a wait command for the given duration
-    yield("/wait " .. time)
+    Execute("/wait " .. time)
 end
 
 --------------------------------------------------------------------
@@ -1472,9 +1472,9 @@ function CloseAddons()
             if IsAddonReady(addon) then
                 LogDebug(string.format("[MoLib] Closing addon: %s", addon))
                 if addon == "Talk" then
-                    yield(string.format("/callback %s true 0", addon))
+                    Execute(string.format("/callback %s true 0", addon))
                 else
-                    yield(string.format("/callback %s true -1", addon))
+                    Execute(string.format("/callback %s true -1", addon))
                 end
             end
         end
@@ -1575,13 +1575,22 @@ end
 --    Utilities    --
 --=================--
 
+--- Wrapper function to execute content via Engines.Run
+--- @param content string The name or identifier of the content to execute
+function Execute(content)
+    LogInfo(string.format("%s Execute content: %s", LogPrefix, content))
+    Engines.Run(content)
+end
+
+--------------------------------------------------------------------
+
 --- Wrapper for /echo that safely converts and outputs any message type (string, number, boolean, etc)
 --- @param msg any The message to output
 --- @param echoprefix string? [Optional] prefix to prepend (default: "[MoLib]")
 function Echo(msg, echoprefix)
     local prefix = echoprefix or "[MoLib]"
     local message = msg ~= nil and tostring(msg) or "nil"
-    yield(string.format("/echo %s %s", prefix, message))
+    Execute(string.format("/echo %s %s", prefix, message))
 end
 
 --------------------------------------------------------------------
@@ -1613,7 +1622,7 @@ function Mount(mountName)
 
     if mountName and mountName ~= "" then
         LogDebug(string.format("[MoLib] Attempting to mount: %s", mountName))
-        yield(string.format('/mount "%s"', mountName))
+        Execute(string.format('/mount "%s"', mountName))
     else
         LogDebug(string.format("[MoLib] Attempting Mount Roulette"))
         ExecuteGeneralAction(CharacterAction.mount)
@@ -1640,10 +1649,10 @@ end
 function StopRunningMacros(macroName)
     if macroName and macroName ~= "" then
         LogDebug(string.format("[MoLib] Stopping macro: %s", macroName))
-        yield(string.format("/snd stop %s", macroName))
+        Execute(string.format("/snd stop %s", macroName))
     else
         LogDebug(string.format("[MoLib] Stopping all macros"))
-        yield("/snd stop all")
+        Execute("/snd stop all")
     end
 end
 
@@ -1788,11 +1797,11 @@ function Repair(RepairThreshold)
         Wait(1)
     end
 
-    yield("/callback Repair true 0")
+    Execute("/callback Repair true 0")
     Wait(1)
 
     if IsAddonReady("SelectYesno") then
-        yield("/callback SelectYesno true 0")
+        Execute("/callback SelectYesno true 0")
         Wait(1)
     end
 
@@ -1801,7 +1810,7 @@ function Repair(RepairThreshold)
     end
 
     Wait(1)
-    yield("/callback Repair true -1")
+    Execute("/callback Repair true -1")
 
     LogDebug(string.format("[MoLib] Gear repair process completed."))
 
@@ -1845,11 +1854,11 @@ function MateriaExtraction(ExtractMateria)
                 ExecuteGeneralAction(CharacterAction.materiaExtraction)
             end
 
-            yield("/callback Materialize true 2")
+            Execute("/callback Materialize true 2")
             Wait(1)
 
             if IsAddonReady("MaterializeDialog") then
-                yield("/callback MaterializeDialog true 0")
+                Execute("/callback MaterializeDialog true 0")
                 Wait(1)
             end
 
@@ -1859,7 +1868,7 @@ function MateriaExtraction(ExtractMateria)
         end
 
         Wait(1)
-        yield("/callback Materialize true -1")
+        Execute("/callback Materialize true -1")
         Wait(1)
 
         LogDebug(string.format("[MoLib] Materia extraction completed."))

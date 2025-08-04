@@ -48,7 +48,7 @@ function TryExecute()
 
         if not HasTarget() then
             LogInfo(string.format("%s No target found, acquiring new target...", LogPrefix))
-            yield("/targetenemy")
+            Execute("/targetenemy")
             Wait(1)
         end
 
@@ -70,16 +70,16 @@ TryExecute()
 if IsInCombat() then
     LogInfo(string.format("%s Starting RSR Rotation and BMR-AI.", LogPrefix))
 
-    yield("/rotation auto HighHP")
-    yield("/bmrai on")
+    Execute("/rotation auto HighHP")
+    Execute("/bmrai on")
 
     WaitForCondition("InCombat", false)
 
     LogInfo(string.format("%s Stopping RSR Rotation and BMR-AI.", LogPrefix))
 end
 
-yield("/rotation off")
-yield("/bmrai off")
+Execute("/rotation off")
+Execute("/bmrai off")
 
 Echo(string.format("Script execution completed successfully..!!"), LogPrefix)
 LogInfo(string.format("%s Script execution completed successfully..!!", LogPrefix))
