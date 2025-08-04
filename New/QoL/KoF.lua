@@ -25,10 +25,7 @@ LogPrefix  = "[KoF]"
 
 function MoveAndInteract()
     MoveToTarget("Lizbeth", 5)
-    Wait(1)
-
     Interact("Lizbeth")
-    Wait(1)
 
     repeat
         if IsAddonReady("Talk") then

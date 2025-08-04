@@ -47,9 +47,7 @@ function Main()
 
         LogInfo(string.format("%s Traveling to Auriana to purchase map.", LogPrefix))
         MoveTo(63.3, 31.15, -736.3)
-        WaitForNavMesh()
         yield("/ac Sprint")
-        WaitForPathRunning()
         WaitForPlayer()
 
         Interact("Auriana")

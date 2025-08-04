@@ -185,7 +185,6 @@ if Player.Bingo.IsWeeklyBingoExpired or Player.Bingo.WeeklyBingoNumPlacedSticker
     end
 
     MoveTo(Khloe.X, Khloe.Y, Khloe.Z)
-
     Interact(Khloe.Name)
 
     while not IsAddonReady("SelectString") do
