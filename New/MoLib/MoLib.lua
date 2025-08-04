@@ -1600,7 +1600,10 @@ end
 function Dismount()
     if IsMounted() then
         LogDebug(string.format("[MoLib] Attempting to dismount"))
-        ExecuteGeneralAction(CharacterAction.dismount)
+        repeat
+            ExecuteGeneralAction(CharacterAction.dismount)
+            Wait(1)
+        until not IsMounted()
     end
 end
 
@@ -1625,7 +1628,7 @@ end
 --- @param actionType number? The type of the action; defaults to ActionType.Action
 function ExecuteAction(actionID, actionType)
     actionType = actionType or ActionType.Action
-    LogDebug(string.format("[MoLib] Executing action. ID: %d, Type: %d", actionID, actionType))
+    LogDebug(string.format("[MoLib] Executing action. ID: %s, Type: %s", tostring(actionID), tostring(actionType)))
     Actions.ExecuteAction(actionID, actionType)
 end
 
@@ -1634,7 +1637,7 @@ end
 --- Executes a general action based on its ID
 --- @param actionID number The ID of the general action to execute
 function ExecuteGeneralAction(actionID)
-    LogDebug(string.format("[MoLib] Executing general action. ID: %d", actionID))
+    LogDebug(string.format("[MoLib] Executing general action. ID: %s", tostring(actionID)))
     Actions.ExecuteGeneralAction(actionID)
 end
 
