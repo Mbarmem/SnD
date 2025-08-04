@@ -133,16 +133,16 @@ if not IsAddonReady("WKSLottery") then
     while not IsPlayerAvailable() do
         Wait(0.1)
 
-        if IsAddonVisible("Talk") then
+        if IsAddonReady("Talk") then
             yield("/callback Talk true 0")
         end
 
-        if IsAddonVisible("SelectString") then
+        if IsAddonReady("SelectString") then
             Wait(0.5)
             yield("/callback SelectString true 0")
         end
 
-        if IsAddonVisible("WKSLottery") then
+        if IsAddonReady("WKSLottery") then
             break
         end
     end
@@ -213,7 +213,7 @@ while GetItemCount(45691) >= 1000 or IsAddonReady("WKSLottery") do
         end
     end
 
-    if IsAddonVisible("Talk") then
+    if IsAddonReady("Talk") then
         CloseAddons()
     end
 end

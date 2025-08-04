@@ -126,7 +126,7 @@ function Main()
 
     local packCount = GetItemCount(SelectedPackToBuy.packId)
     if packCount > 0 then
-        if IsAddonVisible("ShopExchangeCurrency") then
+        if IsAddonReady("ShopExchangeCurrency") then
             yield("/callback ShopExchangeCurrency true -1")
         else
             yield("/item " .. SelectedPackToBuy.packName)
@@ -139,22 +139,22 @@ function Main()
         return true
     end
 
-    if GetTargetName() ~= Npc.Name then
+    if not HasTarget(Npc.Name) then
         Target(Npc.Name)
         return true
     end
 
-    if IsAddonVisible("SelectIconString") then
+    if IsAddonReady("SelectIconString") then
         yield("/callback SelectIconString true 0")
         return true
     end
 
-    if IsAddonVisible("SelectYesno") then
+    if IsAddonReady("SelectYesno") then
         yield("/callback SelectYesno true 0")
         return true
     end
 
-    if IsAddonVisible("ShopExchangeCurrency") then
+    if IsAddonReady("ShopExchangeCurrency") then
         LogInfo(string.format("%s Buying a new pack: %s.", LogPrefix, SelectedPackToBuy.packName))
         yield("/callback ShopExchangeCurrency true 0 "..SelectedPackToBuy.subcategoryMenu.." 10")
         return true

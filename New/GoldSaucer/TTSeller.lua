@@ -76,7 +76,7 @@ function Main()
         local Node = GetNodeText("TripleTriadCoinExchange", 1, 10, 5, 6)
         local a = tonumber(Node)
 
-        if IsAddonVisible("ShopCardDialog") then
+        if IsAddonReady("ShopCardDialog") then
             yield(string.format("/callback ShopCardDialog true 0 %d", a))
             Wait(1)
         end

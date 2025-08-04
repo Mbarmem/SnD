@@ -162,7 +162,6 @@ function CharacterState.goToHuntBoard()
         if distanceToBoard > (distanceFromAethernet + 20) then
             Target("Aetheryte")
             MoveToTarget("Aetheryte", 7)
-            WaitForPathRunning()
             Wait(1)
             Teleport(Board.miniAethernet.name)
         end
@@ -183,7 +182,7 @@ end
 
 function CharacterState.pickUpHunts()
     if HuntNumber >= #Board.bills then
-        if IsAddonVisible("Mobhunt" .. BoardNumber) then
+        if IsAddonReady("Mobhunt" .. BoardNumber) then
             local callback = "/callback Mobhunt"..BoardNumber.." true -1"
             yield(callback)
         else
@@ -195,15 +194,15 @@ function CharacterState.pickUpHunts()
     elseif GetItemCount(Board.bills[HuntNumber+1]) >= 1 then
         HuntNumber = HuntNumber + 1
 
-    elseif IsAddonVisible("SelectYesno") and GetNodeText("SelectYesno", 15) == "Pursuing a new mark will result in the abandonment of your current one. Proceed?" then
+    elseif IsAddonReady("SelectYesno") and GetNodeText("SelectYesno", 15) == "Pursuing a new mark will result in the abandonment of your current one. Proceed?" then
         yield("/callback SelectYesno true 1")
         HuntNumber = HuntNumber + 1
 
-    elseif IsAddonVisible("SelectString") then
+    elseif IsAddonReady("SelectString") then
         local callback = "/callback SelectString true "..HuntNumber
         yield(callback)
 
-    elseif IsAddonVisible("Mobhunt"..BoardNumber) then
+    elseif IsAddonReady("Mobhunt"..BoardNumber) then
         Clicks = 0
         while Clicks < 4 do
             local callback = "/callback Mobhunt"..BoardNumber.." true 1"

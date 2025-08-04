@@ -133,7 +133,6 @@ function MoveToSpot()
     Teleport("Cosmic")
     Wait(1)
     MoveTo(-89.203, -3.337, -27.259)
-    WaitForPathRunning()
     yield("/ice start")
 end
 
