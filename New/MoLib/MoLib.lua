@@ -886,7 +886,7 @@ end
 --- @param time number Duration to wait in seconds
 function Wait(time)
     -- Yield control and issue a wait command for the given duration
-    Execute("/wait " .. time)
+    yield("/wait " .. time)
 end
 
 --------------------------------------------------------------------
