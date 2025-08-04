@@ -99,13 +99,13 @@ function MoveToOC()
     Interact("Jeffroy")
 
     while not IsBoundByDuty() do
-        if IsAddonVisible("SelectString") then
+        if IsAddonReady("SelectString") then
             yield("/callback SelectString true 0")
             LogInfo(string.format("%s Confirmed SelectString", LogPrefix))
-        elseif IsAddonVisible("SelectYesno") then
+        elseif IsAddonReady("SelectYesno") then
             yield("/callback SelectYesno true 0")
             LogInfo(string.format("%s Confirmed SelectYesno", LogPrefix))
-        elseif IsAddonVisible("ContentsFinderConfirm") then
+        elseif IsAddonReady("ContentsFinderConfirm") then
             yield("/click ContentsFinderConfirm Commence")
             LogInfo(string.format("%s Commenced duty via ContentsFinderConfirm", LogPrefix))
         end
