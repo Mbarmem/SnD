@@ -59,7 +59,7 @@ Missions = {
 
 --=========================== FUNCTIONS ==========================--
 
-function Find_mission_id(mission)
+function Find_Mission_ID(mission)
     local lower_search = mission:lower()
     for name, id in pairs(Missions) do
         if name:lower():find(lower_search, 1, true) then
@@ -71,7 +71,7 @@ end
 
 --=========================== EXECUTION ==========================--
 
-local mission_id = Find_mission_id(MissionName)
+local mission_id = Find_Mission_ID(MissionName)
 
 if not mission_id then
     LogInfo(string.format("%s Mission name not found, stopping script", LogPrefix))
@@ -87,7 +87,7 @@ while true do
 
     LogInfo(string.format("%s Selecting mission ID: %s", LogPrefix, tostring(mission_id)))
     Execute("/callback WKSMission true 12 216 2 1")
-    Execute("/callback WKSMission true 13 " .. mission_id)
+    Execute(string.format("/callback WKSMission true 13 %d", mission_id))
 
     repeat
         if IsAddonReady("SelectYesno") then

@@ -228,7 +228,7 @@ function SubmitReport()
 
     Wait(1)
     LogInfo(string.format("%s Changing Gearset to %s", LogPrefix, tostring(Class)))
-    Execute("/gs change "..Class)
+    Execute(string.format("/gs change %s", Class))
     Wait(1)
     Execute("/callback WKSMissionInfomation true 11 1")
     Wait(1)
