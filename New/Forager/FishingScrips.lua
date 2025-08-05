@@ -609,7 +609,7 @@ function CharacterState.turnIn()
             Interact("Collectable Appraiser")
             Wait(0.5)
         else
-            Execute("/callback CollectablesShop true 12 " .. SelectedFish.collectiblesTurnInListIndex)
+            Execute(string.format("/callback CollectablesShop true 12 %s", SelectedFish.collectiblesTurnInListIndex))
             Wait(0.1)
             Execute("/callback CollectablesShop true 15 0")
             Wait(1)
@@ -660,11 +660,11 @@ function CharacterState.scripExchange()
         Execute("/callback SelectIconString true 0")
 
     elseif IsAddonReady("InclusionShop") then
-        Execute("/callback InclusionShop true 12 " .. ScripExchangeItem.categoryMenu)
+        Execute(string.format("/callback InclusionShop true 12 %s", ScripExchangeItem.categoryMenu))
         Wait(1)
-        Execute("/callback InclusionShop true 13 " .. ScripExchangeItem.subcategoryMenu)
+        Execute(string.format("/callback InclusionShop true 13 %s", ScripExchangeItem.subcategoryMenu))
         Wait(1)
-        Execute("/callback InclusionShop true 14 " .. ScripExchangeItem.listIndex .. " " .. math.min(99, GetItemCount(GathererScripId) // ScripExchangeItem.price))
+        Execute(string.format("/callback InclusionShop true 14 %d %d", ScripExchangeItem.listIndex, math.min(99, GetItemCount(GathererScripId) // ScripExchangeItem.price)))
         Wait(1)
 
     else
@@ -709,7 +709,7 @@ function CharacterState.processAutoRetainers()
         WaitForPathRunning()
         return
 
-    elseif GetTargetName() ~= "Summoning Bell" then
+    elseif not HasTarget("Summoning Bell") then
         Target("Summoning Bell")
         return
 
@@ -795,7 +795,7 @@ function CharacterState.executeRepair()
                     WaitForPathRunning()
                 end
             else
-                if GetTargetName() ~= vendor.npcName then
+                if not HasTarget(vendor.npcName) then
                     Target(vendor.npcName)
                 elseif not IsOccupiedInQuestEvent() then
                     Interact(vendor.npcName)
@@ -831,7 +831,7 @@ function CharacterState.executeRepair()
                     WaitForPathRunning()
                 end
             else
-                if GetTargetName() ~= mender.npcName then
+                if not HasTarget(mender.npcName) then
                     Target(mender.npcName)
                 elseif not IsOccupiedInQuestEvent() then
                     Interact(mender.npcName)
@@ -846,10 +846,7 @@ function CharacterState.executeRepair()
 end
 
 function CharacterState.extractMateria()
-    if IsMounted() then
-        Dismount()
-        return
-    end
+    Dismount()
 
     if not IsPlayerAvailable() then
         return
