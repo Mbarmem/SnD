@@ -435,7 +435,7 @@ function Checks()
         LogInfo(string.format("%s Could not find crafter class: %s", LogPrefix, CrafterClass))
         StopRunningMacros()
     elseif GetClassJobId() ~= ClassId then
-        Execute("/gs change " .. CrafterClass)
+        Execute(string.format("/gs change %s", CrafterClass))
         Wait(1)
         LogInfo(string.format("%s Crafter class changed to: %s", LogPrefix, CrafterClass))
     else
@@ -605,9 +605,9 @@ function CollectableAppraiser()
         end
 
         if GetItemCount(ItemId) > 0 then
-            Execute("/callback CollectablesShop true 14 "..CollectableTurninIndex)
+            Execute(string.format("/callback CollectablesShop true 14 %d", CollectableTurninIndex))
             Wait(1)
-            Execute("/callback CollectablesShop true 12 "..CollectableTurninRow)
+            Execute(string.format("/callback CollectablesShop true 12 %d", CollectableTurninRow))
             Wait(1)
 
             ScripsRaw = GetNodeText("CollectablesShop", 1, 14, CollectableTurninType, 4)
@@ -655,9 +655,9 @@ function ScripExchange()
         end
     end
 
-    Execute("/callback InclusionShop true 12 "..ScripCategoryMenu)
+    Execute(string.format("/callback InclusionShop true 12 %d", ScripCategoryMenu))
     Wait(1)
-    Execute("/callback InclusionShop true 13 "..ScripSubcategoryMenu)
+    Execute(string.format("/callback InclusionShop true 13 %d", ScripSubcategoryMenu))
     Wait(1)
 
     ScripsRaw = GetNodeText("InclusionShop", 1, 2, 4)
@@ -668,7 +668,7 @@ function ScripExchange()
         Scrip_Item_Number_To_Buy = Scrips_Owned // ScripPrice
         Scrip_Item_Number_To_Buy_Final = math.min(Scrip_Item_Number_To_Buy, 99)
 
-        Execute("/callback InclusionShop true 14 "..ScripListIndex.." "..Scrip_Item_Number_To_Buy_Final)
+        Execute(string.format("/callback InclusionShop true 14 %d %d", ScripListIndex, Scrip_Item_Number_To_Buy_Final))
         Wait(1)
 
         if IsAddonReady("ShopExchangeItemDialog") then
