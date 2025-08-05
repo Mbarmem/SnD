@@ -55,8 +55,8 @@ end
 
 function CharacterState.goToCashier()
     if GetDistanceToPoint(Aetheryte.X, Aetheryte.Y, Aetheryte.Z) <= 8 and PathIsRunning() then
-        ExecuteGeneralAction(CharacterAction.GeneralActions.jump)  -- Prevents stuck pathing near aetheryte
-        Wait(3)
+        ExecuteGeneralAction(CharacterAction.GeneralActions.jump)
+        Wait(1)
         return
     end
 

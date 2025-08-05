@@ -183,8 +183,7 @@ end
 function CharacterState.pickUpHunts()
     if HuntNumber >= #Board.bills then
         if IsAddonReady("Mobhunt" .. BoardNumber) then
-            local callback = "/callback Mobhunt"..BoardNumber.." true -1"
-            Execute(callback)
+            Execute(string.format("/callback Mobhunt%s true -1", BoardNumber))
         else
             HuntNumber = 0
             State = CharacterState.goToHuntBoard
@@ -199,20 +198,17 @@ function CharacterState.pickUpHunts()
         HuntNumber = HuntNumber + 1
 
     elseif IsAddonReady("SelectString") then
-        local callback = "/callback SelectString true "..HuntNumber
-        Execute(callback)
+        Execute(string.format("/callback SelectString true %s", HuntNumber))
 
-    elseif IsAddonReady("Mobhunt"..BoardNumber) then
+    elseif IsAddonReady("Mobhunt" .. BoardNumber) then
         Clicks = 0
         while Clicks < 4 do
-            local callback = "/callback Mobhunt"..BoardNumber.." true 1"
-            Wait(0.5)
-            Execute(callback)
+            Execute(string.format("/callback Mobhunt%s true 1", BoardNumber))
             Clicks = Clicks + 1
+            Wait(0.5)
         end
         Wait(0.5)
-        local callback = "/callback Mobhunt"..BoardNumber.." true 0"
-        Execute(callback)
+        Execute(string.format("/callback Mobhunt%s true 0", BoardNumber))
         HuntNumber = HuntNumber + 1
 
     else

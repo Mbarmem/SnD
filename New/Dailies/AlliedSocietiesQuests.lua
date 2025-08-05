@@ -368,7 +368,7 @@ for _, alliedSociety in ipairs(ToDoList) do
 
         MoveTo(alliedSocietyTable.x, alliedSocietyTable.y, alliedSocietyTable.z, 2, true)
 
-        Execute("/gs change " .. alliedSociety.class)
+        Execute(string.format("/gs change %s", alliedSociety.class))
         Wait(3)
 
         -- pick up quests and add them to Questionable's priority list
