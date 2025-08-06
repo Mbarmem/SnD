@@ -211,14 +211,14 @@ function FindJobKeyByAnyName(name)
 end
 
 function OpenSupportJob()
-    while not IsAddonVisible("MKDSupportJob") do
+    while not IsAddonReady("MKDSupportJob") do
         Execute("/callback MKDInfo true 1 0")
         Wait(0.5)
     end
 end
 
 function OpenSupportJobList()
-    while not IsAddonVisible("MKDSupportJobList") do
+    while not IsAddonReady("MKDSupportJobList") do
         OpenSupportJob()
         Execute("/callback MKDSupportJob true 0 0 0")
         Wait(0.5)

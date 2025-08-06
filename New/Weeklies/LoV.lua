@@ -41,7 +41,7 @@ LogPrefix    = "[LoV]"
 function DutyFinder()
     LogInfo(string.format("%s Starting new match. Currently at %s/%s runs.", LogPrefix, RunsPlayed, RunsToPlay))
 
-    if not IsAddonVisible("JournalDetail") then
+    if not IsAddonReady("JournalDetail") then
         Execute("/dutyfinder")
     end
 
@@ -60,7 +60,7 @@ function DutyFinder()
 
     while not IsPlayingLordOfVerminion() do
         Wait(1)
-        if IsAddonVisible("ContentsFinderConfirm") then
+        if IsAddonReady("ContentsFinderConfirm") then
             Wait(1)
             Execute("/click ContentsFinderConfirm Commence")
         end

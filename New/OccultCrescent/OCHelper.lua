@@ -119,7 +119,7 @@ function UseBuffs()
     MoveTo(836.92, 73.12, -707.14, 0.2)
     Dismount()
 
-    Execute("/snd run " .. BuffMacro)
+    Execute(string.format("/snd run %s", BuffMacro))
     WaitForPlayer()
     Wait(1)
 end

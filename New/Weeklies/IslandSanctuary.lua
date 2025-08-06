@@ -145,21 +145,21 @@ function OpenNpc(npc, nextState)
         return
     end
 
-    if IsAddonVisible("SelectString") then
+    if IsAddonReady("SelectString") then
         Execute("/callback SelectString true 0")
         return
     end
 
-    if npc.addonName and IsAddonVisible(npc.addonName) then
+    if npc.addonName and IsAddonReady(npc.addonName) then
         State = nextState
         LogInfo(string.format("%s State changed to: %s", LogPrefix, GetStateName(nextState)))
     end
 end
 
 function OpenAndCloseNpc(npc, nextState)
-    if IsAddonVisible(npc.addonName) then
+    if IsAddonReady(npc.addonName) then
         Wait(1)
-        Execute("/callback "..npc.addonName.." true -1")
+        Execute(string.format("/callback %s true -1", npc.addonName))
         State = nextState
         LogInfo(string.format("%s State changed to: %s", LogPrefix, GetStateName(nextState)))
     else
@@ -192,12 +192,12 @@ function CharacterState.setWorkshopSchedule()
     repeat
         Execute("/callback MJICraftSchedule true -1")
         Wait(0.5)
-    until not IsAddonVisible("MJICraftSchedule")
+    until not IsAddonReady("MJICraftSchedule")
 
     repeat
         Execute("/callback SelectString true -1")
         Wait(0.5)
-    until not IsAddonVisible("SelectString")
+    until not IsAddonReady("SelectString")
 
     State = CharacterState.granary
     LogInfo(string.format("%s State changed to: Granary", LogPrefix))
@@ -254,7 +254,7 @@ function CharacterState.talkToFurball()
         end
     end
 
-    if IsAddonVisible("SelectString") then
+    if IsAddonReady("SelectString") then
         TalkedToFurball = true
         Execute("/callback SelectString true 2")
         return

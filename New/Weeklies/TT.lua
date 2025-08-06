@@ -34,7 +34,7 @@ LogPrefix = "[TT]"
 function BattleHall()
     LogInfo(string.format("%s Moving to Battle Hall.", LogPrefix))
 
-    if not IsAddonVisible("JournalDetail") then
+    if not IsAddonReady("JournalDetail") then
         Execute("/dutyfinder")
     end
 
@@ -53,7 +53,7 @@ function BattleHall()
 
     while not IsBoundByDuty() do
         Wait(1)
-        if IsAddonVisible("ContentsFinderConfirm") then
+        if IsAddonReady("ContentsFinderConfirm") then
             Wait(1)
             Execute("/click ContentsFinderConfirm Commence")
         end

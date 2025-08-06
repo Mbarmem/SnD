@@ -57,10 +57,10 @@ function CharacterState.startJumboCactpot()
 end
 
 function CharacterState.claimPrize()
-    if IsAddonVisible("LotteryWeeklyRewardList") then
+    if IsAddonReady("LotteryWeeklyRewardList") then
         Execute("/callback LotteryWeeklyRewardList true -1")
 
-    elseif IsAddonVisible("SelectYesno") then
+    elseif IsAddonReady("SelectYesno") then
         Execute("/callback SelectYesno true 0")
 
     elseif RewardClaimed and not IsOccupiedInQuestEvent() then
@@ -76,18 +76,18 @@ function CharacterState.claimPrize()
 end
 
 function CharacterState.purchaseNewTickets()
-    if IsAddonVisible("LotteryWeeklyRewardList") then
+    if IsAddonReady("LotteryWeeklyRewardList") then
         Execute("/callback LotteryWeeklyRewardList true -1")
         State = CharacterState.endJumboCactpot
         LogInfo(string.format("%s State changed to: EndJumboCactpot", LogPrefix))
 
-    elseif IsAddonVisible("SelectString") then
+    elseif IsAddonReady("SelectString") then
         Execute("/callback SelectString true 0")
 
-    elseif IsAddonVisible("SelectYesno") then
+    elseif IsAddonReady("SelectYesno") then
         Execute("/callback SelectYesno true 0")
 
-    elseif IsAddonVisible("LotteryWeeklyInput") then
+    elseif IsAddonReady("LotteryWeeklyInput") then
         Wait(1)
         local number = math.random(9999)
         Execute(string.format("/callback LotteryWeeklyInput true %d", number))
@@ -96,7 +96,7 @@ function CharacterState.purchaseNewTickets()
         State = CharacterState.endJumboCactpot
         LogInfo(string.format("%s State changed to: EndJumboCactpot", LogPrefix))
 
-    elseif GetTargetName() ~= "Jumbo Cactpot Broker" or GetDistanceToTarget() > 7 then
+    elseif not HasTarget("Jumbo Cactpot Broker") or GetDistanceToTarget() > 7 then
         MoveToTarget("Jumbo Cactpot Broker", 4)
 
     else

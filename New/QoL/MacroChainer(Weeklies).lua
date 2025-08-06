@@ -51,18 +51,15 @@ for _, macro in ipairs(MacrosToRun) do
     macroDone = false
 
     LogInfo(string.format("%s Starting macro: %s", LogPrefix, macro.macroName))
-    Execute("/snd run " .. macro.macroName)
+    Execute(string.format("/snd run %s", macro.macroName))
 
     while not macroDone do
-        Execute("/wait 1")
+        Wait(1)
     end
 
     LogInfo(string.format("%s Completed macro: %s", LogPrefix, macro.macroName))
-    Execute("/wait 1")
+    Wait(1)
 end
-
-currentEchoTrigger = nil
-macroDone = false
 
 LogInfo(string.format("%s All macros completed. Stopping any remaining..!!", LogPrefix))
 StopRunningMacros()

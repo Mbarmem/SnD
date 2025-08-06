@@ -220,7 +220,6 @@ for i = 0, 12 do
         local data = dataRow.Data
         local text = dataRow.Text.Description
         local duty = SearchWonderousTailsTable(type, data, text)
-        local dutyMode = "Support"
 
         LogInfo(string.format("%s Wonderous Tails #%d Type: %s", LogPrefix, i + 1, type))
         LogInfo(string.format("%s Wonderous Tails #%d Data: %s", LogPrefix, i + 1, data))

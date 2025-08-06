@@ -76,8 +76,8 @@ Zones = {
 
 function Checks()
     if GetClassJobId() ~= 21 then
-        LogInfo(string.format("%s Crafter class changed to: %s", LogPrefix, ClassName))
-        Execute("/gs change ".. ClassName)
+        LogInfo(string.format("%s Class changed to: %s", LogPrefix, ClassName))
+        Execute(string.format("/gs change %s", ClassName))
         Wait(1)
     end
 end
