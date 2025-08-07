@@ -10,6 +10,20 @@ import("System.Numerics")
 
 --- Defines character action constants
 CharacterAction = {
+    Actions = {
+        defiance           =     48,
+        castFishing        =    289,
+        quitFishing        =    299,
+        feint              =   7549,
+        dokumori           =  36957,
+        occultReturn       =  41343,
+        stellarReturn      =  42149,
+    },
+
+    ChocoboRaceAbility = {
+        superSprint        =     58,
+    },
+
     GeneralActions = {
         jump               =      2,
         sprint             =      4,
@@ -27,18 +41,7 @@ CharacterAction = {
         phantomActionII    =     32,
         phantomActionIII   =     33,
         phantomActionIV    =     34,
-        phantomActionV     =     35
-    },
-
-    Actions = {
-        defiance           =     48,
-        superSprint        =     58,
-        castFishing        =    289,
-        quitFishing        =    299,
-        feint              =   7549,
-        dokumori           =  36957,
-        occultReturn       =  41343,
-        stellarReturn      =  42149
+        phantomActionV     =     35,
     }
 }
 
@@ -1625,7 +1628,7 @@ function Mount(mountName)
         Execute(string.format('/mount "%s"', mountName))
     else
         LogDebug(string.format("[MoLib] Attempting Mount Roulette"))
-        ExecuteGeneralAction(CharacterAction.mount)
+        ExecuteGeneralAction(CharacterAction.GeneralActions.mount)
     end
 end
 
@@ -1636,7 +1639,7 @@ function Dismount()
     if IsMounted() then
         LogDebug(string.format("[MoLib] Attempting to dismount"))
         repeat
-            ExecuteGeneralAction(CharacterAction.dismount)
+            ExecuteGeneralAction(CharacterAction.GeneralActions.dismount)
             Wait(1)
         until not IsMounted()
     end
@@ -1793,7 +1796,7 @@ function Repair(RepairThreshold)
     LogDebug(string.format("[MoLib] Initiating gear repair process."))
 
     while not IsAddonReady("Repair") do
-        ExecuteGeneralAction(CharacterAction.repair)
+        ExecuteGeneralAction(CharacterAction.GeneralActions.repair)
         Wait(1)
     end
 
@@ -1846,12 +1849,12 @@ function MateriaExtraction(ExtractMateria)
     local extractable = CanExtractMateria()
 
     if extractable > 0 then
-        ExecuteGeneralAction(CharacterAction.materiaExtraction)
+        ExecuteGeneralAction(CharacterAction.GeneralActions.materiaExtraction)
         WaitForAddon("Materialize")
 
         while CanExtractMateria() > 0 do
             if not IsAddonReady("Materialize") then
-                ExecuteGeneralAction(CharacterAction.materiaExtraction)
+                ExecuteGeneralAction(CharacterAction.GeneralActions.materiaExtraction)
             end
 
             Execute("/callback Materialize true 2")
@@ -1889,7 +1892,7 @@ function DoAR(DoAutoRetainers)
 
     if ARRetainersWaitingToBeProcessed() and DoAutoRetainers then
         LogDebug(string.format("[MoLib] Assigning ventures to Retainers."))
-        MoveToTarget("Summoning Bell", 1)
+        MoveToTarget("Summoning Bell", 3)
         Wait(1)
         Interact("Summoning Bell")
 
