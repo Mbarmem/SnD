@@ -557,8 +557,9 @@ function ArtisanCrafting()
 
     while GetInventoryFreeSlotCount() > MinInventoryFreeSlots do
         if not ArtisanGetEnduranceStatus() and not ArtisanIsListRunning() then
-            LogInfo(string.format("%s Preparing to Craft: %s", LogPrefix, ItemName))
-            ArtisanCraftItem(RecipeId, GetInventoryFreeSlotCount() - MinInventoryFreeSlots)
+            local nCraft = GetInventoryFreeSlotCount() - MinInventoryFreeSlots
+            LogInfo(string.format("%s Crafting: %s | Count: %s", LogPrefix, ItemName, nCraft))
+            ArtisanCraftItem(RecipeId, nCraft)
             Wait(3)
 
             ArtisanTimeoutStartTime = os.clock()
