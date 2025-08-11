@@ -555,10 +555,9 @@ function ArtisanCrafting()
         StopRunningMacros()
     end
 
-    LogInfo(string.format("%s Preparing to Craft: %s", LogPrefix, ItemName))
-
     while GetInventoryFreeSlotCount() > MinInventoryFreeSlots do
         if not ArtisanGetEnduranceStatus() and not ArtisanIsListRunning() then
+            LogInfo(string.format("%s Preparing to Craft: %s", LogPrefix, ItemName))
             ArtisanCraftItem(RecipeId, GetInventoryFreeSlotCount() - MinInventoryFreeSlots)
             Wait(3)
 
