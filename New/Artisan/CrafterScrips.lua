@@ -577,6 +577,7 @@ function ArtisanCrafting()
             Wait(1)
         end
     end
+    Wait(1)
     CloseAddons()
     WaitForPlayer()
 end
