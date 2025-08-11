@@ -1581,7 +1581,7 @@ end
 --- Wrapper function to execute content via Engines.Run
 --- @param content string The name or identifier of the content to execute
 function Execute(content)
-    LogInfo(string.format("%s Execute content: %s", LogPrefix, content))
+    LogDebug(string.format("%s Execute content: %s", LogPrefix, content))
     Engines.Run(content)
 end
 
@@ -1720,7 +1720,7 @@ function CountTripleTriadCards()
     LogDebug(string.format("[MoLib] Loaded Item sheet for Triple Triad card scan"))
 
     if not itemSheet then
-        LogInfo("[MoLib] Failed to get Item sheet")
+        LogDebug("[MoLib] Failed to get Item sheet")
         return 0
     end
 
