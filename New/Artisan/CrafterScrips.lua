@@ -139,10 +139,17 @@ ClassList = {
 
 ScripExchangeItems = {
     {
-        itemName        = "Condensed Solution",
+        itemName        = "Mason's Abrasive",
         categoryMenu    = 1,
         subcategoryMenu = 10,
         listIndex       = 0,
+        price           = 500
+    },
+    {
+        itemName        = "Condensed Solution",
+        categoryMenu    = 1,
+        subcategoryMenu = 11,
+        listIndex       = 5,
         price           = 125
     },
     {
