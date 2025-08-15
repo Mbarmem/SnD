@@ -414,6 +414,13 @@ HubCities = {
         scripExchange = { x = 147.73, y = 4, z = -18.19, requiresAethernet = true }
     },
     {
+        zoneName      = "Eulmore",
+        zoneId        = 820,
+        aethernet     = { aethernetZoneId = 820, aethernetName = "Eulmore Aetheryte Plaza", x = 0.86, y = 82, z = -2.09 },
+        retainerBell  = { x = 7.37, y = 82, z = 28.78, requiresAethernet = false },
+        scripExchange = { x = 15.80, y = 82, z = -18.50, requiresAethernet = false }
+    },
+    {
         zoneName      = "Solution Nine",
         zoneId        = 1186,
         aethernet     = { aethernetZoneId = 1186, aethernetName = "Nexus Arcade", x = -161, y = -1, z = 212 },
