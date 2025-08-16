@@ -11,12 +11,12 @@ configs:
   RunsToPlay:
     default: 5
     description: Number of runs to play.
-    type: int
+    type: integer
     required: true
   RunsPlayed:
     default: 0
     description: Initial run count.
-    type: int
+    type: integer
     required: true
 
 [[End Metadata]]

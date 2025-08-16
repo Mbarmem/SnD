@@ -38,7 +38,7 @@ configs:
   MinInventoryFreeSlots:
     default: 15
     description: Minimum free inventory slots required to start turn-ins.
-    type: int
+    type: integer
     min: 0
     max: 140
     required: true
@@ -61,7 +61,7 @@ configs:
   RepairThreshold:
     default: 20
     description: Durability percentage at which tools should be repaired.
-    type: int
+    type: integer
     min: 0
     max: 100
   ExtractMateria:
@@ -75,11 +75,11 @@ configs:
   MoveSpotsAfter:
     default: 30
     description: Number of minutes to fish one spot before moving to the next.
-    type: int
+    type: integer
   ResetHardAmissAfter:
     default: 120
     description: Number of minutes to farm in current instance before teleporting away and back.
-    type: int
+    type: integer
 
 [[End Metadata]]
 --]=====]
@@ -521,7 +521,7 @@ function CharacterState.buyFishingBait()
         return
     end
 
-    if GetTargetName() ~= FishingBaitMerchant.npcName then
+    if not HasTarget(FishingBaitMerchant.npcName) then
         Target(FishingBaitMerchant.npcName)
         return
     end
@@ -991,7 +991,7 @@ end
 
 LogInfo(string.format("%s Selected hub city: %s (%s)", LogPrefix, SelectedHubCity.zoneName, SelectedHubCity.aetheryte or "Unknown Aetheryte"))
 
-if GetClassJobId() ~= 18 then
+if not GetClassJobId(18) then
     LogInfo(string.format("%s Switching to Fisher.", LogPrefix))
     Execute("/gs change Fisher")
     Wait(1)

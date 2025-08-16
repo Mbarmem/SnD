@@ -17,7 +17,7 @@ configs:
   MinimumCreditsLeft:
     default: 0
     description: Minimum number of credits to retain before stopping further spending or actions.
-    type: int
+    type: integer
     min: 0
     max: 10000
 

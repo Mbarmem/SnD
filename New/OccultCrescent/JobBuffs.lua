@@ -21,7 +21,7 @@ configs:
   ActionStatusThreshold:
     default: 10
     description: Threshold for buff reapplication (in seconds)
-    type: int
+    type: integer
 
 [[End Metadata]]
 --]=====]

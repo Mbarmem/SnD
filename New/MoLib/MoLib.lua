@@ -268,11 +268,17 @@ end
 
 --------------------------------------------------------------------
 
---- Returns the current player's class/job ID
---- @return number jobId returns the job ID, or nil if unavailable
-function GetClassJobId()
+--- Returns the current player's class/job ID or compares with a given ID
+--- @param id? number Optional job ID to compare against
+--- @return number|boolean jobIdOrMatch Returns the job ID if no compare ID is provided, or a boolean if comparing
+function GetClassJobId(id)
     local jobId = Player and Player.Job and Player.Job.Id
     LogDebug(string.format("[MoLib] GetClassJobId: %s", tostring(jobId)))
+
+    if id ~= nil then
+        return jobId == id
+    end
+
     return jobId
 end
 

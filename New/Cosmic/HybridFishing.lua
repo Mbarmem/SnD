@@ -22,7 +22,7 @@ configs:
   RepairThreshold:
     default: 20
     description: Durability percentage at which tools should be repaired.
-    type: int
+    type: integer
     min: 0
     max: 100
   ExtractMateria:

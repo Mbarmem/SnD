@@ -18,7 +18,7 @@ configs:
   CardID:
     default: 1
     description: Continues buying packs until this specific card ID is obtained.
-    type: int
+    type: integer
     required: true
 
 [[End Metadata]]

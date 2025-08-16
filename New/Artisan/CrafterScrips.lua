@@ -28,13 +28,13 @@ configs:
   MinScripExchange:
     default: 2500
     description: Minimum number of scrips required before making an exchange.
-    type: int
+    type: integer
     min: 0
     max: 4000
   ScripOvercapLimit:
     default: 3900
     description: Scrip amount at which to trigger spending to avoid overcapping.
-    type: int
+    type: integer
     min: 0
     max: 4000
   ItemToBuy:
@@ -48,20 +48,20 @@ configs:
   MinItemsForTurnIns:
     default: 1
     description: Minimum number of collectible items required before performing turn-ins.
-    type: int
+    type: integer
     min: 0
     max: 140
   MinInventoryFreeSlots:
     default: 15
     description: Minimum free inventory slots required to start crafting or turn-ins.
-    type: int
+    type: integer
     min: 0
     max: 140
     required: true
   RepairThreshold:
     default: 20
     description: Durability percentage at which tools should be repaired.
-    type: int
+    type: integer
     min: 0
     max: 100
   DoAutoRetainers:
@@ -75,11 +75,11 @@ configs:
   Loop:
     default: 1
     description: Initial Loop count
-    type: int
+    type: integer
   HowManyLoops:
     default: 99
     description: Number of times to repeat the crafting and turn-in cycle (99 for unlimited).
-    type: int
+    type: integer
 
 [[End Metadata]]
 --]=====]
@@ -378,10 +378,10 @@ PurpleScrips = {
     {
         className      = "Culinarian",
         classId        = 15,
-        itemName       = "Rarefied Sykon Bavarois",
-        itemId         = 36626,
-        recipeId       = 34908,
-        turninRow      = 6,
+        itemName       = "Rarefied Ra'Kaznar War Scythe",
+        itemId         = 44195,
+        recipeId       = 35792,
+        turninRow      = 1,
         turninIndex    = 7,
         turninType     = 16
     }
@@ -441,7 +441,7 @@ function Checks()
         Echo(string.format("Could not find crafter class: %s", CrafterClass), LogPrefix)
         LogInfo(string.format("%s Could not find crafter class: %s", LogPrefix, CrafterClass))
         StopRunningMacros()
-    elseif GetClassJobId() ~= ClassId then
+    elseif not GetClassJobId(ClassId) then
         Execute(string.format("/gs change %s", CrafterClass))
         Wait(1)
         LogInfo(string.format("%s Crafter class changed to: %s", LogPrefix, CrafterClass))

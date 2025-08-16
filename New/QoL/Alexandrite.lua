@@ -15,12 +15,12 @@ configs:
   Alexandrite:
     default: 0
     description: Initial Count of Alexandrtie in the Inventory.
-    type: int
+    type: integer
     required: true
   DesiredCount:
     default: 75
     description: Desired Count of Alexandrtie required.
-    type: int
+    type: integer
     required: true
 
 [[End Metadata]]
