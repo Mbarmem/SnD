@@ -264,9 +264,8 @@ function CharacterState.fishSense()
     end
 
     WaitForPlayer()
-    Teleport("Inn")
-    State = CharacterState.awaitingAction
-    LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
+    State = CharacterState.goToFishingHole
+    LogInfo(string.format("%s State changed to: GoToFishingHole", LogPrefix))
 end
 
 -------------------
@@ -495,8 +494,10 @@ function CharacterState.fishing()
         SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
     end
 
-    Execute("/vnavmesh movedir 0 0 10")
-    Wait(1)
+    Execute("/vnavmesh movedir 0 0 5")
+    Wait(3)
+    PathStop()
+    Wait(0.5)
     ExecuteAction(CharacterAction.Actions.castFishing)
     Wait(0.5)
 end
