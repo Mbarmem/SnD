@@ -52,7 +52,7 @@ configs:
     min: 0
     max: 140
   MinInventoryFreeSlots:
-    default: 15
+    default: 5
     description: Minimum free inventory slots required to start crafting or turn-ins.
     type: integer
     min: 0

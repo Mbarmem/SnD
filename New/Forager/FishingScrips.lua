@@ -264,8 +264,8 @@ function CharacterState.fishSense()
     end
 
     WaitForPlayer()
-    State = CharacterState.goToFishingHole
-    LogInfo(string.format("%s State changed to: GoToFishingHole", LogPrefix))
+    State = CharacterState.teleportFishingZone
+    LogInfo(string.format("%s State changed to: TeleportFishingZone", LogPrefix))
 end
 
 -------------------
