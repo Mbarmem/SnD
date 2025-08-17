@@ -244,6 +244,21 @@ HubCities = {
 --=========================== FUNCTIONS ==========================--
 
 -------------------
+--    Utility    --
+-------------------
+
+function OnChatMessage()
+    local message = TriggerData.message
+    local patternToMatch = "The fish sense something amiss. Perhaps it is time to try another location."
+
+    if message and message:find(patternToMatch) then
+        LogInfo(string.format("%s OnChatMessage Triggered with Fish Sense..!!", LogPrefix))
+        State = CharacterState.awaitingAction
+        LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
+    end
+end
+
+-------------------
 --    Fishing    --
 -------------------
 
