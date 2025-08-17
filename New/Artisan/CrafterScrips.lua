@@ -378,10 +378,10 @@ PurpleScrips = {
     {
         className      = "Culinarian",
         classId        = 15,
-        itemName       = "Rarefied Ra'Kaznar War Scythe",
-        itemId         = 44195,
-        recipeId       = 35792,
-        turninRow      = 1,
+        itemName       = "Rarefied Sykon Bavarois",
+        itemId         = 36626,
+        recipeId       = 34908,
+        turninRow      = 6,
         turninIndex    = 7,
         turninType     = 16
     }
