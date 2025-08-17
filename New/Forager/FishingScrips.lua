@@ -252,10 +252,19 @@ function OnChatMessage()
     local patternToMatch = "The fish sense something amiss. Perhaps it is time to try another location."
 
     if message and message:find(patternToMatch) then
-        LogInfo(string.format("%s OnChatMessage Triggered with Fish Sense..!!", LogPrefix))
-        State = CharacterState.awaitingAction
-        LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
+        LogInfo(string.format("%s OnChatMessage triggered for Fish sense..!!", LogPrefix))
+        State = CharacterState.fishSense
+        LogInfo(string.format("%s State changed to: FishSense", LogPrefix))
     end
+end
+
+function CharacterState.fishSense()
+    if IsGathering() or IsFishing() then
+        ExecuteAction(CharacterAction.Actions.quitFishing)
+    end
+
+    State = CharacterState.awaitingAction
+    LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
 end
 
 -------------------
