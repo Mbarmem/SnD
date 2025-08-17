@@ -263,6 +263,8 @@ function CharacterState.fishSense()
         ExecuteAction(CharacterAction.Actions.quitFishing)
     end
 
+    WaitForPlayer()
+    Teleport("Inn")
     State = CharacterState.awaitingAction
     LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
 end
