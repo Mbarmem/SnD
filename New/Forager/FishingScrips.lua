@@ -18,14 +18,14 @@ configs:
     description: Type of scrip to farm (Orange, Purple).
     is_choice: true
     choices:
-        - Orange
-        - Purple
+        - "Orange"
+        - "Purple"
   ItemToExchange:
     description: Name of the item to purchase using scrips.
     is_choice: true
     choices:
-        - Mount Token
-        - Hi-Cordial
+        - "Mount Token"
+        - "Hi-Cordial"
   Food:
     description: Leave blank if you don't want to use any food. If its HQ include <hq> next to the name "Baked Eggplant <hq>".
   Potion:
@@ -34,10 +34,10 @@ configs:
     description: Main city to use as a hub for turn-ins and purchases (Ul'dah, Limsa, Gridania, or Solution Nine).
     is_choice: true
     choices:
-        - Limsa
-        - Gridania
-        - Ul'dah
-        - Solution Nine
+        - "Limsa"
+        - "Gridania"
+        - "Ul'dah"
+        - "Solution Nine"
   MinInventoryFreeSlots:
     description: Minimum free inventory slots required to start turn-ins.
     default: 5

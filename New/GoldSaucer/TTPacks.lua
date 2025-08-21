@@ -15,12 +15,12 @@ configs:
     description: Name of the pack to buy.
     is_choice: true
     choices:
-        - Bronze
-        - Silver
-        - Gold
-        - Mythril
-        - Imperial
-        - Dream
+        - "Bronze"
+        - "Silver"
+        - "Gold"
+        - "Mythril"
+        - "Imperial"
+        - "Dream"
   CardID:
     description: Continues buying packs until this specific card ID is obtained.
     default: 1

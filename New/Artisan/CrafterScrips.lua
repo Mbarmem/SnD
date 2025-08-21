@@ -32,8 +32,8 @@ configs:
     description: Type of scrip to use for crafting / purchases.
     is_choice: true
     choices:
-        - Orange
-        - Purple
+        - "Orange"
+        - "Purple"
   MinScripExchange:
     description: Minimum number of scrips required before making an exchange.
     default: 2500
@@ -63,10 +63,10 @@ configs:
     description: Main city to use as a hub for turn-ins and purchases.
     is_choice: true
     choices:
-        - Limsa
-        - Gridania
-        - Ul'dah
-        - Solution Nine
+        - "Limsa"
+        - "Gridania"
+        - "Ul'dah"
+        - "Solution Nine"
   MinItemsForTurnIns:
     description: Minimum number of collectible items required before performing turn-ins.
     default: 1

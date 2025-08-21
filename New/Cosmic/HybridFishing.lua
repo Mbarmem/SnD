@@ -18,10 +18,10 @@ configs:
     description: Specifies the desired weather type. Options - All, Normal, Moon, Umbral.
     is_choice: true
     choices:
-        - All
-        - Normal
-        - Moon
-        - Umbral
+        - "All"
+        - "Normal"
+        - "Moon"
+        - "Umbral"
   RepairThreshold:
     description: Durability percentage at which tools should be repaired.
     default: 20

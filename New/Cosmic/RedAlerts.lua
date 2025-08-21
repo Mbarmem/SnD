@@ -15,30 +15,31 @@ configs:
     description: Name of the mission to accept.
     is_choice: true
     choices:
-        - Work Ladders
-        - Kindling
-        - Fungal Building Materials
-        - Meteorite Drills
-        - Vacuum Muzzles
-        - Flamethrower Parts
-        - Spare Vacuum Tanks
-        - Vehicular Plating
-        - Gas Tanks
-        - Lighting Repair Tools
-        - Intricate Vacuum Parts
-        - Spare Vehicle Parts
-        - Impenetrable Gloves
-        - Reinforced Gas Masks
-        - Flame-resistant Workboots
-        - Spare Cloth
-        - Flame-resistant Work Cloth
-        - Fungal Cloth
-        - Aether-resistant Agent
-        - Gas Poisoning Antidote
-        - Flamethrower Fuel
-        - Cured Foodstuffs
-        - Nutrient Supplement Jelly
-        - Irregular Spongoi Analysis
+        - "Work Ladders"
+        - "Kindling"
+        - "Fungal Building Materials"
+        - "Meteorite Drills"
+        - "Vacuum Muzzles"
+        - "Flamethrower Parts"
+        - "Spare Vacuum Tanks"
+        - "Vehicular Plating"
+        - "Gas Tanks"
+        - "Lighting Repair Tools"
+        - "Intricate Vacuum Parts"
+        - "Spare Vehicle Parts"
+        - "Impenetrable Gloves"
+        - "Reinforced Gas Masks"
+        - "Flame-resistant Workboots"
+        - "Spare Cloth"
+        - "Flame-resistant Work Cloth"
+        - "Fungal Cloth"
+        - "Aether-resistant Agent"
+        - "Gas Poisoning Antidote"
+        - "Flamethrower Fuel"
+        - "Cured Foodstuffs"
+        - "Nutrient Supplement Jelly"
+        - "Irregular Spongoi Analysis"
+
 
 [[End Metadata]]
 --]=====]

@@ -19,130 +19,130 @@ configs:
     description: The first allied society from which to accept quests.
     is_choice: true
     choices:
-        - None
-        - Mamool Ja
-        - Pelupelu
-        - Omicrons
-        - Loporrits
-        - Arkasodara
-        - Dwarves
-        - Qitari
-        - Pixies
-        - Namazu
-        - Ananta"
-        - Kojin
-        - Moogles
-        - Vath
-        - Vanu Vanu
-        - Ixal
-        - Sahagin
-        - Kobolds
-        - Sylphs
-        - Amalj'aa
+        - "None"
+        - "Mamool Ja"
+        - "Pelupelu"
+        - "Omicrons"
+        - "Loporrits"
+        - "Arkasodara"
+        - "Dwarves"
+        - "Qitari"
+        - "Pixies"
+        - "Namazu"
+        - "Ananta"
+        - "Kojin"
+        - "Moogles"
+        - "Vath"
+        - "Vanu Vanu"
+        - "Ixal"
+        - "Sahagin"
+        - "Kobolds"
+        - "Sylphs"
+        - "Amalj'aa"
   FirstClass:
     description: Class to assign for first allied society.
     is_choice: true
     choices:
-        - None
-        - Vioer
-        - Weaver
-        - Miner
+        - "None"
+        - "Viper"
+        - "Weaver"
+        - "Miner"
   SecondAlliedSociety:
     description: The second allied society from which to accept quests.
     is_choice: true
     choices:
-        - None
-        - Mamool Ja
-        - Pelupelu
-        - Omicrons
-        - Loporrits
-        - Arkasodara
-        - Dwarves
-        - Qitari
-        - Pixies
-        - Namazu
-        - Ananta"
-        - Kojin
-        - Moogles
-        - Vath
-        - Vanu Vanu
-        - Ixal
-        - Sahagin
-        - Kobolds
-        - Sylphs
-        - Amalj'aa
+        - "None"
+        - "Mamool Ja"
+        - "Pelupelu"
+        - "Omicrons"
+        - "Loporrits"
+        - "Arkasodara"
+        - "Dwarves"
+        - "Qitari"
+        - "Pixies"
+        - "Namazu"
+        - "Ananta"
+        - "Kojin"
+        - "Moogles"
+        - "Vath"
+        - "Vanu Vanu"
+        - "Ixal"
+        - "Sahagin"
+        - "Kobolds"
+        - "Sylphs"
+        - "Amalj'aa"
   SecondClass:
     description: Class to assign for second allied society.
     is_choice: true
     choices:
-        - None
-        - Vioer
-        - Weaver
-        - Miner
+        - "None"
+        - "Viper"
+        - "Weaver"
+        - "Miner"
   ThirdAlliedSociety:
     description: The third allied society from which to accept quests.
     is_choice: true
     choices:
-        - None
-        - Mamool Ja
-        - Pelupelu
-        - Omicrons
-        - Loporrits
-        - Arkasodara
-        - Dwarves
-        - Qitari
-        - Pixies
-        - Namazu
-        - Ananta"
-        - Kojin
-        - Moogles
-        - Vath
-        - Vanu Vanu
-        - Ixal
-        - Sahagin
-        - Kobolds
-        - Sylphs
-        - Amalj'aa
+        - "None"
+        - "Mamool Ja"
+        - "Pelupelu"
+        - "Omicrons"
+        - "Loporrits"
+        - "Arkasodara"
+        - "Dwarves"
+        - "Qitari"
+        - "Pixies"
+        - "Namazu"
+        - "Ananta"
+        - "Kojin"
+        - "Moogles"
+        - "Vath"
+        - "Vanu Vanu"
+        - "Ixal"
+        - "Sahagin"
+        - "Kobolds"
+        - "Sylphs"
+        - "Amalj'aa"
   ThirdClass:
     description: Class to assign for third allied society.
     is_choice: true
     choices:
-        - None
-        - Vioer
-        - Weaver
-        - Miner
+        - "None"
+        - "Viper"
+        - "Weaver"
+        - "Miner"
   FourthAlliedSociety:
     description: The fourth allied society from which to accept quests.
     is_choice: true
     choices:
-        - None
-        - Mamool Ja
-        - Pelupelu
-        - Omicrons
-        - Loporrits
-        - Arkasodara
-        - Dwarves
-        - Qitari
-        - Pixies
-        - Namazu
-        - Ananta"
-        - Kojin
-        - Moogles
-        - Vath
-        - Vanu Vanu
-        - Ixal
-        - Sahagin
-        - Kobolds
-        - Sylphs
-        - Amalj'aa
+        - "None"
+        - "Mamool Ja"
+        - "Pelupelu"
+        - "Omicrons"
+        - "Loporrits"
+        - "Arkasodara"
+        - "Dwarves"
+        - "Qitari"
+        - "Pixies"
+        - "Namazu"
+        - "Ananta"
+        - "Kojin"
+        - "Moogles"
+        - "Vath"
+        - "Vanu Vanu"
+        - "Ixal"
+        - "Sahagin"
+        - "Kobolds"
+        - "Sylphs"
+        - "Amalj'aa"
   FourthClass:
     description: Class to assign for fourth allied society.
     is_choice: true
     choices:
-        - None
-        - Vioer
-        - Weaver
-        - Miner
+        - "None"
+        - "Viper"
+        - "Weaver"
+        - "Miner"
 
 [[End Metadata]]
 --]=====]
