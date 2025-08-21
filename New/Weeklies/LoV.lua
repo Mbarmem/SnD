@@ -9,15 +9,11 @@ dependencies:
   type: git
 configs:
   RunsToPlay:
-    default: 5
     description: Number of runs to play.
-    type: integer
-    required: true
+    default: 5
   RunsPlayed:
-    default: 0
     description: Initial run count.
-    type: integer
-    required: true
+    default: 0
 
 [[End Metadata]]
 --]=====]

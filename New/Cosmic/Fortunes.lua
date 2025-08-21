@@ -11,13 +11,11 @@ dependencies:
   type: git
 configs:
   FullAuto:
-    default: true
     description: Enable or disable the use of FullAuto.
-    type: boolean
+    default: true
   MinimumCreditsLeft:
-    default: 0
     description: Minimum number of credits to retain before stopping further spending or actions.
-    type: integer
+    default: 0
     min: 0
     max: 10000
 

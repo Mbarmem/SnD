@@ -15,71 +15,85 @@ dependencies:
 configs:
   CrafterClass:
     description: Select the crafting class to use for turn-ins and crafting tasks.
-    type: string
-    required: true
+    is_choice: true
+    choices:
+        - Carpenter
+        - Blacksmith
+        - Armorer
+        - Goldsmith
+        - Leatherworker
+        - Weaver
+        - Alchemist
+        - Culinarian
   DoScrips:
-    default: true
     description: Enable or disable the use of scrips for crafting and purchases.
-    type: boolean
+    default: true
   ScripColor:
-    default: Orange
     description: Type of scrip to use for crafting / purchases (Orange, Purple).
-    type: string
+    is_choice: true
+    choices:
+        - Orange
+        - Purple
   MinScripExchange:
-    default: 2500
     description: Minimum number of scrips required before making an exchange.
-    type: integer
+    default: 2500
     min: 0
     max: 4000
   ScripOvercapLimit:
-    default: 3900
     description: Scrip amount at which to trigger spending to avoid overcapping.
-    type: integer
+    default: 3900
     min: 0
     max: 4000
   ItemToBuy:
-    default: Craftsman's Command Materia XII
     description: Name of the item to purchase using scrips.
-    type: string
+    is_choice: true
+    choices:
+        - Mason's Abrasive
+        - Condensed Solution
+        - Craftsman's Competence Materia XII
+        - Craftsman's Cunning Materia XII
+        - Craftsman's Command Materia XII
+        - Craftsman's Competence Materia XI
+        - Craftsman's Cunning Materia XI
+        - Craftsman's Command Materia XI
+        - Craftsman's Cunning Materia IX
+        - Craftsman's Cunning Materia VII
+        - Craftsman's Cunning Materia V
   HubCity:
-    default: Ul'dah
     description: Main city to use as a hub for turn-ins and purchases (Ul'dah, Limsa, Gridania, or Solution Nine).
-    type: string
+    is_choice: true
+    choices:
+        - Limsa
+        - Gridania
+        - Ul'dah
+        - Solution Nine
   MinItemsForTurnIns:
-    default: 1
     description: Minimum number of collectible items required before performing turn-ins.
-    type: integer
+    default: 1
     min: 0
     max: 140
   MinInventoryFreeSlots:
-    default: 5
     description: Minimum free inventory slots required to start crafting or turn-ins.
-    type: integer
+    default: 5
     min: 0
     max: 140
-    required: true
   RepairThreshold:
-    default: 20
     description: Durability percentage at which tools should be repaired.
-    type: integer
+    default: 20
     min: 0
     max: 100
   DoAutoRetainers:
-    default: true
     description: Automatically interact with retainers for ventures.
-    type: boolean
-  ExtractMateria:
     default: true
+  ExtractMateria:
     description: Automatically extract materia from fully spiritbonded gear.
-    type: boolean
+    default: true
   Loop:
-    default: 1
     description: Initial Loop count
-    type: integer
+    default: 1
   HowManyLoops:
-    default: 99
     description: Number of times to repeat the crafting and turn-in cycle (99 for unlimited).
-    type: integer
+    default: 99
 
 [[End Metadata]]
 --]=====]

@@ -17,30 +17,132 @@ dependencies:
 configs:
   FirstAlliedSociety:
     description: The first allied society from which to accept quests.
-    type: string
-    required: true
+    is_choice: true
+    choices:
+        - None
+        - Mamool Ja
+        - Pelupelu
+        - Omicrons
+        - Loporrits
+        - Arkasodara
+        - Dwarves
+        - Qitari
+        - Pixies
+        - Namazu
+        - Ananta"
+        - Kojin
+        - Moogles
+        - Vath
+        - Vanu Vanu
+        - Ixal
+        - Sahagin
+        - Kobolds
+        - Sylphs
+        - Amalj'aa
   FirstClass:
     description: Class to assign for first allied society.
-    type: string
-    required: true
+    is_choice: true
+    choices:
+        - None
+        - Vioer
+        - Weaver
+        - Miner
   SecondAlliedSociety:
     description: The second allied society from which to accept quests.
-    type: string
+    is_choice: true
+    choices:
+        - None
+        - Mamool Ja
+        - Pelupelu
+        - Omicrons
+        - Loporrits
+        - Arkasodara
+        - Dwarves
+        - Qitari
+        - Pixies
+        - Namazu
+        - Ananta"
+        - Kojin
+        - Moogles
+        - Vath
+        - Vanu Vanu
+        - Ixal
+        - Sahagin
+        - Kobolds
+        - Sylphs
+        - Amalj'aa
   SecondClass:
     description: Class to assign for second allied society.
-    type: string
+    is_choice: true
+    choices:
+        - None
+        - Vioer
+        - Weaver
+        - Miner
   ThirdAlliedSociety:
     description: The third allied society from which to accept quests.
-    type: string
+    is_choice: true
+    choices:
+        - None
+        - Mamool Ja
+        - Pelupelu
+        - Omicrons
+        - Loporrits
+        - Arkasodara
+        - Dwarves
+        - Qitari
+        - Pixies
+        - Namazu
+        - Ananta"
+        - Kojin
+        - Moogles
+        - Vath
+        - Vanu Vanu
+        - Ixal
+        - Sahagin
+        - Kobolds
+        - Sylphs
+        - Amalj'aa
   ThirdClass:
     description: Class to assign for third allied society.
-    type: string
+    is_choice: true
+    choices:
+        - None
+        - Vioer
+        - Weaver
+        - Miner
   FourthAlliedSociety:
     description: The fourth allied society from which to accept quests.
-    type: string
+    is_choice: true
+    choices:
+        - None
+        - Mamool Ja
+        - Pelupelu
+        - Omicrons
+        - Loporrits
+        - Arkasodara
+        - Dwarves
+        - Qitari
+        - Pixies
+        - Namazu
+        - Ananta"
+        - Kojin
+        - Moogles
+        - Vath
+        - Vanu Vanu
+        - Ixal
+        - Sahagin
+        - Kobolds
+        - Sylphs
+        - Amalj'aa
   FourthClass:
     description: Class to assign for fourth allied society.
-    type: string
+    is_choice: true
+    choices:
+        - None
+        - Vioer
+        - Weaver
+        - Miner
 
 [[End Metadata]]
 --]=====]
@@ -290,7 +392,7 @@ for _, entry in ipairs(societyConfigKeys) do
     local society = Config.Get(entry.societyKey)
     local class   = Config.Get(entry.classKey)
 
-    if society and class and society ~= "" and class ~= "" then
+    if society and class and society ~= "None" and class ~= "None" then
         table.insert(ToDoList, { alliedSocietyName = society, class = class })
     end
 end

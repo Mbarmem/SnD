@@ -15,71 +15,63 @@ dependencies:
   type: git
 configs:
   ScripColorToFarm:
-    default: Purple
     description: Type of scrip to farm (Orange, Purple).
-    type: string
-    required: true
+    is_choice: true
+    choices:
+        - Orange
+        - Purple
   ItemToExchange:
-    default: Hi-Cordial
     description: Name of the item to purchase using scrips.
-    type: string
+    is_choice: true
+    choices:
+        - Mount Token
+        - Hi-Cordial
   Food:
-    default:
-    description: Leave blank if you don't want to use any food. If its HQ include <hq> next to the name "Baked Eggplant <hq>"
-    type: string
+    description: Leave blank if you don't want to use any food. If its HQ include <hq> next to the name "Baked Eggplant <hq>".
   Potion:
-    default:
-    description: Leave blank if you don't want to use any potions. If its HQ include <hq> next to the name "Superior Spiritbond Potion <hq>"
-    type: string
+    description: Leave blank if you don't want to use any potions. If its HQ include <hq> next to the name "Superior Spiritbond Potion <hq>".
   HubCity:
-    default: Solution Nine
     description: Main city to use as a hub for turn-ins and purchases (Ul'dah, Limsa, Gridania, or Solution Nine).
-    type: string
+    is_choice: true
+    choices:
+        - Limsa
+        - Gridania
+        - Ul'dah
+        - Solution Nine
   MinInventoryFreeSlots:
-    default: 15
     description: Minimum free inventory slots required to start turn-ins.
-    type: integer
+    default: 5
     min: 0
     max: 140
-    required: true
   ReturnToGCTown:
-    default: false
     description: Whether to return to the Grand Company town.
-    type: boolean
-  DoAutoRetainers:
-    default: true
-    description: Automatically interact with retainers for ventures.
-    type: boolean
-  GrandCompanyTurnIn:
     default: false
-    description: Automatically turn in eligible items to your Grand Company for seals.
-    type: boolean
-  SelfRepair:
+  DoAutoRetainers:
+    description: Automatically interact with retainers for ventures.
     default: true
+  GrandCompanyTurnIn:
+    description: Automatically turn in eligible items to your Grand Company for seals.
+    default: false
+  SelfRepair:
     description: Automatically repair your own gear when durability is low.
-    type: boolean
+    default: true
   RepairThreshold:
-    default: 20
     description: Durability percentage at which tools should be repaired.
-    type: integer
+    default: 20
     min: 0
     max: 100
   ExtractMateria:
-    default: true
     description: Automatically extract materia from fully spiritbonded gear.
-    type: boolean
-  ReduceEphemerals:
     default: true
+  ReduceEphemerals:
     description: Automatically reduce items gathered from ephemeral nodes.
-    type: boolean
+    default: true
   MoveSpotsAfter:
-    default: 30
     description: Number of minutes to fish one spot before moving to the next.
-    type: integer
+    default: 30
   ResetHardAmissAfter:
-    default: 120
     description: Number of minutes to farm in current instance before teleporting away and back.
-    type: integer
+    default: 120
 
 [[End Metadata]]
 --]=====]

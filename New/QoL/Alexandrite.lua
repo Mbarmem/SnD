@@ -13,15 +13,11 @@ dependencies:
   type: git
 configs:
   Alexandrite:
-    default: 0
     description: Initial Count of Alexandrtie in the Inventory.
-    type: integer
-    required: true
+    default: 0
   DesiredCount:
-    default: 75
     description: Desired Count of Alexandrtie required.
-    type: integer
-    required: true
+    default: 75
 
 [[End Metadata]]
 --]=====]

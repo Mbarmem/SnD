@@ -9,17 +9,42 @@ dependencies:
   type: git
 configs:
   SphereScroll:
-    description: Options - Curtana, Sphairai, Bravura, Gae Bolg, Artemis Bow, Thyrus, Stardust Rod, The Veil of Wiyu, Omnilex, Holy Shield, Yoshimitsu
-    type: string
-    required: true
+    description: Name of the SphereScroll.
+    is_choice: true
+    choices:
+        - Curtana
+        - Sphairai
+        - Bravura
+        - Gae Bolg
+        - Artemis Bow
+        - Thyrus
+        - Stardust Rod
+        - The Veil of Wiyu
+        - Omnilex
+        - Holy Shield
+        - Yoshimitsu
   FirstMateriaToUse:
-    description: Materia to use as a first option
-    type: string
-    required: true
+    description: Materia to use as a first option.
+    is_choice: true
+    choices:
+        - Heavens' Eye Materia
+        - Quickarm Materia
+        - Savage Aim Materia
+        - Piety Materia
+        - Savage Might Materia
+        - Quicktongue Materia
+        - Battledance Materia
   SecondMateriaToUse:
-    description: Materia to use as a second option
-    type: string
-    required: true
+    description: Materia to use as a second option.
+    is_choice: true
+    choices:
+        - Heavens' Eye Materia
+        - Quickarm Materia
+        - Savage Aim Materia
+        - Piety Materia
+        - Savage Might Materia
+        - Quicktongue Materia
+        - Battledance Materia
 
 [[End Metadata]]
 --]=====]

@@ -15,20 +15,21 @@ dependencies:
   type: git
 configs:
   WeatherSelection:
-    default: Normal
     description: Specifies the desired weather type. Options - All, Normal, Moon, Umbral.
-    type: string
-    required: true
+    is_choice: true
+    choices:
+        - All
+        - Normal
+        - Moon
+        - Umbral
   RepairThreshold:
-    default: 20
     description: Durability percentage at which tools should be repaired.
-    type: integer
+    default: 20
     min: 0
     max: 100
   ExtractMateria:
-    default: true
     description: Automatically extract materia from fully spiritbonded gear.
-    type: boolean
+    default: true
 
 [[End Metadata]]
 --]=====]

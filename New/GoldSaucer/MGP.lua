@@ -14,9 +14,8 @@ dependencies:
   type: git
 configs:
   DoAutoRetainers:
-    default: true
     description: Automatically interact with retainers for ventures.
-    type: boolean
+    default: true
 
 [[End Metadata]]
 --]=====]

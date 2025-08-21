@@ -11,17 +11,14 @@ dependencies:
   type: git
 configs:
   UseSimpleTweaksCommand:
+    description: Requires Simple Tweaks command support.
     default: true
-    description: Requires Simple Tweaks command support
-    type: boolean
   JobChangeCommand :
+    description: Command name in Simple Tweaks.
     default: /phantomjob
-    description: Command name in Simple Tweaks
-    type: string
   ActionStatusThreshold:
+    description: Threshold for buff reapplication (in seconds).
     default: 10
-    description: Threshold for buff reapplication (in seconds)
-    type: integer
 
 [[End Metadata]]
 --]=====]

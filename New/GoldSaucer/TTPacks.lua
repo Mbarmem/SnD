@@ -12,14 +12,18 @@ dependencies:
   type: git
 configs:
   PackToBuy:
-    description: Name of the pack to buy. Options - Bronze, Silver, Gold, Mythril, Imperial, Dream
-    type: string
-    required: true
+    description: Name of the pack to buy.
+    is_choice: true
+    choices:
+        - Bronze
+        - Silver
+        - Gold
+        - Mythril
+        - Imperial
+        - Dream
   CardID:
-    default: 1
     description: Continues buying packs until this specific card ID is obtained.
-    type: integer
-    required: true
+    default: 1
 
 [[End Metadata]]
 --]=====]
