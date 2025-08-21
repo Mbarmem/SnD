@@ -17,19 +17,19 @@ configs:
     description: Select the crafting class to use for turn-ins and crafting tasks.
     is_choice: true
     choices:
-        - Carpenter
-        - Blacksmith
-        - Armorer
-        - Goldsmith
-        - Leatherworker
-        - Weaver
-        - Alchemist
-        - Culinarian
+        - "Carpenter"
+        - "Blacksmith"
+        - "Armorer"
+        - "Goldsmith"
+        - "Leatherworker"
+        - "Weaver"
+        - "Alchemist"
+        - "Culinarian"
   DoScrips:
     description: Enable or disable the use of scrips for crafting and purchases.
     default: true
   ScripColor:
-    description: Type of scrip to use for crafting / purchases (Orange, Purple).
+    description: Type of scrip to use for crafting / purchases.
     is_choice: true
     choices:
         - Orange
@@ -48,19 +48,19 @@ configs:
     description: Name of the item to purchase using scrips.
     is_choice: true
     choices:
-        - Mason's Abrasive
-        - Condensed Solution
-        - Craftsman's Competence Materia XII
-        - Craftsman's Cunning Materia XII
-        - Craftsman's Command Materia XII
-        - Craftsman's Competence Materia XI
-        - Craftsman's Cunning Materia XI
-        - Craftsman's Command Materia XI
-        - Craftsman's Cunning Materia IX
-        - Craftsman's Cunning Materia VII
-        - Craftsman's Cunning Materia V
+        - "Mason's Abrasive"
+        - "Condensed Solution"
+        - "Craftsman's Competence Materia XII"
+        - "Craftsman's Cunning Materia XII"
+        - "Craftsman's Command Materia XII"
+        - "Craftsman's Competence Materia XI"
+        - "Craftsman's Cunning Materia XI"
+        - "Craftsman's Command Materia XI"
+        - "Craftsman's Cunning Materia IX"
+        - "Craftsman's Cunning Materia VII"
+        - "Craftsman's Cunning Materia V"
   HubCity:
-    description: Main city to use as a hub for turn-ins and purchases (Ul'dah, Limsa, Gridania, or Solution Nine).
+    description: Main city to use as a hub for turn-ins and purchases.
     is_choice: true
     choices:
         - Limsa
