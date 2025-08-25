@@ -601,6 +601,7 @@ end
 --- WaitForLifeStream function to pause execution until Lifestream is no longer busy
 function WaitForLifeStream()
     LogDebug(string.format("[MoLib] Waiting for Lifestream to become not busy and player to be available..."))
+    Wait(0.1)
 
     repeat
         Wait(0.1)
