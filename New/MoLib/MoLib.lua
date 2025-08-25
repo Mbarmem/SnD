@@ -1588,7 +1588,7 @@ end
 --- Wrapper function to execute content via Engines.Run
 --- @param content string The name or identifier of the content to execute
 function Execute(content)
-    LogDebug(string.format("%s Execute content: %s", LogPrefix, content))
+    LogDebug(string.format("[MoLib] Execute content: %s", content))
     Engines.Run(content)
 end
 
@@ -1622,6 +1622,20 @@ end
 
 --------------------------------------------------------------------
 
+--- Checks if all required plugins are installed and loaded
+--- Iterates over the global `RequiredPlugins` list and verifies each one with `HasPlugin`.
+--- @return boolean true if all required plugins are enabled, false otherwise
+function AreAllPluginsEnabled()
+    for _, plugin in ipairs(RequiredPlugins) do
+        if not HasPlugin(plugin) then
+            return false
+        end
+    end
+    return true
+end
+
+--------------------------------------------------------------------
+
 --- Attempts to mount using a specific mount name or Mount Roulette if none is provided
 --- @param mountName string? The name of the mount to use; if nil or empty, uses Mount Roulette
 function Mount(mountName)
@@ -1649,6 +1663,43 @@ function Dismount()
             ExecuteGeneralAction(CharacterAction.GeneralActions.dismount)
             Wait(1)
         until not IsMounted()
+    end
+end
+
+--------------------------------------------------------------------
+
+--- Toggles a plugin collection on or off.
+--- If the collection is enabled, it will be disabled.
+--- If the collection is disabled, it will be enabled and optionally run an extra task.
+--- @param collectionName string The name of the collection to toggle
+--- @param opts table|nil Optional settings:
+---   - runAfterEnable (string|nil): Command to run after enabling the collection (e.g. "MacroChainer(Dailies)")
+---   - shouldRun (fun():boolean|nil): Predicate function that determines if the post-enable task should run
+--- @return string One of: "Disabled", "Enabled", "Running"
+function ToggleCollection(collectionName, opts)
+    opts = opts or {}
+
+    if AreAllPluginsEnabled() then
+        Execute(string.format("/xldisablecollection %s", collectionName))
+        return "Disabled"
+    else
+        Execute(string.format("/xlenablecollection %s", collectionName))
+
+        local okToRun = true
+        if type(opts.shouldRun) == "function" then
+            okToRun = opts.shouldRun()
+        end
+
+        if okToRun and opts.runAfterEnable then
+            Execute("/snd")
+            repeat
+                Wait(1)
+            until AreAllPluginsEnabled()
+            Execute(string.format("/snd run %s", opts.runAfterEnable))
+            return "Running"
+        end
+
+        return "Enabled"
     end
 end
 

@@ -23,27 +23,9 @@ RequiredPlugins = {
     "Dagobert"
 }
 
---=========================== FUNCTIONS ==========================--
-
-function AreAllPluginsEnabled()
-    for _, plugin in ipairs(RequiredPlugins) do
-        if not HasPlugin(plugin) then
-            return false
-        end
-    end
-    return true
-end
-
 --=========================== EXECUTION ==========================--
 
-if AreAllPluginsEnabled() then
-    Echo("|| Automation Disabled ||")
-    LogInfo("|| Automation Disabled ||")
-    Execute("/xldisablecollection Automation")
-else
-    Echo("|| Automation Enabled ||")
-    LogInfo("|| Automation Enabled ||")
-    Execute("/xlenablecollection Automation")
-end
+local status = ToggleCollection("Automation")
+Echo(string.format("|| Automation %s ||", status))
 
 --============================== END =============================--

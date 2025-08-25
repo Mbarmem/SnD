@@ -29,15 +29,6 @@ RequiredPlugins = {
 
 --=========================== FUNCTIONS ==========================--
 
-function AreAllPluginsEnabled()
-    for _, plugin in ipairs(RequiredPlugins) do
-        if not HasPlugin(plugin) then
-            return false
-        end
-    end
-    return true
-end
-
 function CheckAllowances()
     if not IsAddonReady("ContentsInfo") then
         Execute("/timers")
@@ -58,24 +49,15 @@ end
 
 --=========================== EXECUTION ==========================--
 
-if AreAllPluginsEnabled() then
-    Echo("|| Dailies Disabled ||")
-    LogInfo("|| Dailies Disabled ||")
-    Execute("/xldisablecollection Dailies")
-else
-    Echo("|| Dailies Enabled ||")
-    LogInfo("|| Dailies Enabled ||")
-    Execute("/xlenablecollection Dailies")
-    local Allowance = CheckAllowances()
-    Wait(5)
-    if Allowance == 12 then
-        Echo("|| Running Daily Tasks ||")
-        Execute("/snd")
-        repeat
-            Wait(1)
-        until AreAllPluginsEnabled()
-        Execute("/snd run MacroChainer(Dailies)")
+local status = ToggleCollection("Dailies", {
+    runAfterEnable = "MacroChainer(Dailies)",
+    shouldRun = function()
+        local Allowance = CheckAllowances()
+        Wait(5)
+        return Allowance == 12
     end
-end
+})
+
+Echo(string.format("|| Dailies %s ||", status))
 
 --============================== END =============================--

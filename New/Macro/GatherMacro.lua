@@ -24,31 +24,12 @@ RequiredPlugins = {
     "visland",
     "PandorasBox",
     "YesAlready",
-    "AutoRetainer",
-    "Deliveroo"
+    "AutoRetainer"
 }
-
---=========================== FUNCTIONS ==========================--
-
-function AreAllPluginsEnabled()
-    for _, plugin in ipairs(RequiredPlugins) do
-        if not HasPlugin(plugin) then
-            return false
-        end
-    end
-    return true
-end
 
 --=========================== EXECUTION ==========================--
 
-if AreAllPluginsEnabled() then
-    Echo("|| Gather Disabled ||")
-    LogInfo("|| Gather Disabled ||")
-    Execute("/xldisablecollection Gather")
-else
-    Echo("|| Gather Enabled ||")
-    LogInfo("|| Gather Enabled ||")
-    Execute("/xlenablecollection Gather")
-end
+local status = ToggleCollection("Gather")
+Echo(string.format("|| Gather %s ||", status))
 
 --============================== END =============================--

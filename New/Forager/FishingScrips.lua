@@ -741,24 +741,22 @@ function CharacterState.processAutoRetainers()
     end
 end
 
-local deliveroo = false
+local deliver = false
 function CharacterState.gcTurnIn()
-    if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots and not deliveroo then
-        Teleport("gc")
+    if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots and not deliver then
+        LogInfo(string.format("%s Starting GC turn-in.", LogPrefix))
+        Execute("/ays deliver")
         Wait(1)
-        LogInfo(string.format("%s Starting Deliveroo turn-in.", LogPrefix))
-        Execute("/deliveroo enable")
-        Wait(1)
-        deliveroo = true
+        deliver = true
         return
 
-    elseif IPC.Deliveroo.IsTurnInRunning() then
+    elseif IPC.AutoRetainer.IsBusy() then
         return
 
     else
         State = CharacterState.awaitingAction
         LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
-        deliveroo = false
+        deliver = false
     end
 end
 

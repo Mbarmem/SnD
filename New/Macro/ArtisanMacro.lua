@@ -25,27 +25,9 @@ RequiredPlugins = {
     "AutoRetainer"
 }
 
---=========================== FUNCTIONS ==========================--
-
-function AreAllPluginsEnabled()
-    for _, plugin in ipairs(RequiredPlugins) do
-        if not HasPlugin(plugin) then
-            return false
-        end
-    end
-    return true
-end
-
 --=========================== EXECUTION ==========================--
 
-if AreAllPluginsEnabled() then
-    Echo("|| Artisan Disabled ||")
-    LogInfo("|| Artisan Disabled ||")
-    Execute("/xldisablecollection Artisan")
-else
-    Echo("|| Artisan Enabled ||")
-    LogInfo("|| Artisan Enabled ||")
-    Execute("/xlenablecollection Artisan")
-end
+local status = ToggleCollection("Artisan")
+Echo(string.format("|| Artisan %s ||", status))
 
 --============================== END =============================--

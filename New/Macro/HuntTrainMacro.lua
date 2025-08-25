@@ -21,27 +21,9 @@ RequiredPlugins = {
     "HuntTrainAssistant"
 }
 
---=========================== FUNCTIONS ==========================--
-
-function AreAllPluginsEnabled()
-    for _, plugin in ipairs(RequiredPlugins) do
-        if not HasPlugin(plugin) then
-            return false
-        end
-    end
-    return true
-end
-
 --=========================== EXECUTION ==========================--
 
-if AreAllPluginsEnabled() then
-    Echo("|| HuntTrain Disabled ||")
-    LogInfo("|| HuntTrain Disabled ||")
-    Execute("/xldisablecollection HuntTrain")
-else
-    Echo("|| HuntTrain Enabled ||")
-    LogInfo("|| HuntTrain Enabled ||")
-    Execute("/xlenablecollection HuntTrain")
-end
+local status = ToggleCollection("HuntTrain")
+Echo(string.format("|| HuntTrain %s ||", status))
 
 --============================== END =============================--

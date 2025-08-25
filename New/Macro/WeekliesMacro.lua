@@ -25,7 +25,6 @@ RequiredPlugins = {
     "visland",
     "Avarice",
     "YesAlready",
-    "Deliveroo",
     "TextAdvance",
     "SkipCutscene"
 }
@@ -43,22 +42,15 @@ end
 
 --=========================== EXECUTION ==========================--
 
-if AreAllPluginsEnabled() then
-    Echo("|| Weeklies Disabled ||")
-    LogInfo("|| Weeklies Disabled ||")
-    Execute("/xldisablecollection Weeklies")
-else
-    Echo("|| Weeklies Enabled ||")
-    LogInfo("|| Weeklies Enabled ||")
-    Execute("/xlenablecollection Weeklies")
-    if not Player.Bingo.HasWeeklyBingoJournal or Player.Bingo.IsWeeklyBingoExpired or Player.Bingo.WeeklyBingoNumPlacedStickers == 9 then
-        Echo("|| Running Weekly Tasks ||")
-        Execute("/snd")
-        repeat
-            Wait(1)
-        until AreAllPluginsEnabled()
-        Execute("/snd run MacroChainer(Weeklies)")
+local status = ToggleCollection("Weeklies", {
+    runAfterEnable = "MacroChainer(Weeklies)",
+    shouldRun = function()
+        return (not Player.Bingo.HasWeeklyBingoJournal)
+            or Player.Bingo.IsWeeklyBingoExpired
+            or (Player.Bingo.WeeklyBingoNumPlacedStickers == 9)
     end
-end
+})
+
+Echo(string.format("|| Weeklies %s ||", status))
 
 --============================== END =============================--

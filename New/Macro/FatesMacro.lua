@@ -21,40 +21,18 @@ RequiredPlugins = {
     "RotationSolver",
     "BossModReborn",
     "vnavmesh",
-    "Deliveroo",
     "YesAlready",
     "TextAdvance",
     "AutoRetainer",
     "SkipCutscene"
 }
 
---=========================== FUNCTIONS ==========================--
-
-function AreAllPluginsEnabled()
-    for _, plugin in ipairs(RequiredPlugins) do
-        if not HasPlugin(plugin) then
-            return false
-        end
-    end
-    return true
-end
-
 --=========================== EXECUTION ==========================--
 
-if AreAllPluginsEnabled() then
-    Echo("|| Fates Disabled ||")
-    LogInfo("|| Fates Disabled ||")
-    Execute("/xldisablecollection Fates")
-else
-    Echo("|| Fates Enabled ||")
-    LogInfo("|| Fates Enabled ||")
-    Execute("/xlenablecollection Fates")
-    Echo("|| Running Fates ||")
-    Execute("/snd")
-    repeat
-        Wait(1)
-    until AreAllPluginsEnabled()
-    Execute("/snd run MultiZoneFarming")
-end
+local status = ToggleCollection("Fates", {
+    runAfterEnable = "MultiZoneFarming"
+})
+
+Echo(string.format("|| Fates %s ||", status))
 
 --============================== END =============================--
