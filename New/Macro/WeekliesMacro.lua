@@ -29,17 +29,6 @@ RequiredPlugins = {
     "SkipCutscene"
 }
 
---=========================== FUNCTIONS ==========================--
-
-function AreAllPluginsEnabled()
-    for _, plugin in ipairs(RequiredPlugins) do
-        if not HasPlugin(plugin) then
-            return false
-        end
-    end
-    return true
-end
-
 --=========================== EXECUTION ==========================--
 
 local status = ToggleCollection("Weeklies", {
