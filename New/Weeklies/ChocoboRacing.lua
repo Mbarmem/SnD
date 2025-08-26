@@ -75,6 +75,10 @@ function SuperSprint()
 end
 
 function KeySpam()
+    Execute("/hold A")
+    Wait(5)
+    Execute("/release A")
+
     repeat
         Execute("/send KEY_1")
         Wait(5)
