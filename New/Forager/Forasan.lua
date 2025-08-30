@@ -5,13 +5,16 @@ version: 2.0.0
 description: Forasan - Script for Looping GBR and Artisan
 plugin_dependencies:
 - Artisan
-- GatherBuddyReborn
+- GatherbuddyReborn
 - Lifestream
 - vnavmesh
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD
   type: git
+configs:
+  ArtisanList:
+    description: Id of Artisan list
 
 [[End Metadata]]
 --]=====]
@@ -22,7 +25,18 @@ dependencies:
 --    General    --
 -------------------
 
-LogPrefix  = "[Forasan]"
+ArtisanList   = Config.Get("ArtisanList")
+LogPrefix     = "[Forasan]"
+
+--============================ CONSTANT ==========================--
+
+----------------
+--    Zone    --
+----------------
+
+Zones = {
+    FreeCompany = 342
+}
 
 --=========================== FUNCTIONS ==========================--
 
@@ -111,10 +125,26 @@ end
 while true do
     local available = PlayerAvailable()
 
-    if IsInZone(342) and available then
-        LogInfo(string.format("%s Entered zone 342 with player available → executing artisan start and stopping loop.", LogPrefix))
-        Execute("/artisan lists 28694 start")
-        break
+    if IsInZone(Zones.FreeCompany) and available then
+        LogInfo(string.format("%s Entered zone %d with player available → executing artisan start.", LogPrefix, Zones.FreeCompany))
+        Execute(string.format("/artisan lists %s start", ArtisanList))
+
+        local startClock = os.clock()
+        local started = false
+        repeat
+            Wait(1)
+            if ArtisanIsListRunning() then
+                started = true
+                break
+            end
+        until (os.clock() - startClock) > 20
+
+        if not started then
+            LogInfo(string.format("%s Artisan list did not start within 20s → resuming idle loop.", LogPrefix))
+        else
+            LogInfo(string.format("%s Artisan list is running → moving to post-loop handling.", LogPrefix))
+            break
+        end
     end
 
     if not available then
@@ -141,7 +171,7 @@ while true do
             if idle then
                 if not SafeIsGathering() and PlayerAvailable() and not IsPlayerCasting() then
                     LogInfo(string.format("%s Player idle for %ds → executing Jump action.", LogPrefix, window))
-                    Actions.ExecuteGeneralAction(2) -- Jump
+                    Actions.ExecuteGeneralAction(CharacterAction.GeneralActions.jump)
                 else
                     LogInfo(string.format("%s Player idle but currently gathering/unavailable → skipping Jump.", LogPrefix))
                 end
@@ -155,6 +185,7 @@ end
 if ArtisanIsListRunning() then
     Wait(1)
     local ArtisanTimeoutStartTime = os.clock()
+
     repeat
         Wait(1)
     until (os.clock() - ArtisanTimeoutStartTime) > 20 or IsCrafting()
