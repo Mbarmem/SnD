@@ -188,9 +188,9 @@ if ArtisanIsListRunning() then
 
     repeat
         Wait(1)
-        if IsCrafting() then
+        if ArtisanIsListRunning() or IsCrafting() then
             LogInfo(string.format("%s Crafting detected → waiting until it finishes.", LogPrefix))
-            while IsCrafting() do
+            while ArtisanIsListRunning() or IsCrafting() do
                 Wait(1)
             end
             LogInfo(string.format("%s Crafting finished → proceeding to GBR.", LogPrefix))
@@ -201,7 +201,7 @@ if ArtisanIsListRunning() then
     until (os.clock() - artisanTimeout) > 20
 
     if not IsCrafting() then
-        LogInfo(string.format("%s Timeout: Crafting did not start within 20s → closing addons and resuming.", LogPrefix))
+        LogInfo(string.format("%s Done Crafting → closing addons and resuming.", LogPrefix))
         Wait(1)
         CloseAddons()
         WaitForPlayer()
