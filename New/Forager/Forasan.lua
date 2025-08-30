@@ -184,20 +184,32 @@ end
 
 if ArtisanIsListRunning() then
     Wait(1)
-    local ArtisanTimeoutStartTime = os.clock()
+    local artisanTimeout = os.clock()
 
     repeat
         Wait(1)
-    until (os.clock() - ArtisanTimeoutStartTime) > 20 or IsCrafting()
+        if IsCrafting() then
+            LogInfo(string.format("%s Crafting detected → waiting until it finishes.", LogPrefix))
+            while IsCrafting() do
+                Wait(1)
+            end
+            LogInfo(string.format("%s Crafting finished → proceeding to GBR.", LogPrefix))
+            break
+        else
+            LogInfo(string.format("%s Waiting for crafting to start... %ds elapsed", LogPrefix, math.floor(os.clock() - artisanTimeout)))
+        end
+    until (os.clock() - artisanTimeout) > 20
 
     if not IsCrafting() then
+        LogInfo(string.format("%s Timeout: Crafting did not start within 20s → closing addons and resuming.", LogPrefix))
         Wait(1)
         CloseAddons()
         WaitForPlayer()
     end
 
     Execute("/gbr auto on")
-    Wait(1)
+    LogInfo(string.format("%s Activated GBR auto → returning to main loop.", LogPrefix))
+    Wait(3)
     WaitForTeleport()
     goto MainLoop
 end
