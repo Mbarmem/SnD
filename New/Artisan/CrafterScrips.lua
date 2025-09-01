@@ -553,6 +553,12 @@ function LoopCount()
     end
 
     Loop = (Loop or 0) + 1
+
+    if LoopAmount == "infinite" then
+        LogInfo(string.format("%s Loop %d", LogPrefix, Loop))
+    else
+        LogInfo(string.format("%s Loop %d of %d", LogPrefix, Loop, LoopAmount))
+    end
 end
 
 function ArtisanCrafting()
@@ -641,10 +647,10 @@ function CollectableAppraiser()
     local orangeRaw = GetNodeText("CollectablesShop", 1, 14, 15, 4)
     local purpleRaw = GetNodeText("CollectablesShop", 1, 14, 16, 4)
 
-    local Orange_Scrips = tonumber((orangeRaw):gsub(",", ""):match("^([%d,]+)/"))
-    local Purple_Scrips = tonumber((purpleRaw):gsub(",", ""):match("^([%d,]+)/"))
+    Orange_Scrips = tonumber((orangeRaw):gsub(",", ""):match("^([%d,]+)/"))
+    Purple_Scrips = tonumber((purpleRaw):gsub(",", ""):match("^([%d,]+)/"))
 
-    if (Orange_Scrips < ScripOvercapLimit) and (Purple_Scrips < ScripOvercapLimit) then
+    if Orange_Scrips and Purple_Scrips and (Orange_Scrips < ScripOvercapLimit) and (Purple_Scrips < ScripOvercapLimit) then
         for _, item in ipairs(CollectableScrip) do
             if item.classId == ClassId then
                 ItemId = item.itemId
@@ -679,6 +685,8 @@ function CollectableAppraiser()
         Execute("/callback CollectablesShop true -1")
         ClearTarget()
         Wait(1)
+    else
+        LogInfo(string.format("%s Could not parse scrip counts (Orange=%s, Purple=%s). Skipping Turn-in.", LogPrefix, tostring(Orange_Scrips), tostring(Purple_Scrips)))
     end
 end
 
@@ -767,7 +775,6 @@ end
 Checks()
 InitializeLoop()
 while LoopAmount == "infinite" or Loop < LoopAmount do
-    LogInfo(string.format("%s Loop Count: %s", LogPrefix, Loop))
     MoveToInn()
     DoAR(DoAutoRetainers)
     ArtisanCrafting()
