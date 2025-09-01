@@ -599,8 +599,7 @@ function ArtisanCrafting()
             break
         end
 
-        local free = GetInventoryFreeSlotCount()
-        local nCraft = free - MinInventoryFreeSlots
+        local nCraft = GetInventoryFreeSlotCount() - MinInventoryFreeSlots
         if nCraft <= 0 then
             break
         end
