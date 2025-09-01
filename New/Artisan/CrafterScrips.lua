@@ -572,15 +572,18 @@ function ArtisanCrafting()
     while GetInventoryFreeSlotCount() > MinInventoryFreeSlots do
         repeat
             if ArtisanGetEnduranceStatus() then
+                Wait(1)
                 break
             end
 
             if IsAddonReady("Synthesis") then
+                Wait(1)
                 break
             end
 
             if IsCrafting() and IsAddonReady("RecipeNote") then
                 if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
+                    Wait(1)
                     break
                 end
 
@@ -602,6 +605,7 @@ function ArtisanCrafting()
 
             local nCraft = GetInventoryFreeSlotCount() - MinInventoryFreeSlots
             if nCraft <= 0 then
+                Wait(1)
                 break
             end
 
