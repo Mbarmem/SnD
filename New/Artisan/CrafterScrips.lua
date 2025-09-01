@@ -581,7 +581,7 @@ function ArtisanCrafting()
                 break
             end
 
-            if IsCrafting() and IsAddonReady("RecipeNote") then
+            if IsAddonReady("RecipeNote") then
                 if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
                     Wait(1)
                     break
@@ -754,6 +754,7 @@ function CollectableAppraiserScripExchange()
             CollectableAppraiser()
             ScripExchange()
         end
+        return
     else
         ScripExchange()
     end
