@@ -598,6 +598,7 @@ function ArtisanCrafting()
                 StopFlag = true
                 LogInfo(string.format("%s Stopping Artisan Crafting.. Out of mats or Synthesis not opening.", LogPrefix))
                 Wait(1)
+                ArtisanSetEnduranceStatus(false)
                 CloseAddons()
                 WaitForPlayer()
                 return
@@ -617,6 +618,7 @@ function ArtisanCrafting()
     end
 
     Wait(1)
+    ArtisanSetEnduranceStatus(false)
     CloseAddons()
     WaitForPlayer()
 end
@@ -754,7 +756,6 @@ function CollectableAppraiserScripExchange()
             CollectableAppraiser()
             ScripExchange()
         end
-        return
     else
         ScripExchange()
     end
