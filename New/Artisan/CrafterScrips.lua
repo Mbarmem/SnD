@@ -570,43 +570,46 @@ function ArtisanCrafting()
     end
 
     while GetInventoryFreeSlotCount() > MinInventoryFreeSlots do
-
-        if ArtisanGetEnduranceStatus() then
-            return
-        end
-
-        if IsAddonReady("Synthesis") then
-            return
-        end
-
-        if IsCrafting() and IsAddonReady("RecipeNote") then
-            if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
-                Wait(1)
+        repeat
+            if ArtisanGetEnduranceStatus() then
                 break
             end
 
-            local timeoutClock = os.clock()
-            repeat
-                Wait(1)
-                if IsAddonReady("Synthesis") then
-                    return
+            if IsAddonReady("Synthesis") then
+                break
+            end
+
+            if IsCrafting() and IsAddonReady("RecipeNote") then
+                if GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
+                    break
                 end
-            until (os.clock() - timeoutClock) > 20
 
-            StopFlag = true
-            LogInfo(string.format("%s Stopping Artisan Crafting.. Out of mats or Synthesis not opening.", LogPrefix))
-            Wait(1)
-            break
-        end
+                local timeoutClock = os.clock()
+                repeat
+                    Wait(1)
+                    if IsAddonReady("Synthesis") then
+                        break
+                    end
+                until (os.clock() - timeoutClock) > 20
 
-        local nCraft = GetInventoryFreeSlotCount() - MinInventoryFreeSlots
-        if nCraft <= 0 then
-            break
-        end
+                StopFlag = true
+                LogInfo(string.format("%s Stopping Artisan Crafting.. Out of mats or Synthesis not opening.", LogPrefix))
+                Wait(1)
+                CloseAddons()
+                WaitForPlayer()
+                return
+            end
 
-        LogInfo(string.format("%s Crafting: %s | Count: %d", LogPrefix, ItemName, nCraft))
-        ArtisanCraftItem(RecipeId, nCraft)
-        Wait(3)
+            local nCraft = GetInventoryFreeSlotCount() - MinInventoryFreeSlots
+            if nCraft <= 0 then
+                break
+            end
+
+            LogInfo(string.format("%s Crafting: %s | Count: %d", LogPrefix, ItemName, nCraft))
+            ArtisanCraftItem(RecipeId, nCraft)
+            Wait(3)
+
+        until true
     end
 
     Wait(1)
