@@ -91,9 +91,13 @@ configs:
   Loop:
     description: Initial Loop count
     default: 1
+    min: 1
+    max: 99
   HowManyLoops:
     description: Number of times to repeat the crafting and turn-in cycle (99 for unlimited).
     default: 99
+    min: 1
+    max: 99
 
 [[End Metadata]]
 --]=====]
@@ -528,19 +532,16 @@ end
 ----------------
 
 function InitializeLoop()
-    local loopValue = tostring(HowManyLoops):lower()
+    local numericLoop = tonumber(HowManyLoops)
 
-    if loopValue == "true" or 99 then
-        LoopAmount = true
+    if numericLoop == 99 then
+        LoopAmount = "infinite"
+    elseif numericLoop and numericLoop > 0 then
+        LoopAmount = numericLoop
     else
-        local numericLoop = tonumber(HowManyLoops)
-        if numericLoop and numericLoop > 0 then
-            LoopAmount = numericLoop
-        else
-            Echo(string.format("Invalid loop count. Stopping script."), LogPrefix)
-            LogInfo(string.format("%s Invalid loop count. Stopping script.", LogPrefix))
-            StopRunningMacros()
-        end
+        Echo("Invalid loop count (must be >0 or 99). Stopping script.", LogPrefix)
+        LogInfo(string.format("%s Invalid loop count (must be >0 or 99). Stopping script.", LogPrefix))
+        StopRunningMacros()
     end
 end
 
@@ -765,7 +766,7 @@ end
 
 Checks()
 InitializeLoop()
-while LoopAmount == true or Loop <= LoopAmount do
+while LoopAmount == "infinite" or Loop < LoopAmount do
     LogInfo(string.format("%s Loop Count: %s", LogPrefix, Loop))
     MoveToInn()
     DoAR(DoAutoRetainers)
