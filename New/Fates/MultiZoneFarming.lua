@@ -45,24 +45,37 @@ ZonesToFarm = {
     { zoneName = "Living Memory",   zoneId = 1192 }
 }
 
+--=========================== FUNCTIONS ==========================--
+
+function OnChatMessage()
+    local message = TriggerData.message
+    local patternToMatch = "%[FateFarming%] ENDED !!"
+
+    if message and message:find(patternToMatch) then
+        LogInfo(string.format("%s OnChatMessage triggered", LogPrefix))
+        FateMacroRunning = false
+        LogInfo(string.format("%s FateMacro has stopped", LogPrefix))
+    end
+end
+
 --=========================== EXECUTION ==========================--
 
 Execute("/at y")
 
+FateMacroRunning     = false
 FarmingZoneIndex     = 1
 OldBicolorGemCount   = GetItemCount(26807)
 
 while true do
-    if IsPlayerAvailable() and not IsMacroRunningOrQueued(FateMacro) then
+    if IsPlayerAvailable() and not FateMacroRunning then
         if IsDead() or IsInCombat() or GetZoneID() == ZonesToFarm[FarmingZoneIndex].zoneId then
             LogInfo(string.format("%s Starting FateMacro in zone: %s", LogPrefix, ZonesToFarm[FarmingZoneIndex].zoneName))
             Execute("/snd run " .. FateMacro)
+            FateMacroRunning = true
 
-            repeat
-                Wait(3)
-            until not IsMacroRunningOrQueued(FateMacro)
-
-            LogInfo(string.format("%s FateMacro has stopped", LogPrefix))
+            while FateMacroRunning do
+                yield("/wait 3")
+            end
 
             NewBicolorGemCount = GetItemCount(26807)
 
@@ -75,7 +88,13 @@ while true do
             end
         else
             LogInfo(string.format("%s Teleporting to zone: %s", LogPrefix, ZonesToFarm[FarmingZoneIndex].zoneName))
-            Teleport(GetAetheryteName(ZonesToFarm[FarmingZoneIndex].zoneId))
+            local aetheryteName = GetAetheryteName(ZonesToFarm[FarmingZoneIndex].zoneId)
+
+            if aetheryteName then
+                Teleport(aetheryteName)
+            else
+                LogInfo(string.format("%s No valid aetheryte found for zone %s", LogPrefix, ZonesToFarm[FarmingZoneIndex].zoneName))
+            end
         end
     end
     Wait(1)
