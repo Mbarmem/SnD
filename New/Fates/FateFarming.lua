@@ -2245,8 +2245,8 @@ function TurnOnAoes()
     if not AoesOn then
         if RotationPlugin == "RSR" then
             yield("/rotation off")
-            yield("/rotation auto on")
-            Dalamud.Log("[FATE] TurnOnAoes /rotation auto on")
+            yield("/rotation auto LowHp")
+            Dalamud.Log("[FATE] TurnOnAoes /rotation auto LowHP")
 
             if RSRAoeType == "Off" then
                 Engines.Run("/rotation settings aoetype 0")
@@ -2312,8 +2312,8 @@ function TurnOnCombatMods(rotationMode)
                 Dalamud.Log("[FATE] TurnOnCombatMods /rotation manual")
             else
                 yield("/rotation off")
-                yield("/rotation auto on")
-                Dalamud.Log("[FATE] TurnOnCombatMods /rotation auto on")
+                yield("/rotation auto LowHP")
+                Dalamud.Log("[FATE] TurnOnCombatMods /rotation auto LowHP")
             end
         elseif RotationPlugin == "BMR" then
             Engines.Run("/bmrai setpresetname "..RotationAoePreset)
