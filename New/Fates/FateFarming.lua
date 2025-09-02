@@ -977,13 +977,13 @@ FatesData = {
 --#endregion Data
 
 --#region Utils
-function mysplit(inputstr)
+local function mysplit(inputstr)
     for str in string.gmatch(inputstr, "[^%.]+") do
         return str
     end
 end
 
-function load_type(type_path)
+local function load_type(type_path)
     local assembly = mysplit(type_path)
     luanet.load_assembly(assembly)
     local type_var = luanet.import_type(type_path)
@@ -1137,7 +1137,7 @@ function IsFateActive(fate)
     if fate.State == nil then
         return false
     else
-        LogInfo("Fate.State value: " .. tostring(fate.State))
+        Dalamud.Log("Fate.State value: " .. tostring(fate.State))
         return fate.State ~= FateState.Ending and fate.State ~= FateState.Ended and fate.State ~= FateState.Failed
     end
 end
@@ -3169,6 +3169,18 @@ CharacterState = {
     gcTurnIn                = GrandCompanyTurnIn,
     summonChocobo           = SummonChocobo,
     autoBuyGysahlGreens     = AutoBuyGysahlGreens
+}
+
+--- Fate state enum mapping (values confirmed from FFXIV SND)
+FateState = {
+    None       = 0,  -- no state / unknown
+    Preparing  = 1,  -- fate is setting up
+    Waiting    = 2,  -- waiting before spawn
+    Spawning   = 3,  -- mobs/NPCs spawning
+    Running    = 4,  -- fate active and in progress
+    Ending     = 5,  -- fate nearing completion
+    Ended      = 6,  -- fate finished successfully
+    Failed     = 7   -- fate failed
 }
 
 -- Settings Area
