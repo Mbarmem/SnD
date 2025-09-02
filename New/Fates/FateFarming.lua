@@ -121,7 +121,8 @@ configs:
         "Swampmonk Thigh",
         "Tumbleclaw Weeds",
         "Turali Bicolor Gemstone Voucher",
-        "Ty'aitya Wingblade"]
+        "Ty'aitya Wingblade",
+        "Ut'ohmu Siderite"]
   Chocobo Companion Stance:
     description: Will not summon chocobo if set to "None"
     default: "Healer"
@@ -358,6 +359,17 @@ BicolorExchangeData =
             { itemName = "Alexandrian Axe Beak Wing", itemIndex = 21, price = 3 },
             { itemName = "Lesser Apollyon Shell", itemIndex = 22, price = 3 },
             { itemName = "Tumbleclaw Weeds", itemIndex = 23, price = 3 },
+        }
+    },
+    {
+        shopKeepName = "Rral Wuruq",
+        zoneName = "Yak T'el",
+        zoneId = 1189,
+        aetheryteName = "Iq Br'aax",
+        position=Vector3(-381, 23, -436),
+        shopItems =
+        {
+            { itemName = "Ut'ohmu Siderite", itemIndex = 8, price = 600 }
         }
     }
 }
@@ -1137,7 +1149,6 @@ function IsFateActive(fate)
     if fate.State == nil then
         return false
     else
-        Dalamud.Log("Fate.State value: " .. tostring(fate.State))
         return fate.State ~= FateState.Ending and fate.State ~= FateState.Ended and fate.State ~= FateState.Failed
     end
 end
@@ -1162,7 +1173,7 @@ function SelectNextZone()
         end
     end
     if nextZone == nil then
-        Engines.Run("/echo  [FATE] Current zone is only partially supported. No data on npc fates.")
+        Engines.Run("/echo [FATE] Current zone is only partially supported. No data on npc fates.")
         nextZone = {
             zoneName = "",
             zoneId = nextZoneId,
@@ -1361,7 +1372,7 @@ function SelectNextFate()
     if nextFate == nil then
         Dalamud.Log("[FATE] No eligible fates found.")
         if Echo == "all" then
-            Engines.Run("/echo  [FATE] No eligible fates found.")
+            Engines.Run("/echo [FATE] No eligible fates found.")
         end
     else
         Dalamud.Log("[FATE] Final selected fate #"..nextFate.fateId.." "..nextFate.fateName)
@@ -1568,7 +1579,7 @@ function TeleportTo(aetheryteName)
         Dalamud.Log("[FATE] Too soon since last teleport. Waiting...")
         yield("/wait 5.001")
         if os.clock() - start > 30 then
-            Engines.Run("/echo  [FATE] Teleport failed: Timeout waiting before cast.")
+            Engines.Run("/echo [FATE] Teleport failed: Timeout waiting before cast.")
             return false
         end
     end
@@ -1579,7 +1590,7 @@ function TeleportTo(aetheryteName)
         Dalamud.Log("[FATE] Casting teleport...")
         yield("/wait 1")
         if os.clock() - start > 60 then
-            Engines.Run("/echo  [FATE] Teleport failed: Timeout during cast.")
+            Engines.Run("/echo [FATE] Teleport failed: Timeout during cast.")
             return false
         end
     end
@@ -1588,7 +1599,7 @@ function TeleportTo(aetheryteName)
         Dalamud.Log("[FATE] Teleporting...")
         yield("/wait 1")
         if os.clock() - start > 120 then
-            Engines.Run("/echo  [FATE] Teleport failed: Timeout during zone transition.")
+            Engines.Run("/echo [FATE] Teleport failed: Timeout during zone transition.")
             return false
         end
     end
@@ -1722,7 +1733,7 @@ function FlyBackToAetheryte()
     local closestAetheryte = GetClosestAetheryte(Svc.ClientState.LocalPlayer.Position, 0)
     if closestAetheryte == nil then
         DownTimeWaitAtNearestAetheryte = false
-        Engines.Run("/echo  Could not find aetheryte in the area. Turning off feature to fly back to aetheryte.")
+        Engines.Run("/echo Could not find aetheryte in the area. Turning off feature to fly back to aetheryte.")
         return
     end
     -- if you get any sort of error while flying back, then just abort and tp back
@@ -1789,7 +1800,7 @@ function MoveToRandomNearbySpot(minDist, maxDist)
         yield("/wait 2")
     end
     IPC.vnavmesh.PathfindAndMoveTo(targetPos, true)
-    Engines.Run("/echo  [FATE] Moving to a random location while waiting...")
+    Engines.Run("/echo [FATE] Moving to a random location while waiting...")
 end
 
 function Mount()
@@ -1993,7 +2004,7 @@ function MoveToFate()
         Dalamud.Log("[FATE] Moving to fate #"..CurrentFate.fateId.." "..CurrentFate.fateName)
         MovingAnnouncementLock = true
         if Echo == "all" then
-            Engines.Run("/echo  [FATE] Moving to fate #"..CurrentFate.fateId.." "..CurrentFate.fateName)
+            Engines.Run("/echo [FATE] Moving to fate #"..CurrentFate.fateId.." "..CurrentFate.fateName)
         end
     end
 
@@ -2529,7 +2540,7 @@ function DoFate()
             if not ForlornMarked then
                 Engines.Run("/enemysign attack1")
                 if Echo == "all" then
-                    Engines.Run("/echo  Found Forlorn! <se.3>")
+                    Engines.Run("/echo Found Forlorn! <se.3>")
                 end
                 TurnOffAoes()
                 ForlornMarked = true
@@ -2613,7 +2624,7 @@ end
 
 function Ready()
     if SelectedZone == nil or SelectedZone.zoneId == nil then
-        Engines.Run("/echo  [FATE] ERROR: SelectedZone is not set! Aborting.")
+        Engines.Run("/echo [FATE] ERROR: SelectedZone is not set! Aborting.")
         StopScript = true
         return
     end
@@ -2631,14 +2642,14 @@ function Ready()
     if not GemAnnouncementLock and (Echo == "all" or Echo == "gems") then
         GemAnnouncementLock = true
         if BicolorGemCount >= 1400 then
-            Engines.Run("/echo  [FATE] You're almost capped with "..tostring(BicolorGemCount).."/1500 gems! <se.3>")
+            Engines.Run("/echo [FATE] You're almost capped with "..tostring(BicolorGemCount).."/1500 gems! <se.3>")
             if ShouldExchangeBicolorGemstones and not shouldWaitForBonusBuff and Player.IsLevelSynced ~= true then
                 State = CharacterState.exchangingVouchers
                 Dalamud.Log("[FATE] State Change: ExchangingVouchers")
                 return
             end
         else
-            Engines.Run("/echo  [FATE] Gems: "..tostring(BicolorGemCount).."/1500")
+            Engines.Run("/echo [FATE] Gems: "..tostring(BicolorGemCount).."/1500")
         end
     end
 
@@ -2668,13 +2679,13 @@ function Ready()
 
     if Svc.ClientState.TerritoryType ~= SelectedZone.zoneId then
         if not SelectedZone or not SelectedZone.aetheryteList or not SelectedZone.aetheryteList[1] then
-            Engines.Run("/echo  [FATE] ERROR: No aetheryte found for selected zone. Cannot teleport. Stopping script.")
+            Engines.Run("/echo [FATE] ERROR: No aetheryte found for selected zone. Cannot teleport. Stopping script.")
             StopScript = true
             return
         end
         local teleSuccess = TeleportTo(SelectedZone.aetheryteList[1].aetheryteName)
         if teleSuccess == false then
-            Engines.Run("/echo  [FATE] ERROR: Teleportation failed. Stopping script.")
+            Engines.Run("/echo [FATE] ERROR: Teleportation failed. Stopping script.")
             StopScript = true
             return
         end
@@ -2768,7 +2779,7 @@ function HandleDeath()
             if Echo and not DeathAnnouncementLock then
                 DeathAnnouncementLock = true
                 if Echo == "all" then
-                    Engines.Run("/echo  [FATE] You have died. Returning to home aetheryte.")
+                    Engines.Run("/echo [FATE] You have died. Returning to home aetheryte.")
                 end
             end
 
@@ -2780,7 +2791,7 @@ function HandleDeath()
             if Echo and not DeathAnnouncementLock then
                 DeathAnnouncementLock = true
                 if Echo == "all" then
-                    Engines.Run("/echo  [FATE] You have died. Waiting until script detects you're alive again...")
+                    Engines.Run("/echo [FATE] You have died. Waiting until script detects you're alive again...")
                 end
             end
             yield("/wait 1")
@@ -2891,7 +2902,7 @@ function ProcessRetainers()
             if Addons.GetAddon("RetainerList").Ready then
                 Engines.Run("/ays e")
                 if Echo == "all" then
-                    Engines.Run("/echo  [FATE] Processing retainers")
+                    Engines.Run("/echo [FATE] Processing retainers")
                 end
                 yield("/wait 1")
             end
@@ -2912,7 +2923,7 @@ function GrandCompanyTurnIn()
             IPC.Lifestream.ExecuteCommand("gc")
             Dalamud.Log("[FATE] Executed Lifestream teleport to GC.")
         else
-            Engines.Run("/echo  [FATE] Lifestream IPC not available! Cannot teleport to GC.")
+            Engines.Run("/echo [FATE] Lifestream IPC not available! Cannot teleport to GC.")
             return
         end
         yield("/wait 1")
@@ -2925,7 +2936,7 @@ function GrandCompanyTurnIn()
             IPC.AutoRetainer.EnqueueInitiation()
             Dalamud.Log("[FATE] Called AutoRetainer.EnqueueInitiation() for GC handin.")
         else
-            Engines.Run("/echo  [FATE] AutoRetainer IPC not available! Cannot process GC turnin.")
+            Engines.Run("/echo [FATE] AutoRetainer IPC not available! Cannot process GC turnin.")
         end
     else
         State = CharacterState.ready
@@ -2987,7 +2998,7 @@ function Repair()
         elseif ShouldAutoBuyDarkMatter then
             if Svc.ClientState.TerritoryType ~=  129 then
                 if Echo == "all" then
-                    Engines.Run("/echo  Out of Dark Matter! Purchasing more from Limsa Lominsa.")
+                    Engines.Run("/echo Out of Dark Matter! Purchasing more from Limsa Lominsa.")
                 end
                 TeleportTo("Limsa Lominsa Lower Decks")
                 return
@@ -3016,7 +3027,7 @@ function Repair()
             end
         else
             if Echo == "all" then
-                Engines.Run("/echo  Out of Dark Matter and ShouldAutoBuyDarkMatter is false. Switching to Limsa mender.")
+                Engines.Run("/echo Out of Dark Matter and ShouldAutoBuyDarkMatter is false. Switching to Limsa mender.")
             end
             SelfRepair = false
         end
@@ -3306,7 +3317,7 @@ end
 -- Final warning if no dodging plugin is active
 if DodgingPlugin == "None" then
     Engines.Run(
-    "/echo  [FATE] Warning: you do not have an AI dodging plugin configured, so your character will stand in AOEs. Please install either Veyn's BossMod or BossMod Reborn")
+    "/echo [FATE] Warning: you do not have an AI dodging plugin configured, so your character will stand in AOEs. Please install either Veyn's BossMod or BossMod Reborn")
 end
 
 --Post Fate Settings
@@ -3338,12 +3349,12 @@ Echo                            = string.lower(Config.Get("Echo logs"))
 -- Plugin warnings
 if Retainers and not HasPlugin("AutoRetainer") then
     Retainers = false
-    Engines.Run("/echo  [FATE] Warning: you have enabled the feature to process retainers, but you do not have AutoRetainer installed.")
+    Engines.Run("/echo [FATE] Warning: you have enabled the feature to process retainers, but you do not have AutoRetainer installed.")
 end
 
 if ShouldGrandCompanyTurnIn and not HasPlugin("AutoRetainer") then
     ShouldGrandCompanyTurnIn = false
-    Engines.Run("/echo  [FATE] Warning: you have enabled the feature to process GC turn ins, but you do not have AutoRetainer installed.")
+    Engines.Run("/echo [FATE] Warning: you have enabled the feature to process GC turn ins, but you do not have AutoRetainer installed.")
 end
 
 -- Enable Auto Advance plugin
@@ -3356,7 +3367,7 @@ SetMaxDistance()
 --Set selected zone
 SelectedZone = SelectNextZone()
 if SelectedZone.zoneName ~= "" and Echo == "all" then
-    Engines.Run("/echo  [FATE] Farming "..SelectedZone.zoneName)
+    Engines.Run("/echo [FATE] Farming "..SelectedZone.zoneName)
 end
 Dalamud.Log("[FATE] Farming Start for "..SelectedZone.zoneName)
 
@@ -3376,7 +3387,7 @@ if ShouldExchangeBicolorGemstones ~= false then
         end
     end
     if SelectedBicolorExchangeData == nil then
-        Engines.Run("/echo  [FATE] Cannot recognize bicolor shop item "..ItemToPurchase.."! Please make sure it's in the BicolorExchangeData table!")
+        Engines.Run("/echo [FATE] Cannot recognize bicolor shop item "..ItemToPurchase.."! Please make sure it's in the BicolorExchangeData table!")
         StopScript = true
     end
 end
@@ -3402,7 +3413,7 @@ end
 while not StopScript do
     local nearestFate = Fates.GetNearestFate()
     if not IPC.vnavmesh.IsReady() then
-        Engines.Run("/echo  [FATE] Waiting for vnavmesh to build...")
+        Engines.Run("/echo [FATE] Waiting for vnavmesh to build...")
         Dalamud.Log("[FATE] Waiting for vnavmesh to build...")
         repeat
             yield("/wait 1")
@@ -3439,14 +3450,14 @@ while not StopScript do
             local msg = "[FATE] WaitingForFateRewards.fateObject is nil or fate state ("..tostring(state)..") indicates fate is finished for fateId: "..tostring(WaitingForFateRewards.fateId)..". Clearing it."
             Dalamud.Log(msg)
             if Echo == "all" then
-                Engines.Run("/echo  "..msg)
+                Engines.Run("/echo "..msg)
             end
             WaitingForFateRewards = nil
         else
             local msg = "[FATE] Not clearing WaitingForFateRewards: fate state="..tostring(state)..", expected one of [Ended: "..tostring(FateState.Ended)..", Failed: "..tostring(FateState.Failed).."] or nil."
             Dalamud.Log(msg)
             if Echo == "all" then
-                Engines.Run("/echo  "..msg)
+                Engines.Run("/echo "..msg)
             end
         end
     end
