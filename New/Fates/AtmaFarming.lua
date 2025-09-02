@@ -60,6 +60,17 @@ Atmas = {
 
 --=========================== FUNCTIONS ==========================--
 
+function OnChatMessage()
+    local message = TriggerData.message
+    local patternToMatch = "%[FateFarming%] ENDED !!"
+
+    if message and message:find(patternToMatch) then
+        LogInfo(string.format("%s OnChatMessage triggered", LogPrefix))
+        FateMacroRunning = false
+        LogInfo(string.format("%s FateMacro has stopped", LogPrefix))
+    end
+end
+
 function GetNextAtmaTable()
     for _, atmaTable in pairs(Atmas) do
         if GetItemCount(atmaTable.itemId) < NumberToFarm then
@@ -73,19 +84,26 @@ end
 LogInfo(string.format("%s Starting Atma farming process...", LogPrefix))
 Execute("/at y")
 
-NextAtmaTable = GetNextAtmaTable()
+FateMacroRunning  = false
+NextAtmaTable     = GetNextAtmaTable()
 
 while NextAtmaTable ~= nil do
-    if IsPlayerAvailable() and not IsMacroRunningOrQueued(FateMacro) then
+    if IsPlayerAvailable() and not FateMacroRunning then
         if GetItemCount(NextAtmaTable.itemId) >= NumberToFarm then
             LogInfo(string.format("%s Already have enough of %s. Moving to next.", LogPrefix, NextAtmaTable.itemName))
             NextAtmaTable = GetNextAtmaTable()
         elseif not IsInZone(NextAtmaTable.zoneId) then
             LogInfo(string.format("%s Teleporting to zone: %s", LogPrefix, NextAtmaTable.zoneName))
-            Teleport(GetAetheryteName(NextAtmaTable.zoneId))
+            local aetheryteName = GetAetheryteName(NextAtmaTable.zoneId)
+
+            if aetheryteName then
+                Teleport(aetheryteName)
+            else
+                LogInfo(string.format("%s No valid aetheryte found for zone %s", LogPrefix, NextAtmaTable.zoneId))
+            end
         else
             LogInfo(string.format("%s Starting FateMacro in %s for %s...", LogPrefix, NextAtmaTable.zoneName, NextAtmaTable.itemName))
-            Execute("/snd run ".. FateMacro)
+            Execute("/snd run " .. FateMacro)
         end
     end
     Wait(1)

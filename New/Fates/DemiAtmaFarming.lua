@@ -65,6 +65,17 @@ FarmingZoneIndex = 1
 FullPass         = true
 DidFateOnPass    = false
 
+function OnChatMessage()
+    local message = TriggerData.message
+    local patternToMatch = "%[FateFarming%] ENDED !!"
+
+    if message and message:find(patternToMatch) then
+        LogInfo(string.format("%s OnChatMessage triggered", LogPrefix))
+        FateMacroRunning = false
+        LogInfo(string.format("%s FateMacro has stopped", LogPrefix))
+    end
+end
+
 function GetNextAtmaTable()
     while FarmingZoneIndex <= #Atmas and GetItemCount(Atmas[FarmingZoneIndex].itemId) >= NumberToFarm do
         FarmingZoneIndex = FarmingZoneIndex + 1
@@ -93,26 +104,33 @@ end
 LogInfo(string.format("%s Starting DemiAtma farming...", LogPrefix))
 Execute("/at y")
 
-OldBicolorGemCount = GetItemCount(26807)
-NextAtmaTable = GetNextAtmaTable()
+FateMacroRunning     = false
+OldBicolorGemCount   = GetItemCount(26807)
+NextAtmaTable        = GetNextAtmaTable()
 
 while NextAtmaTable ~= nil do
-    if IsPlayerAvailable() and not IsMacroRunningOrQueued(FateMacro) then
+    if IsPlayerAvailable() and not FateMacroRunning then
         if GetItemCount(NextAtmaTable.itemId) >= NumberToFarm then
             LogInfo(string.format("%s Already have enough %s. Skipping zone: %s", LogPrefix, NextAtmaTable.itemName, NextAtmaTable.zoneName))
             NextAtmaTable = GetNextAtmaTable()
 
         elseif not IsInZone(NextAtmaTable.zoneId) then
             LogInfo(string.format("%s Teleporting to: %s", LogPrefix, NextAtmaTable.zoneName))
-            Teleport(GetAetheryteName(NextAtmaTable.zoneId))
+            local aetheryteName = GetAetheryteName(NextAtmaTable.zoneId)
+
+            if aetheryteName then
+                Teleport(aetheryteName)
+            else
+                LogInfo(string.format("%s No valid aetheryte found for zone %s", LogPrefix, NextAtmaTable.zoneId))
+            end
 
         else
             LogInfo(string.format("%s Running FateMacro in zone: %s for %s", LogPrefix, NextAtmaTable.zoneName, NextAtmaTable.itemName))
             Execute("/snd run " .. FateMacro)
 
-            repeat
-                Wait(1)
-            until not IsMacroRunningOrQueued(FateMacro)
+            while FateMacroRunning do
+                yield("/wait 3")
+            end
 
             LogInfo(string.format("%s FateMacro has stopped", LogPrefix))
             NewBicolorGemCount = GetItemCount(26807)
