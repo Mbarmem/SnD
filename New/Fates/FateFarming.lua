@@ -978,9 +978,9 @@ FatesData = {
 
 --#region Utils
 function mysplit(inputstr)
-  for str in string.gmatch(inputstr, "[^%.]+") do
-    return str
-  end
+    for str in string.gmatch(inputstr, "[^%.]+") do
+        return str
+    end
 end
 
 function load_type(type_path)
@@ -1137,6 +1137,7 @@ function IsFateActive(fate)
     if fate.State == nil then
         return false
     else
+        LogInfo("Fate.State value: " .. tostring(fate.State))
         return fate.State ~= FateState.Ending and fate.State ~= FateState.Ended and fate.State ~= FateState.Failed
     end
 end
@@ -1385,7 +1386,10 @@ end
 --#region Movement Functions
 
 function DistanceBetween(pos1, pos2)
-    return Vector3.Distance(pos1, pos2)
+    local dx = pos1.X - pos2.X
+    local dy = pos1.Y - pos2.Y
+    local dz = pos1.Z - pos2.Z
+    return math.sqrt(dx * dx + dy * dy + dz * dz)
 end
 
 function GetDistanceToPoint(vec3)
@@ -1413,9 +1417,9 @@ function GetDistanceToPointFlat(vec3)
 end
 
 function DistanceBetweenFlat(pos1, pos2)
-    local flat1 = Vector3(pos1.X, 0, pos1.Z)
-    local flat2 = Vector3(pos2.X, 0, pos2.Z)
-    return Vector3.Distance(flat1, flat2)
+    local dx = pos1.X - pos2.X
+    local dz = pos1.Z - pos2.Z
+    return math.sqrt(dx * dx + dz * dz)
 end
 
 function RandomAdjustCoordinates(position, maxDistance)
