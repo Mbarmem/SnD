@@ -1370,7 +1370,7 @@ function SelectNextFate()
 
     Dalamud.Log("[FATE] Finished considering all fates")
     if nextFate == nil then
-        Dalamud.Log("[FATE] No eligible fates found.")
+        Dalamud.Log("[FATE] .>H N found.")
         if Echo == "all" then
             Engines.Run("/echo [FATE] No eligible fates found.")
         end
@@ -3475,5 +3475,5 @@ if Player.Job.Id ~= MainClass.Id then
     Engines.Run("/gs change "..MainClass.Name)
 end
 
-Engines.Run("/echo [FateFarming] ENDED !!")
+Engines.Run("/echo [Fate] Loop Ended !!")
 --#endregion Main

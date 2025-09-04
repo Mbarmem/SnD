@@ -15,8 +15,6 @@ dependencies:
 configs:
   FateMacro:
     description: Name of the primary fate macro script.
-    type: string
-    required: true
 
 [[End Metadata]]
 --]=====]
@@ -49,7 +47,7 @@ ZonesToFarm = {
 
 function OnChatMessage()
     local message = TriggerData.message
-    local patternToMatch = "%[FateFarming%] ENDED !!"
+    local patternToMatch = "%[Fate%] Loop Ended !!"
 
     if message and message:find(patternToMatch) then
         LogInfo(string.format("%s OnChatMessage triggered", LogPrefix))
