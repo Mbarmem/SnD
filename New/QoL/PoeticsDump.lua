@@ -95,13 +95,13 @@ function CharacterState.poeticsBuyUnidentifiableOre()
         return
     end
 
-    if IsAddonReady("SelectIconString") then
-        Execute("/callback SelectIconString true 6")
+    if IsAddonReady("SelectYesno") then
+        Execute("/callback SelectYesno true 0")
         return
     end
 
-    if IsAddonReady("SelectYesno") then
-        Execute("/callback SelectYesno true 0")
+    if IsAddonReady("SelectIconString") then
+        Execute("/callback SelectIconString true 6")
         return
     end
 
@@ -117,6 +117,7 @@ function CharacterState.poeticsTurnIn()
     local ore = GetItemCount(OreItemId)
 
     if ore == 0 then
+        WaitForAddon("ShopExchangeItem", 10)
         if IsAddonReady("ShopExchangeItem") then
             Execute("/callback ShopExchangeItem true -1")
         else
@@ -135,6 +136,7 @@ function CharacterState.poeticsTurnIn()
 
     if IsAddonReady("SelectIconString") then
         Execute("/callback SelectIconString true 5")
+        Wait
         return
     end
 
