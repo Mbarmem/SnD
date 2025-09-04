@@ -136,7 +136,6 @@ function CharacterState.poeticsTurnIn()
 
     if IsAddonReady("SelectIconString") then
         Execute("/callback SelectIconString true 5")
-        Wait
         return
     end
 
