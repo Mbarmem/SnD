@@ -4,10 +4,8 @@ author: Mo
 version: 2.0.0
 description: Atma Farming - Secondary script for FateFarming
 plugin_dependencies:
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
-- TextAdvance
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD
@@ -15,12 +13,10 @@ dependencies:
 configs:
   FateMacro:
     description: Name of the primary fate macro script.
-    type: string
-    required: true
+    default: FateFarming
   NumberToFarm:
-    default: 1
     description: Number of each Atma to farm.
-    type: int
+    default: 1
     min: 1
     max: 99
 
@@ -62,7 +58,7 @@ Atmas = {
 
 function OnChatMessage()
     local message = TriggerData.message
-    local patternToMatch = "%[FateFarming%] ENDED !!"
+    local patternToMatch = "%[Fate%] Loop Ended !!"
 
     if message and message:find(patternToMatch) then
         LogInfo(string.format("%s OnChatMessage triggered", LogPrefix))
@@ -82,7 +78,6 @@ end
 --=========================== EXECUTION ==========================--
 
 LogInfo(string.format("%s Starting Atma farming process...", LogPrefix))
-Execute("/at y")
 
 FateMacroRunning  = false
 NextAtmaTable     = GetNextAtmaTable()
@@ -103,7 +98,7 @@ while NextAtmaTable ~= nil do
             end
         else
             LogInfo(string.format("%s Starting FateMacro in %s for %s...", LogPrefix, NextAtmaTable.zoneName, NextAtmaTable.itemName))
-            Execute("/snd run " .. FateMacro)
+            Execute(string.format("/snd run %s", FateMacro))
         end
     end
     Wait(1)

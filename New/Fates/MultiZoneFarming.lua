@@ -4,10 +4,8 @@ author: Mo
 version: 2.0.0
 description: Multi Zone Farming - Secondary script for FateFarming
 plugin_dependencies:
-- TeleporterPlugin
 - Lifestream
 - vnavmesh
-- TextAdvance
 dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD
@@ -15,6 +13,7 @@ dependencies:
 configs:
   FateMacro:
     description: Name of the primary fate macro script.
+    default: FateFarming
 
 [[End Metadata]]
 --]=====]
@@ -58,8 +57,6 @@ end
 
 --=========================== EXECUTION ==========================--
 
-Execute("/at y")
-
 FateMacroRunning     = false
 FarmingZoneIndex     = 1
 OldBicolorGemCount   = GetItemCount(26807)
@@ -68,7 +65,7 @@ while true do
     if IsPlayerAvailable() and not FateMacroRunning then
         if IsDead() or IsInCombat() or GetZoneID() == ZonesToFarm[FarmingZoneIndex].zoneId then
             LogInfo(string.format("%s Starting FateMacro in zone: %s", LogPrefix, ZonesToFarm[FarmingZoneIndex].zoneName))
-            Execute("/snd run " .. FateMacro)
+            Execute(string.format("/snd run %s", FateMacro))
             FateMacroRunning = true
 
             while FateMacroRunning do
