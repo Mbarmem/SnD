@@ -97,13 +97,20 @@ function CharacterState.poeticsBuyUnidentifiableOre()
 
     if IsAddonReady("ShopExchangeCurrency") then
         Execute(string.format("/callback ShopExchangeCurrency true 0 7 %d 0", qty))
-    elseif IsAddonReady("SelectYesno") then
-        Execute("/callback SelectYesno true 0")
-    elseif IsAddonReady("SelectIconString") then
-        Execute("/callback SelectIconString true 6")
-    else
-        Interact(IdyllshireTurnIn.oreNpc)
+        return
     end
+
+    if IsAddonReady("SelectYesno") then
+        Execute("/callback SelectYesno true 0")
+        return
+    end
+
+    if IsAddonReady("SelectIconString") then
+        Execute("/callback SelectIconString true 6")
+        return
+    end
+
+    Interact(IdyllshireTurnIn.oreNpc)
 end
 
 function CharacterState.poeticsTurnIn()
@@ -128,18 +135,25 @@ function CharacterState.poeticsTurnIn()
 
     if IsAddonReady("ShopExchangeItem") then
         Execute(string.format("/callback ShopExchangeItem true 0 1 %d 0", ore))
-    elseif IsAddonReady("ShopExchangeItemDialog") then
-        Execute("/callback ShopExchangeItemDialog true 0")
-    elseif IsAddonReady("SelectIconString") then
-        Execute("/callback SelectIconString true 5")
-    else
-        Interact(IdyllshireTurnIn.turnInNpc)
+        return
     end
+
+    if IsAddonReady("ShopExchangeItemDialog") then
+        Execute("/callback ShopExchangeItemDialog true 0")
+        return
+    end
+
+    if IsAddonReady("SelectIconString") then
+        Execute("/callback SelectIconString true 5")
+        return
+    end
+
+    Interact(IdyllshireTurnIn.turnInNpc)
 end
 
 function CharacterState.poeticsReady()
     if GetItemCount(PoeticsItemId) >= 1800 or GetItemCount(OreItemId) > 0 then
-        State = CharacterState.goToIdyllshireTurnIn
+        State = CharacterState.poeticsGoToIdyllshireTurnIn
         LogInfo(string.format("%s State changed to: GoToIdyllshireTurnIn", LogPrefix))
     else
         StopFlag = true
