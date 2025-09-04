@@ -95,8 +95,8 @@ function CharacterState.poeticsBuyUnidentifiableOre()
         return
     end
 
-    if IsAddonReady("ShopExchangeCurrency") then
-        Execute(string.format("/callback ShopExchangeCurrency true 0 7 %d 0", qty))
+    if IsAddonReady("SelectIconString") then
+        Execute("/callback SelectIconString true 6")
         return
     end
 
@@ -105,8 +105,8 @@ function CharacterState.poeticsBuyUnidentifiableOre()
         return
     end
 
-    if IsAddonReady("SelectIconString") then
-        Execute("/callback SelectIconString true 6")
+    if IsAddonReady("ShopExchangeCurrency") then
+        Execute(string.format("/callback ShopExchangeCurrency true 0 7 %d 0", qty))
         return
     end
 
@@ -133,8 +133,8 @@ function CharacterState.poeticsTurnIn()
         return
     end
 
-    if IsAddonReady("ShopExchangeItem") then
-        Execute(string.format("/callback ShopExchangeItem true 0 1 %d 0", ore))
+    if IsAddonReady("SelectIconString") then
+        Execute("/callback SelectIconString true 5")
         return
     end
 
@@ -143,8 +143,8 @@ function CharacterState.poeticsTurnIn()
         return
     end
 
-    if IsAddonReady("SelectIconString") then
-        Execute("/callback SelectIconString true 5")
+    if IsAddonReady("ShopExchangeItem") then
+        Execute(string.format("/callback ShopExchangeItem true 0 1 %d 0", ore))
         return
     end
 
