@@ -2,7 +2,7 @@
 Legacy/
 
 # 🗃 Ignore MinnuVerse code folder
-## MinnuVerse/
+MinnuVerse/
 
 # 📦 Ignore stub libraries
 .stubs/
