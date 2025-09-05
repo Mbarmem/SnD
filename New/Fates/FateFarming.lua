@@ -3475,5 +3475,5 @@ if Player.Job.Id ~= MainClass.Id then
     Engines.Run("/gs change "..MainClass.Name)
 end
 
-Engines.Run("/echo [Fate] Loop Ended !!")
+Engines.Run("/echo [FATE] Loop Ended !!")
 --#endregion Main

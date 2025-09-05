@@ -62,7 +62,7 @@ DidFateOnPass    = false
 
 function OnChatMessage()
     local message = TriggerData.message
-    local patternToMatch = "%[Fate%] Loop Ended !!"
+    local patternToMatch = "%[FATE%] Loop Ended !!"
 
     if message and message:find(patternToMatch) then
         LogInfo(string.format("%s OnChatMessage triggered", LogPrefix))
