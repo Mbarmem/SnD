@@ -11,18 +11,22 @@
   // ❌ Exclude legacy folders completely
   "Lua.workspace.ignoreDir": [
     "${workspaceFolder}/.stubs",
-    "${workspaceFolder}/Legacy"
+    "${workspaceFolder}/Legacy",
+    "${workspaceFolder}/MinnuVerse"
   ],
 
   "Lua.diagnostics.globals": [
     "import",
     "yield",
+    "Type",
+    "Activator",
     "Sleep",
     "Wait",
     "Dalamud",
     "Entity",
     "Player",
     "Config",
+    "Svc",
     "IPC",
     "Instances",
     "TriggerData",
