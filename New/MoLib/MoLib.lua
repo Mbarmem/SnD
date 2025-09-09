@@ -1,5 +1,6 @@
 --========================= DEPENDENCIES =========================--
 
+import("System")
 import("System.Numerics")
 
 --=========================== CONSTANT ===========================--
@@ -746,33 +747,30 @@ end
 
 --------------------------------------------------------------------
 
---- Initiates movement without pathfinding to the specified 3D coordinates using vnavmesh
---- @param x number X coordinate
---- @param y number Y coordinate
---- @param z number Z coordinate
+--- Initiates movement without pathfinding using vnavmesh
+--- Accepts either a single waypoint {x, y, z} or a table of waypoints { {x,y,z}, {x,y,z}, ... }
+--- @param coordinates table A single waypoint {x,y,z} or a list of waypoints
 --- @param fly boolean? [Optional] whether to enable flying movement. Defaults to false
-function PathMoveTo(x, y, z, fly)
+function PathMoveTo(coordinates, fly)
     fly = fly or false
-    local playerPos = Entity.Player.Position
-    local destination = Vector3(x, y, z)
-    LogDebug(string.format("[MoLib] PathMoveTo: Destination = %s, Fly = %s", tostring(destination), tostring(fly)))
 
-    -- Local await function for asynchronous task handling
-    local function await(o)
-        while not o.IsCompleted do
-            Wait(0.1)
+    local vector3ListType = Type.GetType("System.Collections.Generic.List`1[System.Numerics.Vector3]")
+    local pathPoints = Activator.CreateInstance(vector3ListType)
+
+    -- Detect if it's a single point {x,y,z} or multiple points {{x,y,z}, {x,y,z}}
+    if type(coordinates[1]) == "number" then
+        -- Single waypoint
+        local vector = Vector3(coordinates[1], coordinates[2], coordinates[3])
+        pathPoints:Add(vector)
+    else
+        -- Multiple waypoints
+        for _, coord in ipairs(coordinates) do
+            local vector = Vector3(coord[1], coord[2], coord[3])
+            pathPoints:Add(vector)
         end
-        return o.Result
     end
 
-    local task = IPC.vnavmesh.Pathfind(playerPos, destination, fly)
-    if type(task) ~= "userdata" then
-        LogDebug(string.format("[MoLib] Pathfinding failed."))
-        return
-    end
-
-    local path = await(task)
-    IPC.vnavmesh.MoveTo(path, fly)
+    IPC.vnavmesh.MoveTo(pathPoints, fly)
 end
 
 --------------------------------------------------------------------

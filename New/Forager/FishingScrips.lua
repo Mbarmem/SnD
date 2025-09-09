@@ -43,9 +43,6 @@ configs:
     default: 5
     min: 0
     max: 140
-  ReturnToGCTown:
-    description: Whether to return to the Grand Company town.
-    default: false
   DoAutoRetainers:
     description: Automatically interact with retainers for ventures.
     default: true
@@ -55,6 +52,9 @@ configs:
   SelfRepair:
     description: Automatically repair your own gear when durability is low.
     default: true
+  BuyDarkMatter:
+    description: Buy Dark Matter for self repair.
+    default: true
   RepairThreshold:
     description: Durability percentage at which tools should be repaired.
     default: 20
@@ -62,9 +62,6 @@ configs:
     max: 100
   ExtractMateria:
     description: Automatically extract materia from fully spiritbonded gear.
-    default: true
-  ReduceEphemerals:
-    description: Automatically reduce items gathered from ephemeral nodes.
     default: true
   MoveSpotsAfter:
     description: Number of minutes to fish one spot before moving to the next.
@@ -88,13 +85,12 @@ Food                   = Config.Get("Food")
 Potion                 = Config.Get("Potion")
 HubCity                = Config.Get("HubCity")
 MinInventoryFreeSlots  = Config.Get("MinInventoryFreeSlots")
-ReturnToGCTown         = Config.Get("ReturnToGCTown")
 DoAutoRetainers        = Config.Get("DoAutoRetainers")
 GrandCompanyTurnIn     = Config.Get("GrandCompanyTurnIn")
 SelfRepair             = Config.Get("SelfRepair")
+BuyDarkMatter          = Config.Get("BuyDarkMatter")
 RepairThreshold        = Config.Get("RepairThreshold")
 ExtractMateria         = Config.Get("ExtractMateria")
-ReduceEphemerals       = Config.Get("ReduceEphemerals")
 MoveSpotsAfter         = Config.Get("MoveSpotsAfter")
 ResetHardAmissAfter    = Config.Get("ResetHardAmissAfter")
 LogPrefix              = "[Forager]"
@@ -147,6 +143,21 @@ FishingBaitMerchant = {
     zoneId    = 129,
     aetheryte = "Limsa Lominsa",
     aethernet = { name = "Arcanists' Guild", x = -336, y = 12, z = 56 }
+}
+
+Mender = {
+    npcName   = "Alistair",
+    x         = -246.87,
+    y         = 16.19,
+    z         = 49.83
+}
+
+DarkMatterVendor = {
+    npcName   = "Unsynrael",
+    x         = -257.71,
+    y         = 16.19,
+    z         = 50.11,
+    wait      = 0.08
 }
 
 ------------------------
@@ -246,7 +257,7 @@ function OnChatMessage()
     if message and message:find(patternToMatch) then
         LogInfo(string.format("%s OnChatMessage triggered for Fish sense..!!", LogPrefix))
         State = CharacterState.fishSense
-        LogInfo(string.format("%s State changed to: FishSense", LogPrefix))
+        LogInfo(string.format("%s State Changed → FishSense", LogPrefix))
     end
 end
 
@@ -257,7 +268,7 @@ function CharacterState.fishSense()
 
     WaitForPlayer()
     State = CharacterState.teleportFishingZone
-    LogInfo(string.format("%s State changed to: TeleportFishingZone", LogPrefix))
+    LogInfo(string.format("%s State Changed → TeleportFishingZone", LogPrefix))
 end
 
 -------------------
@@ -268,7 +279,7 @@ function InterpolateCoordinates(startCoords, endCoords, n)
     local x = startCoords.x + n * (endCoords.x - startCoords.x)
     local y = startCoords.y + n * (endCoords.y - startCoords.y)
     local z = startCoords.z + n * (endCoords.z - startCoords.z)
-    LogInfo(string.format("%s Resulting coordinates: x=%.2f, y=%.2f, z=%.2f", LogPrefix, x, y, z))
+    LogInfo(string.format("%s Resulting coordinates: x = %.2f, y = %.2f, z = %.2f", LogPrefix, x, y, z))
     return { waypointX = x, waypointY = y, waypointZ = z }
 end
 
@@ -319,7 +330,7 @@ function SelectNewFishingHole()
     SelectedFishingSpot.z = SelectedFish.fishingSpots.pointToFace.z
 
     SelectedFishingSpot.startTime = os.clock()
-    SelectedFishingSpot.lastStuckCheckPosition = { x = GetPlayerRawXPos(), y = GetPlayerRawYPos(), z = GetPlayerRawZPos() }
+    SelectedFishingSpot.lastStuckCheckPosition = { x = Player.Entity.Position.X, y = Player.Entity.Position.Y, z = Player.Entity.Position.Z }
 end
 
 function RandomAdjustCoordinates(x, y, z, maxDistance)
@@ -344,14 +355,14 @@ function CharacterState.teleportFishingZone()
         SelectNewFishingHole()
         ResetHardAmissTime = os.clock()
         State = CharacterState.goToFishingHole
-        LogInfo(string.format("%s State changed to: GoToFishingHole", LogPrefix))
+        LogInfo(string.format("%s State Changed → GoToFishingHole", LogPrefix))
     end
 end
 
 function CharacterState.goToFishingHole()
     if not IsInZone(SelectedFish.zoneId) then
         State = CharacterState.teleportFishingZone
-        LogInfo(string.format("%s State changed to: TeleportFishingZone", LogPrefix))
+        LogInfo(string.format("%s State Changed → TeleportFishingZone", LogPrefix))
         return
     end
 
@@ -359,9 +370,9 @@ function CharacterState.goToFishingHole()
     local now = os.clock()
     if now - SelectedFishingSpot.startTime > 10 then
         SelectedFishingSpot.startTime = now
-        local x = GetPlayerRawXPos()
-        local y = GetPlayerRawYPos()
-        local z = GetPlayerRawZPos()
+        local x = Player.Entity.Position.X
+        local y = Player.Entity.Position.Y
+        local z = Player.Entity.Position.Z
 
         local lastStuckCheckPosition = SelectedFishingSpot.lastStuckCheckPosition
 
@@ -384,12 +395,12 @@ function CharacterState.goToFishingHole()
         SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
     end
 
-    local distanceToWaypoint = GetDistanceToPoint(SelectedFishingSpot.waypointX, GetPlayerRawYPos(), SelectedFishingSpot.waypointZ)
+    local distanceToWaypoint = GetDistanceToPoint(SelectedFishingSpot.waypointX, Player.Entity.Position.Y, SelectedFishingSpot.waypointZ)
     if distanceToWaypoint > 10 then
         if not IsMounted() then
             Mount()
             State = CharacterState.goToFishingHole
-            LogInfo(string.format("%s State changed to: GoToFishingHole", LogPrefix))
+            LogInfo(string.format("%s State Changed → GoToFishingHole", LogPrefix))
         elseif not (PathfindInProgress() or PathIsRunning()) then
             LogInfo(string.format("%s Moving to waypoint: (%.2f, %.2f, %.2f)", LogPrefix, SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ))
             PathfindAndMoveTo(SelectedFishingSpot.waypointX, SelectedFishingSpot.waypointY, SelectedFishingSpot.waypointZ, true)
@@ -402,7 +413,7 @@ function CharacterState.goToFishingHole()
     Dismount()
 
     State = CharacterState.fishing
-    LogInfo(string.format("%s State changed to: Fishing", LogPrefix))
+    LogInfo(string.format("%s State Changed → Fishing", LogPrefix))
 end
 
 ResetHardAmissTime = os.clock()
@@ -410,7 +421,7 @@ ResetHardAmissTime = os.clock()
 function CharacterState.fishing()
     if GetItemCount(29717) == 0 then
         State = CharacterState.buyFishingBait
-        LogInfo(string.format("%s State changed to: Buy Fishing Bait", LogPrefix))
+        LogInfo(string.format("%s State Changed → Buy Fishing Bait", LogPrefix))
         return
     end
 
@@ -421,7 +432,7 @@ function CharacterState.fishing()
             Wait(1)
         else
             State = CharacterState.turnIn
-            LogInfo(string.format("%s State changed to: TurnIn", LogPrefix))
+            LogInfo(string.format("%s State Changed → TurnIn", LogPrefix))
         end
         return
     end
@@ -434,7 +445,7 @@ function CharacterState.fishing()
             end
         else
             State = CharacterState.turnIn
-            LogInfo(string.format("%s State changed to: Forced TurnIn to avoid hard amiss", LogPrefix))
+            LogInfo(string.format("%s State Changed → Forced TurnIn to avoid hard amiss", LogPrefix))
         end
         return
     elseif os.clock() - SelectedFishingSpot.startTime > (MoveSpotsAfter*60) then
@@ -447,7 +458,7 @@ function CharacterState.fishing()
         else
             SelectNewFishingHole()
             State = CharacterState.awaitingAction
-            LogInfo(string.format("%s State changed to: Timeout AwaitingAction", LogPrefix))
+            LogInfo(string.format("%s State Changed → AwaitingAction (Timeout)", LogPrefix))
         end
         return
     elseif IsGathering() then
@@ -461,9 +472,9 @@ function CharacterState.fishing()
     local now = os.clock()
     if now - SelectedFishingSpot.startTime > 10 then
         SelectedFishingSpot.startTime = now
-        local x = GetPlayerRawXPos()
-        local y = GetPlayerRawYPos()
-        local z = GetPlayerRawZPos()
+        local x = Player.Entity.Position.X
+        local y = Player.Entity.Position.Y
+        local z = Player.Entity.Position.Z
 
         local lastStuckCheckPosition = SelectedFishingSpot.lastStuckCheckPosition
 
@@ -473,11 +484,9 @@ function CharacterState.fishing()
                 if PathfindInProgress() or PathIsRunning() then
                     PathStop()
                 end
-                local rX, rY, rZ = RandomAdjustCoordinates(x, y, z, 20)
-                if rX and rY and rZ then
-                    PathfindAndMoveTo(rX, rY, rZ, IsMounted())
-                    WaitForPathRunning()
-                end
+                SelectNewFishingHole()
+                State = CharacterState.awaitingAction
+                Dalamud.Log("[FishingScrips] State Changed → AwaitingAction (Stuck Nudge)")
                 return
             end
         end
@@ -486,10 +495,12 @@ function CharacterState.fishing()
         SelectedFishingSpot.lastStuckCheckPosition = { x = x, y = y, z = z }
     end
 
-    Execute("/vnavmesh movedir 0 0 5")
-    Wait(3)
-    PathStop()
-    Wait(0.5)
+    if not PathfindInProgress() and not PathIsRunning() then
+        PathMoveTo({SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z}, false)
+        Wait(0.5)
+        return
+    end
+
     ExecuteAction(CharacterAction.Actions.castFishing)
     Wait(0.5)
 end
@@ -500,7 +511,7 @@ function CharacterState.buyFishingBait()
             Execute("/callback Shop true -1")
         else
             State = CharacterState.goToFishingHole
-            LogInfo(string.format("%s State changed to: GoToFishingHole", LogPrefix))
+            LogInfo(string.format("%s State Changed → GoToFishingHole", LogPrefix))
         end
         return
     end
@@ -521,8 +532,8 @@ function CharacterState.buyFishingBait()
         return
     end
 
-    if IsAddonReady("TelepotTown") then
-        Execute("/callback TelepotTown true -1")
+    if IsAddonReady("TeleportTown") then
+        Execute("/callback TeleportTown false -1")
         return
     end
 
@@ -573,7 +584,7 @@ function CharacterState.goToHubCity()
     end
 
     State = CharacterState.awaitingAction
-    LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
+    LogInfo(string.format("%s State Changed → AwaitingAction", LogPrefix))
 end
 
 ------------------
@@ -586,15 +597,15 @@ function CharacterState.turnIn()
             Execute("/callback CollectablesShop true -1")
         elseif GetItemCount(GathererScripId) >= ScripExchangeItem.price then
             State = CharacterState.scripExchange
-            LogInfo(string.format("%s State changed to: ScripExchange", LogPrefix))
+            LogInfo(string.format("%s State Changed → ScripExchange", LogPrefix))
         else
             State = CharacterState.awaitingAction
-            LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
+            LogInfo(string.format("%s State Changed → AwaitingAction", LogPrefix))
         end
 
     elseif not IsInZone(SelectedHubCity.zoneId) then
         State = CharacterState.goToHubCity
-        LogInfo(string.format("%s State changed to: GoToHubCity", LogPrefix))
+        LogInfo(string.format("%s State Changed → GoToHubCity", LogPrefix))
 
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
@@ -602,8 +613,8 @@ function CharacterState.turnIn()
         end
         Wait(1)
 
-    elseif IsAddonReady("TelepotTown") then
-        Execute("/callback TelepotTown false -1")
+    elseif IsAddonReady("TeleportTown") then
+        Execute("/callback TeleportTown false -1")
 
     elseif GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > 1 then
         if not (PathfindInProgress() or PathIsRunning()) then
@@ -616,7 +627,7 @@ function CharacterState.turnIn()
             Execute("/callback CollectablesShop true -1")
         else
             State = CharacterState.scripExchange
-            LogInfo(string.format("%s State changed to: ScripExchange", LogPrefix))
+            LogInfo(string.format("%s State Changed → ScripExchange", LogPrefix))
         end
 
     else
@@ -646,15 +657,15 @@ function CharacterState.scripExchange()
             Execute("/callback InclusionShop true -1")
         elseif GetItemCount(SelectedFish.fishId) > 0 then
             State = CharacterState.turnIn
-            LogInfo(string.format("%s State changed to: TurnIn", LogPrefix))
+            LogInfo(string.format("%s State Changed → TurnIn", LogPrefix))
         else
             State = CharacterState.awaitingAction
-            LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
+            LogInfo(string.format("%s State Changed → AwaitingAction", LogPrefix))
         end
 
     elseif not IsInZone(SelectedHubCity.zoneId) then
         State = CharacterState.goToHubCity
-        LogInfo(string.format("%s State changed to: GoToHubCity", LogPrefix))
+        LogInfo(string.format("%s State Changed → GoToHubCity", LogPrefix))
 
     elseif SelectedHubCity.scripExchange.requiresAethernet and (not IsInZone(SelectedHubCity.aethernet.aethernetZoneId) or GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > DistanceBetween(SelectedHubCity.aethernet.x, SelectedHubCity.aethernet.y, SelectedHubCity.aethernet.z, SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) + 10) then
         if not LifestreamIsBusy() then
@@ -662,8 +673,8 @@ function CharacterState.scripExchange()
         end
         Wait(1)
 
-    elseif IsAddonReady("TelepotTown") then
-        Execute("/callback TelepotTown false -1")
+    elseif IsAddonReady("TeleportTown") then
+        Execute("/callback TeleportTown false -1")
 
     elseif GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z) > 1 then
         LogInfo(string.format("%s Moving to Scrip Exchange.", LogPrefix))
@@ -683,7 +694,7 @@ function CharacterState.scripExchange()
         Wait(1)
         Execute(string.format("/callback InclusionShop true 13 %s", ScripExchangeItem.subcategoryMenu))
         Wait(1)
-        Execute(string.format("/callback InclusionShop true 14 %d %d", ScripExchangeItem.listIndex, math.min(99, GetItemCount(GathererScripId) // ScripExchangeItem.price)))
+        Execute(string.format("/callback InclusionShop true 14 %d %d", ScripExchangeItem.listIndex, math.min(99, math.floor(GetItemCount(GathererScripId) / ScripExchangeItem.price))))
         Wait(1)
 
     else
@@ -702,7 +713,7 @@ function CharacterState.processAutoRetainers()
             Execute("/callback RetainerList true -1")
         elseif not ARRetainersWaitingToBeProcessed() and IsPlayerAvailable() then
             State = CharacterState.awaitingAction
-            LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
+            LogInfo(string.format("%s State Changed → AwaitingAction", LogPrefix))
         end
 
     elseif not (IsInZone(SelectedHubCity.zoneId) or IsInZone(SelectedHubCity.aethernet.aethernetZoneId)) then
@@ -715,8 +726,8 @@ function CharacterState.processAutoRetainers()
         end
         Wait(1)
 
-    elseif IsAddonReady("TelepotTown") then
-        Execute("/callback TelepotTown false -1")
+    elseif IsAddonReady("TeleportTown") then
+        Execute("/callback TeleportTown false -1")
 
     elseif GetDistanceToPoint(SelectedHubCity.retainerBell.x, SelectedHubCity.retainerBell.y, SelectedHubCity.retainerBell.z) > 1 then
         if not (PathfindInProgress() or PathIsRunning()) then
@@ -755,7 +766,7 @@ function CharacterState.gcTurnIn()
 
     else
         State = CharacterState.awaitingAction
-        LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
+        LogInfo(string.format("%s State Changed → AwaitingAction", LogPrefix))
         deliver = false
     end
 end
@@ -790,32 +801,31 @@ function CharacterState.executeRepair()
                 ExecuteGeneralAction(CharacterAction.GeneralActions.repair)
             elseif not NeedsRepair(RepairThreshold) then
                 State = CharacterState.awaitingAction
-                LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
+                LogInfo(string.format("%s State Changed → AwaitingAction", LogPrefix))
             end
 
-        elseif ShouldAutoBuyDarkMatter then
+        elseif BuyDarkMatter then
             if not IsInZone(129) then
                 LogInfo(string.format("%s Teleporting to Limsa to buy Dark Matter.", LogPrefix))
                 Teleport("Limsa Lominsa Lower Decks")
                 return
             end
 
-            local vendor = { npcName = "Unsynrael", x = -257.71, y = 16.19, z = 50.11, wait = 0.08 }
-            if GetDistanceToPoint(vendor.x, vendor.y, vendor.z) > DistanceBetween(hawkersAlleyAethernetShard.x, hawkersAlleyAethernetShard.y, hawkersAlleyAethernetShard.z, vendor.x, vendor.y, vendor.z) + 10 then
+            if GetDistanceToPoint(DarkMatterVendor.x, DarkMatterVendor.y, DarkMatterVendor.z) > DistanceBetween(hawkersAlleyAethernetShard.x, hawkersAlleyAethernetShard.y, hawkersAlleyAethernetShard.z, DarkMatterVendor.x, DarkMatterVendor.y, DarkMatterVendor.z) + 10 then
                 Teleport("Hawkers' Alley")
                 Wait(1)
-            elseif IsAddonReady("TelepotTown") then
-                Execute("/callback TelepotTown false -1")
-            elseif GetDistanceToPoint(vendor.x, vendor.y, vendor.z) > 5 then
+            elseif IsAddonReady("TeleportTown") then
+                Execute("/callback TeleportTown false -1")
+            elseif GetDistanceToPoint(DarkMatterVendor.x, DarkMatterVendor.y, DarkMatterVendor.z) > 5 then
                 if not (PathfindInProgress() or PathIsRunning()) then
-                    PathfindAndMoveTo(vendor.x, vendor.y, vendor.z)
+                    PathfindAndMoveTo(DarkMatterVendor.x, DarkMatterVendor.y, DarkMatterVendor.z)
                     WaitForPathRunning()
                 end
             else
-                if not HasTarget(vendor.npcName) then
-                    Target(vendor.npcName)
+                if not HasTarget(DarkMatterVendor.npcName) then
+                    Target(DarkMatterVendor.npcName)
                 elseif not IsOccupiedInQuestEvent() then
-                    Interact(vendor.npcName)
+                    Interact(DarkMatterVendor.npcName)
                 elseif IsAddonReady("SelectYesno") then
                     Execute("/callback SelectYesno true 0")
                 elseif IsAddonReady("Shop") then
@@ -836,28 +846,27 @@ function CharacterState.executeRepair()
                 return
             end
 
-            local mender = { npcName = "Alistair", x = -246.87, y = 16.19, z = 49.83 }
-            if GetDistanceToPoint(mender.x, mender.y, mender.z) > DistanceBetween(hawkersAlleyAethernetShard.x, hawkersAlleyAethernetShard.y, hawkersAlleyAethernetShard.z, mender.x, mender.y, mender.z) + 10 then
+            if GetDistanceToPoint(Mender.x, Mender.y, Mender.z) > DistanceBetween(hawkersAlleyAethernetShard.x, hawkersAlleyAethernetShard.y, hawkersAlleyAethernetShard.z, Mender.x, Mender.y, Mender.z) + 10 then
                 Teleport("Hawkers' Alley")
                 Wait(1)
-            elseif IsAddonReady("TelepotTown") then
-                Execute("/callback TelepotTown false -1")
-            elseif GetDistanceToPoint(mender.x, mender.y, mender.z) > 5 then
+            elseif IsAddonReady("TeleportTown") then
+                Execute("/callback TeleportTown false -1")
+            elseif GetDistanceToPoint(Mender.x, Mender.y, Mender.z) > 5 then
                 if not (PathfindInProgress() or PathIsRunning()) then
-                    PathfindAndMoveTo(mender.x, mender.y, mender.z)
+                    PathfindAndMoveTo(Mender.x, Mender.y, Mender.z)
                     WaitForPathRunning()
                 end
             else
-                if not HasTarget(mender.npcName) then
-                    Target(mender.npcName)
+                if not HasTarget(Mender.npcName) then
+                    Target(Mender.npcName)
                 elseif not IsOccupiedInQuestEvent() then
-                    Interact(mender.npcName)
+                    Interact(Mender.npcName)
                 end
             end
 
         else
             State = CharacterState.awaitingAction
-            LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
+            LogInfo(string.format("%s State Changed → AwaitingAction", LogPrefix))
         end
     end
 end
@@ -878,7 +887,7 @@ function CharacterState.extractMateria()
             Execute("/callback Materialize true -1")
         else
             State = CharacterState.awaitingAction
-            LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
+            LogInfo(string.format("%s State Changed → AwaitingAction", LogPrefix))
         end
     end
 end
@@ -920,42 +929,42 @@ function CharacterState.awaitingAction()
 
     if RepairThreshold > 0 and NeedsRepair(RepairThreshold) and (SelfRepair and GetItemCount(33916) > 0) then
         State = CharacterState.executeRepair
-        LogInfo(string.format("%s State changed to: ExecuteRepair", LogPrefix))
+        LogInfo(string.format("%s State Changed → ExecuteRepair", LogPrefix))
 
     elseif ExtractMateria and CanExtractMateria() > 0 and GetInventoryFreeSlotCount() > 1 then
         State = CharacterState.extractMateria
-        LogInfo(string.format("%s State changed to: ExtractMateria", LogPrefix))
+        LogInfo(string.format("%s State Changed → ExtractMateria", LogPrefix))
 
     elseif DoAutoRetainers and ARRetainersWaitingToBeProcessed() and GetInventoryFreeSlotCount() > 1 then
         State = CharacterState.processAutoRetainers
-        LogInfo(string.format("%s State changed to: ProcessingRetainers", LogPrefix))
+        LogInfo(string.format("%s State Changed → ProcessingRetainers", LogPrefix))
 
     elseif GetInventoryFreeSlotCount() <= MinInventoryFreeSlots and GetItemCount(SelectedFish.fishId) > 0 then
         State = CharacterState.turnIn
-        LogInfo(string.format("%s State changed to: TurnIn", LogPrefix))
+        LogInfo(string.format("%s State Changed → TurnIn", LogPrefix))
 
     elseif GrandCompanyTurnIn and GetInventoryFreeSlotCount() <= MinInventoryFreeSlots then
         State = CharacterState.gcTurnIn
-        LogInfo(string.format("%s State changed to: GCTurnIn", LogPrefix))
+        LogInfo(string.format("%s State Changed → GCTurnIn", LogPrefix))
 
     elseif GetInventoryFreeSlotCount() <= MinInventoryFreeSlots and GetItemCount(SelectedFish.fishId) == 0 then
         State = CharacterState.goToHubCity
-        LogInfo(string.format("%s State changed to: GoToSolutionNine", LogPrefix))
+        LogInfo(string.format("%s State Changed → GoToHubCity", LogPrefix))
 
     elseif GetItemCount(29717) == 0 then -- no bait
         State = CharacterState.buyFishingBait
-        LogInfo(string.format("%s State changed to: Buy Fishing Bait", LogPrefix))
+        LogInfo(string.format("%s State Changed → Buy Fishing Bait", LogPrefix))
 
     else
         State = CharacterState.goToFishingHole
-        LogInfo(string.format("%s State changed to: GoToFishingHole", LogPrefix))
+        LogInfo(string.format("%s State Changed → GoToFishingHole", LogPrefix))
     end
 end
 
 --=========================== EXECUTION ==========================--
 
 LastStuckCheckTime = os.clock()
-LastStuckCheckPosition = { x = GetPlayerRawXPos(), y = GetPlayerRawYPos(), z = GetPlayerRawZPos()}
+LastStuckCheckPosition = { x = Player.Entity.Position.X, y = Player.Entity.Position.Y, z = Player.Entity.Position.Z}
 
 if ScripColorToFarm == "Orange" then
     GathererScripId = OrangeGathererScripId
@@ -976,6 +985,12 @@ if ScripExchangeItem == nil then
 end
 
 SelectedFish = SelectFishTable()
+
+if not SelectedFish then
+    Echo(string.format("No fish table matches scrip color: %s. Stopping.", ScripColorToFarm), LogPrefix)
+    LogInfo(string.format("%s No fish table matches scrip color: %s. Stopping.", LogPrefix, ScripColorToFarm))
+    StopRunningMacros()
+end
 
 if IsInZone(SelectedFish.zoneId) then
     LogInfo(string.format("%s In fishing zone already. Selecting new fishing hole.", LogPrefix))
@@ -1015,7 +1030,7 @@ if not GetClassJobId(18) then
 end
 
 State = CharacterState.awaitingAction
-LogInfo(string.format("%s State changed to: AwaitingAction", LogPrefix))
+LogInfo(string.format("%s State Changed → AwaitingAction", LogPrefix))
 
 while true do
     State()
