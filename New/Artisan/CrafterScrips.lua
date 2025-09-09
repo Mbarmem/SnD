@@ -285,7 +285,7 @@ OrangeScrips = {
         classId        = 12,
         itemName       = "Rarefied Gargantuaskin Hat",
         itemId         = 44214,
-        recipeId       = 35817,
+        recipeId       = 35811,
         turninRow      = 0,
         turninIndex    = 4,
         turninType     = 15
@@ -293,7 +293,7 @@ OrangeScrips = {
     {
         className      = "Weaver",
         classId        = 13,
-        itemName       = "Rarefied Thunderyard Silk Culottes",
+        itemName       = "Rarefied Thunderyards Silk Culottes",
         itemId         = 44220,
         recipeId       = 35817,
         turninRow      = 0,
@@ -368,7 +368,7 @@ PurpleScrips = {
         classId        = 12,
         itemName       = "Rarefied Gargantuaskin Trouser",
         itemId         = 44213,
-        recipeId       = 35816,
+        recipeId       = 35810,
         turninRow      = 1,
         turninIndex    = 4,
         turninType     = 16
@@ -477,7 +477,6 @@ function Checks()
         StopRunningMacros()
     end
 
-    local SelectedItemToBuy = nil
     for _, item in ipairs(ScripExchangeItems) do
         if item.itemName == ItemToBuy then
             SelectedItemToBuy = item
@@ -485,7 +484,7 @@ function Checks()
         end
     end
 
-    if SelectedItemToBuy == nil then
+    if not SelectedItemToBuy then
         Echo(string.format("Could not find %s on the list of scrip exchange items.", ItemToBuy), LogPrefix)
         LogInfo(string.format("%s Could not find %s on the list of scrip exchange items.", LogPrefix, ItemToBuy))
         StopRunningMacros()
@@ -497,33 +496,41 @@ end
 ----------------
 
 function MoveForExchange()
+    local selectedHubCity = nil
     for _, city in ipairs(HubCities) do
         if city.zoneName == HubCity then
-            SelectedHubCity = city
-            SelectedHubCity.aetheryte = GetAetheryteName(city.zoneId)
+            selectedHubCity = city
+            break
         end
     end
 
-    if SelectedHubCity == nil then
+    if not selectedHubCity then
         Echo(string.format("Could not find hub city: %s", HubCity), LogPrefix)
         LogInfo(string.format("%s Could not find hub city: %s", LogPrefix, HubCity))
         StopRunningMacros()
+        return -- appease the analyzer
     end
 
-    StateReached = false
     LogInfo(string.format("%s Moving to Collectable Appraiser", LogPrefix))
 
-    while not StateReached do
-        ScripExchangeDistance = GetDistanceToPoint(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z)
+    local needTeleport = false
+    if not IsInZone(selectedHubCity.aethernet.aethernetZoneId) then
+        needTeleport = true
+    else
+        local distToAethernet = GetDistanceToPoint(selectedHubCity.aethernet.x, selectedHubCity.aethernet.y, selectedHubCity.aethernet.z)
 
-        if IsInZone(SelectedHubCity.aethernet.aethernetZoneId) and ScripExchangeDistance > 1 and ScripExchangeDistance < 100 then
-            if not (PathfindInProgress() or PathIsRunning()) then
-                MoveTo(SelectedHubCity.scripExchange.x, SelectedHubCity.scripExchange.y, SelectedHubCity.scripExchange.z, 2)
-                StateReached = true
-            end
-        else
-            Teleport(SelectedHubCity.aethernet.aethernetName)
+        if distToAethernet > 100 then
+            needTeleport = true
         end
+    end
+
+    if needTeleport then
+        Teleport(selectedHubCity.aethernet.aethernetName)
+    end
+
+    local distToExchange = GetDistanceToPoint(selectedHubCity.scripExchange.x, selectedHubCity.scripExchange.y, selectedHubCity.scripExchange.z)
+    if IsInZone(selectedHubCity.aethernet.aethernetZoneId) and distToExchange > 3 then
+        MoveTo(selectedHubCity.scripExchange.x, selectedHubCity.scripExchange.y, selectedHubCity.scripExchange.z, 2)
     end
 end
 
@@ -562,18 +569,22 @@ function LoopCount()
 end
 
 function ArtisanCrafting()
+    local itemName = nil
+    local recipeId = nil
+
     for _, item in ipairs(CollectableScrip) do
         if ClassId == item.classId then
-            ItemName = item.itemName
-            RecipeId = item.recipeId
+            itemName = item.itemName
+            recipeId = item.recipeId
             break
         end
     end
 
-    if not RecipeId or RecipeId == 0 then
+    if not recipeId then
         Echo(string.format("No valid Recipe Id found for this class."), LogPrefix)
         LogInfo(string.format("%s No valid Recipe Id found for this class.", LogPrefix))
         StopRunningMacros()
+        return -- appease the analyzer
     end
 
     while GetInventoryFreeSlotCount() > MinInventoryFreeSlots do
@@ -612,13 +623,13 @@ function ArtisanCrafting()
             end
 
             local nCraft = GetInventoryFreeSlotCount() - MinInventoryFreeSlots
-            if nCraft <= 0 then
+            if not nCraft or nCraft <= 0 then
                 Wait(1)
                 break
             end
 
-            LogInfo(string.format("%s Crafting: %s | Count: %d", LogPrefix, ItemName, nCraft))
-            ArtisanCraftItem(RecipeId, nCraft)
+            LogInfo(string.format("%s Crafting: %s | Count: %d", LogPrefix, itemName, nCraft))
+            ArtisanCraftItem(recipeId, nCraft)
             Wait(3)
 
         until true
@@ -641,52 +652,74 @@ function CollectableAppraiser()
         else
             Execute("/callback SelectIconString true 0")
         end
-        Wait(1)
+        Wait(0.3)
     end
 
     local orangeRaw = GetNodeText("CollectablesShop", 1, 14, 15, 4)
     local purpleRaw = GetNodeText("CollectablesShop", 1, 14, 16, 4)
 
-    Orange_Scrips = tonumber((orangeRaw):gsub(",", ""):match("^([%d,]+)/"))
-    Purple_Scrips = tonumber((purpleRaw):gsub(",", ""):match("^([%d,]+)/"))
+    local orangeScrips = tonumber((orangeRaw):gsub(",", ""):match("^([%d,]+)/"))
+    local purpleScrips = tonumber((purpleRaw):gsub(",", ""):match("^([%d,]+)/"))
 
-    if Orange_Scrips and Purple_Scrips and (Orange_Scrips < ScripOvercapLimit) and (Purple_Scrips < ScripOvercapLimit) then
+    if not (orangeScrips and purpleScrips) then
+        LogInfo(string.format("%s Could not parse scrip counts (Orange = %s, Purple = %s). Skipping Turn-in.", LogPrefix, tostring(orangeScrips), tostring(purpleScrips)))
+        Execute("/callback CollectablesShop true -1")
+        ClearTarget()
+        Wait(0.3)
+        return
+    end
+
+    local itemId                 = nil
+    local collectableTurninRow   = nil
+    local collectableTurninIndex = nil
+    local collectableTurninType  = nil
+
+    if (orangeScrips < ScripOvercapLimit) and (purpleScrips < ScripOvercapLimit) then
         for _, item in ipairs(CollectableScrip) do
             if item.classId == ClassId then
-                ItemId = item.itemId
-                CollectableTurninRow = item.turninRow
-                CollectableTurninIndex = item.turninIndex
-                CollectableTurninType = item.turninType
+                itemId = item.itemId
+                collectableTurninRow = item.turninRow
+                collectableTurninIndex = item.turninIndex
+                collectableTurninType = item.turninType
+                break
             end
         end
 
-        if GetItemCount(ItemId) > 0 then
-            Execute(string.format("/callback CollectablesShop true 14 %d", CollectableTurninIndex))
-            Wait(1)
-            Execute(string.format("/callback CollectablesShop true 12 %d", CollectableTurninRow))
-            Wait(1)
+        if not itemId then
+            Echo("No class turn-in mapping found; aborting turn-in.", LogPrefix)
+            Execute("/callback CollectablesShop true -1")
+            ClearTarget()
+            Wait(0.3)
+            return
+        end
 
-            ScripsRaw = GetNodeText("CollectablesShop", 1, 14, CollectableTurninType, 4)
-            ScripsConv = ScripsRaw:gsub(",", ""):match("^([%d,]+)/")
-            Scrips_Owned = tonumber(ScripsConv)
+        if GetItemCount(itemId) > 0 then
+            Execute(string.format("/callback CollectablesShop true 14 %d", collectableTurninIndex))
+            Wait(0.3)
+            Execute(string.format("/callback CollectablesShop true 12 %d", collectableTurninRow))
+            Wait(0.3)
 
-            while (Scrips_Owned <= ScripOvercapLimit) and (not IsAddonReady("SelectYesno")) and (GetItemCount(ItemId) > 0) do
+            local scripsRaw    = GetNodeText("CollectablesShop", 1, 14, collectableTurninType, 4)
+            local scripsConv   = scripsRaw:gsub(",", ""):match("^([%d,]+)/")
+            local scripsOwned  = tonumber(scripsConv)
+
+            while (scripsOwned <= ScripOvercapLimit) and (not IsAddonReady("SelectYesno")) and (GetItemCount(itemId) > 0) do
                 Execute("/callback CollectablesShop true 15 0")
-                Wait(1)
-                Scrips_Owned = tonumber(GetNodeText("CollectablesShop", 1, 14, CollectableTurninType, 4):gsub(",", ""):match("^([%d,]+)/"))
+                Wait(0.3)
+                scripsOwned = tonumber(GetNodeText("CollectablesShop", 1, 14, collectableTurninType, 4):gsub(",", ""):match("^([%d,]+)/"))
             end
         end
 
-        if IsAddonReady("Selectyesno") then
-            Execute("/callback Selectyesno true 1")
-            Wait(1)
+        if IsAddonReady("SelectYesno") then
+            Execute("/callback SelectYesno true 1")
+            Wait(0.3)
         end
 
         Execute("/callback CollectablesShop true -1")
         ClearTarget()
-        Wait(1)
+        Wait(0.3)
     else
-        LogInfo(string.format("%s Could not parse scrip counts (Orange=%s, Purple=%s). Skipping Turn-in.", LogPrefix, tostring(Orange_Scrips), tostring(Purple_Scrips)))
+        LogInfo(string.format("%s Scrips near/over cap (Orange = %s, Purple = %s). Skipping Turn-in.", LogPrefix, tostring(orangeScrips), tostring(purpleScrips)))
     end
 end
 
@@ -701,43 +734,39 @@ function ScripExchange()
         else
             Execute("/callback SelectIconString true 0")
         end
-        Wait(1)
+        Wait(0.3)
     end
 
-    for _, item in ipairs(ScripExchangeItems) do
-        if item.itemName == ItemToBuy then
-            ScripCategoryMenu = item.categoryMenu
-            ScripSubcategoryMenu = item.subcategoryMenu
-            ScripListIndex = item.listIndex
-            ScripPrice = item.price
-        end
-    end
+    local scripCategoryMenu    = SelectedItemToBuy.categoryMenu
+    local scripSubcategoryMenu = SelectedItemToBuy.subcategoryMenu
+    local scripListIndex       = SelectedItemToBuy.listIndex
+    local scripPrice           = SelectedItemToBuy.price
 
-    Execute(string.format("/callback InclusionShop true 12 %d", ScripCategoryMenu))
-    Wait(1)
-    Execute(string.format("/callback InclusionShop true 13 %d", ScripSubcategoryMenu))
-    Wait(1)
+    Execute(string.format("/callback InclusionShop true 12 %d", scripCategoryMenu))
+    Wait(0.3)
+    Execute(string.format("/callback InclusionShop true 13 %d", scripSubcategoryMenu))
+    Wait(0.3)
 
-    ScripsRaw = GetNodeText("InclusionShop", 1, 2, 4)
-    ScripsConv = ScripsRaw:gsub(",", "")
-    Scrips_Owned = tonumber(ScripsConv)
+    local scripsRaw    = GetNodeText("InclusionShop", 1, 2, 4)
+    local scripsConv   = scripsRaw:gsub(",", "")
+    local scripsOwned  = tonumber(scripsConv)
 
-    if Scrips_Owned >= MinScripExchange then
-        Scrip_Item_Number_To_Buy = Scrips_Owned // ScripPrice
-        Scrip_Item_Number_To_Buy_Final = math.min(Scrip_Item_Number_To_Buy, 99)
+    if scripsOwned >= MinScripExchange then
+        local scrip_Item_Number_To_Buy       = scripsOwned // scripPrice
+        local scrip_Item_Number_To_Buy_Final = math.min(scrip_Item_Number_To_Buy, 99)
 
-        Execute(string.format("/callback InclusionShop true 14 %d %d", ScripListIndex, Scrip_Item_Number_To_Buy_Final))
-        Wait(1)
+        Execute(string.format("/callback InclusionShop true 14 %d %d", scripListIndex, scrip_Item_Number_To_Buy_Final))
+        Wait(0.3)
 
         if IsAddonReady("ShopExchangeItemDialog") then
             Execute("/callback ShopExchangeItemDialog true 0")
-            Wait(1)
+            Wait(0.3)
         end
     end
 
     Execute("/callback InclusionShop true -1")
     ClearTarget()
-    Wait(1)
+    Wait(0.3)
 end
 
 ------------------
@@ -745,14 +774,19 @@ end
 ------------------
 
 function CanTurnin()
+    local itemId = nil
     for _, item in ipairs(CollectableScrip) do
         if item.classId == ClassId then
-            ItemId = item.itemId
+            itemId = item.itemId
             break
         end
     end
 
-    if GetItemCount(ItemId) >= MinItemsForTurnIns then
+    if not itemId then
+        return false
+    end
+
+    if GetItemCount(itemId) >= MinItemsForTurnIns then
         return true
     end
 
@@ -778,7 +812,7 @@ while LoopAmount == "infinite" or Loop < LoopAmount do
     MoveToInn()
     DoAR(DoAutoRetainers)
     ArtisanCrafting()
-    Repair()
+    Repair(RepairThreshold)
     MateriaExtraction(ExtractMateria)
     MoveForExchange()
     CollectableAppraiserScripExchange()

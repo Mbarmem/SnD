@@ -87,7 +87,8 @@ CharacterCondition = {
 --==============--
 
 --- Wrapper for Player.Available
---- @return boolean true if player is available; false otherwise
+--- Checks if the player is currently available and not busy
+--- @return boolean isAvailable  true if the player is available; false otherwise
 function IsPlayerAvailable()
     local isAvailable = Player and Player.Available and not Player.IsBusy
     LogDebug(string.format("[MoLib] IsPlayerAvailable: %s", tostring(isAvailable)))
@@ -97,7 +98,7 @@ end
 ---------------------------------------------------------------------
 
 --- Checks if the player is currently dead
---- @return boolean true if player is dead; false otherwise
+--- @return boolean isDead  true if player is dead; false otherwise
 function IsDead()
     local isDead = Svc.Condition[CharacterCondition.dead]
     LogDebug(string.format("[MoLib] IsDead: %s", tostring(isDead)))
@@ -107,7 +108,7 @@ end
 ---------------------------------------------------------------------
 
 --- Checks if the player is currently mounted
---- @return boolean true if player is mounted; false otherwise
+--- @return boolean isMounted  true if player is mounted; false otherwise
 function IsMounted()
     local isMounted = Svc.Condition[CharacterCondition.mounted]
     LogDebug(string.format("[MoLib] IsMounted: %s", tostring(isMounted)))
@@ -117,7 +118,7 @@ end
 ---------------------------------------------------------------------
 
 --- Checks if the player is currently crafting
---- @return boolean true if player is crafting; false otherwise
+--- @return boolean isCrafting  true if player is crafting, false otherwise
 function IsCrafting()
     local isCrafting = Svc.Condition[CharacterCondition.crafting]
     LogDebug(string.format("[MoLib] IsCrafting: %s", tostring(isCrafting)))
@@ -127,7 +128,7 @@ end
 ---------------------------------------------------------------------
 
 --- Checks if the player is currently gathering
---- @return boolean true if player is gathering; false otherwise
+--- @return boolean isGathering  true if player is gathering; false otherwise
 function IsGathering()
     local isGathering = Svc.Condition[CharacterCondition.gathering]
     LogDebug(string.format("[MoLib] IsGathering: %s", tostring(isGathering)))
@@ -137,7 +138,7 @@ end
 ---------------------------------------------------------------------
 
 --- Checks if the player is currently occupied in a mini-game
---- @return boolean true if player is playing mini game; false otherwise
+--- @return boolean isMiniGame  true if player is playing a mini-game; false otherwise
 function IsPlayingMiniGame()
     local isMiniGame = Svc.Condition[CharacterCondition.playingMiniGame]
     LogDebug(string.format("[MoLib] IsPlayingMiniGame: %s", tostring(isMiniGame)))
@@ -147,7 +148,7 @@ end
 ---------------------------------------------------------------------
 
 --- Checks if the player is currently playing Lord of Verminion
---- @return boolean true if player is lord of verminion; false otherwise
+--- @return boolean isPlaying  true if player is playing Lord of Verminion; false otherwise
 function IsPlayingLordOfVerminion()
     local isPlaying = Svc.Condition[CharacterCondition.playingLordOfVerminion]
     LogDebug(string.format("[MoLib] IsPlayingLordOfVerminion: %s", tostring(isPlaying)))
@@ -157,7 +158,7 @@ end
 ---------------------------------------------------------------------
 
 --- Checks if the player is currently in an occupied state
---- @return boolean true if player is occupied; false otherwise
+--- @return boolean isOccupied  true if player is occupied; false otherwise
 function IsOccupied()
     local isOccupied = Svc.Condition[CharacterCondition.occupied] or Svc.Condition[CharacterCondition.occupied39]
     LogDebug(string.format("[MoLib] IsOccupied: %s", tostring(isOccupied)))
@@ -166,10 +167,10 @@ end
 
 ---------------------------------------------------------------------
 
---- Checks if the player is currently InCombat
---- @return boolean true if player is in combat; false otherwise
+--- Checks if the player is currently in combat
+--- @return boolean isInCombat  true if player is in combat; false otherwise
 function IsInCombat()
-    local isInCombat = Entity.Player.IsInCombat
+    local isInCombat = Player and Player.Entity and Player.Entity.IsInCombat or false
     LogDebug(string.format("[MoLib] IsInCombat: %s", tostring(isInCombat)))
     return isInCombat
 end
@@ -177,7 +178,7 @@ end
 ---------------------------------------------------------------------
 
 --- Wrapper for Player.Entity.IsCasting
---- @return boolean true if player is casting; false otherwise
+--- @return boolean isCasting  true if player is casting, false otherwise
 function IsPlayerCasting()
     local isCasting = Player.Entity and Player.Entity.IsCasting
     LogDebug(string.format("[MoLib] IsPlayerCasting: %s", tostring(isCasting)))
@@ -186,8 +187,8 @@ end
 
 ---------------------------------------------------------------------
 
---- Checks if the player is currently occupied in a quest event (e.g., cutscene or interactive scene)
---- @return boolean true if player is occupied in quest event; false otherwise
+--- Checks if the player is currently occupied in a quest event (e.g. cutscene or interactive scene)
+--- @return boolean inQuestEvent  true if player is occupied in a quest event; false otherwise
 function IsOccupiedInQuestEvent()
     local inQuestEvent = Svc.Condition[CharacterCondition.occupiedInQuestEvent]
     LogDebug(string.format("[MoLib] IsOccupiedInQuestEvent: %s", tostring(inQuestEvent)))
@@ -197,7 +198,7 @@ end
 ---------------------------------------------------------------------
 
 --- Checks if the player is currently bound by duty
---- @return boolean true if player is bound by duty; false otherwise
+--- @return boolean isBoundByDuty  true if player is bound by duty; false otherwise
 function IsBoundByDuty()
     local isBoundByDuty = Svc.Condition[CharacterCondition.boundByDuty] or Svc.Condition[CharacterCondition.boundByDuty56]
     LogDebug(string.format("[MoLib] IsBoundByDuty: %s", tostring(isBoundByDuty)))
@@ -207,17 +208,17 @@ end
 ---------------------------------------------------------------------
 
 --- Checks if the player is currently occupied in a cutscene
---- @return boolean true if player is occupied in cutscene; false otherwise
+--- @return boolean inCutscene  true if player is occupied in a cutscene; false otherwise
 function IsOccupiedInCutScene()
     local inCutscene = Svc.Condition[CharacterCondition.occupiedInCutscene]
-    LogDebug(string.format("[MoLib] OccupiedInCutscene: %s", tostring(inCutscene)))
+    LogDebug(string.format("[MoLib] IsOccupiedInCutScene: %s", tostring(inCutscene)))
     return inCutscene
 end
 
 ---------------------------------------------------------------------
 
 --- Checks if the player is currently fishing
---- @return boolean true if player is fishing; false otherwise
+--- @return boolean isFishing  true if player is fishing; false otherwise
 function IsFishing()
     local isFishing = Svc.Condition[CharacterCondition.fishing]
     LogDebug(string.format("[MoLib] IsFishing: %s", tostring(isFishing)))
@@ -226,8 +227,8 @@ end
 
 ---------------------------------------------------------------------
 
---- Checks if the player is currently between Areas
---- @return boolean true if player is in between areas; false otherwise
+--- Checks if the player is currently between areas
+--- @return boolean isBetweenAreas  true if player is between areas; false otherwise
 function IsBetweenAreas()
     local isBetweenAreas = Svc.Condition[CharacterCondition.betweenAreas]
     LogDebug(string.format("[MoLib] IsBetweenAreas: %s", tostring(isBetweenAreas)))
@@ -236,47 +237,50 @@ end
 
 ---------------------------------------------------------------------
 
---- Checks if the player is currently occupied with the Summoning Bell
---- @return boolean true if player is occupied with the Summoning Bell; false otherwise
+--- Checks if the player is currently occupied with the summoning bell
+--- @return boolean isSummoningBell  true if player is occupied with the summoning bell; false otherwise
 function IsOccupiedSummoningBell()
-    local isOccupiedSummoningBell = Svc.Condition[CharacterCondition.occupiedSummoningBell]
-    LogDebug(string.format("[MoLib] IsOccupiedSummoningBell: %s", tostring(isOccupiedSummoningBell)))
-    return isOccupiedSummoningBell
+    local isSummoningBell = Svc.Condition[CharacterCondition.occupiedSummoningBell]
+    LogDebug(string.format("[MoLib] IsOccupiedSummoningBell: %s", tostring(isSummoningBell)))
+    return isSummoningBell
 end
 
 ---------------------------------------------------------------------
 
---- WaitForPlayer function to wait until the player is available
---- Continuously yields in defined intervals until IsPlayerAvailable() returns true
+--- Waits until the player is available
+--- Continuously yields in short intervals until IsPlayerAvailable returns true
+--- @return nil
 function WaitForPlayer()
     LogDebug(string.format("[MoLib] WaitForPlayer: Waiting for player to become available..."))
     repeat
         Wait(0.1)
     until IsPlayerAvailable()
-    LogDebug(string.format("[MoLib] WaitForPlayer: Player is now available."))
+    LogDebug(string.format("[MoLib] WaitForPlayer: Player is now available"))
     Wait(0.1)
 end
 
 --------------------------------------------------------------------
 
 --- Returns the current player's character name
---- @return string name returns the character's name, or nil if unavailable
+--- @return string|nil name  the character name, or nil if unavailable
 function GetCharacterName()
     local name = Entity and Entity.Player and Entity.Player.Name
-    LogDebug(string.format("[MoLib] GetCharacterName: %s", tostring(name)))
-    return name
+    if name then
+        LogDebug(string.format("[MoLib] GetCharacterName: %s", tostring(name)))
+        return name
+    end
 end
 
 --------------------------------------------------------------------
 
---- Returns the current player's class/job ID or compares with a given ID
---- @param id? number Optional job ID to compare against
---- @return number|boolean jobIdOrMatch Returns the job ID if no compare ID is provided, or a boolean if comparing
+--- Returns the current player's class/job ID, or compares it with a given ID
+--- @param id number?                        [optional] job ID to compare against
+--- @return number|boolean|nil jobIdOrMatch  job ID if no compare ID is provided, boolean if comparing, or nil if unavailable
 function GetClassJobId(id)
     local jobId = Player and Player.Job and Player.Job.Id
     LogDebug(string.format("[MoLib] GetClassJobId: %s", tostring(jobId)))
 
-    if id ~= nil then
+    if id then
         return jobId == id
     end
 
@@ -285,80 +289,34 @@ end
 
 --------------------------------------------------------------------
 
---- Wrapper for Character Condition
---- @param index number? [Optional] condition index from CharacterCondition
---- @return boolean|table? condition returns the condition value (if index provided), or the full condition table
-function GetCharacterCondition(index)
-    if index then
-        local condition = Svc.Condition and Svc.Condition[index] or nil
-        LogDebug(string.format("[MoLib] GetCharacterCondition[%s]: %s", tostring(index), tostring(condition)))
-        return condition
-    else
-        LogDebug(string.format("[MoLib] GetCharacterCondition: Returning full condition table"))
-        return Svc.Condition
-    end
-end
-
---------------------------------------------------------------------
-
---- Returns the player's current X position in the game world
---- @return number x returns the X coordinate
-function GetPlayerRawXPos()
-    local x = Player.Entity.Position.X
-    LogDebug(string.format("[MoLib] Player X Position: %.2f", x))
-    return x
-end
-
---------------------------------------------------------------------
-
---- Returns the player's current Y position in the game world
---- @return number y returns the Y coordinate
-function GetPlayerRawYPos()
-    local y = Player.Entity.Position.Y
-    LogDebug(string.format("[MoLib] Player Y Position: %.2f", y))
-    return y
-end
-
---------------------------------------------------------------------
-
---- Returns the player's current Z position in the game world
---- @return number z returns the Z coordinate
-function GetPlayerRawZPos()
-    local z = Player.Entity.Position.Z
-    LogDebug(string.format("[MoLib] Player Z Position: %.2f", z))
-    return z
-end
-
---------------------------------------------------------------------
-
 --- Checks if the player has a target, optionally matching a given name
---- @param targetName string? [Optional] target name to match
---- @return boolean true if a target exists and matches (if provided); false otherwise
+--- @param targetName string?   [optional] target name to match
+--- @return boolean hasTarget   true if a target exists and matches (if provided), false otherwise
 function HasTarget(targetName)
-    local currentTarget = Entity.Player.Target
+    local currentTarget = Entity and Entity.Player and Entity.Player.Target
 
     if targetName then
-        local result = currentTarget and currentTarget.Name == targetName
-        LogDebug(string.format("[MoLib] HasTarget '%s': %s", targetName, tostring(result)))
-        return result
-    else
-        local result = currentTarget ~= nil
-        LogDebug(string.format("[MoLib] HasTarget : %s", tostring(result)))
-        return result
+        local hasTarget = currentTarget and currentTarget.Name == targetName
+        LogDebug(string.format("[MoLib] HasTarget '%s': %s", targetName, tostring(hasTarget)))
+        return hasTarget
     end
+
+    local hasTarget = currentTarget ~= nil
+    LogDebug(string.format("[MoLib] HasTarget: %s", tostring(hasTarget)))
+    return hasTarget
 end
 
 --------------------------------------------------------------------
 
 --- Checks if the player currently has a status with the specified StatusId
---- @param targetId number The status ID to check for
---- @return boolean true if the status is found; false otherwise
+--- @param targetId number   the status ID to check for
+--- @return boolean success  true if the status is found, false otherwise
 function HasStatusId(targetId)
     local statusList = Player.Status
     LogDebug(string.format("[MoLib] Checking for StatusId = %d", targetId))
 
     if not statusList then
-        LogDebug(string.format("[MoLib] Player.Status is nil."))
+        LogDebug("[MoLib] Player.Status is nil")
         return false
     end
 
@@ -371,21 +329,21 @@ function HasStatusId(targetId)
         end
     end
 
-    LogDebug(string.format("[MoLib] StatusId %d not found in Player.Status list.", targetId))
+    LogDebug(string.format("[MoLib] StatusId %d not found in Player.Status list", targetId))
     return false
 end
 
 --------------------------------------------------------------------
 
 --- Checks if the player has a specific status and returns its remaining time
---- @param targetId number The status ID to check for
---- @return number? status.RemainingTime returns the remaining time in seconds if the status is found; nil otherwise
+--- @param targetId number        the status ID to check for
+--- @return number? remainingTime remaining time in seconds if the status is found, nil otherwise
 function GetStatusTimeRemaining(targetId)
     local statusList = Player.Status
     LogDebug(string.format("[MoLib] Checking remaining time for StatusId = %d", targetId))
 
     if not statusList then
-        LogDebug(string.format("[MoLib] Player.Status is nil."))
+        LogDebug("[MoLib] Player.Status is nil")
         return nil
     end
 
@@ -393,12 +351,12 @@ function GetStatusTimeRemaining(targetId)
         local status = statusList:get_Item(i)
 
         if status and status.StatusId == targetId then
-            LogDebug(string.format("[MoLib] Found StatusId %d at index %d with remaining time %.2f seconds.", targetId, i, status.RemainingTime))
+            LogDebug(string.format("[MoLib] Found StatusId %d at index %d with remaining time %.2f seconds", targetId, i, status.RemainingTime))
             return status.RemainingTime
         end
     end
 
-    LogDebug(string.format("[MoLib] StatusId %d not found in Player.Status list.", targetId))
+    LogDebug(string.format("[MoLib] StatusId %d not found in Player.Status list", targetId))
     return nil
 end
 
@@ -409,7 +367,7 @@ end
 --===============--
 
 --- Checks if an Artisan crafting list is currently running
---- @return boolean true if Artisan crafting list is running; false otherwise
+--- @return boolean isRunning  true if Artisan crafting list is running, false otherwise
 function ArtisanIsListRunning()
     local isRunning = IPC.Artisan.IsListRunning()
     LogDebug(string.format("[MoLib] Artisan list running: %s", tostring(isRunning)))
@@ -419,7 +377,7 @@ end
 --------------------------------------------------------------------
 
 --- Checks if an Artisan crafting list is currently paused
---- @return boolean true if Artisan crafting list is paused; false otherwise
+--- @return boolean isPaused  true if Artisan crafting list is paused, false otherwise
 function ArtisanIsListPaused()
     local isPaused = IPC.Artisan.IsListPaused()
     LogDebug(string.format("[MoLib] Artisan list paused: %s", tostring(isPaused)))
@@ -429,7 +387,7 @@ end
 --------------------------------------------------------------------
 
 --- Retrieves the current endurance status from the Artisan system
---- @return any status returns the current endurance status value
+--- @return boolean status  true if endurance is enabled, false otherwise
 function ArtisanGetEnduranceStatus()
     local status = IPC.Artisan.GetEnduranceStatus()
     LogDebug(string.format("[MoLib] Artisan endurance status retrieved: %s", tostring(status)))
@@ -439,7 +397,8 @@ end
 --------------------------------------------------------------------
 
 --- Sets the endurance status for the Artisan system
---- @param status any The endurance status value to set
+--- @param status boolean  the endurance status value to set (true to enable, false to disable)
+--- @return nil
 function ArtisanSetEnduranceStatus(status)
     LogDebug(string.format("[MoLib] Artisan endurance status set to: %s", tostring(status)))
     IPC.Artisan.SetEnduranceStatus(status)
@@ -448,11 +407,25 @@ end
 --------------------------------------------------------------------
 
 --- Queues a crafting request in Artisan for the specified item and quantity
---- @param itemId number The Recipe ID of the item to craft
---- @param quantity number The number of items to craft
+--- @param itemId integer   the recipe ID of the item to craft
+--- @param quantity integer the number of items to craft (must be > 0)
+--- @return nil
 function ArtisanCraftItem(itemId, quantity)
-    LogDebug(string.format("[MoLib] Queuing Artisan craft: itemId = %s, quantity = %s", tostring(itemId), tostring(quantity)))
-    IPC.Artisan.CraftItem(itemId, quantity)
+    local id  = tonumber(itemId)
+    local qty = math.floor(tonumber(quantity) or 0)
+
+    if not id or id <= 0 then
+        LogDebug("[MoLib] ArtisanCraftItem: invalid itemId, ignoring craft request")
+        return
+    end
+
+    if qty <= 0 then
+        LogDebug("[MoLib] ArtisanCraftItem: quantity <= 0, ignoring craft request")
+        return
+    end
+
+    LogDebug(string.format("[MoLib] Queuing Artisan craft: itemId = %d, quantity = %d", id, qty))
+    IPC.Artisan.CraftItem(id, qty)
 end
 
 --------------------------------------------------------------------
@@ -877,10 +850,10 @@ end
 --==================--
 
 --- Pauses the YesAlready plugin for the specified duration
---- @param sleepTime number? [Optional] pause duration in seconds (default is 300)
+--- @param sleepTime number [Optional] pause duration in seconds (default is 300)
 function PauseYesAlready(sleepTime)
     sleepTime = sleepTime or 300
-    LogDebug(string.format("[MoLib] YesAlready plugin paused for: %s seconds", tostring(sleepTime)))
+    LogDebug(string.format("[MoLib] YesAlready plugin paused for: %d seconds", sleepTime))
     IPC.YesAlready.PausePlugin(sleepTime)
 end
 
@@ -987,15 +960,17 @@ end
 --    Move    --
 --============--
 
---- Uses vnavmesh IPC to pathfind and move to a XYZ coordinate
---- Issues PathfindAndMoveTo request, waits for pathing to begin, and monitors movement
+--- Uses vnavmesh IPC to pathfind and move to a world position
+--- Issues PathfindAndMoveTo, waits for motion to begin, then monitors until completion
 --- Optionally stops early if player reaches specified stopDistance from destination
---- @param x number X coordinate
---- @param y number Y coordinate
---- @param z number Z coordinate
---- @param stopDistance number? [Optional] distance threshold to stop early (default 0, disables early stop)
---- @param fly boolean? [Optional] whether to enable flying movement (default false)
---- @return boolean true if path completed successfully or stopped early, false if path failed to start
+--- @overload fun(x: number, y: number, z: number): boolean
+--- @overload fun(x: number, y: number, z: number, stopDistance: number): boolean
+--- @param x number             X coordinate
+--- @param y number             Y coordinate
+--- @param z number             Z coordinate
+--- @param stopDistance? number [Optional] distance threshold to stop early (default 0, disables early stop)
+--- @param fly? boolean         [Optional] whether to enable flying movement (default false)
+--- @return boolean success     true if path completed successfully or stopped early, false if path failed to start
 function MoveTo(x, y, z, stopDistance, fly)
     fly = fly or false
     stopDistance = stopDistance or 0.0
@@ -1708,10 +1683,10 @@ end
 function StopRunningMacros(macroName)
     if macroName and macroName ~= "" then
         LogDebug(string.format("[MoLib] Stopping macro: %s", macroName))
-        Execute(string.format("/snd stop %s", macroName))
+        return Execute(string.format("/snd stop %s", macroName))
     else
         LogDebug(string.format("[MoLib] Stopping all macros"))
-        Execute("/snd stop all")
+        return Execute("/snd stop all")
     end
 end
 

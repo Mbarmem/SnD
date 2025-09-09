@@ -256,8 +256,8 @@ function IsNearAnyCrystal()
         return false
     end
 
-    local playerX = GetPlayerRawXPos()
-    local playerZ = GetPlayerRawZPos()
+    local playerX = Player.Entity.Position.X
+    local playerZ = Player.Entity.Position.Z
 
     for _, crystal in ipairs(crystalList) do
         local dx       = playerX - crystal.x
