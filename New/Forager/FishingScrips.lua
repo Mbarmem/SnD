@@ -334,7 +334,7 @@ function SelectNewFishingHole()
 end
 
 function RandomAdjustCoordinates(x, y, z, maxDistance)
-    local angle = math.random() * 2 * math.pi
+    local angle    = math.random() * 2 * math.pi
     local distance = maxDistance * math.random()
 
     local randomX = x + distance * math.cos(angle)
@@ -437,7 +437,7 @@ function CharacterState.fishing()
         return
     end
 
-    if os.clock() - ResetHardAmissTime > (ResetHardAmissAfter*60) then
+    if os.clock() - ResetHardAmissTime > (ResetHardAmissAfter * 60) then
         if IsGathering() then
             if not IsFishing() then
                 ExecuteAction(CharacterAction.Actions.quitFishing)
@@ -448,7 +448,7 @@ function CharacterState.fishing()
             LogInfo(string.format("%s State Changed → Forced TurnIn to avoid hard amiss", LogPrefix))
         end
         return
-    elseif os.clock() - SelectedFishingSpot.startTime > (MoveSpotsAfter*60) then
+    elseif os.clock() - SelectedFishingSpot.startTime > (MoveSpotsAfter * 60) then
         LogInfo(string.format("%s Switching fishing spots", LogPrefix))
         if IsGathering() then
             if not IsFishing() then
@@ -486,7 +486,7 @@ function CharacterState.fishing()
                 end
                 SelectNewFishingHole()
                 State = CharacterState.awaitingAction
-                Dalamud.Log("[FishingScrips] State Changed → AwaitingAction (Stuck Nudge)")
+                LogInfo(string.format("%s State Changed → AwaitingAction (Stuck Nudge)", LogPrefix))
                 return
             end
         end
@@ -496,7 +496,7 @@ function CharacterState.fishing()
     end
 
     if not PathfindInProgress() and not PathIsRunning() then
-        PathMoveTo({SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z}, false)
+        PathMoveTo({SelectedFishingSpot.x, SelectedFishingSpot.y, SelectedFishingSpot.z})
         Wait(0.5)
         return
     end
@@ -1003,7 +1003,6 @@ LogInfo(string.format("%s AutoHook enabled.", LogPrefix))
 SetAutoHookPreset(SelectedFish.autoHookPreset)
 LogInfo(string.format("%s Set AutoHook preset: %s", LogPrefix, SelectedFish.autoHookPreset))
 
-SelectedHubCity = nil
 for _, city in ipairs(HubCities) do
     if city.zoneName == HubCity then
         SelectedHubCity = city

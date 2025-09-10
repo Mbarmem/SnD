@@ -1714,18 +1714,16 @@ end
 
 --------------------------------------------------------------------
 
---- Options for ToggleCollection
 --- Toggles a plugin collection on or off
---- if the collection is enabled, it will be disabled
---- if the collection is disabled, it will be enabled and optionally run an extra task
 --- @class ToggleOptions
---- @field runAfterEnable string|nil      command to run after enabling the collection (e.g. "MacroChainer(Dailies)")
---- @field shouldRun fun():boolean|nil    predicate to decide whether to run the post-enable command
---- @param collectionName string          the name of the collection to toggle
---- @param opts table?                    [optional] options table
---- @return string state                  one of: "Disabled", "Enabled", "Running"
---- @overload fun(collectionName: string): string
---- @overload fun(collectionName: string, opts: ToggleOptions): string
+--- @field runAfterEnable? string        command to run after enabling the collection (e.g. "MacroChainer(Dailies)")
+--- @field shouldRun? fun():boolean      function to decide whether to run the post-enable command
+
+--- @param collectionName string         the name of the collection to toggle
+--- @param opts? ToggleOptions           [optional] options table
+--- @return string state                 one of: "Disabled", "Enabled", "Running"
+--- @overload fun(collectionName: string): 'Disabled'|'Enabled'|'Running'
+--- @overload fun(collectionName: string, opts: ToggleOptions): 'Disabled' | 'Enabled' | 'Running'
 function ToggleCollection(collectionName, opts)
     opts = opts or {}
 
