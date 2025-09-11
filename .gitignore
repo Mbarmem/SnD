@@ -6,4 +6,3 @@ Legacy/
 
 # ⚙ Ignore local Lua Language Server config
 .luarc.json
-
