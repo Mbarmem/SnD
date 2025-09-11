@@ -1,9 +1,6 @@
 # 🗃 Ignore legacy code folder
 Legacy/
 
-# 🗃 Ignore MinnuVerse code folder
-MinnuVerse/
-
 # 📦 Ignore stub libraries
 .stubs/
 

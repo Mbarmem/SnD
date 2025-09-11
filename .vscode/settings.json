@@ -11,8 +11,7 @@
   // ❌ Exclude legacy folders completely
   "Lua.workspace.ignoreDir": [
     "${workspaceFolder}/.stubs",
-    "${workspaceFolder}/Legacy",
-    "${workspaceFolder}/MinnuVerse"
+    "${workspaceFolder}/Legacy"
   ],
 
   "Lua.diagnostics.globals": [
