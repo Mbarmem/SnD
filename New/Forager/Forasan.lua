@@ -167,7 +167,11 @@ while true do
             if not LifestreamIsBusy() and PlayerAvailable() and not SafeIsGathering() then
                 LogInfo(string.format("%s Mounted for 5 minutes → using Teleport('Inn').", LogPrefix))
                 Execute("/gbr auto off")
+                Wait(1)
                 Teleport("Inn")
+                repeat
+                    Wait(1)
+                until PlayerAvailable()
                 mountedStartTime = nil
                 Execute("/gbr auto on")
             else
