@@ -120,6 +120,8 @@ end
 
 --=========================== EXECUTION ==========================--
 
+local mountedStartTime = nil
+
 ::MainLoop::
 
 while true do
@@ -127,6 +129,7 @@ while true do
 
     if IsInZone(Zones.FreeCompany) and available then
         LogInfo(string.format("%s Entered zone %d with player available → executing artisan start.", LogPrefix, Zones.FreeCompany))
+        mountedStartTime = nil
         Execute(string.format("/artisan lists %s start", ArtisanList))
 
         local startClock = os.clock()
@@ -149,20 +152,41 @@ while true do
 
     if not available then
         LogInfo(string.format("%s Idle check skipped → Player not available (zoning/loading?).", LogPrefix))
+        mountedStartTime = nil
         Wait(1)
 
     elseif SafeIsMounted() then
-        LogInfo(string.format("%s Skipping check → Player is mounted.", LogPrefix))
+        if mountedStartTime == nil then
+            mountedStartTime = os.clock()
+        end
+
+        local mountedDur = os.clock() - mountedStartTime
+        LogInfo(string.format("%s Player is mounted (%.0fs).", LogPrefix, mountedDur))
+
+        if mountedDur >= 300 then
+            if not LifestreamIsBusy() and PlayerAvailable() and not SafeIsGathering() then
+                LogInfo(string.format("%s Mounted for 5 minutes → using Teleport('Inn').", LogPrefix))
+                Execute("/gbr auto off")
+                Teleport("Inn")
+                mountedStartTime = nil
+                Execute("/gbr auto on")
+            else
+                LogInfo(string.format("%s Mounted ≥5m but player busy/unavailable → postponing Teleport.", LogPrefix))
+            end
+        end
+
         Wait(1)
 
     elseif SafeIsGathering() then
         LogInfo(string.format("%s Skipping check → Player is gathering.", LogPrefix))
+        mountedStartTime = nil
         Wait(1)
 
     else
         local startPos = SafeGetPos()
         if not startPos then
             LogInfo(string.format("%s Idle check skipped → Invalid start position.", LogPrefix))
+            mountedStartTime = nil
             Wait(1)
         else
             LogInfo(string.format("%s Idle check started. Monitoring player position...", LogPrefix))
@@ -176,6 +200,7 @@ while true do
                     LogInfo(string.format("%s Player idle but currently gathering/unavailable → skipping Jump.", LogPrefix))
                 end
             end
+            mountedStartTime = nil
         end
     end
 
