@@ -27,9 +27,9 @@ dependencies:
 --    General    --
 -------------------
 
-StopAtLevel        = 50
-MaxRunsPerTier     = 10
-LogPrefix          = "[LevelFarmer]"
+StopAtLevel      = 50
+MaxRunsPerTier   = 10
+LogPrefix        = "[LevelFarmer]"
 
 --============================ CONSTANT ==========================--
 
@@ -133,6 +133,8 @@ function RunDungeon(d)
 
     Execute("/equiprecommended")
     Wait(1)
+    Repair(20)
+    Wait(1)
     AutoDutyConfig("dutyModeEnum", d.dutyMode)
     AutoDutyRun(d.dutyId, 1, true)
 
@@ -160,10 +162,7 @@ function AdvanceLeaderToNextCeiling(jobName)
         return
     end
 
-    local hi_next = (Dungeons[curIdx + 2] and Dungeons[curIdx + 2].dutyLevel) or math.huge
-    local next_ceiling = (hi_next == math.huge) and StopAtLevel or (hi_next - 1)
-    local goal = math.min(StopAtLevel, next_ceiling)
-
+    local goal = math.min(StopAtLevel, NextCeilingFromLevel(level))
     if level >= goal then
         return
     end
@@ -208,6 +207,22 @@ function ScanLevels()
     return levels
 end
 
+function NextCeilingFromLevel(level)
+    local curIdx = TierForLevel(level)
+    if not curIdx then
+        return Dungeons[1].dutyLevel or StopAtLevel
+    end
+
+    if Dungeons[curIdx + 2] and Dungeons[curIdx + 2].dutyLevel then
+        return Dungeons[curIdx + 2].dutyLevel
+    end
+
+    if Dungeons[curIdx + 1] and Dungeons[curIdx + 1].dutyLevel then
+        return Dungeons[curIdx + 1].dutyLevel
+    end
+    return StopAtLevel
+end
+
 --=========================== EXECUTION ==========================--
 
 do
@@ -232,7 +247,7 @@ do
             break
         end
 
-        local TargetLevel = math.min(StopAtLevel, maxLv)
+        local TargetLevel = math.min(StopAtLevel, NextCeilingFromLevel(maxLv))
         LogInfo(string.format("%s TargetLevel for this cycle → %d", LogPrefix, TargetLevel))
 
         local allAtTarget = true
@@ -266,7 +281,9 @@ do
             WaitForPlayer()
 
             local level = GetLevel()
-            LogInfo(string.format("%s === Job: %s (Lv %d / Target %d) ===", LogPrefix, jobName, level, TargetLevel))
+            LogInfo(string.format("%s === Job: %s ===", LogPrefix, jobName))
+            LogInfo(string.format("%s %s Current level → %d", LogPrefix, jobName, level))
+            LogInfo(string.format("%s %s Target level → %d", LogPrefix, jobName, TargetLevel))
 
             if ReachedStopCap(level) or level >= TargetLevel then
                 LogInfo(string.format("%s %s meets target/cap. Skipping.", LogPrefix, jobName))
@@ -300,7 +317,7 @@ do
                 end
 
                 local dungeon = Dungeons[idx]
-                LogInfo(string.format("%s %s Lv %d → %s (tier %d). Cycle target: %d", LogPrefix, jobName, level, dungeon.Name, idx, TargetLevel))
+                LogInfo(string.format("%s %s Lv %d → %s (tier %d).", LogPrefix, jobName, level, dungeon.Name, idx))
 
                 RunDungeon(dungeon)
 
