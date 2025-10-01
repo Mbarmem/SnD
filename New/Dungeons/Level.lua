@@ -91,7 +91,7 @@ function GetLevel()
 end
 
 function ReachedStopCap(level)
-    return level >= 50
+    return level >= StopAtLevel
 end
 
 function BestRunnableDungeonIndex(level)
@@ -193,6 +193,23 @@ function AdvanceLeaderToNextCeiling(jobName)
     end
 end
 
+function CycleTargetFromMaxLevel(maxLv)
+    local i, lo, _ = TierForLevel(maxLv)
+    if not i then
+        return Dungeons[1].dutyLevel or StopAtLevel
+    end
+
+    local nextTier = Dungeons[i + 1]
+    if nextTier and nextTier.dutyLevel then
+        if maxLv < nextTier.dutyLevel then
+            return nextTier.dutyLevel
+        else
+            return lo
+        end
+    end
+    return lo
+end
+
 function ScanLevels()
     local levels = {}
 
@@ -247,7 +264,7 @@ do
             break
         end
 
-        local TargetLevel = math.min(StopAtLevel, NextCeilingFromLevel(maxLv))
+        local TargetLevel = math.min(StopAtLevel, CycleTargetFromMaxLevel(maxLv))
         LogInfo(string.format("%s TargetLevel for this cycle → %d", LogPrefix, TargetLevel))
 
         local allAtTarget = true
