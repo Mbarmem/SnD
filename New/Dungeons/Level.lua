@@ -20,7 +20,7 @@ dependencies:
 configs:
   StopAtLevel:
     description: Automatically stops leveling once all selected jobs reach the specified level.
-    default: 50
+    default: 60
     min: 1
     max: 100
   MaxRunsPerTier:
@@ -96,6 +96,12 @@ Dungeons = {
         dutyId       = 1042,
         dutyMode     = "Support",
         dutyLevel    = 41
+    },
+    {
+        Name         = "The Porta Decumana",
+        dutyId       = 1048,
+        dutyMode     = "Support",
+        dutyLevel    = 50
     },
 }
 
