@@ -1807,15 +1807,15 @@ end
 --- @return number count    the total count of the item
 function GetItemCount(itemId)
     local count = Inventory.GetItemCount(itemId)
-    LogDebug(string.format("[MoLib] Queried item ID %d: Normal Count = %d", itemId, count))
+    LogDebug(string.format("[MoLib] Queried NQ item ID %d: Normal Count = %d", itemId, count))
 
     if count == 0 then
         count = Inventory.GetHqItemCount(itemId)
-        LogDebug(string.format("[MoLib] Queried HQ for item ID %d: HQ Count = %d", itemId, count))
+        LogDebug(string.format("[MoLib] Queried HQ item ID %d: HQ Count = %d", itemId, count))
 
         if count == 0 then
             count = Inventory.GetCollectableItemCount(itemId, 1)
-            LogDebug(string.format("[MoLib] Queried Collectables for item ID %d: Collectable Count = %d", itemId, count))
+            LogDebug(string.format("[MoLib] Queried Collectables item ID %d: Collectable Count = %d", itemId, count))
         end
     end
     return count
