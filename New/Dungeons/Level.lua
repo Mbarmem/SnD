@@ -17,6 +17,20 @@ dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD
   type: git
+configs:
+  StopAtLevel:
+    description: Automatically stops leveling once all selected jobs reach the specified level.
+    default: 50
+    min: 1
+    max: 100
+  MaxRunsPerTier:
+    description: Limits the number of dungeon runs per tier.
+    default: 10
+    min: 1
+    max: 100
+  Food:
+    description: The food item to consume for extra experience gain.
+    default: Apple Juice <hq>
 
 [[End Metadata]]
 --]=====]
@@ -27,8 +41,9 @@ dependencies:
 --    General    --
 -------------------
 
-StopAtLevel      = 50
-MaxRunsPerTier   = 10
+StopAtLevel      = Config.Get("StopAtLevel")
+MaxRunsPerTier   = Config.Get("MaxRunsPerTier")
+Food             = Config.Get("Food")
 LogPrefix        = "[LevelFarmer]"
 
 --============================ CONSTANT ==========================--
@@ -135,6 +150,8 @@ function RunDungeon(d)
     Wait(1)
     Repair(20)
     Wait(1)
+    FoodCheck()
+    Wait(1)
     AutoDutyConfig("dutyModeEnum", d.dutyMode)
     AutoDutyRun(d.dutyId, 1, true)
 
@@ -193,23 +210,6 @@ function AdvanceLeaderToNextCeiling(jobName)
     end
 end
 
-function CycleTargetFromMaxLevel(maxLv)
-    local i, lo, _ = TierForLevel(maxLv)
-    if not i then
-        return Dungeons[1].dutyLevel or StopAtLevel
-    end
-
-    local nextTier = Dungeons[i + 1]
-    if nextTier and nextTier.dutyLevel then
-        if maxLv < nextTier.dutyLevel then
-            return nextTier.dutyLevel
-        else
-            return lo
-        end
-    end
-    return lo
-end
-
 function ScanLevels()
     local levels = {}
 
@@ -240,12 +240,24 @@ function NextCeilingFromLevel(level)
     return StopAtLevel
 end
 
+function FoodCheck()
+    if not HasStatusId(48) or GetStatusTimeRemaining(48) < 1500 then
+        local foodForExp = GetItemCount(4747)
+        if Food ~= "" and foodForExp and foodForExp > 1 then
+            LogInfo(string.format("%s Using %s for this cycle", LogPrefix, Food))
+            Engines.Run(string.format("/item %s", Food))
+        end
+    end
+end
+
 --=========================== EXECUTION ==========================--
 
 do
     while true do
         local levels   = ScanLevels()
         local maxLv    = 0
+        local minLv    = math.huge
+        local minJob   = nil
         local allAtCap = true
 
         for _, jobName in ipairs(Jobs) do
@@ -253,6 +265,11 @@ do
 
             if lv > maxLv then
                 maxLv = lv
+            end
+
+            if lv < minLv then
+                minLv  = lv
+                minJob = jobName
             end
 
             if lv < StopAtLevel then
@@ -264,7 +281,8 @@ do
             break
         end
 
-        local TargetLevel = math.min(StopAtLevel, CycleTargetFromMaxLevel(maxLv))
+        local TargetLevel = math.min(StopAtLevel, NextCeilingFromLevel(minLv))
+        TargetLevel = math.max(TargetLevel, minLv + 1)
         LogInfo(string.format("%s TargetLevel for this cycle → %d", LogPrefix, TargetLevel))
 
         local allAtTarget = true
@@ -276,17 +294,10 @@ do
         end
 
         if (not allAtCap) and allAtTarget then
-            local leader = nil
-
-            for _, jobName in ipairs(Jobs) do
-                if (levels[jobName] or 1) == TargetLevel then
-                    leader = jobName
-                    break
-                end
-            end
+            local leader = minJob
 
             if leader then
-                LogInfo(string.format("%s All jobs at Lv %d. Advancing leader to next ceiling: %s", LogPrefix, TargetLevel, leader))
+                LogInfo(string.format("%s All jobs >= Lv %d. Advancing leader to next ceiling: %s", LogPrefix, TargetLevel, leader))
                 AdvanceLeaderToNextCeiling(leader)
                 goto cycle_end
             end
