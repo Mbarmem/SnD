@@ -407,7 +407,7 @@ AlliedSocietiesTable = {
         y                 = 142.24,
         z                 = 784.53,
         zoneId            = 1187,
-        aetheryteName     = "Worlor's Echo",
+        aetheryteName     = "Worlar's Echo",
         expac             = "Dawntrail"
     }
 }
