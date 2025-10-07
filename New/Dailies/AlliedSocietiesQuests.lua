@@ -401,8 +401,8 @@ AlliedSocietiesTable = {
     yokhuy = {
         alliedSocietyName = "Yok Huy",
         questGiver        = "Vuyargur",
-        mainQuests        = { first = 0, last = 0 },
-        dailyQuests       = { first = 0, last = 0 },
+        mainQuests        = { first = 5330, last = 5335 },
+        dailyQuests       = { first = 5336, last = 5363 },
         x                 = 495.40,
         y                 = 142.24,
         z                 = 784.53,
