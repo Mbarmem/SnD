@@ -1264,101 +1264,49 @@ end
 function Target(name, maxRetries, sleepTime)
     maxRetries = maxRetries or 20
     sleepTime  = sleepTime or 0.1
-    if not name or name == "" then
+
+    if not name then
         LogDebug("[MoLib] [Target] name is nil/empty")
         return false
     end
 
     local retries = 0
-    local chosen  = nil
+    local targetEntity = nil
 
-    -- inline helpers (local to this function; no globals)
-    local function lc(s) return (s or ""):lower() end
-    local function starts_with_ci(hay, needle) return lc(hay):sub(1, #needle) == lc(needle) end
-    local function contains_ci(hay, needle) return lc(hay):find(lc(needle), 1, true) ~= nil end
-    local function truthy(x) return x == true or x == 1 end
-    local function is_targetable(e)
-        return truthy(e.IsTargetable) or truthy(e.IsSelectable) or truthy(e.Targetable) or e.Targetable == nil -- some objects omit the flag but are targetable
-    end
-    local function is_visible(e) return not truthy(e.IsHidden) end
-    local function dist2(e) return (e.Distance2 or e.Distance or 9e9) end
-
-    -- Find a good candidate by repeatedly sampling all entities
-    while retries < maxRetries and not chosen do
-        -- Prefer a real list method over GetEntityByName (which often skips BNpc/EventNpc)
-        local entities = {}
-        if Entity and Entity.GetEntities then
-            entities = Entity.GetEntities()
-        elseif Entity and Entity.List then
-            entities = Entity.List()
-        elseif Entity and Entity.GetNearbyEntities then
-            entities = Entity.GetNearbyEntities()
-        else
-            -- As a last resort, try the user's original path once
-            local byName = nil
-            pcall(function() byName = Entity.GetEntityByName and Entity.GetEntityByName(name) or nil end)
-            if byName then entities = { byName } end
-        end
-
-        local exact, prefix, part = {}, {}, {}
-        for _, e in ipairs(entities or {}) do
-            local ename = e.Name or ""
-            if ename ~= "" and is_visible(e) and is_targetable(e) then
-                if lc(ename) == lc(name) then
-                    table.insert(exact, e)
-                elseif starts_with_ci(ename, name) then
-                    table.insert(prefix, e)
-                elseif contains_ci(ename, name) then
-                    table.insert(part, e)
-                end
-            end
-        end
-
-        local function sort_by_distance(t)
-            table.sort(t, function(a, b) return dist2(a) < dist2(b) end)
-        end
-        sort_by_distance(exact); sort_by_distance(prefix); sort_by_distance(part)
-
-        chosen = exact[1] or prefix[1] or part[1]
-
-        if not chosen then
-            Wait(sleepTime)
-            retries = retries + 1
-        end
-    end
-
-    if not chosen then
-        LogDebug(string.format("[MoLib] No entity found matching [%s] after %d retries", name, retries))
-        return false
-    end
-
-    -- Try to set target; if that fails, fall back to issuing /target "Exact Name"
-    retries = 0
-    local quoted = '"' .. (chosen.Name or name) .. '"'
     while retries < maxRetries do
-        local ok = false
+        targetEntity = Entity.GetEntityByName(name)
 
-        -- primary attempt: direct API
-        if chosen.SetAsTarget then
-            local ok_call, err = pcall(function() chosen:SetAsTarget() end)
-            ok = ok_call and (err == nil)
+        if targetEntity then
+            break
         end
-
-        -- fallback: client chat/command, works on many NPCs
-        if not ok then
-            pcall(function() Execute('/target ' .. quoted) end)
-        end
-
         Wait(sleepTime)
-
-        if Entity.Target and Entity.Target.Name and StringStartsWithIgnoreCase(Entity.Target.Name, name) then
-            LogDebug(string.format("[MoLib] Target acquired → %s [word: %s]", Entity.Target.Name, name))
-            return true
-        end
-
         retries = retries + 1
     end
 
+    if not targetEntity then
+        LogDebug(string.format("[MoLib] No entity found with name matching [%s] after %d retries", name, retries))
+        return false
+    end
+
+    retries = 0
+    local didAttempt = false
+    while retries < maxRetries do
+        if not didAttempt and targetEntity.SetAsTarget then
+            targetEntity:SetAsTarget()
+            didAttempt = true
+            Wait(sleepTime)
+        else
+            Execute(string.format("/target %s", name))
+            Wait(sleepTime)
+            didAttempt = false
+        end
+
+        if Entity.Target and StringStartsWithIgnoreCase(Entity.Target.Name, name) then
+            LogDebug(string.format("[MoLib] Target acquired → %s [word: %s]", Entity.Target.Name, name))
+            return true
+        end
+        retries = retries + 1
+    end
     LogDebug(string.format("[MoLib] Failed to acquire target [%s] after %d retries", name, retries))
     return false
 end
