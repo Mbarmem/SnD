@@ -15,11 +15,15 @@ dependencies:
   name: SnD
   type: git
 configs:
+  ManualQuestPickup:
+    default: false
+    description: If selected, accept quests Manually from the quest giver; otherwise Questionable handles quest acceptance.
   FirstAlliedSociety:
     description: The first allied society from which to accept quests.
     is_choice: true
     choices:
         - "None"
+        - "Yok Huy"
         - "Mamool Ja"
         - "Pelupelu"
         - "Omicrons"
@@ -46,12 +50,13 @@ configs:
         - "None"
         - "Viper"
         - "Weaver"
-        - "Miner"
+        - "Botanist"
   SecondAlliedSociety:
     description: The second allied society from which to accept quests.
     is_choice: true
     choices:
         - "None"
+        - "Yok Huy"
         - "Mamool Ja"
         - "Pelupelu"
         - "Omicrons"
@@ -78,12 +83,13 @@ configs:
         - "None"
         - "Viper"
         - "Weaver"
-        - "Miner"
+        - "Botanist"
   ThirdAlliedSociety:
     description: The third allied society from which to accept quests.
     is_choice: true
     choices:
         - "None"
+        - "Yok Huy"
         - "Mamool Ja"
         - "Pelupelu"
         - "Omicrons"
@@ -110,12 +116,13 @@ configs:
         - "None"
         - "Viper"
         - "Weaver"
-        - "Miner"
+        - "Botanist"
   FourthAlliedSociety:
     description: The fourth allied society from which to accept quests.
     is_choice: true
     choices:
         - "None"
+        - "Yok Huy"
         - "Mamool Ja"
         - "Pelupelu"
         - "Omicrons"
@@ -142,7 +149,7 @@ configs:
         - "None"
         - "Viper"
         - "Weaver"
-        - "Miner"
+        - "Botanist"
 
 [[End Metadata]]
 --]=====]
@@ -153,7 +160,8 @@ configs:
 --    General    --
 -------------------
 
-LogPrefix  = "[AlliedQuests]"
+ManualQuestPickup  = Config.Get("ManualQuestPickup")
+LogPrefix          = "[AlliedQuests]"
 
 --============================ CONSTANT ==========================--
 
@@ -164,6 +172,7 @@ LogPrefix  = "[AlliedQuests]"
 AlliedSocietiesTable = {
     amaljaa = {
         alliedSocietyName = "Amalj'aa",
+        questGiver        = "Fibubb Gah",
         mainQuests        = { first = 1217, last = 1221 },
         dailyQuests       = { first = 1222, last = 1251, blackList = { [1245] = true } },
         x                 = 103.12,
@@ -175,6 +184,7 @@ AlliedSocietiesTable = {
     },
     sylphs = {
         alliedSocietyName = "Sylphs",
+        questGiver        = "Tonaxia",
         mainQuests        = { first = 1252, last = 1256 },
         dailyQuests       = { first = 1257, last = 1286 },
         x                 = 46.41,
@@ -186,6 +196,7 @@ AlliedSocietiesTable = {
     },
     kobolds = {
         alliedSocietyName = "Kobolds",
+        questGiver        = "789th Order Dustman Bo Bu",
         mainQuests        = { first = 1320, last = 1324 },
         dailyQuests       = { first = 1325, last = 1373 },
         x                 = 12.857726,
@@ -197,6 +208,7 @@ AlliedSocietiesTable = {
     },
     sahagin = {
         alliedSocietyName = "Sahagin",
+        questGiver        = "Houu",
         mainQuests        = { first = 1374, last = 1378 },
         dailyQuests       = { first = 1380, last = 1409 },
         x                 = -244.53,
@@ -208,6 +220,7 @@ AlliedSocietiesTable = {
     },
     ixal = {
         alliedSocietyName = "Ixal",
+        questGiver        = "Ehcatl Nine Manciple",
         mainQuests        = { first = 1486, last = 1493 },
         dailyQuests       = { first = 1494, last = 1568 },
         x                 = 173.21,
@@ -219,6 +232,7 @@ AlliedSocietiesTable = {
     },
     vanuvanu = {
         alliedSocietyName = "Vanu Vanu",
+        questGiver        = "Muna Vanu",
         mainQuests        = { first = 2164, last = 2225 },
         dailyQuests       = { first = 2171, last = 2200 },
         x                 = -796.3722,
@@ -230,6 +244,7 @@ AlliedSocietiesTable = {
     },
     vath = {
         alliedSocietyName = "Vath",
+        questGiver        = "Vath Keeneye",
         mainQuests        = { first = 2164, last = 2225 },
         dailyQuests       = { first = 2171, last = 2200 },
         x                 = 58.80,
@@ -241,6 +256,7 @@ AlliedSocietiesTable = {
     },
     moogles = {
         alliedSocietyName = "Moogles",
+        questGiver        = "Mogek the Marvelous",
         mainQuests        = { first = 2320, last = 2327 },
         dailyQuests       = { first = 2290, last = 2319 },
         x                 = -335.28,
@@ -252,6 +268,7 @@ AlliedSocietiesTable = {
     },
     kojin = {
         alliedSocietyName = "Kojin",
+        questGiver        = "Zukin",
         mainQuests        = { first = 2973, last = 2978 },
         dailyQuests       = { first = 2979, last = 3002 },
         x                 = 391.22,
@@ -263,6 +280,7 @@ AlliedSocietiesTable = {
     },
     ananta = {
         alliedSocietyName = "Ananta",
+        questGiver        = "Eshana",
         mainQuests        = { first = 3036, last = 3041 },
         dailyQuests       = { first = 3043, last = 3069 },
         x                 = -26.91,
@@ -274,6 +292,7 @@ AlliedSocietiesTable = {
     },
     namazu = {
         alliedSocietyName = "Namazu",
+        questGiver        = "Seigetsu the Enlightened",
         mainQuests        = { first = 3096, last = 3102 },
         dailyQuests       = { first = 3103, last = 3129 },
         x                 = -777.72,
@@ -285,6 +304,7 @@ AlliedSocietiesTable = {
     },
     pixies = {
         alliedSocietyName = "Pixies",
+        questGiver        = "Uin Nee",
         mainQuests        = { first = 3683, last = 3688 },
         dailyQuests       = { first = 3689, last = 3716 },
         x                 = -453.69,
@@ -296,6 +316,7 @@ AlliedSocietiesTable = {
     },
     qitari = {
         alliedSocietyName = "Qitari",
+        questGiver        = "Qhoterl Pasol",
         mainQuests        = { first = 3794, last = 3805 },
         dailyQuests       = { first = 3806, last = 3833 },
         x                 = 786.83,
@@ -307,6 +328,7 @@ AlliedSocietiesTable = {
     },
     dwarves = {
         alliedSocietyName = "Dwarves",
+        questGiver        = "Regitt",
         mainQuests        = { first = 3896, last = 3901 },
         dailyQuests       = { first = 3902, last = 3929 },
         x                 = -615.48,
@@ -318,6 +340,7 @@ AlliedSocietiesTable = {
     },
     arkosodara = {
         alliedSocietyName = "Arkasodara",
+        questGiver        = "Maru",
         mainQuests        = { first = 4545, last = 4550 },
         dailyQuests       = { first = 4551, last = 4578 },
         x                 = -68.21,
@@ -329,6 +352,7 @@ AlliedSocietiesTable = {
     },
     loporrits = {
         alliedSocietyName = "Loporrits",
+        questGiver        = "Managingway",
         mainQuests        = { first = 4681, last = 4686 },
         dailyQuests       = { first = 4687, last = 4714 },
         x                 = -201.27,
@@ -340,6 +364,7 @@ AlliedSocietiesTable = {
     },
     omicrons = {
         alliedSocietyName = "Omicrons",
+        questGiver        = "Stigma-4",
         mainQuests        = { first = 4601, last = 4606 },
         dailyQuests       = { first = 4607, last = 4634 },
         x                 = 315.84,
@@ -351,6 +376,7 @@ AlliedSocietiesTable = {
     },
     pelupleu = {
         alliedSocietyName = "Pelupelu",
+        questGiver        = "Yubli",
         mainQuests        = { first = 5193, last = 5198 },
         dailyQuests       = { first = 5199, last = 5226 },
         x                 = 770.89954,
@@ -362,6 +388,7 @@ AlliedSocietiesTable = {
     },
     mamoolja = {
         alliedSocietyName = "Mamool Ja",
+        questGiver        = "Kageel Ja",
         mainQuests        = { first = 5255, last = 5260 },
         dailyQuests       = { first = 5261, last = 5288 },
         x                 = 589.3,
@@ -369,6 +396,18 @@ AlliedSocietiesTable = {
         z                 = 730.5,
         zoneId            = 1189,
         aetheryteName     = "Mamook",
+        expac             = "Dawntrail"
+    },
+    yokhuy = {
+        alliedSocietyName = "Yok Huy",
+        questGiver        = "Vuyargur",
+        mainQuests        = { first = 0, last = 0 },
+        dailyQuests       = { first = 0, last = 0 },
+        x                 = 495.40,
+        y                 = 142.24,
+        z                 = 784.53,
+        zoneId            = 1187,
+        aetheryteName     = "Worlor's Echo",
         expac             = "Dawntrail"
     }
 }
@@ -473,35 +512,51 @@ for _, alliedSociety in ipairs(ToDoList) do
         Execute(string.format("/gs change %s", alliedSociety.class))
         Wait(3)
 
-        -- pick up quests and add them to Questionable's priority list
-        local timeout = os.time()
-        local quests = {}
-        local blackList = alliedSocietyTable.dailyQuests.blackList or {}
-
-        for questId = alliedSocietyTable.dailyQuests.first, alliedSocietyTable.dailyQuests.last do
-            if not QuestionableIsQuestLocked(tostring(questId)) and not blackList[questId] then
-                table.insert(quests, questId)
-                QuestionableClearQuestPriority()
-                QuestionableAddQuestPriority(tostring(questId))
+        if ManualQuestPickup then
+            for i = 1, 3 do
+                Target(alliedSocietyTable.questGiver)
+                Interact(alliedSocietyTable.questGiver)
 
                 repeat
-                    if not QuestionableIsRunning() then
-                        Execute("/qst start")
-                    elseif os.time() - timeout > 15 then
-                        LogInfo(string.format("%s Took more than 15 seconds to pick up the quest. Reloading...", LogPrefix))
-                        Execute("/qst reload")
-                        timeout = os.time()
-                    end
+                    Wait(1)
+                until IsAddonReady("SelectIconString")
+                Execute("/callback SelectIconString true 0")
+
+                repeat
                     Wait(0.1)
-                until Quests.IsQuestAccepted(questId)
-
-                timeout = os.time()
-                Execute("/qst stop")
+                until IsPlayerAvailable()
+                LogInfo(string.format("%s Accepted %d/3 quest(s) via quest giver.", LogPrefix, i))
             end
-        end
+        else
+            local timeout = os.time()
+            local quests = {}
+            local blackList = alliedSocietyTable.dailyQuests.blackList or {}
 
-        for _, questId in ipairs(quests) do
-            QuestionableAddQuestPriority(tostring(questId))
+            for questId = alliedSocietyTable.dailyQuests.first, alliedSocietyTable.dailyQuests.last do
+                if not QuestionableIsQuestLocked(tostring(questId)) and not blackList[questId] then
+                    table.insert(quests, questId)
+                    QuestionableClearQuestPriority()
+                    QuestionableAddQuestPriority(tostring(questId))
+
+                    repeat
+                        if not QuestionableIsRunning() then
+                            Execute("/qst start")
+                        elseif os.time() - timeout > 15 then
+                            LogInfo(string.format("%s Took more than 15 seconds to pick up the quest. Reloading...", LogPrefix))
+                            Execute("/qst reload")
+                            timeout = os.time()
+                        end
+                        Wait(0.1)
+                    until Quests.IsQuestAccepted(questId)
+
+                    timeout = os.time()
+                    Execute("/qst stop")
+                end
+            end
+
+            for _, questId in ipairs(quests) do
+                QuestionableAddQuestPriority(tostring(questId))
+            end
         end
 
         repeat
