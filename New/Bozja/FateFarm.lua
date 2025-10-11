@@ -23,7 +23,7 @@ dependencies:
 --    General    --
 -------------------
 
-LogPrefix            = "[FateFarm]"
+LogPrefix = "[FateFarm]"
 
 --============================ CONSTANT ==========================--
 
@@ -97,7 +97,7 @@ function NearestActiveFate()
     local me = Player.Position
     for _, f in ipairs(fates) do
         if f.Exists and f.State == FateState.Active then
-            local d = f.DistanceToPlayer or DistanceBetween(me, f.Location)
+            local d = f.DistanceToPlayer or GetDistance(me, f.Location)
             if d < bestD then best, bestD = f, d end
         end
     end
@@ -114,7 +114,7 @@ function RunToAndWaitFate(fateId)
     LogInfo(string.format("%s Heading to %s (%.0fm, %d%%)...", LogPrefix, f.Name, f.DistanceToPlayer or 0, f.Progress or 0))
     MoveTo(f.Location.X, f.Location.Y, f.Location.Z, 1, true)
 
-    if f.InFate or DistanceBetween(Player.Position, f.Location) <= 3 then
+    if f.InFate or GetDistance(Player.Position, f.Location) <= 3 then
         StanceOff()
         RotationON()
         AiON()
@@ -125,7 +125,7 @@ function RunToAndWaitFate(fateId)
     while true do
         local cur = Fates.GetFateById(fateId)
         if not (cur and cur.Exists) then
-            if (os.clock() - lastSeen) > 300 then
+            if (os.clock() - lastSeen) > 600 then
                 return "ended"
             end
         else
@@ -143,11 +143,7 @@ function StartFarm()
         return
     end
 
-    LogInfo(string.format("%s Starting Fates farm...", LogPrefix))
-
-    StanceOff()
-    RotationON()
-    AiON()
+    LogInfo(string.format("%s Starting FateFarm...", LogPrefix))
 
     local timeout = os.time() + 7200  -- default 2 hours in seconds
 
