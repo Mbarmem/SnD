@@ -171,6 +171,19 @@ function FateQuickDespawned(fateId)
     return true
 end
 
+function WaitForCombat(maxWaitSeconds)
+    local deadline = os.time() + (maxWaitSeconds or 120)
+    if IsInCombat() then
+        LogInfo(string.format("%s FATE ended. Waiting to leave combat before disabling rotation...", LogPrefix))
+    end
+
+    while IsInCombat() and os.time() < deadline do
+        Wait(1)
+    end
+    RotationOFF()
+    AiOFF()
+end
+
 function RunToAndWaitFate(fateId)
     LastAdjustTime = 0
     local fate = Fates.GetFateById(fateId)
@@ -193,8 +206,6 @@ function RunToAndWaitFate(fateId)
         local target = Fates.GetFateById(fateId)
         if target and target.Exists then
             if not IsActiveState(target.State) or FateProgress(target) >= 100 then
-                RotationOFF()
-                AiOFF()
                 return "ended"
             end
 
@@ -205,8 +216,6 @@ function RunToAndWaitFate(fateId)
 
         else
             if FateQuickDespawned(fateId) then
-                RotationOFF()
-                AiOFF()
                 return "despawned"
             end
         end
@@ -303,10 +312,15 @@ function StartFarm()
             Wait(2)
         else
             local result = RunToAndWaitFate(fate.Id)
-            RotationOFF()
-            AiOFF()
-            LogInfo(string.format("%s FATE %s: %s.", LogPrefix, fate.Name, result))
-            Wait(2)
+
+            if result == "ended" then
+                WaitForCombat(120)
+            else
+                RotationOFF()
+                AiOFF()
+                LogInfo(string.format("%s FATE %s: %s.", LogPrefix, fate.Name, result))
+                Wait(2)
+            end
         end
 
         StanceOff()
