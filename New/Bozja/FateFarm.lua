@@ -49,35 +49,38 @@ function IsActiveState(state)
         return false
     end
 
-    local ok, n = pcall(function() return state:GetHashCode() end)
-    if ok and type(n) == "number" then
-        return n == 4
+    local ok, number = pcall(function()
+        return state:GetHashCode()
+    end)
+
+    if ok and type(number) == "number" then
+        return number == 4
     end
 
-    local t = tostring(state) or ""
-    local num = tonumber(t:match("(%d+)$"))
+    local text = tostring(state) or ""
+    local num = tonumber(text:match("(%d+)$"))
     if num ~= nil then
         return num == 4
     end
 
-    return t == "Running" or t == "Active"
+    return text == "Running" or text == "Active"
 end
 
-function StayNearFateCenter(cur)
-    if not (cur and cur.Location) then
+function StayNearFateCenter(target)
+    if not (target and target.Location) then
         return "ok"
     end
 
-    local me = Player and Player.Entity and Player.Entity.Position
-    if not me then
+    local myPosition = Player and Player.Entity and Player.Entity.Position
+    if not myPosition then
         return "ok"
     end
 
-    local d = GetDistance(me, cur.Location) or 1e9
+    local distance = GetDistance(myPosition, target.Location) or 1e9
     local now = os.time()
 
-    if d > 50 then
-        MoveTo(cur.Location.X, cur.Location.Y, cur.Location.Z, 3)
+    if distance > 50 then
+        MoveTo(target.Location.X, target.Location.Y, target.Location.Z, 3)
         LastAdjustTime = now
         return "reapproach"
     end
@@ -86,8 +89,8 @@ function StayNearFateCenter(cur)
         return "cooldown"
     end
 
-    if d > (20 + 1.0) then
-        MoveTo(cur.Location.X, cur.Location.Y, cur.Location.Z, 3)
+    if distance > (20 + 1.0) then
+        MoveTo(target.Location.X, target.Location.Y, target.Location.Z, 3)
         LastAdjustTime = now
         return "adjust"
     end
@@ -95,18 +98,18 @@ function StayNearFateCenter(cur)
     return "ok"
 end
 
-function FateDistance(f, me)
-    local distance = tonumber(f and f.DistanceToPlayer)
+function FateDistance(fate, myPosition)
+    local distance = tonumber(fate and fate.DistanceToPlayer)
     if not distance or distance ~= distance or distance == 0 then
-        if f and f.Location and me then
-            distance = GetDistance(me, f.Location)
+        if fate and fate.Location and myPosition then
+            distance = GetDistance(myPosition, fate.Location)
         end
     end
     return distance or 99999
 end
 
-function FateProgress(f)
-    local progress = tonumber(f and f.Progress)
+function FateProgress(fate)
+    local progress = tonumber(fate and fate.Progress)
     if not progress or progress ~= progress then
         return 0
     end
@@ -128,15 +131,14 @@ function PickBestFate()
         return nil
     end
 
-    local me = Player and Player.Entity and Player.Entity.Position
-
+    local myPosition = Player and Player.Entity and Player.Entity.Position
     local best, bestScore = nil, -1e9
 
     for i = 0, count - 1 do
-        local f = list[i]
-        if f and f.Exists and IsActiveState(f.State) then
-            local distance = FateDistance(f, me)
-            local progress = FateProgress(f)
+        local fate = list[i]
+        if fate and fate.Exists and IsActiveState(fate.State) then
+            local distance = FateDistance(fate, myPosition)
+            local progress = FateProgress(fate)
 
             local score = (progress * 2) - (distance * 0.02)
             if distance <= 20 then
@@ -144,7 +146,7 @@ function PickBestFate()
             end
 
             if score > bestScore then
-                best, bestScore = f, score
+                best, bestScore = fate, score
             end
         end
     end
@@ -156,6 +158,44 @@ function PickBestFate()
     return best
 end
 
+function RunToAndWaitFate(fateId)
+    LastAdjustTime = 0
+    local fate = Fates.GetFateById(fateId)
+    if not (fate and fate.Exists) then
+        return "gone"
+    end
+
+    Mount()
+    LogInfo(string.format("%s Heading to %s (%.0fm, %d%%)...", LogPrefix, fate.Name, fate.DistanceToPlayer or 0, fate.Progress or 0))
+    MoveTo(fate.Location.X, fate.Location.Y, fate.Location.Z, 3)
+
+    if fate.InFate or GetDistance(Player.Entity.Position, fate.Location) <= 3 then
+        StanceOff()
+        RotationON()
+        AiON()
+        Dismount()
+    end
+
+    local lastSeen = os.clock()
+    while true do
+        local target = Fates.GetFateById(fateId)
+        if target and target.Exists then
+            lastSeen = os.clock()
+            if not IsActiveState(target.State) then
+                return "ended"
+            end
+
+            local stick = StayNearFateCenter(target)
+            if stick ~= "ok" and stick ~= "cooldown" then
+                LogInfo(string.format("%s Adjust: %s", LogPrefix, stick))
+            end
+
+        elseif (os.clock() - lastSeen) > 30 then
+            return "despawned"
+        end
+        Wait(5)
+    end
+end
 
 ----------------
 --    Move    --
@@ -209,72 +249,6 @@ end
 ----------------
 --    Main    --
 ----------------
-
-function NearestActiveFate()
-    WaitForPlayer()
-    local fates = Fates.GetActiveFates()
-    if not (fates and fates.Count and fates.Count > 0) then
-        return nil
-    end
-
-    local best, bestD = nil, 9e9
-    local me = Player.Entity.Position
-
-    for i = 0, fates.Count - 1 do
-        local f = fates[i]
-        if f and f.Exists and IsActiveState(f.State) then
-            local d = tonumber(f.DistanceToPlayer)
-            if not d or d ~= d or d == 0 then  -- nil/NaN/zero
-                d = GetDistance(me, f.Location)
-            end
-
-            if d < bestD then
-                best, bestD = f, d
-            end
-        end
-    end
-
-    return best
-end
-
-function RunToAndWaitFate(fateId)
-    LastAdjustTime = 0
-    local f = Fates.GetFateById(fateId)
-    if not (f and f.Exists) then
-        return "gone"
-    end
-
-    Mount()
-    LogInfo(string.format("%s Heading to %s (%.0fm, %d%%)...", LogPrefix, f.Name, f.DistanceToPlayer or 0, f.Progress or 0))
-    MoveTo(f.Location.X, f.Location.Y, f.Location.Z, 3)
-
-    if f.InFate or GetDistance(Player.Entity.Position, f.Location) <= 3 then
-        StanceOff()
-        RotationON()
-        AiON()
-        Dismount()
-    end
-
-    local lastSeen = os.clock()
-    while true do
-        local cur = Fates.GetFateById(fateId)
-        if cur and cur.Exists then
-            lastSeen = os.clock()
-            if not IsActiveState(cur.State) then
-                return "ended"
-            end
-
-            local stick = StayNearFateCenter(cur)
-            if stick ~= "ok" and stick ~= "cooldown" then
-                LogInfo(string.format("%s Adjust: %s", LogPrefix, stick))
-            end
-
-        elseif (os.clock() - lastSeen) > 30 then
-            return "despawned"
-        end
-        Wait(5)
-    end
-end
 
 function StartFarm()
     if not IsInZone(Zones.Bozja) then
