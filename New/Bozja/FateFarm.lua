@@ -158,6 +158,19 @@ function PickBestFate()
     return best
 end
 
+function FateQuickDespawned(fateId)
+    local misses = 0
+    while misses < 6 do
+        local fate = Fates.GetFateById(fateId)
+        if fate and fate.Exists then
+            return false
+        end
+        misses = misses + 1
+        Wait(1)
+    end
+    return true
+end
+
 function RunToAndWaitFate(fateId)
     LastAdjustTime = 0
     local fate = Fates.GetFateById(fateId)
@@ -176,12 +189,12 @@ function RunToAndWaitFate(fateId)
         Dismount()
     end
 
-    local lastSeen = os.clock()
     while true do
         local target = Fates.GetFateById(fateId)
         if target and target.Exists then
-            lastSeen = os.clock()
-            if not IsActiveState(target.State) then
+            if not IsActiveState(target.State) or FateProgress(target) >= 100 then
+                RotationOFF()
+                AiOFF()
                 return "ended"
             end
 
@@ -190,10 +203,14 @@ function RunToAndWaitFate(fateId)
                 LogInfo(string.format("%s Adjust: %s", LogPrefix, stick))
             end
 
-        elseif (os.clock() - lastSeen) > 30 then
-            return "despawned"
+        else
+            if FateQuickDespawned(fateId) then
+                RotationOFF()
+                AiOFF()
+                return "despawned"
+            end
         end
-        Wait(5)
+        Wait(1)
     end
 end
 
@@ -240,9 +257,21 @@ function RotationON()
     Wait(1)
 end
 
+function RotationOFF()
+    LogInfo(string.format("%s Turning rotation OFF...", LogPrefix))
+    Execute("/rotation off")
+    Wait(1)
+end
+
 function AiON()
     LogInfo(string.format("%s Enabling BattleMod AI...", LogPrefix))
     Execute("/bmrai on")
+    Wait(1)
+end
+
+function AiOFF()
+    LogInfo(string.format("%s Turning BattleMod AI OFF...", LogPrefix))
+    Execute("/bmrai off")
     Wait(1)
 end
 
@@ -268,22 +297,26 @@ function StartFarm()
 
         local fate = PickBestFate()
         if not fate then
+            RotationOFF()
+            AiOFF()
             LogInfo(string.format("%s No active FATEs. Idling...", LogPrefix))
-            Wait(10)
+            Wait(2)
         else
             local result = RunToAndWaitFate(fate.Id)
+            RotationOFF()
+            AiOFF()
             LogInfo(string.format("%s FATE %s: %s.", LogPrefix, fate.Name, result))
-            Wait(10)
+            Wait(2)
         end
 
         StanceOff()
         LogInfo(string.format("%s Looping FateFarm... TimeLeft=%d", LogPrefix, timeout - os.time()))
-        Wait(5)
+        Wait(1)
     end
 
     WaitForPlayer()
-    Execute("/rotation off")
-    Execute("/bmrai off")
+    RotationOFF()
+    AiOFF()
     WaitForPlayer()
 
     if IsInZone(Zones.Bozja) then
@@ -299,11 +332,13 @@ while not StopFlag do
         StartFarm()
         WaitForPlayer()
     else
+        RotationOFF()
+        AiOFF()
         LogInfo(string.format("%s Not in Bozja. Moving to Bozja Southern Front...", LogPrefix))
         MoveToBozja()
         WaitForPlayer()
     end
-    Wait(10)
+    Wait(5)
 end
 
 --============================== END =============================--
