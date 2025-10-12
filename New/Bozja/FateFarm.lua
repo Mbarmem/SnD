@@ -132,7 +132,7 @@ function PickBestFate()
     end
 
     local myPosition = Player and Player.Entity and Player.Entity.Position
-    local best, bestScore = nil, -1e9
+    local best, bestDist, bestProg = nil, 1e12, -1
 
     for i = 0, count - 1 do
         local fate = list[i]
@@ -140,19 +140,15 @@ function PickBestFate()
             local distance = FateDistance(fate, myPosition)
             local progress = FateProgress(fate)
 
-            local score = (progress * 2) - (distance * 0.02)
-            if distance <= 20 then
-                score = score + 15
-            end
-
-            if score > bestScore then
-                best, bestScore = fate, score
+            if (distance + 10) < bestDist or (math.abs(distance - bestDist) <= 10 and progress > bestProg) then
+                best, bestDist, bestProg = fate, distance, progress
             end
         end
     end
 
     if best then
-        LogInfo(string.format("%s Picked: %s (score=%.2f)", LogPrefix, best.Name or "?", bestScore))
+        local nearNote = (bestDist <= 500) and " [+near]" or ""
+        LogInfo(string.format("%s Picked: %s (dist=%.0fm, prog=%d%%%s)", LogPrefix, best.Name or "?", bestDist, bestProg, nearNote))
     end
 
     return best
