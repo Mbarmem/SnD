@@ -15,7 +15,7 @@ dependencies:
   type: git
 configs:
   ZoneToFarm:
-    description: The first allied society from which to accept quests.
+    description: Choose the zone to farm FATEs in (Bozja or Zadnor).
     is_choice: true
     choices:
         - "Bozja"
