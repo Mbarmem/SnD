@@ -22,7 +22,8 @@ configs:
         - "Zadnor"
   FateBlacklist:
     description: Comma-separated FATE names or IDs to skip (e.g. "A Relic Unleashed, 1638").
-    is_input: true
+    default:
+        - "Seeq and You Will Find"
 
 [[End Metadata]]
 --]=====]
