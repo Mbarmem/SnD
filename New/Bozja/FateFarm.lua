@@ -131,8 +131,11 @@ function FateProgress(fate)
     return progress
 end
 
-function PickBestFate()
-    WaitForPlayer()
+function PickBestFate(block)
+    if block ~= false then
+        WaitForPlayer()
+    end
+
     local list  = Fates.GetActiveFates()
     local count = (list and list.Count) or 0
 
@@ -155,7 +158,7 @@ function PickBestFate()
         end
     end
 
-    if best then
+    if block ~= false and best then
         local nearNote = (bestDist <= 500) and " [+near]" or ""
         LogInfo(string.format("%s Picked: %s (dist=%.0fm, prog=%d%%%s)", LogPrefix, best.Name or "?", bestDist, bestProg, nearNote))
     end
@@ -228,20 +231,21 @@ function RunToAndWaitFate(fateId)
             end
 
             local now = os.time()
-            if (now - lastSwitchAt) >= 10 then
-                local best = PickBestFate()
-                if best and best.Exists and IsActiveState(best.State) and best.Location then
-                    local mypos    = myPosition
+            if (now - lastSwitchAt) >= 5 then
+                local best = PickBestFate(false)
+                if best and best.Exists and IsActiveState(best.State) and best.Location and best.Id ~= fateId then
                     local curDist  = dist or 1e9
-                    local bestDist = FateDistance(best, mypos)
+                    local bestDist = FateDistance(best, myPosition)
                     local curProg  = FateProgress(selectedFate)
                     local bestProg = FateProgress(best)
 
-                    if bestDist + 0 < curDist - 200 and curDist > 50 then
+                    LogInfo(string.format("%s Re-eval: cur '%s' d=%.0fm p=%d%%  vs  best '%s' d=%.0fm p=%d%%  (sinceSwitch=%ds)", LogPrefix, selectedFate.Name or "?", (curDist or -1), (curProg or -1), best.Name or "?", (bestDist or -1), (bestProg or -1), os.time() - lastSwitchAt))
+
+                    if bestDist < curDist - 100 and curDist > 50 then
                         LogInfo(string.format("%s Switching target: '%s' → '%s' (%.0fm → %.0fm, prog %d%% → %d%%)", LogPrefix, selectedFate.Name or "?", best.Name or "?", curDist, bestDist, curProg, bestProg))
                         PathStop()
-                        fateId = best.Id
-                        fate   = best
+                        fateId       = best.Id
+                        fate         = best
                         lastSwitchAt = now
                         MoveTo(fate.Location.X, fate.Location.Y, fate.Location.Z, 3)
                     end
