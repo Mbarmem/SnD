@@ -24,6 +24,7 @@ configs:
     description: Comma-separated FATE names or IDs to skip (e.g. "A Relic Unleashed, 1638").
     default:
         - "Seeq and You Will Find"
+        - "Breaking the Ice"
 
 [[End Metadata]]
 --]=====]
@@ -56,8 +57,10 @@ Zones = {
 --    Blacklist    --
 ---------------------
 
-BlacklistNames  = {}
+FateIds         = {}
+FateNames       = {}
 BlacklistIds    = {}
+BlacklistNames  = {}
 
 --=========================== FUNCTIONS ==========================--
 
@@ -65,25 +68,40 @@ BlacklistIds    = {}
 --    Helpers    --
 -------------------
 
-function BuildFateBlacklist(raw)
-    local names, ids = {}, {}
+function NormalizeFatesNameOrId(token)
+    token = (token and token:gsub("^%s+",""):gsub("%s+$","")) or token
+    if token and #token > 0 then
+        local num = tonumber(token)
+        if num then
+            FateIds[num] = true
+        else
+            FateNames[(token and token:lower():gsub("%s+"," ")) or token] = true
+        end
+    end
+end
 
-    for token in string.gmatch(raw or "", "[^,]+") do
-        token = (token and token:gsub("^%s+",""):gsub("%s+$","")) or token
-        if token and #token > 0 then
-            local id = tonumber(token)
-            if id then
-                ids[id] = true
-            else
-                names[(token and token:lower():gsub("%s+"," ")) or token] = true
-            end
+function BuildFateBlacklist(raw)
+    FateIds   = {}
+    FateNames = {}
+    local ok, count = pcall(function()
+        return raw.Count
+    end)
+
+    if ok and type(count) == "number" then
+        for i = 0, count - 1 do
+            NormalizeFatesNameOrId(raw[i])
+        end
+    else
+        local s = tostring(raw) or ""
+        for token in string.gmatch(s, "[^,]+") do
+            NormalizeFatesNameOrId(token)
         end
     end
 
-    BlacklistNames = names
-    BlacklistIds   = ids
+    BlacklistIds   = FateIds
+    BlacklistNames = FateNames
 
-    return names, ids
+    return FateNames, FateIds
 end
 
 function IsBlacklisted(fate)
