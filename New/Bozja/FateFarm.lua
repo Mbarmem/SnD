@@ -2,7 +2,7 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Bozja - Automates fate farming in Bozja Southern Front
+description: Bozja/Zadnor - Automates FATE farming in Save the Queen areas
 plugin_dependencies:
 - BossModReborn
 - Lifestream
@@ -13,6 +13,13 @@ dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD
   type: git
+configs:
+  ZoneToFarm:
+    description: The first allied society from which to accept quests.
+    is_choice: true
+    choices:
+        - "Bozja"
+        - "Zadnor"
 
 [[End Metadata]]
 --]=====]
@@ -25,6 +32,7 @@ dependencies:
 
 LastAdjustTime  = 0
 StopFlag        = false
+ZoneToFarm      = Config.Get("ZoneToFarm")
 LogPrefix       = "[FateFarm]"
 
 --============================ CONSTANT ==========================--
@@ -35,7 +43,8 @@ LogPrefix       = "[FateFarm]"
 
 Zones = {
     Gangos = 915,
-    Bozja  = 920
+    Bozja  = 920,
+    Zadnor = 975
 }
 
 --=========================== FUNCTIONS ==========================--
@@ -223,21 +232,26 @@ end
 --    Move    --
 ----------------
 
-function MoveToBozja()
+function MoveToZone()
     WaitForPlayer()
 
-    local command = ""
-    if IsInZone(Zones.Gangos) then
-        command = "EnterBozja"
+    if IsInZone(TargetZoneID) then
+        LogInfo(string.format("%s Already in %s. Continuing...", LogPrefix, TargetZoneName))
+        return
+    end
+
+    if not IsInZone(Zones.Gangos) then
         Wait(1)
-        Teleport(command)
-        LogInfo(string.format("%s Teleporting to Bozja Southern Front...", LogPrefix))
+        Teleport("Gangos")
+        LogInfo(string.format("%s Teleporting to Gangos...", LogPrefix))
+        WaitForPlayer()
         return
     end
 
     Wait(1)
-    StopFlag = true
-    LogInfo(string.format("%s Not in Gangos. Stopping script...", LogPrefix))
+    LogInfo(string.format("%s Entering %s...", LogPrefix, TargetZoneName))
+    Teleport(EnterCommand)
+    WaitForPlayer()
 end
 
 ----------------
@@ -284,8 +298,27 @@ end
 --    Main    --
 ----------------
 
-function StartFarm()
-    if not IsInZone(Zones.Bozja) then
+function ZoneSelection()
+    if ZoneToFarm == "Zadnor" then
+        TargetZoneID   = Zones.Zadnor
+        TargetZoneName = "Zadnor"
+        EnterCommand   = "EnterZadnor"
+    elseif ZoneToFarm == "Bozja" then
+        TargetZoneID   = Zones.Bozja
+        TargetZoneName = "Bozja Southern Front"
+        EnterCommand   = "EnterBozja"
+    else
+        LogInfo(string.format("%s Invalid ZoneToFarm '%s', defaulting to Bozja.", LogPrefix, tostring(ZoneToFarm)))
+        TargetZoneID   = Zones.Bozja
+        TargetZoneName = "Bozja Southern Front"
+        EnterCommand   = "EnterBozja"
+    end
+
+    LogInfo(string.format("%s Zone selected: %s (ID=%d)", LogPrefix, TargetZoneName, TargetZoneID))
+end
+
+function StartFarm(zoneId)
+    if not IsInZone(zoneId) then
         return
     end
 
@@ -293,7 +326,7 @@ function StartFarm()
 
     local timeout = os.time() + 7200  -- default 2 hours in seconds
 
-    while IsInZone(Zones.Bozja) do
+    while IsInZone(zoneId) do
         if os.time() >= timeout then
             LogInfo(string.format("%s Timeout reached. Exiting loop...", LogPrefix))
             WaitForPlayer()
@@ -329,7 +362,7 @@ function StartFarm()
     AiOFF()
     WaitForPlayer()
 
-    if IsInZone(Zones.Bozja) then
+    if IsInZone(zoneId) then
         LeaveInstance()
     end
 end
@@ -337,15 +370,16 @@ end
 --=========================== EXECUTION ==========================--
 
 while not StopFlag do
-    if IsInZone(Zones.Bozja) then
-        LogInfo(string.format("%s In Bozja zone. Beginning Fate farm cycle.", LogPrefix))
-        StartFarm()
+    ZoneSelection()
+    if IsInZone(TargetZoneID) then
+        LogInfo(string.format("%s In %s. Beginning Fate farm cycle.", LogPrefix, TargetZoneName))
+        StartFarm(TargetZoneID)
         WaitForPlayer()
     else
         RotationOFF()
         AiOFF()
-        LogInfo(string.format("%s Not in Bozja. Moving to Bozja Southern Front...", LogPrefix))
-        MoveToBozja()
+        LogInfo(string.format("%s Not in %s. Moving...", LogPrefix, TargetZoneName))
+        MoveToZone()
         WaitForPlayer()
     end
     Wait(5)
