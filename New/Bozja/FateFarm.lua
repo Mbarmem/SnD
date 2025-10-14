@@ -191,6 +191,8 @@ end
 
 function RunToAndWaitFate(fateId)
     LastAdjustTime = 0
+    local lastSwitchAt = 0
+
     local fate = Fates.GetFateById(fateId)
     if not (fate and fate.Exists) then
         return "gone"
@@ -200,11 +202,54 @@ function RunToAndWaitFate(fateId)
     LogInfo(string.format("%s Heading to %s (%.0fm, %d%%)...", LogPrefix, fate.Name, fate.DistanceToPlayer or 0, fate.Progress or 0))
     MoveTo(fate.Location.X, fate.Location.Y, fate.Location.Z, 3)
 
-    if fate.InFate or GetDistance(Player.Entity.Position, fate.Location) <= 3 then
-        StanceOff()
-        RotationON()
-        AiON()
-        Dismount()
+    while true do
+        local myPosition    = Player and Player.Entity and Player.Entity.Position
+        local selectedFate  = Fates.GetFateById(fateId)
+
+        if not (selectedFate and selectedFate.Exists) then
+            if FateQuickDespawned(fateId) then
+                PathStop()
+                return "despawned"
+            end
+        else
+            if (not IsActiveState(selectedFate.State)) or (FateProgress(selectedFate) >= 100) then
+                PathStop()
+                return "ended"
+            end
+
+            local dist = (myPosition and selectedFate.Location) and GetDistance(myPosition, selectedFate.Location) or (selectedFate.DistanceToPlayer or 99999)
+            if selectedFate.InFate or (dist and dist <= 3) then
+                PathStop()
+                StanceOff()
+                RotationON()
+                AiON()
+                Dismount()
+                break
+            end
+
+            local now = os.time()
+            if (now - lastSwitchAt) >= 10 then
+                local best = PickBestFate()
+                if best and best.Exists and IsActiveState(best.State) and best.Location then
+                    local mypos    = myPosition
+                    local curDist  = dist or 1e9
+                    local bestDist = FateDistance(best, mypos)
+                    local curProg  = FateProgress(selectedFate)
+                    local bestProg = FateProgress(best)
+
+                    if bestDist + 0 < curDist - 200 and curDist > 50 then
+                        LogInfo(string.format("%s Switching target: '%s' → '%s' (%.0fm → %.0fm, prog %d%% → %d%%)", LogPrefix, selectedFate.Name or "?", best.Name or "?", curDist, bestDist, curProg, bestProg))
+                        PathStop()
+                        fateId = best.Id
+                        fate   = best
+                        lastSwitchAt = now
+                        MoveTo(fate.Location.X, fate.Location.Y, fate.Location.Z, 3)
+                    end
+                end
+            end
+        end
+
+        Wait(1)
     end
 
     while true do
@@ -218,7 +263,6 @@ function RunToAndWaitFate(fateId)
             if stick ~= "ok" and stick ~= "cooldown" then
                 LogInfo(string.format("%s Adjust: %s", LogPrefix, stick))
             end
-
         else
             if FateQuickDespawned(fateId) then
                 return "despawned"
