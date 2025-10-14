@@ -20,6 +20,9 @@ configs:
     choices:
         - "Bozja"
         - "Zadnor"
+  FateBlacklist:
+    description: Comma-separated FATE names or IDs to skip (e.g. "A Relic Unleashed, 1638").
+    is_input: true
 
 [[End Metadata]]
 --]=====]
@@ -33,6 +36,7 @@ configs:
 LastAdjustTime  = 0
 StopFlag        = false
 ZoneToFarm      = Config.Get("ZoneToFarm")
+DisabledFates   = Config.Get("FateBlacklist")
 LogPrefix       = "[FateFarm]"
 
 --============================ CONSTANT ==========================--
@@ -42,16 +46,57 @@ LogPrefix       = "[FateFarm]"
 ----------------
 
 Zones = {
-    Gangos = 915,
-    Bozja  = 920,
-    Zadnor = 975
+    Gangos = { Id = 915, Name = "Gangos",               Teleport = "Gangos"      },
+    Bozja  = { Id = 920, Name = "Bozja Southern Front", Teleport = "EnterBozja"  },
+    Zadnor = { Id = 975, Name = "Zadnor",               Teleport = "EnterZadnor" },
 }
+
+---------------------
+--    Blacklist    --
+---------------------
+
+BlacklistNames  = {}
+BlacklistIds    = {}
 
 --=========================== FUNCTIONS ==========================--
 
 -------------------
 --    Helpers    --
 -------------------
+
+function BuildFateBlacklist(raw)
+    local names, ids = {}, {}
+
+    for token in string.gmatch(raw or "", "[^,]+") do
+        token = (token and token:gsub("^%s+",""):gsub("%s+$","")) or token
+        if token and #token > 0 then
+            local id = tonumber(token)
+            if id then
+                ids[id] = true
+            else
+                names[(token and token:lower():gsub("%s+"," ")) or token] = true
+            end
+        end
+    end
+
+    BlacklistNames = names
+    BlacklistIds   = ids
+
+    return names, ids
+end
+
+function IsBlacklisted(fate)
+    if not fate then
+        return false
+    end
+
+    if BlacklistIds[fate.Id] then
+        return true
+    end
+
+    local name = (fate.Name and fate.Name:lower():gsub("^%s+",""):gsub("%s+$",""):gsub("%s+"," ")) or fate.Name
+    return name and BlacklistNames[name] or false
+end
 
 function IsActiveState(state)
     if state == nil then
@@ -142,12 +187,15 @@ function PickBestFate(block)
         return nil
     end
 
+    local anyViable = false
     local myPosition = Player and Player.Entity and Player.Entity.Position
     local best, bestDist, bestProg = nil, 1e12, -1
 
     for i = 0, count - 1 do
         local fate = list[i]
-        if fate and fate.Exists and IsActiveState(fate.State) then
+        if fate and fate.Exists and IsActiveState(fate.State) and not IsBlacklisted(fate) then
+            anyViable = true
+
             local distance = FateDistance(fate, myPosition)
             local progress = FateProgress(fate)
 
@@ -155,6 +203,11 @@ function PickBestFate(block)
                 best, bestDist, bestProg = fate, distance, progress
             end
         end
+    end
+
+    if not anyViable then
+        LogInfo(string.format("%s All active FATEs are blacklisted. Idling...", LogPrefix))
+        return nil
     end
 
     if block ~= false and best then
@@ -233,7 +286,7 @@ function RunToAndWaitFate(fateId)
             if (now - lastSwitchAt) >= 5 then
                 local best = PickBestFate(false)
 
-                if best and best.Exists and IsActiveState(best.State) and best.Location and best.Id ~= fateId then
+                if best and best.Exists and IsActiveState(best.State) and best.Location and best.Id ~= fateId and not IsBlacklisted(best) then
                     local curDist  = (myPosition and selectedFate and selectedFate.Location) and GetDistance(myPosition, selectedFate.Location) or (selectedFate and selectedFate.DistanceToPlayer) or 1e9
                     local bestDist = FateDistance(best, myPosition)
 
@@ -284,17 +337,17 @@ function MoveToZone()
         return
     end
 
-    if not IsInZone(Zones.Gangos) then
+    if not IsInZone(HubZone.Id) then
         Wait(1)
-        Teleport("Gangos")
-        LogInfo(string.format("%s Teleporting to Gangos...", LogPrefix))
+        Teleport(HubZone.Teleport)
+        LogInfo(string.format("%s Teleporting to %s...", LogPrefix, HubZone.Name))
         WaitForPlayer()
         return
     end
 
     Wait(1)
     LogInfo(string.format("%s Entering %s...", LogPrefix, TargetZoneName))
-    Teleport(EnterCommand)
+    Teleport(TargetTeleport)
     WaitForPlayer()
 end
 
@@ -354,21 +407,12 @@ end
 --    Main    --
 ----------------
 
-function ZoneSelection()
-    if ZoneToFarm == "Zadnor" then
-        TargetZoneID   = Zones.Zadnor
-        TargetZoneName = "Zadnor"
-        EnterCommand   = "EnterZadnor"
-    elseif ZoneToFarm == "Bozja" then
-        TargetZoneID   = Zones.Bozja
-        TargetZoneName = "Bozja Southern Front"
-        EnterCommand   = "EnterBozja"
-    else
-        LogInfo(string.format("%s Invalid ZoneToFarm '%s', defaulting to Bozja.", LogPrefix, tostring(ZoneToFarm)))
-        TargetZoneID   = Zones.Bozja
-        TargetZoneName = "Bozja Southern Front"
-        EnterCommand   = "EnterBozja"
-    end
+function ResolveZone()
+    local chosen   = Zones[ZoneToFarm] or Zones.Bozja
+    TargetZoneID   = chosen.Id
+    TargetZoneName = chosen.Name
+    TargetTeleport = chosen.Teleport
+    HubZone        = Zones.Gangos
 
     LogInfo(string.format("%s Zone selected: %s (ID=%d)", LogPrefix, TargetZoneName, TargetZoneID))
 end
@@ -425,8 +469,9 @@ end
 
 --=========================== EXECUTION ==========================--
 
+BuildFateBlacklist(DisabledFates)
 while not StopFlag do
-    ZoneSelection()
+    ResolveZone()
     if IsInZone(TargetZoneID) then
         LogInfo(string.format("%s In %s. Beginning Fate farm cycle.", LogPrefix, TargetZoneName))
         StartFarm(TargetZoneID)
