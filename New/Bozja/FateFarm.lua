@@ -212,7 +212,7 @@ function PickBestFate(block)
 
     if block ~= false and best then
         local nearNote = (bestDist <= 500) and " [+near]" or ""
-        LogInfo(string.format("%s Picked: %s (dist=%.0fm, prog=%d%%%s)", LogPrefix, best.Name or "?", bestDist, bestProg, nearNote))
+        LogInfo(string.format("%s Picked: %s (id=%s, dist=%.0fm, prog=%d%%%s)", LogPrefix, best.Name or "?", tostring(best.Id or "?"), bestDist or -1, bestProg or -1, nearNote))
     end
 
     return best
