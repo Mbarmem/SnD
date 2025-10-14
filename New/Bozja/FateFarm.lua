@@ -138,7 +138,6 @@ function PickBestFate(block)
 
     local list  = Fates.GetActiveFates()
     local count = (list and list.Count) or 0
-
     if count == 0 then
         return nil
     end
@@ -203,7 +202,7 @@ function RunToAndWaitFate(fateId)
 
     Mount()
     LogInfo(string.format("%s Heading to %s (%.0fm, %d%%)...", LogPrefix, fate.Name, fate.DistanceToPlayer or 0, fate.Progress or 0))
-    MoveTo(fate.Location.X, fate.Location.Y, fate.Location.Z, 3)
+    MoveToStart(fate.Location.X, fate.Location.Y, fate.Location.Z)
 
     while true do
         local myPosition    = Player and Player.Entity and Player.Entity.Position
@@ -221,7 +220,7 @@ function RunToAndWaitFate(fateId)
             end
 
             local dist = (myPosition and selectedFate.Location) and GetDistance(myPosition, selectedFate.Location) or (selectedFate.DistanceToPlayer or 99999)
-            if selectedFate.InFate or (dist and dist <= 3) then
+            if selectedFate.InFate and (dist and dist <= 1) then
                 PathStop()
                 StanceOff()
                 RotationON()
@@ -233,21 +232,18 @@ function RunToAndWaitFate(fateId)
             local now = os.time()
             if (now - lastSwitchAt) >= 5 then
                 local best = PickBestFate(false)
+
                 if best and best.Exists and IsActiveState(best.State) and best.Location and best.Id ~= fateId then
-                    local curDist  = dist or 1e9
+                    local curDist  = (myPosition and selectedFate and selectedFate.Location) and GetDistance(myPosition, selectedFate.Location) or (selectedFate and selectedFate.DistanceToPlayer) or 1e9
                     local bestDist = FateDistance(best, myPosition)
-                    local curProg  = FateProgress(selectedFate)
-                    local bestProg = FateProgress(best)
 
-                    LogInfo(string.format("%s Re-eval: cur '%s' d=%.0fm p=%d%%  vs  best '%s' d=%.0fm p=%d%%  (sinceSwitch=%ds)", LogPrefix, selectedFate.Name or "?", (curDist or -1), (curProg or -1), best.Name or "?", (bestDist or -1), (bestProg or -1), os.time() - lastSwitchAt))
-
-                    if bestDist < curDist - 100 and curDist > 50 then
-                        LogInfo(string.format("%s Switching target: '%s' → '%s' (%.0fm → %.0fm, prog %d%% → %d%%)", LogPrefix, selectedFate.Name or "?", best.Name or "?", curDist, bestDist, curProg, bestProg))
+                    if curDist and bestDist and (bestDist < curDist - 100) and (curDist > 50) then
+                        LogInfo(string.format("%s Switching target: '%s' → '%s' (%.0fm → %.0fm)", LogPrefix, selectedFate.Name or "?", best.Name or "?", curDist, bestDist))
                         PathStop()
                         fateId       = best.Id
                         fate         = best
                         lastSwitchAt = now
-                        MoveTo(fate.Location.X, fate.Location.Y, fate.Location.Z, 3)
+                        MoveToStart(fate.Location.X, fate.Location.Y, fate.Location.Z)
                     end
                 end
             end
@@ -300,6 +296,18 @@ function MoveToZone()
     LogInfo(string.format("%s Entering %s...", LogPrefix, TargetZoneName))
     Teleport(EnterCommand)
     WaitForPlayer()
+end
+
+function MoveToStart(x, y, z, fly)
+    fly = fly or false
+    PathStop()
+    local destination = Vector3(x, y, z)
+    local ok = IPC.vnavmesh.PathfindAndMoveTo(destination, fly)
+
+    if not ok then
+        return false
+    end
+    return true
 end
 
 ----------------
