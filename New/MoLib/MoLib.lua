@@ -1717,13 +1717,29 @@ end
 --- Attempts to dismount if currently mounted
 --- @return nil
 function Dismount()
-    if IsMounted() then
-        LogDebug("[MoLib] Attempting to dismount")
-        repeat
-            ExecuteGeneralAction(CharacterAction.GeneralActions.dismount)
-            Wait(1)
-        until not IsMounted()
+    if not IsMounted() then
+        return
     end
+
+    LogDebug("[MoLib] Attempting to dismount")
+
+    local startTime = os.clock()
+    repeat
+        ExecuteGeneralAction(CharacterAction.GeneralActions.dismount)
+        Wait(1)
+
+        if (os.clock() - startTime) > 5 then
+            LogDebug("[MoLib] Dismount taking too long, moving slightly to reset...")
+            local position = Player and Player.Entity and Player.Entity.Position
+            if position then
+                MoveTo(position.X + 1, position.Y, position.Z)
+                Wait(2)
+            end
+            startTime = os.clock()
+        end
+    until not IsMounted()
+
+    LogDebug("[MoLib] Successfully dismounted")
 end
 
 --------------------------------------------------------------------
