@@ -82,7 +82,6 @@ end
 function JobCycleGetPos()
     local playerPos = Player and Player.Entity and Player.Entity.Position
     if playerPos then
-        LogInfo(string.format("Player Position -> X:%f, Y:%f, Z:%f", playerPos.X, playerPos.Y, playerPos.Z))
         return playerPos.X, playerPos.Y, playerPos.Z
     end
 end
