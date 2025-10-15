@@ -24,6 +24,10 @@ configs:
 
 --=========================== VARIABLES ==========================--
 
+-------------------
+--    General    --
+-------------------
+
 FullAuto           = Config.Get("FullAuto")
 MinimumCreditsLeft = Config.Get("MinimumCreditsLeft")
 LogPrefix          = "[CosmicFortunes]"

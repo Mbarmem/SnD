@@ -46,6 +46,10 @@ configs:
 
 --=========================== VARIABLES ==========================--
 
+-------------------
+--    General    --
+-------------------
+
 MissionName = Config.Get("MissionName")
 LogPrefix   = "[RedAlerts]"
 
