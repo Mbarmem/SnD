@@ -292,7 +292,7 @@ function RunToAndWaitFate(fateId)
             end
 
             local dist = (myPosition and selectedFate.Location) and GetDistance(myPosition, selectedFate.Location) or (selectedFate.DistanceToPlayer or 99999)
-            if selectedFate.InFate and (dist and dist <= 1) then
+            if selectedFate.InFate and (dist and dist <= 3) then
                 PathStop()
                 StanceOff()
                 RotationON()
