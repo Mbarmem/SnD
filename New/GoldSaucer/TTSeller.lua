@@ -30,17 +30,21 @@ LogPrefix   = "[TTSeller]"
 ----------------
 
 function DistanceToSeller()
-    if IsInZone(144) then -- The Gold Saucer
-        Distance_Test = GetDistanceToPoint(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
-        LogInfo(string.format("%s Distance to seller: %.2f", LogPrefix, Distance_Test))
+    if not IsInZone(144) then
+        LogInfo(string.format("%s Not in Gold Saucer; skipping distance check", LogPrefix))
+        return nil
     end
+
+    local distanceTest = GetDistanceToPoint(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
+    LogInfo(string.format("%s Distance to seller: %.2f", LogPrefix, distanceTest))
+    return distanceTest
 end
 
 function GoToSeller()
     if IsInZone(144) then
-        DistanceToSeller()
+        local distance = DistanceToSeller()
 
-        if Distance_Test > 0 and Distance_Test < 100 then
+        if distance and distance > 0 and distance < 100 then
             MoveTo(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
             return
         end
@@ -57,34 +61,46 @@ end
 function Main()
     Interact(Npc.Name)
     WaitForAddon("SelectIconString")
+    Wait(1)
     Execute("/callback SelectIconString true 1")
     Wait(1)
 
     while true do
         WaitForAddon("TripleTriadCoinExchange")
-        local Visible = IsNodeVisible("TripleTriadCoinExchange", 1, 11)
-        if Visible then
+        Wait(1)
+        if IsNodeVisible("TripleTriadCoinExchange", 1, 11) then
+            Wait(1)
             break
         end
 
+        ::start::
         if IsNodeVisible("TripleTriadCoinExchange", 1, 10, 5) then
             Execute("/callback TripleTriadCoinExchange true 0")
+            Wait(1)
             WaitForAddon("ShopCardDialog")
             Wait(1)
         end
 
-        local Node = GetNodeText("TripleTriadCoinExchange", 1, 10, 5, 6)
-        local a = tonumber(Node)
+        local nodeText = GetNodeText("TripleTriadCoinExchange", 1, 10, 5, 6)
+        if not nodeText then
+            Wait(1)
+            goto start
+        end
+
+        local nodeNumber = tonumber(nodeText)
+        if not nodeNumber then
+            LogInfo(string.format("%s Could not parse int from %q; default 0", LogPrefix, nodeText))
+            goto start
+        end
 
         if IsAddonReady("ShopCardDialog") then
-            Execute(string.format("/callback ShopCardDialog true 0 %d", a))
+            Execute(string.format("/callback ShopCardDialog true 0 %d", nodeNumber))
             Wait(1)
         end
         Wait(1)
     end
     Execute("/callback TripleTriadCoinExchange true -1")
     Wait(1)
-    return false
 end
 
 --=========================== EXECUTION ==========================--
