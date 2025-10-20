@@ -788,7 +788,7 @@ end
 --- @return nil
 --- @overload fun(x: number, y: number, z: number): nil
 function PathMoveDir(x, y, z)
-    local pathMoveDir = string.format("\vnav movedir %.3f %.3f %.3f", x, y, z)
+    local pathMoveDir = string.format("/vnav movedir %.3f %.3f %.3f", x, y, z)
     Execute(pathMoveDir)
 end
 
