@@ -54,19 +54,46 @@ function GoToSeller()
     MoveTo(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
 end
 
+function SafeGetNodeText(addon, ...)
+    local ok, txt = pcall(GetNodeText, addon, ...)
+    if not ok or txt == nil or txt == "" then
+        return nil
+    end
+
+    return tostring(txt)
+end
+
+function ParseIntLoose(string)
+    if not string then
+        return nil
+    end
+
+    local cleaned = tostring(string):gsub(",", "")
+    local digits = cleaned:match("(%d+)")
+    return digits and tonumber(digits) or nil
+end
+
 ----------------
 --    Main    --
 ----------------
 
 function Main()
     Interact(Npc.Name)
-    WaitForAddon("SelectIconString")
+    if not WaitForAddon("SelectIconString") then
+        LogInfo(string.format("%s WaitForAddon('SelectIconString') timed out", LogPrefix))
+        return
+    end
+
     Wait(1)
     Execute("/callback SelectIconString true 1")
     Wait(1)
 
     while true do
-        WaitForAddon("TripleTriadCoinExchange")
+        if not WaitForAddon("TripleTriadCoinExchange") then
+            LogInfo(string.format("%s WaitForAddon('TripleTriadCoinExchange') timed out", LogPrefix))
+            return
+        end
+
         Wait(1)
         if IsNodeVisible("TripleTriadCoinExchange", 1, 11) then
             Wait(1)
@@ -77,17 +104,21 @@ function Main()
         if IsNodeVisible("TripleTriadCoinExchange", 1, 10, 5) then
             Execute("/callback TripleTriadCoinExchange true 0")
             Wait(1)
-            WaitForAddon("ShopCardDialog")
+
+            if not WaitForAddon("ShopCardDialog") then
+                LogInfo(string.format("%s WaitForAddon('ShopCardDialog') timed out", LogPrefix))
+                return
+            end
             Wait(1)
         end
 
-        local nodeText = GetNodeText("TripleTriadCoinExchange", 1, 10, 5, 6)
+        local nodeText = SafeGetNodeText("TripleTriadCoinExchange", 1, 10, 5, 6)
         if not nodeText then
             Wait(1)
             goto start
         end
 
-        local nodeNumber = tonumber(nodeText)
+        local nodeNumber = ParseIntLoose(nodeText)
         if not nodeNumber then
             LogInfo(string.format("%s Could not parse int from %q", LogPrefix, nodeText))
             goto start
