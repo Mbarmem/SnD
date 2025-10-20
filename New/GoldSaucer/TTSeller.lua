@@ -89,7 +89,7 @@ function Main()
 
         local nodeNumber = tonumber(nodeText)
         if not nodeNumber then
-            LogInfo(string.format("%s Could not parse int from %q; default 0", LogPrefix, nodeText))
+            LogInfo(string.format("%s Could not parse int from %q", LogPrefix, nodeText))
             goto start
         end
 
