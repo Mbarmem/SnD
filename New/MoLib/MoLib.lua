@@ -713,7 +713,7 @@ end
 --------------------------------------------------------------------
 
 --================--
---    Vnavmesn    --
+--    Vnavmesh    --
 --================--
 
 --- Checks whether a vnavmesh pathfinding operation is currently in progress
@@ -776,6 +776,20 @@ function PathMoveTo(coordinates, fly)
         end
     end
     IPC.vnavmesh.MoveTo(pathPoints, fly)
+end
+
+--------------------------------------------------------------------
+
+--- Initiates directional movement using vnavmesh.
+--- Moves the character relative to the current position using a direction vector.
+--- @param x number    X-axis direction component
+--- @param y number    Y-axis direction component
+--- @param z number    Z-axis direction component
+--- @return nil
+--- @overload fun(x: number, y: number, z: number): nil
+function PathMoveDir(x, y, z)
+    local pathMoveDir = string.format("\vnav movedir %.3f %.3f %.3f", x, y, z)
+    Execute(pathMoveDir)
 end
 
 --------------------------------------------------------------------

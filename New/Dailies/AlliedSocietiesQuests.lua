@@ -541,6 +541,10 @@ for _, alliedSociety in ipairs(ToDoList) do
                     repeat
                         if not QuestionableIsRunning() then
                             Execute("/qst start")
+                        elseif IsPlayerCasting() then
+                            PathMoveDir(0, 0, 0.5)
+                        elseif PathIsRunning() then
+                            PathStop()
                         elseif os.time() - timeout > 15 then
                             LogInfo(string.format("%s Took more than 15 seconds to pick up the quest. Reloading...", LogPrefix))
                             Execute("/qst reload")
