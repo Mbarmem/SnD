@@ -54,82 +54,40 @@ function GoToSeller()
     MoveTo(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
 end
 
-function SafeGetNodeText(addon, ...)
-    local ok, txt = pcall(GetNodeText, addon, ...)
-    if not ok or txt == nil or txt == "" then
-        return nil
+function CardsForSale()
+    if IsNodeVisible("TripleTriadCoinExchange", 1, 11) then
+        return false
     end
-
-    return tostring(txt)
+    return true
 end
 
-function ParseIntLoose(string)
-    if not string then
-        return nil
-    end
-
-    local cleaned = tostring(string):gsub(",", "")
-    local digits = cleaned:match("(%d+)")
-    return digits and tonumber(digits) or nil
+function CardsQty()
+    local nodeText = GetNodeText("TripleTriadCoinExchange", 1, 10, 5, 6) or ""
+    return tonumber(nodeText:match("%d+")) or 0
 end
 
 ----------------
 --    Main    --
 ----------------
 
-function Main()
+function InteractNpc()
     Interact(Npc.Name)
-    if not WaitForAddon("SelectIconString") then
-        LogInfo(string.format("%s WaitForAddon('SelectIconString') timed out", LogPrefix))
-        return
-    end
-
-    Wait(1)
+    WaitForAddon("SelectIconString")
     Execute("/callback SelectIconString true 1")
     Wait(1)
+    WaitForAddon("TripleTriadCoinExchange")
+end
 
-    while true do
-        if not WaitForAddon("TripleTriadCoinExchange") then
-            LogInfo(string.format("%s WaitForAddon('TripleTriadCoinExchange') timed out", LogPrefix))
-            return
-        end
-
+function SellTTCards()
+    while CardsForSale() do
+        local cardsToSell = CardsQty()
+        Execute("/callback TripleTriadCoinExchange true 0")
         Wait(1)
-        if IsNodeVisible("TripleTriadCoinExchange", 1, 11) then
-            Wait(1)
-            break
-        end
-
-        ::start::
-        if IsNodeVisible("TripleTriadCoinExchange", 1, 10, 5) then
-            Execute("/callback TripleTriadCoinExchange true 0")
-            Wait(1)
-
-            if not WaitForAddon("ShopCardDialog") then
-                LogInfo(string.format("%s WaitForAddon('ShopCardDialog') timed out", LogPrefix))
-                return
-            end
-            Wait(1)
-        end
-
-        local nodeText = SafeGetNodeText("TripleTriadCoinExchange", 1, 10, 5, 6)
-        if not nodeText then
-            Wait(1)
-            goto start
-        end
-
-        local nodeNumber = ParseIntLoose(nodeText)
-        if not nodeNumber then
-            LogInfo(string.format("%s Could not parse int from %q", LogPrefix, nodeText))
-            goto start
-        end
-
-        if IsAddonReady("ShopCardDialog") then
-            Execute(string.format("/callback ShopCardDialog true 0 %d", nodeNumber))
-            Wait(1)
-        end
+        WaitForAddon("ShopCardDialog")
+        Execute(string.format("/callback ShopCardDialog true 0 %d", cardsToSell))
         Wait(1)
     end
+
     Execute("/callback TripleTriadCoinExchange true -1")
     Wait(1)
 end
@@ -137,7 +95,8 @@ end
 --=========================== EXECUTION ==========================--
 
 GoToSeller()
-Main()
+InteractNpc()
+SellTTCards()
 
 Echo(string.format("Triple Triad Seller script completed successfully..!!"), LogPrefix)
 LogInfo(string.format("%s Triple Triad Seller script completed successfully..!!", LogPrefix))
