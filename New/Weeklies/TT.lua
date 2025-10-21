@@ -33,7 +33,7 @@ LogPrefix = "[TT]"
 
 function BattleHall()
     LogInfo(string.format("%s Moving to Battle Hall.", LogPrefix))
-    DFQueueDuty(195) -- The triple Triad Battlehall
+    DFQueueDuty(195) -- The Triple Triad Battlehall
 
     while not IsBoundByDuty() do
         Wait(1)
