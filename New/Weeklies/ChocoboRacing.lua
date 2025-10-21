@@ -22,9 +22,9 @@ configs:
 
 --=========================== VARIABLES ==========================--
 
---------------------
---    Genereal    --
---------------------
+-------------------
+--    General    --
+-------------------
 
 RunsToPlay   = Config.Get("RunsToPlay")
 RunsPlayed   = Config.Get("RunsPlayed")
