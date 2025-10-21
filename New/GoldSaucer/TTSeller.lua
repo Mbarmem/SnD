@@ -30,17 +30,21 @@ LogPrefix   = "[TTSeller]"
 ----------------
 
 function DistanceToSeller()
-    if IsInZone(144) then -- The Gold Saucer
-        Distance_Test = GetDistanceToPoint(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
-        LogInfo(string.format("%s Distance to seller: %.2f", LogPrefix, Distance_Test))
+    if not IsInZone(144) then
+        LogInfo(string.format("%s Not in Gold Saucer; skipping distance check", LogPrefix))
+        return nil
     end
+
+    local distanceTest = GetDistanceToPoint(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
+    LogInfo(string.format("%s Distance to seller: %.2f", LogPrefix, distanceTest))
+    return distanceTest
 end
 
 function GoToSeller()
     if IsInZone(144) then
-        DistanceToSeller()
+        local distance = DistanceToSeller()
 
-        if Distance_Test > 0 and Distance_Test < 100 then
+        if distance and distance > 0 and distance < 100 then
             MoveTo(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
             return
         end
@@ -50,47 +54,49 @@ function GoToSeller()
     MoveTo(Npc.Position.X, Npc.Position.Y, Npc.Position.Z)
 end
 
+function CardsForSale()
+    if IsNodeVisible("TripleTriadCoinExchange", 1, 11) then
+        return false
+    end
+    return true
+end
+
+function CardsQty()
+    local nodeText = GetNodeText("TripleTriadCoinExchange", 1, 10, 5, 6) or ""
+    return tonumber(nodeText:match("%d+")) or 0
+end
+
 ----------------
 --    Main    --
 ----------------
 
-function Main()
+function InteractNpc()
     Interact(Npc.Name)
     WaitForAddon("SelectIconString")
     Execute("/callback SelectIconString true 1")
     Wait(1)
+    WaitForAddon("TripleTriadCoinExchange")
+end
 
-    while true do
-        WaitForAddon("TripleTriadCoinExchange")
-        local Visible = IsNodeVisible("TripleTriadCoinExchange", 1, 11)
-        if Visible then
-            break
-        end
-
-        if IsNodeVisible("TripleTriadCoinExchange", 1, 10, 5) then
-            Execute("/callback TripleTriadCoinExchange true 0")
-            WaitForAddon("ShopCardDialog")
-            Wait(1)
-        end
-
-        local Node = GetNodeText("TripleTriadCoinExchange", 1, 10, 5, 6)
-        local a = tonumber(Node)
-
-        if IsAddonReady("ShopCardDialog") then
-            Execute(string.format("/callback ShopCardDialog true 0 %d", a))
-            Wait(1)
-        end
+function SellTTCards()
+    while CardsForSale() do
+        local cardsToSell = CardsQty()
+        Execute("/callback TripleTriadCoinExchange true 0")
+        Wait(1)
+        WaitForAddon("ShopCardDialog")
+        Execute(string.format("/callback ShopCardDialog true 0 %d", cardsToSell))
         Wait(1)
     end
+
     Execute("/callback TripleTriadCoinExchange true -1")
     Wait(1)
-    return false
 end
 
 --=========================== EXECUTION ==========================--
 
 GoToSeller()
-Main()
+InteractNpc()
+SellTTCards()
 
 Echo(string.format("Triple Triad Seller script completed successfully..!!"), LogPrefix)
 LogInfo(string.format("%s Triple Triad Seller script completed successfully..!!", LogPrefix))
