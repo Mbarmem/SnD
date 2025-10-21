@@ -33,23 +33,7 @@ LogPrefix = "[TT]"
 
 function BattleHall()
     LogInfo(string.format("%s Moving to Battle Hall.", LogPrefix))
-
-    if not IsAddonReady("JournalDetail") then
-        Execute("/dutyfinder")
-    end
-
-    Wait(1)
-    WaitForAddon("JournalDetail")
-    Wait(1)
-
-    Execute("/callback ContentsFinder true 12 1")
-    Wait(1)
-    Execute("/callback ContentsFinder true 1 9")
-    Wait(1)
-    Execute("/callback ContentsFinder true 3 1")
-    Wait(1)
-    Execute("/callback ContentsFinder true 12 0")
-    Wait(1)
+    DFQueueDuty(195) -- The triple Triad Battlehall
 
     while not IsBoundByDuty() do
         Wait(1)
@@ -64,9 +48,19 @@ end
 --    Triad    --
 -----------------
 
+function Play()
+    if IsInZone(579) then
+        WaitForPlayer()
+        MoveToTarget("Nell Half-full", 3)
+        Interact("Nell Half-full")
+        PlayTTUntilNeeded()
+    else
+        LogInfo(string.format("%s Not in BattleHall..!!", LogPrefix))
+    end
+end
+
 function PlayTTUntilNeeded()
     WaitForCondition("PlayingMiniGame", true)
-
     LogInfo(string.format("%s Starting Triple Triad...", LogPrefix))
     Execute("/saucy tt play 15")
     Execute("/saucy tt go")
@@ -77,21 +71,8 @@ function PlayTTUntilNeeded()
     end
 
     LeaveInstance()
-
     WaitForCondition("BoundByDuty", false)
-
     WaitForPlayer()
-end
-
-function Play()
-    if IsInZone(579) then
-        WaitForPlayer()
-        MoveToTarget("Nell Half-full", 3)
-        Interact("Nell Half-full")
-        PlayTTUntilNeeded()
-    else
-        LogInfo(string.format("%s Not in BattleHall..!!", LogPrefix))
-    end
 end
 
 --=========================== EXECUTION ==========================--

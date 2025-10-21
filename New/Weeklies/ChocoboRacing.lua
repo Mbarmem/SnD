@@ -16,6 +16,9 @@ configs:
   RunsPlayed:
     description: Initial run count.
     default: 0
+  SuperSprint:
+    description: Use Super Sprint ability during races.
+    default: true
 
 [[End Metadata]]
 --]=====]
@@ -28,6 +31,7 @@ configs:
 
 RunsToPlay   = Config.Get("RunsToPlay")
 RunsPlayed   = Config.Get("RunsPlayed")
+SuperSprint  = Config.Get("SuperSprint")
 LogPrefix    = "[ChocoboRacing]"
 
 --=========================== FUNCTIONS ==========================--
@@ -38,7 +42,7 @@ LogPrefix    = "[ChocoboRacing]"
 
 function DutyFinder()
     LogInfo(string.format("%s Starting new race. Currently at %s/%s runs.", LogPrefix, RunsPlayed, RunsToPlay))
-    Instances.DutyFinder:QueueRoulette(22) -- Chocobo Race: Sagolii Road (No Rewards)
+    DFQueueRoulette(22) -- Chocobo Race: Sagolii Road (No Rewards)
 
     while not IsOccupiedInCutScene() do
         Wait(1)
@@ -49,11 +53,17 @@ function DutyFinder()
     end
 end
 
-function SuperSprint()
+function UseSuperSprint()
     if IsOccupiedInCutScene() then
         WaitForCondition("OccupiedInCutscene", false)
     end
+
     Wait(6)
+
+    if not SuperSprint then
+        return
+    end
+
     ExecuteAction(CharacterAction.ChocoboRaceAbility.superSprint, ActionType.ChocoboRaceAbility)
     Wait(3)
 end
@@ -65,18 +75,18 @@ function KeySpam()
 
     repeat
         Execute("/send KEY_1")
-        Wait(5)
+        Wait(1)
+        Execute("/send KEY_1")
+        Wait(10)
     until IsAddonReady("RaceChocoboResult")
 end
 
-function EndMatch()
+function EndRace()
     WaitForAddon("RaceChocoboResult", 500)
+    Execute("/callback RaceChocoboResult true 1")
 
     RunsPlayed = RunsPlayed + 1
-
-    Execute("/callback RaceChocoboResult true 1")
     LogInfo(string.format("%s Runs played: %s", LogPrefix, RunsPlayed))
-
     WaitForPlayer()
     Wait(1)
 end
@@ -85,9 +95,9 @@ end
 
 while RunsPlayed < RunsToPlay do
     DutyFinder()
-    SuperSprint()
+    UseSuperSprint()
     KeySpam()
-    EndMatch()
+    EndRace()
 end
 
 Echo("Chocobo Racing script completed successfully..!!", LogPrefix)

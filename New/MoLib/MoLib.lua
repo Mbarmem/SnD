@@ -1647,6 +1647,86 @@ function GetAetheryteName(zoneId)
     end
 end
 
+--============================ DUTIES ============================--
+
+--===================--
+--    Duty Finder    --
+--===================--
+
+--- Queues a duty via the global `Instances.DutyFinder` interface.
+--- @param dutyId number    the identifier of the duty to queue. Usually a numeric Duty Finder ID.
+--- @return nil
+function DFQueueDuty(dutyId)
+    if not dutyId then
+        LogDebug("[MoLib] QueueDuty: No dutyId provided.")
+        return
+    end
+
+    LogDebug(string.format("[MoLib] QueueDuty: Requesting dutyId = %s", tostring(dutyId)))
+
+    local df = Instances and Instances.DutyFinder
+    if df and df.QueueDuty then
+        df:QueueDuty(dutyId)
+    else
+        LogDebug("[MoLib] QueueDuty: Instances.DutyFinder.QueueDuty not available.")
+    end
+end
+
+--------------------------------------------------------------------
+
+--- Queues a roulette via the global `Instances.DutyFinder` interface.
+--- @param dutyId number    the identifier of the roulette to queue. Typically a numeric Duty Finder ID.
+--- @return nil
+function DFQueueRoulette(dutyId)
+    if not dutyId then
+        LogDebug("[MoLib] QueueRoulette: No dutyId provided.")
+        return
+    end
+
+    LogDebug(string.format("[MoLib] QueueRoulette: Requesting dutyId = %s", tostring(dutyId)))
+
+    local df = Instances and Instances.DutyFinder
+    if df and df.QueueRoulette then
+        df:QueueRoulette(dutyId)
+    else
+        LogDebug("[MoLib] QueueRoulette: Instances.DutyFinder.QueueRoulette not available.")
+    end
+end
+
+--------------------------------------------------------------------
+
+--- Enables or disables "Unrestricted Party" mode via the global `Instances.DutyFinder` interface.
+--- @param enable boolean      whether to enable (true) or disable (false) unrestricted party mode.
+--- @return boolean success    true if successfully applied; false otherwise.
+function DFSetUnrestrictedParty(enable)
+    local df = Instances and Instances.DutyFinder
+    if not df or type(enable) ~= "boolean" then
+        LogDebug("[MoLib] SetUnrestrictedParty: Invalid arguments or DutyFinder unavailable.")
+        return false
+    end
+
+    df.IsUnrestrictedParty = enable
+    LogDebug(string.format("[MoLib] SetUnrestrictedParty: %s", enable and "Enabled" or "Disabled"))
+    return true
+end
+
+--------------------------------------------------------------------
+
+--- Enables or disables "Level Sync" mode via the global `Instances.DutyFinder` interface.
+--- @param enable boolean      whether to enable (true) or disable (false) level sync.
+--- @return boolean success    true if successfully applied; false otherwise.
+function DFSetLevelSync(enable)
+    local df = Instances and Instances.DutyFinder
+    if not df or type(enable) ~= "boolean" then
+        LogDebug("[MoLib] SetLevelSync: Invalid arguments or DutyFinder unavailable.")
+        return false
+    end
+
+    df.IsLevelSync = enable
+    LogDebug(string.format("[MoLib] SetLevelSync: %s", enable and "Enabled" or "Disabled"))
+    return true
+end
+
 --=========================== UTILITIES ==========================--
 
 --=================--
