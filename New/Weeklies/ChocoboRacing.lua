@@ -38,23 +38,7 @@ LogPrefix    = "[ChocoboRacing]"
 
 function DutyFinder()
     LogInfo(string.format("%s Starting new race. Currently at %s/%s runs.", LogPrefix, RunsPlayed, RunsToPlay))
-
-    if not IsAddonReady("JournalDetail") then
-        Execute("/dutyfinder")
-    end
-
-    Wait(1)
-    WaitForAddon("JournalDetail")
-    Wait(1)
-
-    Execute("/callback ContentsFinder true 12 1")
-    Wait(1)
-    Execute("/callback ContentsFinder true 1 9")
-    Wait(1)
-    Execute("/callback ContentsFinder true 3 11")
-    Wait(1)
-    Execute("/callback ContentsFinder true 12 0")
-    Wait(1)
+    Instances.DutyFinder:QueueRoulette(22) -- Chocobo Race: Sagolii Road (No Rewards)
 
     while not IsOccupiedInCutScene() do
         Wait(1)
