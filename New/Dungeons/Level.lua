@@ -113,61 +113,61 @@ Dungeons = {
     {
         Name         = "Holminster Switch",
         dutyId       = 837,
-        dutyMode     = "Support",
+        dutyMode     = "Trust",
         dutyLevel    = 71
     },
     {
         Name         = "The Qitana Ravel",
         dutyId       = 823,
-        dutyMode     = "Support",
+        dutyMode     = "Trust",
         dutyLevel    = 75
     },
     {
         Name         = "Mt. Gulg",
         dutyId       = 822,
-        dutyMode     = "Support",
+        dutyMode     = "Trust",
         dutyLevel    = 79
     },
     {
         Name         = "The Tower of Zot",
         dutyId       = 952,
-        dutyMode     = "Support",
+        dutyMode     = "Trust",
         dutyLevel    = 81
     },
     {
         Name         = "Vanaspati",
         dutyId       = 970,
-        dutyMode     = "Support",
+        dutyMode     = "Trust",
         dutyLevel    = 85
     },
     {
         Name         = "The Aitiascope",
         dutyId       = 978,
-        dutyMode     = "Support",
+        dutyMode     = "Trust",
         dutyLevel    = 89
     },
     {
         Name         = "The Aitiascope",
         dutyId       = 978,
-        dutyMode     = "Support",
+        dutyMode     = "Trust",
         dutyLevel    = 89
     },
     {
         Name         = "Ihuykatumu",
         dutyId       = 1167,
-        dutyMode     = "Support",
+        dutyMode     = "Trust",
         dutyLevel    = 91
     },
     {
         Name         = "The Skydeep Cenote",
         dutyId       = 1194,
-        dutyMode     = "Support",
+        dutyMode     = "Trust",
         dutyLevel    = 95
     },
     {
         Name         = "Origenics",
         dutyId       = 1208,
-        dutyMode     = "Support",
+        dutyMode     = "Trust",
         dutyLevel    = 99
     }
 }
