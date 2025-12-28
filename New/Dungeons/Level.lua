@@ -53,13 +53,20 @@ LogPrefix        = "[LevelFarmer]"
 ----------------
 
 Jobs = {
+    "Paladin",
+    "Warrior",
     "Dark Knight",
     "Monk",
+    "Dragoon",
     "Ninja",
+    "Samurai",
+    "White Mage",
     "Astrologian",
     "Bard",
     "Machinist",
-    "Black Mage"
+    "Black Mage",
+    "Summoner",
+    "Red Mage"
 }
 
 --------------------
@@ -102,6 +109,30 @@ Dungeons = {
         dutyId       = 1048,
         dutyMode     = "Support",
         dutyLevel    = 50
+    },
+    {
+        Name         = "Holminster Switch",
+        dutyId       = 837,
+        dutyMode     = "Support",
+        dutyLevel    = 71
+    },
+    {
+        Name         = "The Qitana Ravel",
+        dutyId       = 823,
+        dutyMode     = "Support",
+        dutyLevel    = 75
+    },
+    {
+        Name         = "Mt. Gulg",
+        dutyId       = 822,
+        dutyMode     = "Support",
+        dutyLevel    = 79
+    },
+    {
+        Name         = "The Tower of Zot",
+        dutyId       = 952,
+        dutyMode     = "Support",
+        dutyLevel    = 81
     },
 }
 
