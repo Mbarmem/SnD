@@ -134,6 +134,42 @@ Dungeons = {
         dutyMode     = "Support",
         dutyLevel    = 81
     },
+    {
+        Name         = "Vanaspati",
+        dutyId       = 970,
+        dutyMode     = "Support",
+        dutyLevel    = 85
+    },
+    {
+        Name         = "The Aitiascope",
+        dutyId       = 978,
+        dutyMode     = "Support",
+        dutyLevel    = 89
+    },
+    {
+        Name         = "The Aitiascope",
+        dutyId       = 978,
+        dutyMode     = "Support",
+        dutyLevel    = 89
+    },
+    {
+        Name         = "Ihuykatumu",
+        dutyId       = 1167,
+        dutyMode     = "Support",
+        dutyLevel    = 91
+    },
+    {
+        Name         = "The Skydeep Cenote",
+        dutyId       = 1194,
+        dutyMode     = "Support",
+        dutyLevel    = 95
+    },
+    {
+        Name         = "Origenics",
+        dutyId       = 1208,
+        dutyMode     = "Support",
+        dutyLevel    = 99
+    }
 }
 
 --=========================== FUNCTIONS ==========================--
