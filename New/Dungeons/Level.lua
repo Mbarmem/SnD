@@ -111,6 +111,12 @@ Dungeons = {
         dutyLevel    = 50
     },
     {
+        Name         = "Castrum Abania",
+        dutyId       = 1145,
+        dutyMode     = "Support",
+        dutyLevel    = 69
+    },
+    {
         Name         = "Holminster Switch",
         dutyId       = 837,
         dutyMode     = "Trust",
