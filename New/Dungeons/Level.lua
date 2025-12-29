@@ -153,16 +153,22 @@ Dungeons = {
         dutyLevel    = 81
     },
     {
+        Name         = "The Tower of Babil",
+        dutyId       = 969,
+        dutyMode     = "Trust",
+        dutyLevel    = 83
+    },
+    {
         Name         = "Vanaspati",
         dutyId       = 970,
         dutyMode     = "Trust",
         dutyLevel    = 85
     },
     {
-        Name         = "The Aitiascope",
-        dutyId       = 978,
+        Name         = "Ktisis Hyperboreia",
+        dutyId       = 974,
         dutyMode     = "Trust",
-        dutyLevel    = 89
+        dutyLevel    = 87
     },
     {
         Name         = "The Aitiascope",
@@ -177,10 +183,22 @@ Dungeons = {
         dutyLevel    = 91
     },
     {
+        Name         = "Worqor Zormor",
+        dutyId       = 1193,
+        dutyMode     = "Trust",
+        dutyLevel    = 93
+    },
+    {
         Name         = "The Skydeep Cenote",
         dutyId       = 1194,
         dutyMode     = "Trust",
         dutyLevel    = 95
+    },
+    {
+        Name         = "Vanguard",
+        dutyId       = 1198,
+        dutyMode     = "Trust",
+        dutyLevel    = 97
     },
     {
         Name         = "Origenics",
