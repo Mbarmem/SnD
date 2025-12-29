@@ -123,10 +123,22 @@ Dungeons = {
         dutyLevel    = 71
     },
     {
+        Name         = "Dohn Mheg",
+        dutyId       = 821,
+        dutyMode     = "Trust",
+        dutyLevel    = 73
+    },
+    {
         Name         = "The Qitana Ravel",
         dutyId       = 823,
         dutyMode     = "Trust",
         dutyLevel    = 75
+    },
+    {
+        Name         = "Malikah's Well",
+        dutyId       = 836,
+        dutyMode     = "Trust",
+        dutyLevel    = 77
     },
     {
         Name         = "Mt. Gulg",
