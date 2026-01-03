@@ -123,12 +123,6 @@ Dungeons = {
         dutyLevel    = 71
     },
     {
-        Name         = "Dohn Mheg",
-        dutyId       = 821,
-        dutyMode     = "Trust",
-        dutyLevel    = 73
-    },
-    {
         Name         = "The Qitana Ravel",
         dutyId       = 823,
         dutyMode     = "Trust",
