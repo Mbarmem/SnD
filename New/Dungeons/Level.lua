@@ -53,13 +53,20 @@ LogPrefix        = "[LevelFarmer]"
 ----------------
 
 Jobs = {
+    "Paladin",
+    "Warrior",
     "Dark Knight",
     "Monk",
+    "Dragoon",
     "Ninja",
+    "Samurai",
+    "White Mage",
     "Astrologian",
     "Bard",
     "Machinist",
-    "Black Mage"
+    "Black Mage",
+    "Summoner",
+    "Red Mage"
 }
 
 --------------------
@@ -103,6 +110,96 @@ Dungeons = {
         dutyMode     = "Support",
         dutyLevel    = 50
     },
+    {
+        Name         = "Castrum Abania",
+        dutyId       = 1145,
+        dutyMode     = "Support",
+        dutyLevel    = 69
+    },
+    {
+        Name         = "Holminster Switch",
+        dutyId       = 837,
+        dutyMode     = "Trust",
+        dutyLevel    = 71
+    },
+    {
+        Name         = "The Qitana Ravel",
+        dutyId       = 823,
+        dutyMode     = "Trust",
+        dutyLevel    = 75
+    },
+    {
+        Name         = "Malikah's Well",
+        dutyId       = 836,
+        dutyMode     = "Trust",
+        dutyLevel    = 77
+    },
+    {
+        Name         = "Mt. Gulg",
+        dutyId       = 822,
+        dutyMode     = "Trust",
+        dutyLevel    = 79
+    },
+    {
+        Name         = "The Tower of Zot",
+        dutyId       = 952,
+        dutyMode     = "Trust",
+        dutyLevel    = 81
+    },
+    {
+        Name         = "The Tower of Babil",
+        dutyId       = 969,
+        dutyMode     = "Trust",
+        dutyLevel    = 83
+    },
+    {
+        Name         = "Vanaspati",
+        dutyId       = 970,
+        dutyMode     = "Trust",
+        dutyLevel    = 85
+    },
+    {
+        Name         = "Ktisis Hyperboreia",
+        dutyId       = 974,
+        dutyMode     = "Trust",
+        dutyLevel    = 87
+    },
+    {
+        Name         = "The Aitiascope",
+        dutyId       = 978,
+        dutyMode     = "Trust",
+        dutyLevel    = 89
+    },
+    {
+        Name         = "Ihuykatumu",
+        dutyId       = 1167,
+        dutyMode     = "Trust",
+        dutyLevel    = 91
+    },
+    {
+        Name         = "Worqor Zormor",
+        dutyId       = 1193,
+        dutyMode     = "Trust",
+        dutyLevel    = 93
+    },
+    {
+        Name         = "The Skydeep Cenote",
+        dutyId       = 1194,
+        dutyMode     = "Trust",
+        dutyLevel    = 95
+    },
+    {
+        Name         = "Vanguard",
+        dutyId       = 1198,
+        dutyMode     = "Trust",
+        dutyLevel    = 97
+    },
+    {
+        Name         = "Origenics",
+        dutyId       = 1208,
+        dutyMode     = "Trust",
+        dutyLevel    = 99
+    }
 }
 
 --=========================== FUNCTIONS ==========================--
