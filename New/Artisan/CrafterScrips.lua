@@ -167,7 +167,7 @@ ScripExchangeItems = {
         itemName        = "Condensed Solution",
         categoryMenu    = 1,
         subcategoryMenu = 11,
-        listIndex       = 5,
+        listIndex       = 10,
         price           = 125
     },
     {
