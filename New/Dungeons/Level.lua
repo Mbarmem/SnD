@@ -56,17 +56,23 @@ Jobs = {
     "Paladin",
     "Warrior",
     "Dark Knight",
+    "Gunbreaker",
     "Monk",
     "Dragoon",
     "Ninja",
     "Samurai",
+    "Reaper",
+    "Viper",
     "White Mage",
     "Astrologian",
+    "Sage",
     "Bard",
     "Machinist",
+    "Dancer",
     "Black Mage",
     "Summoner",
-    "Red Mage"
+    "Red Mage",
+    "Pictomancer"
 }
 
 --------------------
