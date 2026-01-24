@@ -53,26 +53,27 @@ LogPrefix        = "[LevelFarmer]"
 ----------------
 
 Jobs = {
-    "Paladin",
-    "Warrior",
-    "Dark Knight",
-    "Gunbreaker",
-    "Monk",
-    "Dragoon",
-    "Ninja",
-    "Samurai",
-    "Reaper",
-    "Viper",
-    "White Mage",
-    "Astrologian",
-    "Sage",
-    "Bard",
-    "Machinist",
-    "Dancer",
-    "Black Mage",
-    "Summoner",
-    "Red Mage",
-    "Pictomancer"
+    { name = "Paladin",      id = 1 },
+    { name = "Warrior",      id = 2 },
+    { name = "Dark Knight",  id = 3 },
+    { name = "Gunbreaker",   id = 4 },
+    { name = "White Mage",   id = 5 },
+    { name = "Scholar",      id = 6 },
+    { name = "Astrologian",  id = 7 },
+    { name = "Sage",         id = 8 },
+    { name = "Monk",         id = 9 },
+    { name = "Dragoon",      id = 10 },
+    { name = "Ninja",        id = 11 },
+    { name = "Samurai",      id = 12 },
+    { name = "Reaper",       id = 13 },
+    { name = "Viper",        id = 14 },
+    { name = "Bard",         id = 15 },
+    { name = "Machinist",    id = 16 },
+    { name = "Dancer",       id = 17 },
+    { name = "Black Mage",   id = 18 },
+    { name = "Summoner",     id = 19 },
+    { name = "Red Mage",     id = 20 },
+    { name = "Pictomancer",  id = 21 }
 }
 
 --------------------
@@ -252,18 +253,25 @@ function TierForLevel(level)
     end
 end
 
-function RunDungeon(d)
+function RunDungeon(d, job)
     LogInfo(string.format("%s Run → %s (Lv %d+) Mode:%s", LogPrefix, d.Name, d.dutyLevel, d.dutyMode))
 
+    -- Gear Management using IDs from the Jobs table
     Execute("/equiprecommended")
+    Wait(1.5)
+    if job and job.id then
+        Execute(string.format("/gs save %d", job.id))
+        LogInfo(string.format("%s Updated Gear Set #%d", LogPrefix, job.id))
+    end
+
     Wait(1)
     Repair(20)
     Wait(1)
     FoodCheck()
     Wait(1)
+
     AutoDutyConfig("dutyModeEnum", d.dutyMode)
     AutoDutyRun(d.dutyId, 1, true)
-
     Execute("/rotation auto")
     WaitForCondition("BoundByDuty", true)
 
@@ -273,8 +281,16 @@ function RunDungeon(d)
     WaitForPlayer()
 end
 
-function AdvanceLeaderToNextCeiling(jobName)
-    Execute(string.format("/gs change %s", jobName))
+function FoodCheck()
+    if not HasStatusId(48) or GetStatusTimeRemaining(48) < 1500 then
+        if Food ~= "" and GetItemCount(4747) > 1 then
+            Engines.Run(string.format("/item %s", Food))
+        end
+    end
+end
+
+function AdvanceLeaderToNextCeiling(job)
+    Execute(string.format("/gs change %d", job.id))
     Wait(1)
     WaitForPlayer()
 
@@ -293,23 +309,23 @@ function AdvanceLeaderToNextCeiling(jobName)
         return
     end
 
-    LogInfo(string.format("%s [Leader] %s advancing from Lv %d to next ceiling Lv %d", LogPrefix, jobName, level, goal))
+    LogInfo(string.format("%s [Leader] %s advancing from Lv %d to next ceiling Lv %d", LogPrefix, job.name, level, goal))
 
     local runs = 0
     while true do
         level = GetLevel()
         if ReachedStopCap(level) or level >= goal then
-            LogInfo(string.format("%s [Leader] %s reached goal Lv %d", LogPrefix, jobName, level))
+            LogInfo(string.format("%s [Leader] %s reached goal Lv %d", LogPrefix, job.name, level))
             break
         end
 
         local idx = BestRunnableDungeonIndex(level)
         if not idx then
-            LogInfo(string.format("%s [Leader] %s Lv %d below lowest dungeon (%d). Stop leader advance.", LogPrefix, jobName, level, Dungeons[1].dutyLevel))
+            LogInfo(string.format("%s [Leader] %s Lv %d below lowest dungeon (%d). Stop leader advance.", LogPrefix, job.name, level, Dungeons[1].dutyLevel))
             break
         end
 
-        RunDungeon(Dungeons[idx])
+        RunDungeon(Dungeons[idx], job)
 
         runs = runs + 1
         if runs >= MaxRunsPerTier then
@@ -321,30 +337,31 @@ end
 
 function ScanLevels()
     local levels = {}
+    LogInfo(string.format("%s Starting full job/gear scan...", LogPrefix))
 
-    for _, jobName in ipairs(Jobs) do
-        Execute(string.format("/gs change %s", jobName))
-        Wait(1)
+    for _, job in ipairs(Jobs) do
+        -- Switch Job
+        Execute(string.format("/gs change %d", job.id))
+        Wait(1.5)
         WaitForPlayer()
+
+        -- Update Gear during Scan
+        Execute("/equiprecommended")
+        Wait(1.5)
+        Execute(string.format("/gs save %d", job.id))
+
         local lv = GetLevel()
-        levels[jobName] = lv
-        LogInfo(string.format("%s [Scan] %s → Lv %d", LogPrefix, jobName, lv))
+        levels[job.name] = lv
+        LogInfo(string.format("%s [Scan] %s → Lv %d", LogPrefix, job.name, lv))
     end
     return levels
 end
 
 function NextCeilingFromLevel(level)
-    local curIdx = TierForLevel(level)
-    if not curIdx then
-        return Dungeons[1].dutyLevel or StopAtLevel
-    end
-
-    if Dungeons[curIdx + 2] and Dungeons[curIdx + 2].dutyLevel then
-        return Dungeons[curIdx + 2].dutyLevel
-    end
-
-    if Dungeons[curIdx + 1] and Dungeons[curIdx + 1].dutyLevel then
-        return Dungeons[curIdx + 1].dutyLevel
+    for _, d in ipairs(Dungeons) do
+        if d.dutyLevel > level then
+            return d.dutyLevel
+        end
     end
     return StopAtLevel
 end
@@ -366,11 +383,12 @@ do
         local levels   = ScanLevels()
         local maxLv    = 0
         local minLv    = math.huge
-        local minJob   = nil
+        local minJob   = nil -- This will now store the full job object
         local allAtCap = true
 
-        for _, jobName in ipairs(Jobs) do
-            local lv = levels[jobName] or 1
+        -- Fix 1: Loop through job objects instead of strings
+        for _, job in ipairs(Jobs) do
+            local lv = levels[job.name] or 1
 
             if lv > maxLv then
                 maxLv = lv
@@ -378,7 +396,7 @@ do
 
             if lv < minLv then
                 minLv  = lv
-                minJob = jobName
+                minJob = job -- Store the object
             end
 
             if lv < StopAtLevel then
@@ -395,8 +413,8 @@ do
         LogInfo(string.format("%s TargetLevel for this cycle → %d", LogPrefix, TargetLevel))
 
         local allAtTarget = true
-        for _, jobName in ipairs(Jobs) do
-            if (levels[jobName] or 1) < TargetLevel then
+        for _, job in ipairs(Jobs) do
+            if (levels[job.name] or 1) < TargetLevel then
                 allAtTarget = false
                 break
             end
@@ -404,32 +422,32 @@ do
 
         if (not allAtCap) and allAtTarget then
             local leader = minJob
-
             if leader then
-                LogInfo(string.format("%s All jobs >= Lv %d. Advancing leader to next ceiling: %s", LogPrefix, TargetLevel, leader))
+                LogInfo(string.format("%s All jobs >= Lv %d. Advancing leader: %s", LogPrefix, TargetLevel, leader.name))
+                -- Fix 2: Passing the leader object so it can use leader.id
                 AdvanceLeaderToNextCeiling(leader)
                 goto cycle_end
             end
         end
 
-        for _, jobName in ipairs(Jobs) do
-            Execute(string.format("/gs change %s", jobName))
-            Wait(1)
+        -- Fix 3: Updated loop to use job object properties
+        for _, job in ipairs(Jobs) do
+            -- Use the ID to change gearsets correctly
+            Execute(string.format("/gs change %d", job.id))
+            Wait(1.5)
             WaitForPlayer()
 
             local level = GetLevel()
-            LogInfo(string.format("%s === Job: %s ===", LogPrefix, jobName))
-            LogInfo(string.format("%s %s Current level → %d", LogPrefix, jobName, level))
-            LogInfo(string.format("%s %s Target level → %d", LogPrefix, jobName, TargetLevel))
+            LogInfo(string.format("%s === Job: %s ===", LogPrefix, job.name))
 
             if ReachedStopCap(level) or level >= TargetLevel then
-                LogInfo(string.format("%s %s meets target/cap. Skipping.", LogPrefix, jobName))
+                LogInfo(string.format("%s %s meets target/cap. Skipping.", LogPrefix, job.name))
                 goto next_job
             end
 
             local curIdx = select(1, TierForLevel(level))
             if not curIdx then
-                LogInfo(string.format("%s %s Lv %d is below first dungeon requirement (%d). Skipping.", LogPrefix, jobName, level, Dungeons[1].dutyLevel))
+                LogInfo(string.format("%s %s Lv %d below first dungeon. Skipping.", LogPrefix, job.name, level))
                 goto next_job
             end
 
@@ -437,30 +455,20 @@ do
             while true do
                 level = GetLevel()
 
-                if ReachedStopCap(level) then
-                    LogInfo(string.format("%s %s reached cap (Lv %d). Next job.", LogPrefix, jobName, level))
-                    goto next_job
-                end
-
-                if level >= TargetLevel then
-                    LogInfo(string.format("%s %s reached cycle target (Lv %d). Next job.", LogPrefix, jobName, level))
+                if ReachedStopCap(level) or level >= TargetLevel then
                     goto next_job
                 end
 
                 local idx = BestRunnableDungeonIndex(level)
-                if not idx then
-                    LogInfo(string.format("%s %s Lv %d below lowest dungeon (%d). Next job.", LogPrefix, jobName, level, Dungeons[1].dutyLevel))
-                    goto next_job
-                end
+                if not idx then goto next_job end
 
                 local dungeon = Dungeons[idx]
-                LogInfo(string.format("%s %s Lv %d → %s (tier %d).", LogPrefix, jobName, level, dungeon.Name, idx))
-
-                RunDungeon(dungeon)
+                -- Fix 4: Pass the whole job object to RunDungeon so it can save via ID
+                RunDungeon(dungeon, job)
 
                 runs = runs + 1
                 if runs >= MaxRunsPerTier then
-                    LogInfo(string.format("%s Safety break: MaxRunsPerTier (%d). Next job.", LogPrefix, MaxRunsPerTier))
+                    LogInfo(string.format("%s Safety break: MaxRunsPerTier. Next job.", LogPrefix))
                     goto next_job
                 end
             end
