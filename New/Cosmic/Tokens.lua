@@ -334,8 +334,6 @@ function PrePositionAtBell()
     else
         LogInfo(string.format("%s PrePosition: Already near Summoning Bell.", LogPrefix))
     end
-
-    DiscoveredZone = true
     return true
 end
 
