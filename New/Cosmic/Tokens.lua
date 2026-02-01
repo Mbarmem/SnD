@@ -57,7 +57,7 @@ LimitConfig     = Config.Get("Lunar Credits Limit")
 FailedConfig    = Config.Get("Report Failed Missions")
 Ex4TimeConfig   = Config.Get("EX+ 4hr Timed Missions")
 Ex2TimeConfig   = Config.Get("EX+ 2hr Timed Missions")
-LogPrefix       = "[Cosmic Helper]"
+LogPrefix       = "[CosmicTokens]"
 
 --========================= INITIALIZATION ========================--
 
@@ -91,56 +91,53 @@ EnabledAutoText = false
 ClassScoreAll   = {}
 ActiveZone      = nil
 SpotPos         = {}
-LoopDelay       = .1
+LoopDelay       = 00.1
 CycleLoops      = 100
 SpotRadius      = 3
-MinRadius       = .5
+MinRadius       = 00.5
 
 --------------------
 --    Missions    --
 --------------------
 
--- Timed mission jobs (Sinus/Phaenna default tables)
 ExJobs4H_Default = {
-  [0]  = {Jobs[10].abbr}, -- ARM
-  [4]  = {Jobs[11].abbr}, -- GSM
-  [8]  = {Jobs[12].abbr}, -- LTW
-  [12] = {Jobs[13].abbr}, -- WVR
-  [16] = {Jobs[8].abbr},  -- CRP
-  [20] = {Jobs[9].abbr},  -- BSM
+    [0]  = {Jobs[10].abbr}, -- ARM
+    [4]  = {Jobs[11].abbr}, -- GSM
+    [8]  = {Jobs[12].abbr}, -- LTW
+    [12] = {Jobs[13].abbr}, -- WVR
+    [16] = {Jobs[8].abbr},  -- CRP
+    [20] = {Jobs[9].abbr},  -- BSM
 }
 
 ExJobs2H_Default = {
-  [0]  = {Jobs[12].abbr}, -- LTW
-  [4]  = {Jobs[13].abbr}, -- WVR
-  [8]  = {Jobs[14].abbr}, -- ALC
-  [12] = {Jobs[15].abbr}, -- CUL
-  [16] = {Jobs[10].abbr}, -- ARM
-  [20] = {Jobs[11].abbr}, -- GSM
+    [0]  = {Jobs[12].abbr}, -- LTW
+    [4]  = {Jobs[13].abbr}, -- WVR
+    [8]  = {Jobs[14].abbr}, -- ALC
+    [12] = {Jobs[15].abbr}, -- CUL
+    [16] = {Jobs[10].abbr}, -- ARM
+    [20] = {Jobs[11].abbr}, -- GSM
 }
 
--- Oizys timed mission jobs (DoH-only; DoL windows omitted => nil)
 ExJobs4H_Oizys = {
-  [0]  = {Jobs[10].abbr}, -- ARM
-  [4]  = {Jobs[11].abbr}, -- GSM
-  [8]  = {Jobs[12].abbr}, -- LTW
-  [12] = {Jobs[13].abbr}, -- WVR
-  [16] = {Jobs[8].abbr},  -- CRP
-  [20] = {Jobs[9].abbr},  -- BSM
+    [0]  = {Jobs[10].abbr}, -- ARM
+    [4]  = {Jobs[11].abbr}, -- GSM
+    [8]  = {Jobs[12].abbr}, -- LTW
+    [12] = {Jobs[13].abbr}, -- WVR
+    [16] = {Jobs[8].abbr},  -- CRP
+    [20] = {Jobs[9].abbr},  -- BSM
 }
 
 ExJobs2H_Oizys = {
-  [0]  = {Jobs[8].abbr},  -- CRP
-  [2]  = {Jobs[15].abbr}, -- CUL
-  [4]  = {Jobs[9].abbr},  -- BSM
-  [6]  = {Jobs[14].abbr}, -- ALC
-  [8]  = {Jobs[10].abbr}, -- ARM
-  [12] = {Jobs[11].abbr}, -- GSM
-  [16] = {Jobs[12].abbr}, -- LTW
-  [20] = {Jobs[13].abbr}, -- WVR
+    [0]  = {Jobs[8].abbr},  -- CRP
+    [2]  = {Jobs[15].abbr}, -- CUL
+    [4]  = {Jobs[9].abbr},  -- BSM
+    [6]  = {Jobs[14].abbr}, -- ALC
+    [8]  = {Jobs[10].abbr}, -- ARM
+    [12] = {Jobs[11].abbr}, -- GSM
+    [16] = {Jobs[12].abbr}, -- LTW
+    [20] = {Jobs[13].abbr}, -- WVR
 }
 
--- Active tables (set in loop)
 ExJobs4H = ExJobs4H_Default
 ExJobs2H = ExJobs2H_Default
 
@@ -148,12 +145,10 @@ ExJobs2H = ExJobs2H_Default
 --    Zone    --
 ----------------
 
--- Optional: keep if you still want territory fallback checks
 SinusTerritory   = 1237
 PhaennaTerritory = 1291
 OizysTerritory   = 1504
 
--- Dynamic zones: no hardcoded gateHub/spots here
 Zones = {
     sinus = {
         key        = "sinus",
@@ -268,7 +263,7 @@ function FindNearestByName(wantName, maxDist)
     for o in luanet.each(Svc.Objects) do
         local n = ObjName(o)
         if n and n == wantName and o.Position then
-            local d = GetDistance(me.Position, o.Position) -- MoLib GetDistance(Vector3, Vector3)
+            local d = GetDistance(me.Position, o.Position)
             if d < bestD and d <= maxDist then
                 best, bestD = o, d
             end
@@ -328,7 +323,7 @@ function RetrieveClassScore()
     ClassScoreAll = {}
     if not IsAddonReady("WKSScoreList") then
         Execute("/callback WKSHud true 18")
-        Wait(.5)
+        Wait(0.5)
     end
     local scoreAddon = Addons.GetAddon("WKSScoreList")
     local dohRowIds = {2, 21001, 21002, 21003, 21004, 21005, 21006, 21007}
@@ -358,7 +353,6 @@ end
 function GetActiveZone()
     local tt = Svc.ClientState.TerritoryType
 
-    -- fallback if you want the old behavior too
     if tt == SinusTerritory then return Zones.sinus end
     if tt == PhaennaTerritory then return Zones.phaenna end
     if tt == OizysTerritory then return Zones.oizys end
@@ -382,7 +376,6 @@ end
 function DiscoverZoneHub(zone)
     if not zone or zone.discovered then return end
 
-    -- Resolve credit NPC name from ENpcResident only when needed
     if zone.creditNpc and zone.creditNpc.id and not zone.creditNpc.name then
         local name = GetENpcResidentName(zone.creditNpc.id)
         zone.creditNpc.name = name
@@ -400,7 +393,6 @@ function DiscoverZoneHub(zone)
         end
     end
 
-    -- Build spots dynamically (as tables)
     zone.spots = {}
 
     local function addSpot(obj)
@@ -422,7 +414,6 @@ function DiscoverZoneHub(zone)
         zone.gateHub = (me and me.Position) and PosFrom(me.Position) or zone.gateHub -- table
     end
 
-    -- Minimal success criteria
     if zone.creditNpc and zone.creditNpc.position then
         if #zone.spots == 0 then
             table.insert(zone.spots, zone.creditNpc.position)
@@ -437,47 +428,38 @@ function ShouldCredit()
     local npc = ActiveZone.creditNpc
     if not npc.position then return end
 
-    -- replaced Svc.Condition[...] and Player.IsBusy with MoLib wrapper(s)
     if LunarCredits >= LimitConfig and IsPlayerAvailable() then
-        -- Per request: keep /at enable/disable, ignore IPC.TextAdvance.IsEnabled()
         Execute("/at enable")
         EnabledAutoText = true
 
         LogInfo(string.format("%s Credits: %s/%s Going to Gamba!", LogPrefix, tostring(LunarCredits), tostring(LimitConfig)))
 
-        -- Stellar Return: use MoLib GetDistanceToPoint() (player -> gateHub)
         if ActiveZone.gateHub and GetDistanceToPoint(ActiveZone.gateHub.X, ActiveZone.gateHub.Y, ActiveZone.gateHub.Z) > 75 then
             LogInfo(string.format("%s Stellar Return", LogPrefix))
             Execute('/gaction "Duty Action"')
             Wait(5)
         end
 
-        -- wait for zoning/casting (casting wrapper)
         while IsBetweenAreas() or IsPlayerCasting() do
-            Wait(.5)
+            Wait(0.5)
         end
 
-        -- Move + stop close (MoLib)
         MoveTo(npc.position.X, npc.position.Y, npc.position.Z, 5, false)
         LogInfo(string.format("%s Arrived near Gamba NPC: %s", LogPrefix, tostring(npc.name)))
 
-        -- Target + Interact (MoLib)
         Interact(npc.name)
         Wait(1)
 
-        -- Navigate dialog
         WaitForAddon("SelectString", 60)
         if IsAddonReady("SelectString") then Execute("/callback SelectString true 0"); Wait(1) end
 
         WaitForAddon("SelectString", 60)
         if IsAddonReady("SelectString") then Execute("/callback SelectString true 0"); Wait(1) end
 
-        -- wait for gamba event to finish (wrapper already)
         while IsOccupiedInQuestEvent() do
             Wait(1)
         end
 
-        -- Move to a random nearby spot after Gamba (cosmetic / de-idle)
         local job = Player.Job
         if job.IsCrafter then
             AroundSpot = GetRandomSpotAround(SpotRadius, MinRadius)
@@ -486,7 +468,6 @@ function ShouldCredit()
             end
         end
 
-        -- disable auto text (per request: keep behavior)
         if EnabledAutoText then
             Execute("/at disable")
             EnabledAutoText = false
@@ -500,7 +481,6 @@ end
 function ShouldCycle()
     if LimitConfig > 0 and LunarCredits >= LimitConfig then return end
 
-    -- replaced Svc.Condition[normalConditions] with MoLib IsPlayerAvailable()
     if IsPlayerAvailable() then
         if (IsAddonReady("WKSMission")
         or IsAddonReady("WKSMissionInfomation")
@@ -532,14 +512,12 @@ function ShouldCycle()
     end
 end
 
--- DoH-only EX timed swap
 function ShouldExTime()
     local CurJob = Player.Job.Abbreviation
 
     if Ex4TimeConfig then
         local Cur4ExJob = CurrentexJobs4H()
 
-        -- DoH-only: ignore DoL targets and unknown
         if Cur4ExJob and (IsDoLAbbr(Cur4ExJob) or not IsDoHAbbr(Cur4ExJob)) then
             return
         end
@@ -547,7 +525,7 @@ function ShouldExTime()
         if Cur4ExJob and CurJob ~= Cur4ExJob then
             local waitcount = 0
             while IsAddonReady("WKSMissionInfomation") do
-                Wait(.1)
+                Wait(0.1)
                 waitcount = waitcount + 1
                 if waitcount >= 50 then
                     LogInfo(string.format("%s Waiting for mission to end to swap to EX+ job.", LogPrefix))
@@ -565,7 +543,6 @@ function ShouldExTime()
     elseif Ex2TimeConfig then
         local Cur2ExJob = CurrentexJobs2H()
 
-        -- DoH-only: ignore DoL targets and unknown
         if Cur2ExJob and (IsDoLAbbr(Cur2ExJob) or not IsDoHAbbr(Cur2ExJob)) then
             return
         end
@@ -573,7 +550,7 @@ function ShouldExTime()
         if Cur2ExJob and CurJob ~= Cur2ExJob then
             local waitcount = 0
             while IsAddonReady("WKSMissionInfomation") do
-                Wait(.1)
+                Wait(0.1)
                 waitcount = waitcount + 1
                 if waitcount >= 50 then
                     LogInfo(string.format("%s Waiting for mission to end to swap to EX+ job.", LogPrefix))
@@ -593,9 +570,8 @@ end
 function ShouldReport()
     local curJob = Player.Job
     while IsAddonReady("WKSMissionInfomation") and curJob.IsCrafter do
-        -- replaced Svc.Condition[normalConditions] with MoLib IsPlayerAvailable()
         while IsAddonReady("WKSRecipeNotebook") and IsPlayerAvailable() do
-            Wait(.1)
+            Wait(0.1)
             ReportCount = ReportCount + 1
             if ReportCount >= 50 then
                 Execute("/callback WKSMissionInfomation true 11")
@@ -604,7 +580,7 @@ function ShouldReport()
             end
         end
         ReportCount = 0
-        Wait(.1)
+        Wait(0.1)
     end
 end
 
@@ -612,7 +588,6 @@ end
 
 LogInfo(string.format("%s Cosmic Helper started!", LogPrefix))
 
--- Plugin checks (jump/move/relic/autoretainer removed)
 if JobsConfig.Count > 0 and not HasPlugin("SimpleTweaksPlugin") then
     LogInfo(string.format("%s Cycling jobs requires SimpleTweaks plugin. Script will continue without changing jobs.", LogPrefix))
     JobsConfig = nil
@@ -626,21 +601,16 @@ if Ex4TimeConfig and Ex2TimeConfig then
     Ex2TimeConfig = false
 end
 
--- Enable plugin options
 Execute("/tweaks enable EquipJobCommand true")
 
--- Initialize job counts safely
 TotalJobs = (JobsConfig and JobsConfig.Count) or 0
 
--- Main Loop
 while Run_script do
-    -- Zone detection + discovery
     ActiveZone = GetActiveZone()
     if ActiveZone then
         DiscoverZoneHub(ActiveZone)
     end
 
-    -- then keep your timed tables switching:
     if ActiveZone == Zones.oizys then
         ExJobs4H = ExJobs4H_Oizys
         ExJobs2H = ExJobs2H_Oizys
@@ -649,10 +619,8 @@ while Run_script do
         ExJobs2H = ExJobs2H_Default
     end
 
-    -- Bind SpotPos for random movement (used after Gamba only)
     SpotPos = (ActiveZone and ActiveZone.spots) or {}
 
-    -- Credits from HUD
     if IsAddonReady("WKSHud") then
         local txt = Addons.GetAddon("WKSHud"):GetNode(1, 15, 17, 3).Text:gsub("[^%d]", "")
         LunarCredits = ToNumber(txt)
