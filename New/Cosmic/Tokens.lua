@@ -91,10 +91,11 @@ EnabledAutoText = false
 ClassScoreAll   = {}
 ActiveZone      = nil
 SpotPos         = {}
-LoopDelay       = 00.1
+LoopDelay       = 0.1
 CycleLoops      = 100
 SpotRadius      = 3
-MinRadius       = 00.5
+MinRadius       = 0.5
+DidPrePosition  = false
 
 --------------------
 --    Missions    --
@@ -297,6 +298,49 @@ function GetRandomSpotAround(radius, minDist)
     return Pos(center.X + offsetX, center.Y, center.Z + offsetZ)
 end
 
+function PrePositionAtBell()
+    if DidPrePosition then return true end
+
+    while IsBetweenAreas() or IsPlayerCasting() do
+        Wait(0.5)
+    end
+
+    ActiveZone = GetActiveZone()
+    if not ActiveZone then
+        LogInfo(string.format("%s PrePosition: Unable to detect active zone yet.", LogPrefix))
+        return false
+    end
+
+    DiscoverZoneHub(ActiveZone)
+
+    -- Prefer the actual bell object; fallback to zone.gateHub (usually bell pos)
+    local bellObj = FindNearestByName("Summoning Bell", 120)
+    local target = nil
+
+    if bellObj and bellObj.Position then
+        target = PosFrom(bellObj.Position)
+    elseif ActiveZone.gateHub then
+        target = ActiveZone.gateHub
+    end
+
+    if not target then
+        LogInfo(string.format("%s PrePosition: Summoning Bell not found yet.", LogPrefix))
+        return false
+    end
+
+    -- only move if not already close
+    if GetDistanceToPoint(target.X, target.Y, target.Z) > 6 then
+        LogInfo(string.format("%s PrePosition: Moving near Summoning Bell...", LogPrefix))
+        MoveTo(target.X, target.Y, target.Z, 3, false)
+        Wait(0.5)
+    else
+        LogInfo(string.format("%s PrePosition: Already near Summoning Bell.", LogPrefix))
+    end
+
+    DidPrePosition = true
+    return true
+end
+
 function CurrentexJobs2H()
     local h = GetEorzeaHour()
     local slot = math.floor(h / 2) * 2
@@ -406,7 +450,6 @@ function DiscoverZoneHub(zone)
     addSpot(standings)
     addSpot(kaede)
 
-    -- GateHub: prefer Summoning Bell if found; otherwise use current player position
     if bell and bell.Position then
         zone.gateHub = PosFrom(bell.Position) -- table
     else
@@ -609,6 +652,11 @@ while Run_script do
     ActiveZone = GetActiveZone()
     if ActiveZone then
         DiscoverZoneHub(ActiveZone)
+    end
+
+    if not DidPrePosition then
+        PrePositionAtBell()
+        Wait(0.2)
     end
 
     if ActiveZone == Zones.oizys then
