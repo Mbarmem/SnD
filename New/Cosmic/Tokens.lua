@@ -1,7 +1,7 @@
 --[=====[
 [[SND Metadata]]
 author: Mo
-version: 2.0.3
+version: 2.0.0
 description: Cosmic Exploration - Script for Token Farming with ICE integration.
 plugin_dependencies:
 - ICE
