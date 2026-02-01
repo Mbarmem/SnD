@@ -95,7 +95,7 @@ LoopDelay       = 0.1
 CycleLoops      = 100
 SpotRadius      = 3
 MinRadius       = 0.5
-DidPrePosition  = false
+DiscoveredZone  = false
 
 --------------------
 --    Missions    --
@@ -299,19 +299,17 @@ function GetRandomSpotAround(radius, minDist)
 end
 
 function PrePositionAtBell()
-    if DidPrePosition then return true end
-
     while IsBetweenAreas() or IsPlayerCasting() do
         Wait(0.5)
     end
 
-    ActiveZone = GetActiveZone()
-    if not ActiveZone then
-        LogInfo(string.format("%s PrePosition: Unable to detect active zone yet.", LogPrefix))
-        return false
+    if not DiscoveredZone then
+        ActiveZone = GetActiveZone()
+        if ActiveZone then
+            DiscoverZoneHub(ActiveZone)
+            DiscoveredZone = true
+        end
     end
-
-    DiscoverZoneHub(ActiveZone)
 
     -- Prefer the actual bell object; fallback to zone.gateHub (usually bell pos)
     local bellObj = FindNearestByName("Summoning Bell", 120)
@@ -337,7 +335,7 @@ function PrePositionAtBell()
         LogInfo(string.format("%s PrePosition: Already near Summoning Bell.", LogPrefix))
     end
 
-    DidPrePosition = true
+    DiscoveredZone = true
     return true
 end
 
@@ -654,10 +652,8 @@ while Run_script do
         DiscoverZoneHub(ActiveZone)
     end
 
-    if not DidPrePosition then
-        PrePositionAtBell()
-        Wait(0.2)
-    end
+    PrePositionAtBell()
+    Wait(0.2)
 
     if ActiveZone == Zones.oizys then
         ExJobs4H = ExJobs4H_Oizys
@@ -666,8 +662,6 @@ while Run_script do
         ExJobs4H = ExJobs4H_Default
         ExJobs2H = ExJobs2H_Default
     end
-
-    SpotPos = (ActiveZone and ActiveZone.spots) or {}
 
     if IsAddonReady("WKSHud") then
         local txt = Addons.GetAddon("WKSHud"):GetNode(1, 15, 17, 3).Text:gsub("[^%d]", "")
