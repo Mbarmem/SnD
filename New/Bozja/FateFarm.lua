@@ -25,6 +25,15 @@ configs:
     default:
         - "Seeq and You Will Find"
         - "Breaking the Ice"
+  Zone1:
+    description: Enable or disable farming in Zone 1.
+    default: true
+  Zone2:
+    description: Enable or disable farming in Zone 2.
+    default: true
+  Zone3:
+    description: Enable or disable farming in Zone 3.
+    default: true
 
 [[End Metadata]]
 --]=====]
@@ -39,6 +48,9 @@ LastAdjustTime  = 0
 StopFlag        = false
 ZoneToFarm      = Config.Get("ZoneToFarm")
 DisabledFates   = Config.Get("FateBlacklist")
+Zone1Skirmishes = Config.Get("Zone1")
+Zone2Skirmishes = Config.Get("Zone2")
+Zone3Skirmishes = Config.Get("Zone3")
 LogPrefix       = "[FateFarm]"
 
 --============================ CONSTANT ==========================--
@@ -51,6 +63,61 @@ Zones = {
     Gangos = { Id = 915, Name = "Gangos",               Teleport = "Gangos"      },
     Bozja  = { Id = 920, Name = "Bozja Southern Front", Teleport = "EnterBozja"  },
     Zadnor = { Id = 975, Name = "Zadnor",               Teleport = "EnterZadnor" },
+}
+
+ZadnorSkirmishes = {
+    [1] = {
+        "A Wrench in the Reconnaissance Effort",
+        "Breaking the Ice", "Deadly Divination",
+        "Meet the Puppetmaster",
+        "Of Beasts and Braggadocio",
+        "Parts and Parcel"
+    },
+    [2] = {
+        "A Just Pursuit",
+        "An End to Atrocities",
+        "Challenge Accepted",
+        "Demented Mentor",
+        "Sever the Strings",
+        "Supersoldier Rising",
+        "Tanking Up",
+        "Th'uban the Terrible"
+    },
+    [3] = {
+        "A Relic Unleashed",
+        "Attack of the Machines",
+        "Mean-spirited", "Seeq and You Will Find",
+        "Still Only Counts as One",
+        "The Beasts Are Back",
+        "The Student Becalms the Master",
+        "When Mages Rage"
+    }
+}
+
+BozjaSkirmishes = {
+    [1] = {
+        "Are You Ray-dy?",
+        "Beasts of the Field",
+        "Choir Loofing", "Forced March",
+        "None of Your Business",
+        "Pyritology",
+        "Sneak and Destroy"
+    },
+    [2] = {
+        "All-consuming Hungry",
+        "Canine Complication",
+        "Help Wanted", "Unshackled",
+        "The Incomplete History of the 4th Legion",
+        "Tidying Up"
+    },
+    [3] = {
+        "Desperate Measures",
+        "Heavy Metal",
+        "More Machine Than Man",
+        "Reditus",
+        "The Finality of the Conflict",
+        "The Last Stand"
+    }
 }
 
 ---------------------
@@ -195,6 +262,25 @@ function FateProgress(fate)
     return progress
 end
 
+function IsFateInSelectedZone(fate)
+    if not fate or not fate.Name then return false end
+
+    local currentZone = GetZoneID()
+    local name = fate.Name
+    local allowedList = {}
+
+    -- Determine which Master List to use
+    local masterList = (currentZone == 975) and ZadnorSkirmishes or (currentZone == 920 and BozjaSkirmishes or nil)
+    if not masterList then return true end -- Default if not in Zadnor/Bozja
+
+    -- Build a list of allowed names based on Config Toggles
+    if Zone1Skirmishes then for _,v in ipairs(masterList[1]) do allowedList[v] = true end end
+    if Zone2Skirmishes then for _,v in ipairs(masterList[2]) do allowedList[v] = true end end
+    if Zone3Skirmishes then for _,v in ipairs(masterList[3]) do allowedList[v] = true end end
+
+    return allowedList[name] or false
+end
+
 function PickBestFate(block)
     if block ~= false then
         WaitForPlayer()
@@ -213,13 +299,14 @@ function PickBestFate(block)
     for i = 0, count - 1 do
         local fate = list[i]
         if fate and fate.Exists and IsActiveState(fate.State) and not IsBlacklisted(fate) then
-            anyViable = true
+            if IsFateInSelectedZone(fate) then
+                anyViable = true
+                local distance = FateDistance(fate, myPosition)
+                local progress = FateProgress(fate)
 
-            local distance = FateDistance(fate, myPosition)
-            local progress = FateProgress(fate)
-
-            if (distance + 10) < bestDist or (math.abs(distance - bestDist) <= 10 and progress > bestProg) then
-                best, bestDist, bestProg = fate, distance, progress
+                if (distance + 10) < bestDist or (math.abs(distance - bestDist) <= 10 and progress > bestProg) then
+                    best, bestDist, bestProg = fate, distance, progress
+                end
             end
         end
     end
