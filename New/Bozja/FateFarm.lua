@@ -69,109 +69,119 @@ Zones = {
     Zadnor = { Id = 975, Name = "Zadnor",               Teleport = "EnterZadnor" },
 }
 
+--========================================================
+-- SKIRMISH LISTS
+--   Notes:
+--     * Some skirmishes can lead into CEs/duels (tagged).
+--========================================================
+
 BozjaFates = {
     [1] = {
-        "All Pets Are Off",
-        "Brought to Heal",
-        "Can Carnivorous Plants Bloom Even on a Battlefield?",
-        "Conflicting with the First Law",
-        "More Machine Now than Man",
-        "None of Them Knew They Were Robots",
-        "Seeq and Destroy",
-        "Sneak & Spell",
-        "The Beasts Must Die",
-        "Unrest for the Wicked",
-        "Kill It with Fire",
-        "The Baying of the Hound(s)",
-        "The Shadow of Death's Hand",
-        "Vigil for the Lost",
-        "Aces High"
+        "Are You Ray-dy?",
+        "Beasts of the Field",
+        "Choir Loofing",
+        "Forced March",
+        "None of Your Business",
+        "Pyritology",
+        "Sneak and Destroy"
     },
     [2] = {
-        "Heavy Boots of Lead",
+        "All-consuming Hungry",
+        "Canine Complication",
         "Help Wanted",
-        "No Camping Allowed",
-        "Parts and Recreation",
-        "Pyromancer Supreme",
-        "Red (Chocobo) Alert",
-        "Scavengers of Man's Sorrow",
-        "The Element of Supplies",
-        "The Monster Mash",
-        "Unicorn Flakes",
-        "Patriot Games",
-        "The Final Furlong",
-        "The Fires of War",
-        "The Hunt for Red Choctober",
-        "Beast of Man"
+        "Unshackled",
+        "The Incomplete History of the 4th Legion",
+        "Tidying Up"
     },
     [3] = {
-        "Demonstrably Demonic",
-        "Desperately Seeking Something",
-        "For Absent Friends",
-        "I'm a Mechanical Man",
-        "Let Slip the Dogs of War",
-        "Murder Death Kill",
-        "My Family and Other Animals",
-        "Of Steel and Flame",
-        "Supplies Party",
-        "The War Against the Machines",
-        "The Wild Bunch",
-        "Waste the Rainbow",
-        "Metal Fox Chaos",
-        "Rise of the Robots",
-        "Trampled under Hoof",
-        "Where Strode the Behemoth",
-        "And the Flames Went Higher"
+        "Desperate Measures",
+        "Heavy Metal",
+        "More Machine Than Man", -- leads to CE chain -> Vigil for the Lost -> Aces High (Duel)
+        "Reditus",
+        "The Finality of the Conflict",
+        "The Last Stand"
     }
 }
 
 ZadnorFates = {
     [1] = {
         "A Wrench in the Reconnaissance Effort",
-        "An Immoral Dilemma",
-        "Another Pilot Episode",
         "Breaking the Ice",
         "Deadly Divination",
         "Meet the Puppetmaster",
         "Of Beasts and Braggadocio",
-        "Parts and Parcel",
-        "A Familiar Face",
-        "From Beyond the Grave",
-        "On Serpents' Wings",
-        "With Diremite and Main",
-        "The Broken Blade"
+        "Parts and Parcel"
     },
     [2] = {
         "A Just Pursuit",
-        "An End to Atrocities",
+        "An End to Atrocities", -- leads to CE chain -> Never Cry Wolf -> Head of the Snake
         "Challenge Accepted",
         "Demented Mentor",
         "Sever the Strings",
         "Supersoldier Rising",
-        "Tanking Up",
-        "Th'uban the Terrible",
-        "Here Comes the Cavalry",
-        "Never Cry Wolf",
-        "There Would Be Blood",
-        "Time to Burn",
-        "Head of the Snake"
+        "Tanking Up", -- leads to CE -> Here Comes the Cavalry
+        "Th'uban the Terrible"
     },
     [3] = {
         "A Relic Unleashed",
         "Attack of the Machines",
-        "Attack of the Supersoldiers",
-        "Hypertuned Havoc",
         "Mean-spirited",
         "Seeq and You Will Find",
         "Still Only Counts as One",
-        "The Beasts Are Back",
+        "The Beasts Are Back", -- leads to CE -> Worn to a Shadow
         "The Student Becalms the Master",
-        "When Mages Rage",
-        "Feeling the Burn",
-        "Lean, Mean, Magitek Machines",
-        "Looks to Die For",
-        "Worn to a Shadow",
-        "Taking the Lyon's Share"
+        "When Mages Rage"
+    }
+}
+
+--========================================================
+-- CRITICAL ENGAGEMENTS (CEs) BY ZONE
+--   These names come from the zones' CE spawn tables.
+--========================================================
+
+BozjaCEs = {
+    [1] = {
+        "The Baying of the Hound(s)", -- CE
+        "The Shadow of Death's Hand", -- CE
+        "Kill It with Fire",          -- CE
+        "Aces High",                  -- Duel (CE Solo)
+    },
+    [2] = {
+        "The Fires of War",           -- CE
+        "Patriot Games",              -- CE
+        "The Final Furlong",          -- CE
+        "The Hunt for Red Choctober", -- CE
+        "Beast of Man",               -- Duel (CE Solo)
+    },
+    [3] = {
+        "Where Strode the Behemoth",  -- CE
+        "Metal Fox Chaos",            -- CE
+        "Rise of the Robots",         -- CE
+        "And the Flames Went Higher", -- Duel (CE Solo)
+    }
+}
+
+ZadnorCEs = {
+    [1] = {
+        "With Diremite and Main", -- CE
+        "From Beyond the Grave",  -- CE
+        "On Serpents' Wings",     -- CE
+        "A Familiar Face",        -- CE
+        "The Broken Blade",       -- Duel (CE Solo)
+    },
+    [2] = {
+        "There Would Be Blood",   -- CE
+        "Time to Burn",           -- CE
+        "Never Cry Wolf",         -- CE
+        "Here Comes the Cavalry", -- CE
+        "Head of the Snake",      -- Duel (CE Solo)
+    },
+    [3] = {
+        "Lean, Mean, Magitek Machines", -- CE
+        "Looks to Die For",             -- CE
+        "Feeling the Burn",             -- CE
+        "Worn to a Shadow",             -- CE
+        "Taking the Lyon's Share",      -- Duel (CE Solo)
     }
 }
 
