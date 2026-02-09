@@ -20,6 +20,9 @@ configs:
     choices:
         - "Bozja"
         - "Zadnor"
+  UseBlacklist:
+    description: Enable or disable the FATE blacklist.
+    default: true
   FateBlacklist:
     description: Comma-separated FATE names or IDs to skip (e.g. "A Relic Unleashed, 1638").
     default:
@@ -47,10 +50,11 @@ configs:
 LastAdjustTime  = 0
 StopFlag        = false
 ZoneToFarm      = Config.Get("ZoneToFarm")
+UseBlacklist    = Config.Get("UseBlacklist")
 DisabledFates   = Config.Get("FateBlacklist")
-Zone1Skirmishes = Config.Get("Zone1")
-Zone2Skirmishes = Config.Get("Zone2")
-Zone3Skirmishes = Config.Get("Zone3")
+Zone1Fates      = Config.Get("Zone1")
+Zone2Fates      = Config.Get("Zone2")
+Zone3Fates      = Config.Get("Zone3")
 LogPrefix       = "[FateFarm]"
 
 --============================ CONSTANT ==========================--
@@ -65,7 +69,7 @@ Zones = {
     Zadnor = { Id = 975, Name = "Zadnor",               Teleport = "EnterZadnor" },
 }
 
-ZadnorSkirmishes = {
+ZadnorFates = {
     [1] = {
         "A Wrench in the Reconnaissance Effort",
         "Breaking the Ice", "Deadly Divination",
@@ -94,7 +98,7 @@ ZadnorSkirmishes = {
     }
 }
 
-BozjaSkirmishes = {
+BozjaFates = {
     [1] = {
         "Are You Ray-dy?",
         "Beasts of the Field",
@@ -172,7 +176,7 @@ function BuildFateBlacklist(raw)
 end
 
 function IsBlacklisted(fate)
-    if not fate then
+    if not UseBlacklist or not fate then
         return false
     end
 
@@ -263,20 +267,28 @@ function FateProgress(fate)
 end
 
 function IsFateInSelectedZone(fate)
-    if not fate or not fate.Name then return false end
+    if not fate or not fate.Name then
+        return false
+    end
 
     local currentZone = GetZoneID()
-    local name = fate.Name
+    local name = fate.Name:lower()
     local allowedList = {}
+    local masterList = (currentZone == 975) and ZadnorFates or (currentZone == 920 and BozjaFates or nil)
 
-    -- Determine which Master List to use
-    local masterList = (currentZone == 975) and ZadnorSkirmishes or (currentZone == 920 and BozjaSkirmishes or nil)
-    if not masterList then return true end -- Default if not in Zadnor/Bozja
+    if not masterList then
+        return true
+    end
 
-    -- Build a list of allowed names based on Config Toggles
-    if Zone1Skirmishes then for _,v in ipairs(masterList[1]) do allowedList[v] = true end end
-    if Zone2Skirmishes then for _,v in ipairs(masterList[2]) do allowedList[v] = true end end
-    if Zone3Skirmishes then for _,v in ipairs(masterList[3]) do allowedList[v] = true end end
+    local function addToLowerList(subZoneTable)
+        for _, v in ipairs(subZoneTable) do
+            allowedList[v:lower()] = true
+        end
+    end
+
+    if Zone1Fates then addToLowerList(masterList[1]) end
+    if Zone2Fates then addToLowerList(masterList[2]) end
+    if Zone3Fates then addToLowerList(masterList[3]) end
 
     return allowedList[name] or false
 end
