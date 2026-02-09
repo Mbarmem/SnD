@@ -2,7 +2,7 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Bozja/Zadnor - Automates FATE farming in Save the Queen areas
+description: Zadnor - Automates Bozjan Cluster farming in Zadnor
 plugin_dependencies:
 - BossModReborn
 - Lifestream
