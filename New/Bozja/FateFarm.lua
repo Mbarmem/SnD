@@ -20,14 +20,6 @@ configs:
     choices:
         - "Bozja"
         - "Zadnor"
-  UseBlacklist:
-    description: Enable or disable the FATE blacklist.
-    default: true
-  FateBlacklist:
-    description: Comma-separated FATE names or IDs to skip (e.g. "A Relic Unleashed, 1638").
-    default:
-        - "Seeq and You Will Find"
-        - "Breaking the Ice"
   Zone1:
     description: Enable or disable farming in Zone 1.
     default: true
@@ -37,6 +29,14 @@ configs:
   Zone3:
     description: Enable or disable farming in Zone 3.
     default: true
+  UseBlacklist:
+    description: Enable or disable the FATE blacklist.
+    default: true
+  FateBlacklist:
+    description: Comma-separated FATE names or IDs to skip (e.g. "A Relic Unleashed, 1638").
+    default:
+        - "Seeq and You Will Find"
+        - "Breaking the Ice"
 
 [[End Metadata]]
 --]=====]
