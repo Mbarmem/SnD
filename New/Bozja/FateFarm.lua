@@ -614,9 +614,9 @@ function StartFarm(zoneId)
 
         local fate = PickBestFate()
         if not fate then
+            Mount()
             RotationOFF()
             AiOFF()
-            LogInfo(string.format("%s No active FATEs. Idling...", LogPrefix))
             Wait(2)
         else
             local result = RunToAndWaitFate(fate.Id)
