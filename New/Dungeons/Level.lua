@@ -393,6 +393,12 @@ do
         local minJob   = nil -- This will now store the full job object
         local allAtCap = true
 
+        if not IsYesAlreadyRunning() then
+            LogInfo(string.format("%s YesAlready disabled. Enabling to prevent gearupdate interruptions.", LogPrefix))
+            SetYesAlready(true)
+            Wait(1)
+        end
+
         -- Fix 1: Loop through job objects instead of strings
         for _, job in ipairs(Jobs) do
             local lv = levels[job.name] or 1
