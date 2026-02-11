@@ -394,7 +394,7 @@ do
         local allAtCap = true
 
         if not IsYesAlreadyRunning() then
-            LogInfo(string.format("%s YesAlready disabled. Enabling to prevent gearupdate interruptions.", LogPrefix))
+            LogInfo(string.format("%s Enabling YesAlready", LogPrefix))
             SetYesAlready(true)
             Wait(1)
         end
