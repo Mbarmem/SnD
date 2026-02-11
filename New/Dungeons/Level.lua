@@ -253,17 +253,37 @@ function TierForLevel(level)
     end
 end
 
+function UpdateJobGear(job)
+    if not job or not job.id then
+        return false
+    end
+
+    Execute(string.format("/gs change %d", job.id))
+    Wait(3)
+
+    local currentJobName = Player.Job.Name
+
+    if currentJobName:lower() ~= job.name:lower() then
+        LogInfo(string.format("%s [SKIP] ID #%d is %s, expected %s. Gear update aborted for safety.", LogPrefix, job.id, currentJobName, job.name))
+        return false
+    end
+
+    LogInfo(string.format("%s [MATCH] Updating gear for %s...", LogPrefix, job.name))
+
+    Execute("/equiprecommended")
+    Wait(2)
+
+    Execute(string.format("/gs save %d", job.id))
+    LogInfo(string.format("%s [SUCCESS] %s (Set #%d) updated and saved.", LogPrefix, job.name, job.id))
+
+    Wait(2)
+    return true
+end
+
 function RunDungeon(d, job)
     LogInfo(string.format("%s Run → %s (Lv %d+) Mode:%s", LogPrefix, d.Name, d.dutyLevel, d.dutyMode))
 
-    -- Gear Management using IDs from the Jobs table
-    Execute("/equiprecommended")
-    Wait(1.5)
-    if job and job.id then
-        Execute(string.format("/gs save %d", job.id))
-        LogInfo(string.format("%s Updated Gear Set #%d", LogPrefix, job.id))
-    end
-
+    UpdateJobGear(job)
     Wait(1)
     Repair(20)
     Wait(1)
@@ -281,17 +301,10 @@ function RunDungeon(d, job)
     WaitForPlayer()
 end
 
-function FoodCheck()
-    if not HasStatusId(48) or GetStatusTimeRemaining(48) < 1500 then
-        if Food ~= "" and GetItemCount(4747) > 1 then
-            Engines.Run(string.format("/item %s", Food))
-        end
-    end
-end
-
 function AdvanceLeaderToNextCeiling(job)
-    Execute(string.format("/gs change %d", job.id))
-    Wait(1)
+    if not UpdateJobGear(job) then
+        return
+    end
     WaitForPlayer()
 
     local level = GetLevel()
@@ -340,19 +353,13 @@ function ScanLevels()
     LogInfo(string.format("%s Starting full job/gear scan...", LogPrefix))
 
     for _, job in ipairs(Jobs) do
-        -- Switch Job
-        Execute(string.format("/gs change %d", job.id))
-        Wait(1.5)
-        WaitForPlayer()
-
-        -- Update Gear during Scan
-        Execute("/equiprecommended")
-        Wait(1.5)
-        Execute(string.format("/gs save %d", job.id))
-
-        local lv = GetLevel()
-        levels[job.name] = lv
-        LogInfo(string.format("%s [Scan] %s → Lv %d", LogPrefix, job.name, lv))
+        if UpdateJobGear(job) then
+            local lv = GetLevel()
+            levels[job.name] = lv
+            LogInfo(string.format("%s [Scan] %s → Lv %d", LogPrefix, job.name, lv))
+        else
+            levels[job.name] = 0
+        end
     end
     return levels
 end
@@ -371,7 +378,7 @@ function FoodCheck()
         local foodForExp = GetItemCount(4747)
         if Food ~= "" and foodForExp and foodForExp > 1 then
             LogInfo(string.format("%s Using %s for this cycle", LogPrefix, Food))
-            Engines.Run(string.format("/item %s", Food))
+            Execute(string.format("/item %s", Food))
         end
     end
 end
@@ -433,8 +440,9 @@ do
         -- Fix 3: Updated loop to use job object properties
         for _, job in ipairs(Jobs) do
             -- Use the ID to change gearsets correctly
-            Execute(string.format("/gs change %d", job.id))
-            Wait(1.5)
+            if not UpdateJobGear(job) then
+                goto next_job
+            end
             WaitForPlayer()
 
             local level = GetLevel()
