@@ -76,62 +76,81 @@ Zones = {
 --========================================================
 
 BozjaFates = {
-    [1] = {
-        "Are You Ray-dy?",
-        "Beasts of the Field",
-        "Choir Loofing",
-        "Forced March",
-        "None of Your Business",
-        "Pyritology",
-        "Sneak and Destroy"
+    [1] = { -- Southern Entrenchment
+        "All Pets Are Off",                          -- leads to CE chain -> Kill It with Fire
+        "Brought to Heal",
+        "Can Carnivorous Plants Bloom Even on a Battlefield?",
+        "Conflicting with the First Law",
+        "More Machine Now than Man",                 -- leads to CE chain -> Vigil for the Lost -> Aces High (Duel)
+        "None of Them Knew They Were Robots",
+        "Seeq and Destroy",
+        "Sneak & Spell",
+        "The Beasts Must Die",
+        "Unrest for the Wicked",
     },
-    [2] = {
-        "All-consuming Hungry",
-        "Canine Complication",
+
+    [2] = { -- Old Bozja
+        "Heavy Boots of Lead",
         "Help Wanted",
-        "Unshackled",
-        "The Incomplete History of the 4th Legion",
-        "Tidying Up"
+        "No Camping Allowed",
+        "Parts and Recreation",
+        "Pyromancer Supreme",
+        "Red (Chocobo) Alert",                       -- leads to CE chain -> The Hunt for Red Choctober -> Beast of Man (Duel)
+        "Scavengers of Man's Sorrow",
+        "The Element of Supplies",
+        "The Monster Mash",
+        "Unicorn Flakes",                            -- leads to CE chain -> The Final Furlong
     },
-    [3] = {
-        "Desperate Measures",
-        "Heavy Metal",
-        "More Machine Than Man", -- leads to CE chain -> Vigil for the Lost -> Aces High (Duel)
-        "Reditus",
-        "The Finality of the Conflict",
-        "The Last Stand"
-    }
+
+    [3] = { -- The Alermuc Climb
+        "Demonstrably Demonic",
+        "Desperately Seeking Something",
+        "For Absent Friends",                        -- leads to CE chain -> Of Steel and Flame -> Metal Fox Chaos -> And the Flames Went Higher (Duel)
+        "Let Slip the Dogs of War",
+        "Murder Death Kill",
+        "My Family and Other Animals",
+        "Of Steel and Flame",                        -- leads to CE chain -> Metal Fox Chaos -> And the Flames Went Higher (Duel)
+        "Supplies Party",
+        "The War Against the Machines",
+        "The Wild Bunch",
+        "Waste the Rainbow",
+    },
 }
 
 ZadnorFates = {
-    [1] = {
+    [1] = { -- Southern Plateau
         "A Wrench in the Reconnaissance Effort",
+        "An Immoral Dilemma",
+        "Another Pilot Episode",
         "Breaking the Ice",
         "Deadly Divination",
         "Meet the Puppetmaster",
         "Of Beasts and Braggadocio",
-        "Parts and Parcel"
+        "Parts and Parcel",
     },
-    [2] = {
+
+    [2] = { -- Central Plateau
         "A Just Pursuit",
-        "An End to Atrocities", -- leads to CE chain -> Never Cry Wolf -> Head of the Snake
+        "An End to Atrocities",                      -- leads to CE chain -> Never Cry Wolf -> Head of the Snake
         "Challenge Accepted",
         "Demented Mentor",
         "Sever the Strings",
         "Supersoldier Rising",
-        "Tanking Up", -- leads to CE -> Here Comes the Cavalry
-        "Th'uban the Terrible"
+        "Tanking Up",                                -- leads to CE chain -> Here Comes the Cavalry
+        "Th'uban the Terrible",
     },
-    [3] = {
+
+    [3] = { -- Northern Plateau
         "A Relic Unleashed",
         "Attack of the Machines",
+        "Attack of the Supersoldiers",
         "Mean-spirited",
         "Seeq and You Will Find",
         "Still Only Counts as One",
-        "The Beasts Are Back", -- leads to CE -> Worn to a Shadow
+        "The Beasts Are Back",                       -- leads to CE chain -> Worn to a Shadow
         "The Student Becalms the Master",
-        "When Mages Rage"
-    }
+        "When Mages Rage",
+    },
 }
 
 --========================================================
