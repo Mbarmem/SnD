@@ -82,6 +82,7 @@ function CharacterState.poeticsBuyUnidentifiableOre()
             State = CharacterState.poeticsTurnIn
             LogInfo(string.format("%s State changed to: PoeticsTurnIn", LogPrefix))
         else
+            CloseAddons()
             StopFlag = true
         end
         return
@@ -121,6 +122,7 @@ function CharacterState.poeticsTurnIn()
         if IsAddonReady("ShopExchangeItem") then
             Execute("/callback ShopExchangeItem true -1")
         else
+            CloseAddons()
             StopFlag = true
         end
         return
@@ -157,6 +159,7 @@ function CharacterState.poeticsReady()
         State = CharacterState.poeticsGoToIdyllshireTurnIn
         LogInfo(string.format("%s State changed to: GoToIdyllshireTurnIn", LogPrefix))
     else
+        CloseAddons()
         StopFlag = true
     end
 end
