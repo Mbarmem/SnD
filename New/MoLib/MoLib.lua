@@ -1532,16 +1532,16 @@ end
 --- @return nil
 function CloseAddons()
     local closableAddons = {
-        "SelectIconString",
-        "SelectString",
+        "Talk",
         "SelectYesno",
+        "SelectString",
+        "SelectIconString",
         "ShopExchangeItem",
         "ShopExchangeCurrency",
         "RecipeNote",
         "ContentsInfo",
         "RetainerList",
-        "InventoryRetainer",
-        "Talk"
+        "InventoryRetainer"
     }
 
     LogDebug(string.format("[MoLib] CloseAddons() started, waiting for player..."))
