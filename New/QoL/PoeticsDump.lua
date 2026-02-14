@@ -11,6 +11,10 @@ dependencies:
 - source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
   name: SnD
   type: git
+configs:
+  MinPoeticsToRun:
+    description: Minimum Poetics required to start the dump.
+    default: 1800
 [[End Metadata]]
 --]=====]
 
@@ -20,9 +24,10 @@ dependencies:
 --    General    --
 -------------------
 
-PoeticsItemId  = 28
-OreItemId      = 13586
-LogPrefix      = "[PoeticsDump]"
+PoeticsItemId    = 28
+OreItemId        = 13586
+MinPoeticsToRun  = Config.Get("Alexandrite")
+LogPrefix        = "[PoeticsDump]"
 
 --============================ CONSTANT ==========================--
 
@@ -155,7 +160,7 @@ function CharacterState.poeticsTurnIn()
 end
 
 function CharacterState.poeticsReady()
-    if GetItemCount(PoeticsItemId) >= 1800 or GetItemCount(OreItemId) > 0 then
+    if GetItemCount(PoeticsItemId) >= MinPoeticsToRun or GetItemCount(OreItemId) > 0 then
         State = CharacterState.poeticsGoToIdyllshireTurnIn
         LogInfo(string.format("%s State changed to: GoToIdyllshireTurnIn", LogPrefix))
     else
