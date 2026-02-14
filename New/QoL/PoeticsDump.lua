@@ -26,7 +26,7 @@ configs:
 
 PoeticsItemId    = 28
 OreItemId        = 13586
-MinPoeticsToRun  = Config.Get("Alexandrite")
+MinPoeticsToRun  = Config.Get("MinPoeticsToRun")
 LogPrefix        = "[PoeticsDump]"
 
 --============================ CONSTANT ==========================--
