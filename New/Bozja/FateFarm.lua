@@ -1,7 +1,7 @@
 --[=====[
 [[SND Metadata]]
 author: Mo
-version: 2.0.0
+version: 2.1.0
 description: Bozja/Zadnor - Automates FATE farming in Save the Queen areas
 plugin_dependencies:
 - BossModReborn
@@ -37,6 +37,8 @@ configs:
     default:
         - "Seeq and You Will Find"
         - "Breaking the Ice"
+        - "When Mages Rage"
+        - "Challenge Accepted"
 
 [[End Metadata]]
 --]=====]
@@ -77,11 +79,11 @@ Zones = {
 
 BozjaFates = {
     [1] = { -- Southern Entrenchment
-        "All Pets Are Off",                          -- leads to CE chain -> Kill It with Fire
+        "All Pets Are Off",            -- Kill It with Fire (CE)
         "Brought to Heal",
         "Can Carnivorous Plants Bloom Even on a Battlefield?",
         "Conflicting with the First Law",
-        "More Machine Now than Man",                 -- leads to CE chain -> Vigil for the Lost -> Aces High (Duel)
+        "More Machine Now than Man",   -- Vigil for the Lost (CE) -> Aces High (Duel)
         "None of Them Knew They Were Robots",
         "Seeq and Destroy",
         "Sneak & Spell",
@@ -95,21 +97,22 @@ BozjaFates = {
         "No Camping Allowed",
         "Parts and Recreation",
         "Pyromancer Supreme",
-        "Red (Chocobo) Alert",                       -- leads to CE chain -> The Hunt for Red Choctober -> Beast of Man (Duel)
+        "Red (Chocobo) Alert",         -- The Hunt for Red Choctober (CE) -> Beast of Man (Duel)
         "Scavengers of Man's Sorrow",
         "The Element of Supplies",
         "The Monster Mash",
-        "Unicorn Flakes",                            -- leads to CE chain -> The Final Furlong
+        "Unicorn Flakes",              -- The Final Furlong (CE)
     },
 
     [3] = { -- The Alermuc Climb
         "Demonstrably Demonic",
         "Desperately Seeking Something",
-        "For Absent Friends",                        -- leads to CE chain -> Of Steel and Flame -> Metal Fox Chaos -> And the Flames Went Higher (Duel)
+        "For Absent Friends",          -- Of Steel and Flame -> Metal Fox Chaos (CE) -> And the Flames Went Higher (Duel)
+        "I'm a Mechanical Man",        -- Rise of the Robots (CE)
         "Let Slip the Dogs of War",
         "Murder Death Kill",
         "My Family and Other Animals",
-        "Of Steel and Flame",                        -- leads to CE chain -> Metal Fox Chaos -> And the Flames Went Higher (Duel)
+        "Of Steel and Flame",          -- Metal Fox Chaos (CE) -> And the Flames Went Higher (Duel)
         "Supplies Party",
         "The War Against the Machines",
         "The Wild Bunch",
@@ -120,8 +123,8 @@ BozjaFates = {
 ZadnorFates = {
     [1] = { -- Southern Plateau
         "A Wrench in the Reconnaissance Effort",
-        "An Immoral Dilemma",
-        "Another Pilot Episode",
+        "An Immoral Dilemma",          -- On Serpents' Wings (CE)
+        "Another Pilot Episode",       -- A Familiar Face (CE) →  The Broken Blade (Duel)
         "Breaking the Ice",
         "Deadly Divination",
         "Meet the Puppetmaster",
@@ -131,23 +134,24 @@ ZadnorFates = {
 
     [2] = { -- Central Plateau
         "A Just Pursuit",
-        "An End to Atrocities",                      -- leads to CE chain -> Never Cry Wolf -> Head of the Snake
+        "An End to Atrocities",        -- Never Cry Wolf (CE) -> Head of the Snake (Duel)
         "Challenge Accepted",
         "Demented Mentor",
         "Sever the Strings",
         "Supersoldier Rising",
-        "Tanking Up",                                -- leads to CE chain -> Here Comes the Cavalry
+        "Tanking Up",                  -- Here Comes the Cavalry (CE)
         "Th'uban the Terrible",
     },
 
     [3] = { -- Northern Plateau
         "A Relic Unleashed",
         "Attack of the Machines",
-        "Attack of the Supersoldiers",
+        "Hypertuned Havoc",            -- Attack of the Supersoldiers → Feeling the Burn (CE) →  Taking the Lyon's Share (Duel)
+        "Attack of the Supersoldiers", -- Feeling the Burn (CE) →  Taking the Lyon's Share (Duel)
         "Mean-spirited",
         "Seeq and You Will Find",
         "Still Only Counts as One",
-        "The Beasts Are Back",                       -- leads to CE chain -> Worn to a Shadow
+        "The Beasts Are Back",         -- Worn to a Shadow (CE)
         "The Student Becalms the Master",
         "When Mages Rage",
     },
@@ -160,41 +164,47 @@ ZadnorFates = {
 
 BozjaCEs = {
     [1] = {
-        "The Baying of the Hound(s)", -- CE
-        "The Shadow of Death's Hand", -- CE
-        "Kill It with Fire",          -- CE
-        "Aces High",                  -- Duel (CE Solo)
+        "The Baying of the Hound(s)",   -- CE
+        "The Shadow of Death's Hand",   -- CE
+        "Kill It with Fire",            -- CE
+        "Vigil for the Lost",           -- CE
+        "Aces High",                    -- Duel (CE Solo)
     },
+
     [2] = {
-        "The Fires of War",           -- CE
-        "Patriot Games",              -- CE
-        "The Final Furlong",          -- CE
-        "The Hunt for Red Choctober", -- CE
-        "Beast of Man",               -- Duel (CE Solo)
+        "The Fires of War",             -- CE
+        "Patriot Games",                -- CE
+        "The Final Furlong",            -- CE
+        "The Hunt for Red Choctober",   -- CE
+        "Beast of Man",                 -- Duel (CE Solo)
     },
+
     [3] = {
-        "Where Strode the Behemoth",  -- CE
-        "Metal Fox Chaos",            -- CE
-        "Rise of the Robots",         -- CE
-        "And the Flames Went Higher", -- Duel (CE Solo)
+        "Where Strode the Behemoth",    -- CE
+        "Metal Fox Chaos",              -- CE
+        "Rise of the Robots",           -- CE
+        "Trampled under Hoof",          -- CE
+        "And the Flames Went Higher",   -- Duel (CE Solo)
     }
 }
 
 ZadnorCEs = {
     [1] = {
-        "With Diremite and Main", -- CE
-        "From Beyond the Grave",  -- CE
-        "On Serpents' Wings",     -- CE
-        "A Familiar Face",        -- CE
-        "The Broken Blade",       -- Duel (CE Solo)
+        "With Diremite and Main",       -- CE
+        "From Beyond the Grave",        -- CE
+        "On Serpents' Wings",           -- CE
+        "A Familiar Face",              -- CE
+        "The Broken Blade",             -- Duel (CE Solo)
     },
+
     [2] = {
-        "There Would Be Blood",   -- CE
-        "Time to Burn",           -- CE
-        "Never Cry Wolf",         -- CE
-        "Here Comes the Cavalry", -- CE
-        "Head of the Snake",      -- Duel (CE Solo)
+        "There Would Be Blood",         -- CE
+        "Time to Burn",                 -- CE
+        "Never Cry Wolf",               -- CE
+        "Here Comes the Cavalry",       -- CE
+        "Head of the Snake",            -- Duel (CE Solo)
     },
+
     [3] = {
         "Lean, Mean, Magitek Machines", -- CE
         "Looks to Die For",             -- CE
