@@ -401,7 +401,7 @@ function CheckForSpecialFateAlerts()
         if fate and fate.Exists and ceTriggers[fate.Name] then
             if fate.Id ~= LastEchoedFate then
                 local zoneNum = ceTriggers[fate.Name]
-                Echo(string.format("Fate leading to CE Spawned in Zone %d: %s <se.6>", zoneNum, fate.Name))
+                Echo(string.format("Fate leading to CE Spawned in Zone %d: %s <se.6>", zoneNum, fate.Name, LogPrefix))
                 LastEchoedFate = fate.Id
             end
         end
