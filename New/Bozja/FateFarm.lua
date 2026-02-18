@@ -498,25 +498,25 @@ function RunToAndWaitFate(fateId)
                 return "despawned"
             end
         else
+            local dist = (myPosition and selectedFate.Location) and GetDistance(myPosition, selectedFate.Location) or (selectedFate.DistanceToPlayer or 99999)
+
+            if selectedFate.InFate or (dist and dist <= 5) then
+                PathStop()
+                Dismount()
+                StanceOff()
+                RotationON()
+                AiON()
+                break
+            end
+
             if (not IsActiveState(selectedFate.State)) or (FateProgress(selectedFate) >= 100) then
                 PathStop()
                 return "ended"
             end
 
-            local dist = (myPosition and selectedFate.Location) and GetDistance(myPosition, selectedFate.Location) or (selectedFate.DistanceToPlayer or 99999)
-            if selectedFate.InFate and (dist and dist <= 3) then
-                PathStop()
-                StanceOff()
-                RotationON()
-                AiON()
-                Dismount()
-                break
-            end
-
             local now = os.time()
             if (now - lastSwitchAt) >= 5 then
                 local best = PickBestFate(false)
-
                 if best and best.Exists and IsActiveState(best.State) and best.Location and best.Id ~= fateId and not IsBlacklisted(best) then
                     local curDist  = (myPosition and selectedFate and selectedFate.Location) and GetDistance(myPosition, selectedFate.Location) or (selectedFate and selectedFate.DistanceToPlayer) or 1e9
                     local bestDist = FateDistance(best, myPosition)
@@ -533,7 +533,7 @@ function RunToAndWaitFate(fateId)
             end
         end
 
-        Wait(1)
+        Wait(0.1)
     end
 
     while true do
