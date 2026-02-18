@@ -50,6 +50,7 @@ configs:
 -------------------
 
 LastAdjustTime  = 0
+LastEchoedFate  = 0
 StopFlag        = false
 ZoneToFarm      = Config.Get("ZoneToFarm")
 UseBlacklist    = Config.Get("UseBlacklist")
@@ -418,6 +419,28 @@ function PickBestFate(block)
         return nil
     end
 
+    if best and best.Id ~= LastEchoedFate then
+        local currentZone = GetZoneID()
+        local masterList = (currentZone == 975) and ZadnorFates or (currentZone == 920 and BozjaFates or nil)
+
+        if masterList then
+            local ceTriggers = {
+                ["All Pets Are Off"] = 1, ["More Machine Now than Man"] = 1, ["Red (Chocobo) Alert"] = 2,
+                ["Unicorn Flakes"] = 2, ["For Absent Friends"] = 3, ["I'm a Mechanical Man"] = 3,
+                ["Of Steel and Flame"] = 3, ["An Immoral Dilemma"] = 1, ["Another Pilot Episode"] = 1,
+                ["An End to Atrocities"] = 2, ["Tanking Up"] = 2, ["Hypertuned Havoc"] = 3,
+                ["Attack of the Supersoldiers"] = 3, ["The Beasts Are Back"] = 3
+            }
+
+            if ceTriggers[best.Name] then
+                local zoneNum = ceTriggers[best.Name]
+                Echo(string.format("Fate leading to CE Spawned in Zone %d: %s <se.6>", zoneNum, best.Name))
+
+                LastEchoedFate = best.Id
+            end
+        end
+    end
+
     if block ~= false and best then
         local nearNote = (bestDist <= 500) and " [+near]" or ""
         LogInfo(string.format("%s Picked: %s (id=%s, dist=%.0fm, prog=%d%%%s)", LogPrefix, best.Name or "?", tostring(best.Id or "?"), bestDist or -1, bestProg or -1, nearNote))
@@ -691,7 +714,7 @@ while not StopFlag do
         MoveToZone()
         WaitForPlayer()
     end
-    Wait(5)
+    Wait(1)
 end
 
 --============================== END =============================--
