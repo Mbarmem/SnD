@@ -523,8 +523,8 @@ function RunToAndWaitFate(fateId)
 
                 -- STEP 3: Switch to MANUAL now that we are engaged
                 if HasTarget() then
-                    LogInfo(string.format("%s Target acquired! Switching to Manual...", LogPrefix))
-                    Execute("/rotation manual")
+                    LogInfo(string.format("%s Target acquired! Switching to Manual mode...", LogPrefix))
+                    RotationManual()
                 end
                 -- END OF ENGAGEMENT SETUP --
                 ---------------------------------------------------------
@@ -570,7 +570,7 @@ function RunToAndWaitFate(fateId)
             -- If we lose our target during the FATE, flip to Auto.
             -- Once we have a target, flip back to Manual.
             if not HasTarget() then
-                LogInfo(string.format("%s Target lost or none found. Re-engaging Auto...", LogPrefix))
+                LogInfo(string.format("%s Target lost or none found. Re-engaging Auto mode...", LogPrefix))
                 RotationON()
 
                 -- Short wait to allow RotationSolver to pick a new target
@@ -580,8 +580,8 @@ function RunToAndWaitFate(fateId)
                 end
 
                 if HasTarget() then
-                    LogInfo(string.format("%s New target found! Switching back to Manual.", LogPrefix))
-                    Execute("/rotation manual")
+                    LogInfo(string.format("%s New target found! Switching back to Manual mode...", LogPrefix))
+                    RotationManual()
                 end
             end
             ---------------------------------------------------------
@@ -654,8 +654,14 @@ function StanceOff()
 end
 
 function RotationON()
-    LogInfo(string.format("%s Setting rotation to LowHP mode...", LogPrefix))
+    LogInfo(string.format("%s Setting rotation to Auto mode...", LogPrefix))
     Execute("/rotation auto LowHP")
+    Wait(0.5)
+end
+
+function RotationManual()
+    LogInfo(string.format("%s Setting rotation to Manual mode...", LogPrefix))
+    Execute("/rotation manual")
     Wait(0.5)
 end
 
