@@ -514,6 +514,7 @@ function RunToAndWaitFate(fateId)
                 AiON()
                 Dismount()
 
+                ---------------------------------------------------------
                 -- STEP 2: Wait until we actually have a target
                 local targetTimeout = os.time() + 10 -- 10 second safety net
                 while not HasTarget() and os.time() < targetTimeout do
@@ -526,6 +527,7 @@ function RunToAndWaitFate(fateId)
                     Execute("/rotation manual")
                 end
                 -- END OF ENGAGEMENT SETUP --
+                ---------------------------------------------------------
 
                 break
             end
@@ -561,6 +563,28 @@ function RunToAndWaitFate(fateId)
             if not IsActiveState(target.State) or FateProgress(target) >= 100 then
                 return "ended"
             end
+
+            ---------------------------------------------------------
+            -- TARGET RE-ACQUISITION LOGIC
+            ---------------------------------------------------------
+            -- If we lose our target during the FATE, flip to Auto.
+            -- Once we have a target, flip back to Manual.
+            if not HasTarget() then
+                LogInfo(string.format("%s Target lost or none found. Re-engaging Auto...", LogPrefix))
+                RotationON()
+
+                -- Short wait to allow RotationSolver to pick a new target
+                local reacquireTimeout = os.time() + 5
+                while not HasTarget() and os.time() < reacquireTimeout do
+                    Wait(0.5)
+                end
+
+                if HasTarget() then
+                    LogInfo(string.format("%s New target found! Switching back to Manual.", LogPrefix))
+                    Execute("/rotation manual")
+                end
+            end
+            ---------------------------------------------------------
 
             local stick = StayNearFateCenter(target)
             if stick ~= "ok" and stick ~= "cooldown" then
