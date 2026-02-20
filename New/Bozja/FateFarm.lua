@@ -401,7 +401,7 @@ function CheckForSpecialFateAlerts()
         if fate and fate.Exists and ceTriggers[fate.Name] then
             if fate.Id ~= LastEchoedFate then
                 local zoneNum = ceTriggers[fate.Name]
-                Echo(string.format("Fate leading to CE Spawned in Zone %d: %s <se.6>", zoneNum, fate.Name, LogPrefix))
+                Echo(string.format("Fate leading to CE Spawned in Zone %d: %s <se.6>", zoneNum, fate.Name), LogPrefix)
                 LastEchoedFate = fate.Id
             end
         end
@@ -513,6 +513,20 @@ function RunToAndWaitFate(fateId)
                 RotationON()
                 AiON()
                 Dismount()
+
+                -- STEP 2: Wait until we actually have a target
+                local targetTimeout = os.time() + 10 -- 10 second safety net
+                while not HasTarget() and os.time() < targetTimeout do
+                    Wait(0.5)
+                end
+
+                -- STEP 3: Switch to MANUAL now that we are engaged
+                if HasTarget() then
+                    LogInfo(string.format("%s Target acquired! Switching to Manual...", LogPrefix))
+                    Execute("/rotation manual")
+                end
+                -- END OF ENGAGEMENT SETUP --
+
                 break
             end
 
