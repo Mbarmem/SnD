@@ -2009,7 +2009,7 @@ end
 --============================ REPAIRS ===========================--
 
 --- Checks if any items in the player's inventory need repair below a given durability percentage
---- @param percentage number       the durability threshold to check against (0–100)
+--- @param percentage number       the durability threshold to check against (0 - 100)
 --- @return boolean needsRepair    true if any items need repair, false otherwise
 function NeedsRepair(percentage)
     local repairList  = Inventory.GetItemsInNeedOfRepairs(percentage)
