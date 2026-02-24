@@ -6,9 +6,9 @@ description: Chocobo Racing - A barebones script for weeklies
 plugin_dependencies:
 - SkipCutscene
 dependencies:
-- source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
-  name: SnD
-  type: git
+- source: https://forgejo.mownbox.com/Mo/SnD/raw/branch/main/New/MoLib/MoLib.lua
+  name: latest
+  type: unknown
 configs:
   RunsToPlay:
     description: Number of runs to play.

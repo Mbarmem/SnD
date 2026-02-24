@@ -9,9 +9,9 @@ plugin_dependencies:
 - vnavmesh
 - YesAlready
 dependencies:
-- source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
-  name: SnD
-  type: git
+- source: https://forgejo.mownbox.com/Mo/SnD/raw/branch/main/New/MoLib/MoLib.lua
+  name: latest
+  type: unknown
 configs:
   DoAutoRetainers:
     description: Automatically interact with retainers for ventures.

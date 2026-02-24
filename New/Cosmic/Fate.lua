@@ -6,9 +6,9 @@ description: Cosmic Exploration - Script for Auto Fate
 plugin_dependencies:
 - vnavmesh
 dependencies:
-- source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
-  name: SnD
-  type: git
+- source: https://forgejo.mownbox.com/Mo/SnD/raw/branch/main/New/MoLib/MoLib.lua
+  name: latest
+  type: unknown
 
 [[End Metadata]]
 --]=====]

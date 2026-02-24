@@ -7,9 +7,9 @@ plugin_dependencies:
 - Lifestream
 - vnavmesh
 dependencies:
-- source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
-  name: SnD
-  type: git
+- source: https://forgejo.mownbox.com/Mo/SnD/raw/branch/main/New/MoLib/MoLib.lua
+  name: latest
+  type: unknown
 configs:
   PackToBuy:
     description: Name of the pack to buy.

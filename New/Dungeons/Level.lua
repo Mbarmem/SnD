@@ -14,9 +14,9 @@ plugin_dependencies:
 - vnavmesh
 - YesAlready
 dependencies:
-- source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
-  name: SnD
-  type: git
+- source: https://forgejo.mownbox.com/Mo/SnD/raw/branch/main/New/MoLib/MoLib.lua
+  name: latest
+  type: unknown
 configs:
   StopAtLevel:
     description: Automatically stops leveling once all selected jobs reach the specified level.

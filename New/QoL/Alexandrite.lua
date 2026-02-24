@@ -8,9 +8,9 @@ plugin_dependencies:
 - Lifestream
 - vnavmesh
 dependencies:
-- source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
-  name: SnD
-  type: git
+- source: https://forgejo.mownbox.com/Mo/SnD/raw/branch/main/New/MoLib/MoLib.lua
+  name: latest
+  type: unknown
 configs:
   Alexandrite:
     description: Initial Count of Alexandrtie in the Inventory.

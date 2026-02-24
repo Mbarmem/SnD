@@ -10,9 +10,9 @@ plugin_dependencies:
 - Lifestream
 - vnavmesh
 dependencies:
-- source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
-  name: SnD
-  type: git
+- source: https://forgejo.mownbox.com/Mo/SnD/raw/branch/main/New/MoLib/MoLib.lua
+  name: latest
+  type: unknown
 configs:
   WeatherSelection:
     description: Specifies the desired weather type. Options - All, Normal, Moon, Umbral.

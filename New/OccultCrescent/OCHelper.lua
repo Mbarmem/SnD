@@ -12,9 +12,9 @@ plugin_dependencies:
 - vnavmesh
 - YesAlready
 dependencies:
-- source: git://Mbarmem/SnD/main/New/MoLib/MoLib.lua
-  name: SnD
-  type: git
+- source: https://forgejo.mownbox.com/Mo/SnD/raw/branch/main/New/MoLib/MoLib.lua
+  name: latest
+  type: unknown
 configs:
   RunBuffs:
     description: Whether to apply buffs before beginning of each run.
