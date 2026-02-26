@@ -471,8 +471,8 @@ AlliedSocietiesTable = {
     vath = {
         alliedSocietyName = "Vath",
         questGiver        = GetNPCName(1016803), -- "Vath Keeneye"
-        mainQuests        = { first = 2164, last = 2225 },
-        dailyQuests       = { first = 2265, last = 2280 },
+        mainQuests        = { first = 2255, last = 2260 },
+        dailyQuests       = { first = 2261, last = 2280 },
         x                 = 58.80,
         y                 = -48.00,
         z                 = -171.64,
