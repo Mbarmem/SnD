@@ -212,39 +212,14 @@ configs:
 --    General    --
 -------------------
 
-import("System.Numerics")
 ManualQuestPickup  = Config.Get("ManualQuestPickup")
 LogPrefix          = "[AlliedQuests]"
 
---=========================== FUNCTIONS ==========================--
+--============================ CONSTANT ==========================--
 
 -----------------------
 --    Allied Data    --
 -----------------------
-
-ToDoList = {}
-
-function GetAttribute(sheetName, id, property)
-    local sheet = Excel.GetSheet(sheetName)
-    if not sheet then
-        return nil
-    end
-
-    local row = sheet:GetRow(id)
-    if not row then
-        return nil
-    end
-
-    return row:GetProperty(property) or nil
-end
-
-function GetNPCName(id)
-    return GetAttribute("ENpcResident", id, "Singular")
-end
-
-function GetPlaceName(id)
-    return GetAttribute("PlaceName", id, "Name")
-end
 
 AlliedSocietiesTable = {
     amaljaa_neutral = {
@@ -662,6 +637,14 @@ AlliedSocietiesTable = {
         expac             = "Dawntrail"
     }
 }
+
+--=========================== FUNCTIONS ==========================--
+
+-----------------------
+--    Allied Data    --
+-----------------------
+
+ToDoList = {}
 
 local societyConfigKeys = {
     { societyKey = "FirstAlliedSociety",  classKey = "FirstClass"  },
