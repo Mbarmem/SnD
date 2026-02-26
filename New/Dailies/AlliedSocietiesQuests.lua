@@ -807,7 +807,7 @@ for _, alliedSociety in ipairs(ToDoList) do
                 Execute("/qst start")
             end
             Wait(2)
-        until #GetAcceptedAlliedSocietyQuests(alliedSociety.alliedSocietyName) == 0
+        until #GetAcceptedAlliedSocietyQuests(alliedSocietyTable.alliedSocietyName) == 0
 
         Execute("/qst stop")
     else
