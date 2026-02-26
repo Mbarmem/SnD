@@ -212,6 +212,7 @@ configs:
 --    General    --
 -------------------
 
+import("System.Numerics")
 ManualQuestPickup  = Config.Get("ManualQuestPickup")
 LogPrefix          = "[AlliedQuests]"
 
