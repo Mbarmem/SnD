@@ -2166,6 +2166,57 @@ function WaitForAR(doAutoRetainers)
     end
 end
 
+--============================ SHEETS ============================--
+
+--- Retrieves a property value from an Excel sheet row by ID
+--- @param sheetName string          the Excel sheet name (e.g., "ENpcResident", "PlaceName")
+--- @param id number                 the row ID to fetch
+--- @param property string           the property/column name to read from the row
+--- @return any|nil value            the property value if found, otherwise nil
+--- @overload fun(sheetName: string, id: number, property: string): any|nil
+function GetAttribute(sheetName, id, property)
+    local sheet = Excel and Excel.GetSheet and Excel.GetSheet(sheetName)
+    if not sheet then
+        LogDebug(string.format("[MoLib] GetAttribute: sheet '%s' not found", tostring(sheetName)))
+        return nil
+    end
+
+    local row = sheet:GetRow(id)
+    if not row then
+        LogDebug(string.format("[MoLib] GetAttribute: row id %s not found in sheet '%s'", tostring(id), tostring(sheetName)))
+        return nil
+    end
+
+    local value = row:GetProperty(property)
+    LogDebug(string.format("[MoLib] GetAttribute: %s[%s].%s = %s", tostring(sheetName), tostring(id), tostring(property), tostring(value)))
+
+    return value or nil
+end
+
+--------------------------------------------------------------------
+
+--- Gets an NPC's name (Singular) from ENpcResident by ID
+--- @param id number               the ENpcResident row ID
+--- @return string|nil name        the NPC singular name if found, otherwise nil
+--- @overload fun(id: number): string|nil
+function GetNPCName(id)
+    local name = GetAttribute("ENpcResident", id, "Singular")
+    LogDebug(string.format("[MoLib] GetNPCName(%s) = %s", tostring(id), tostring(name)))
+    return name
+end
+
+--------------------------------------------------------------------
+
+--- Gets a place name from PlaceName by ID
+--- @param id number               the PlaceName row ID
+--- @return string|nil name        the place name if found, otherwise nil
+--- @overload fun(id: number): string|nil
+function GetPlaceName(id)
+    local name = GetAttribute("PlaceName", id, "Name")
+    LogDebug(string.format("[MoLib] GetPlaceName(%s) = %s", tostring(id), tostring(name)))
+    return name
+end
+
 --============================= LOG ==============================--
 
 --===========--
