@@ -221,6 +221,28 @@ LogPrefix          = "[AlliedQuests]"
 --    Allied Data    --
 -----------------------
 
+function GetAttribute(sheetName, id, property)
+    local sheet = Excel.GetSheet(sheetName)
+    if not sheet then
+        return nil
+    end
+
+    local row = sheet:GetRow(id)
+    if not row then
+        return nil
+    end
+
+    return row:GetProperty(property) or nil
+end
+
+function GetNPCName(id)
+    return GetAttribute("ENpcResident", id, "Singular")
+end
+
+function GetPlaceName(id)
+    return GetAttribute("PlaceName", id, "Name")
+end
+
 AlliedSocietiesTable = {
     amaljaa_neutral = {
         alliedSocietyName = "Amalj'aa",
@@ -665,28 +687,6 @@ end
 ----------------
 --    Main    --
 ----------------
-
-function GetAttribute(sheetName, id, property)
-    local sheet = Excel.GetSheet(sheetName)
-    if not sheet then
-        return nil
-    end
-
-    local row = sheet:GetRow(id)
-    if not row then
-        return nil
-    end
-
-    return row:GetProperty(property) or nil
-end
-
-function GetNPCName(id)
-    return GetAttribute("ENpcResident", id, "Singular")
-end
-
-function GetPlaceName(id)
-    return GetAttribute("PlaceName", id, "Name")
-end
 
 function GetAlliedSocietyTable(selectedName)
     for _, alliedSociety in pairs(AlliedSocietiesTable) do
