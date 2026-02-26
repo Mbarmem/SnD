@@ -680,9 +680,9 @@ end
 function GetAcceptedAlliedSocietyQuests(alliedSocietyName)
     local accepted = {}
     local allAcceptedQuests = Quests.GetAcceptedQuests()
-    local count = allAcceptedQuests.Count - 1
+    local count = allAcceptedQuests.Count
 
-    for i = 1, count do
+    for i = 0, count - 1 do
         local allAcceptedQuestId = allAcceptedQuests[i]
         local row = Excel.GetRow("Quest", allAcceptedQuestId)
 
