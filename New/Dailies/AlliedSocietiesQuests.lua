@@ -215,11 +215,13 @@ configs:
 ManualQuestPickup  = Config.Get("ManualQuestPickup")
 LogPrefix          = "[AlliedQuests]"
 
---============================ CONSTANT ==========================--
+--=========================== FUNCTIONS ==========================--
 
 -----------------------
 --    Allied Data    --
 -----------------------
+
+ToDoList = {}
 
 function GetAttribute(sheetName, id, property)
     local sheet = Excel.GetSheet(sheetName)
@@ -659,14 +661,6 @@ AlliedSocietiesTable = {
         expac             = "Dawntrail"
     }
 }
-
---=========================== FUNCTIONS ==========================--
-
------------------------
---    Allied Data    --
------------------------
-
-ToDoList = {}
 
 local societyConfigKeys = {
     { societyKey = "FirstAlliedSociety",  classKey = "FirstClass"  },
