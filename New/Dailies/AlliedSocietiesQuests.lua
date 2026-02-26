@@ -448,7 +448,7 @@ AlliedSocietiesTable = {
         configName        = "Ixal (Honored)",
         questGiver        = GetNPCName(1009216), -- "Jezul Ahuatan the Second"
         mainQuests        = { first = 1486, last = 1493 },
-        dailyQuests       = { first = 1519, last = 1568 },
+        dailyQuests       = { first = 1519, last = 1523 },
         x                 = 161.42,
         y                 = -22.79,
         z                 = 115.27,
