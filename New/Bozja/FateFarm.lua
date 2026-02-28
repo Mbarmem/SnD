@@ -663,7 +663,7 @@ function RunToAndWaitFate(fateId)
             ---------------------------------------------------------
 
             local stick = StayNearFateCenter(target)
-            if stick ~= "ok" then
+            if stick ~= "ok" and stick ~= "cooldown" then
                 LogInfo(string.format("%s StayNearFateCenter: %s", LogPrefix, stick))
             end
         else
@@ -805,7 +805,7 @@ function StartFarm(zoneId)
 
     LogInfo(string.format("%s Starting FateFarm...", LogPrefix))
 
-    local timeout = os.time() + 7200  -- default 2 hours in seconds
+    local timeout = os.time() + 9000  -- default 2 hours 30 mins in seconds
 
     while IsInZone(zoneId) do
         if os.time() >= timeout then
