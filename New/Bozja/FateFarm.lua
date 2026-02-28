@@ -50,6 +50,7 @@ configs:
 -------------------
 
 LastAdjustTime  = 0
+LastAggroHandle = 0
 StopFlag        = false
 ZoneToFarm      = Config.Get("ZoneToFarm")
 UseBlacklist    = Config.Get("UseBlacklist")
@@ -478,6 +479,63 @@ function WaitForCombat(maxWaitSeconds)
     AiOFF()
 end
 
+function HandleAggroWhileIdle(context)
+    context = context or "idle"
+
+    if not IsPlayerAvailable() then
+        return false
+    end
+
+    if not IsInCombat() and not HasTarget() then
+        return false
+    end
+
+    local now = os.time()
+    if (now - LastAggroHandle) < 2 then
+        return true
+    end
+    LastAggroHandle = now
+
+    LogInfo(string.format("%s Aggro detected (%s). Dismounting and clearing...", LogPrefix, context))
+
+    PathStop()
+    Dismount()
+    RotationON()
+    AiON()
+
+    local acquireTimeout = os.time() + 5
+    while not HasTarget() and os.time() < acquireTimeout do
+        Wait(0.2)
+    end
+
+    if HasTarget() then
+        LogInfo(string.format("%s Target acquired (%s). Switching to Manual...", LogPrefix, context))
+        RotationManual()
+    end
+
+    local combatTimeout = os.time() + 60
+    while IsInCombat() and os.time() < combatTimeout do
+        if not HasTarget() then
+            RotationON()
+            local reacquireTimeout = os.time() + 5
+            while not HasTarget() and os.time() < reacquireTimeout do
+                Wait(0.2)
+            end
+            if HasTarget() then
+                RotationManual()
+            end
+        end
+
+        Wait(0.2)
+    end
+
+    RotationOFF()
+    AiOFF()
+
+    LogInfo(string.format("%s Aggro cleared (%s). Resuming.", LogPrefix, context))
+    return true
+end
+
 function RunToAndWaitFate(fateId)
     LastAdjustTime = 0
     local lastSwitchAt = 0
@@ -716,20 +774,23 @@ function StartFarm(zoneId)
         local fate = PickBestFate()
         if not fate then
             CheckForSpecialFateAlerts()
+            local handled = HandleAggroWhileIdle("Waiting for FATE")
+
+            if not handled then
+                RotationOFF()
+                AiOFF()
+                LogInfo(string.format("%s No active FATEs found. Idling...", LogPrefix))
+                Wait(1)
+            end
             Mount()
-            RotationOFF()
-            AiOFF()
-            Wait(1)
         else
             local result = RunToAndWaitFate(fate.Id)
 
             if result == "ended" then
                 WaitForCombat(120)
             else
-                RotationOFF()
-                AiOFF()
                 LogInfo(string.format("%s FATE %s: %s.", LogPrefix, fate.Name, result))
-                Wait(0.1)
+                WaitForCombat(2)
             end
         end
 
