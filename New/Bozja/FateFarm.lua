@@ -824,7 +824,7 @@ function StartFarm(zoneId)
                 if not AllFilteredMsg then
                     AllFilteredMsg = true
                     WaitingNoFate  = false
-                    LogInfo(string.format("%s All active FATEs are either blacklisted or zones filtered. Idling...", LogPrefix))
+                    LogInfo(string.format("%s All active FATEs are either blacklisted or filtered. Idling...", LogPrefix))
                     RotationOFF()
                     AiOFF()
                     Mount()
