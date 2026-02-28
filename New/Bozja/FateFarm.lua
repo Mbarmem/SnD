@@ -52,6 +52,8 @@ configs:
 LastAdjustTime  = 0
 LastAggroHandle = 0
 StopFlag        = false
+WaitingNoFate   = false
+AllFilteredMsg  = false
 ZoneToFarm      = Config.Get("ZoneToFarm")
 UseBlacklist    = Config.Get("UseBlacklist")
 DisabledFates   = Config.Get("FateBlacklist")
@@ -301,6 +303,23 @@ function IsActiveState(state)
     return text == "Running" or text == "Active"
 end
 
+function HasAnyActiveFate()
+    local list  = Fates.GetActiveFates()
+    local count = (list and list.Count) or 0
+
+    if count == 0 then
+        return false
+    end
+
+    for i = 0, count - 1 do
+        local fate = list[i]
+        if fate and fate.Exists and IsActiveState(fate.State) then
+            return true
+        end
+    end
+    return false
+end
+
 function StayNearFateCenter(target)
     if not (target and target.Location) then
         return "ok"
@@ -440,7 +459,6 @@ function PickBestFate(block)
     end
 
     if not anyViable then
-        LogInfo(string.format("%s All active FATEs are blacklisted. Idling...", LogPrefix))
         return nil
     end
 
@@ -774,16 +792,32 @@ function StartFarm(zoneId)
         local fate = PickBestFate()
         if not fate then
             CheckForSpecialFateAlerts()
-            local handled = HandleAggroWhileIdle("Waiting for FATE")
+            HandleAggroWhileIdle("Waiting for FATE")
+            local anyActive = HasAnyActiveFate()
 
-            if not handled then
-                RotationOFF()
-                AiOFF()
-                LogInfo(string.format("%s No active FATEs found. Idling...", LogPrefix))
-                Wait(1)
+            if anyActive then
+                if not AllFilteredMsg then
+                    AllFilteredMsg = true
+                    WaitingNoFate  = false
+                    LogInfo(string.format("%s All active FATEs are blacklisted/filtered. Idling...", LogPrefix))
+                    RotationOFF()
+                    AiOFF()
+                    Mount()
+                end
+            else
+                if not WaitingNoFate then
+                    WaitingNoFate  = true
+                    AllFilteredMsg = false
+                    LogInfo(string.format("%s No active FATEs found. Idling...", LogPrefix))
+                    RotationOFF()
+                    AiOFF()
+                    Mount()
+                end
             end
-            Mount()
+            Wait(1)
         else
+            WaitingNoFate  = false
+            AllFilteredMsg = false
             local result = RunToAndWaitFate(fate.Id)
 
             if result == "ended" then
@@ -802,7 +836,6 @@ function StartFarm(zoneId)
     WaitForPlayer()
     RotationOFF()
     AiOFF()
-    WaitForPlayer()
 
     if IsInZone(zoneId) then
         LeaveInstance()
