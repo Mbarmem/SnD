@@ -767,10 +767,15 @@ for _, alliedSociety in ipairs(ToDoList) do
             local quests = {}
             local blackList = alliedSocietyTable.dailyQuests.blackList or {}
             local acceptedCount = 0
+            local blacklistedCount = 0
 
             for questId = alliedSocietyTable.dailyQuests.first, alliedSocietyTable.dailyQuests.last do
                 if acceptedCount >= maxToAccept then
                     break
+                end
+
+                if blackList[questId] then
+                    blacklistedCount = blacklistedCount + 1
                 end
 
                 if not QuestionableIsQuestLocked(tostring(questId)) and not blackList[questId] then
@@ -793,8 +798,9 @@ for _, alliedSociety in ipairs(ToDoList) do
                         Wait(0.1)
                     until Quests.IsQuestAccepted(questId)
 
+                    QuestionableClearQuestPriority()
                     acceptedCount = acceptedCount + 1
-                    Dalamud.Log(string.format("%s Accepted %d/%d quest(s) via Questionable.", LogPrefix, acceptedCount, maxToAccept))
+                    LogInfo(string.format("%s Accepted %d/%d quest(s) via Questionable.", LogPrefix, acceptedCount, maxToAccept))
 
                     timeout = os.time()
                     Execute("/qst stop")
@@ -803,6 +809,12 @@ for _, alliedSociety in ipairs(ToDoList) do
 
             for _, questId in ipairs(quests) do
                 QuestionableAddQuestPriority(tostring(questId))
+            end
+
+            if acceptedCount < maxToAccept and blacklistedCount > 0 then
+                LogInfo(string.format("%s %s | Eligible Quest(s): %d/%d | Blacklisted Quest(s): %d", LogPrefix, alliedSocietyTable.alliedSocietyName, acceptedCount, maxToAccept, blacklistedCount))
+            else
+                LogInfo(string.format("%s %s | Eligible Quest(s): %d/%d", LogPrefix, alliedSocietyTable.alliedSocietyName, acceptedCount, maxToAccept))
             end
         end
 
