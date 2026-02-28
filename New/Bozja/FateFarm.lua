@@ -663,9 +663,7 @@ function RunToAndWaitFate(fateId)
             ---------------------------------------------------------
 
             local stick = StayNearFateCenter(target)
-            if stick ~= "ok" and stick ~= "cooldown" then
-                LogInfo(string.format("%s Adjust: %s", LogPrefix, stick))
-            end
+            LogInfo(string.format("%s StayNearFateCenter: %s", LogPrefix, stick))
         else
             if FateQuickDespawned(fateId) then
                 return "despawned"
