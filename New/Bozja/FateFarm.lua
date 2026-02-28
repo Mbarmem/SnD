@@ -805,7 +805,7 @@ function StartFarm(zoneId)
 
     LogInfo(string.format("%s Starting FateFarm...", LogPrefix))
 
-    local timeout = os.time() + 9000  -- default 2 hours 30 mins in seconds
+    local timeout = os.time() + 10200  -- default 2 hours 50 mins in seconds
 
     while IsInZone(zoneId) do
         if os.time() >= timeout then
