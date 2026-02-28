@@ -655,7 +655,6 @@ function RunToAndWaitFate(fateId)
                 end
 
                 if HasTarget() then
-                    LogInfo(string.format("%s New target found! Switching back to Manual mode...", LogPrefix))
                     RotationManual()
                 end
             end
