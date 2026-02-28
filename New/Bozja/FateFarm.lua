@@ -52,6 +52,8 @@ configs:
 LastAdjustTime  = 0
 LastAggroHandle = 0
 LastLoopLog     = 0
+AiState         = false
+RotationState   = false
 StopFlag        = false
 WaitingNoFate   = false
 AllFilteredMsg  = false
@@ -728,30 +730,55 @@ function StanceOff()
 end
 
 function RotationON()
+    if RotationState == "auto" then
+        return
+    end
+
+    RotationState = "auto"
     LogInfo(string.format("%s Setting rotation to Auto mode...", LogPrefix))
     Execute("/rotation auto LowHP")
     Wait(0.5)
 end
 
 function RotationManual()
+    if RotationState == "manual" then
+        return
+    end
+
+    RotationState = "manual"
     LogInfo(string.format("%s Target acquired! Switching to Manual mode...", LogPrefix))
     Execute("/rotation manual")
     Wait(0.5)
 end
 
 function RotationOFF()
+    if RotationState == "off" then
+        return
+    end
+
+    RotationState = "off"
     LogInfo(string.format("%s Turning rotation OFF...", LogPrefix))
     Execute("/rotation off")
     Wait(0.5)
 end
 
 function AiON()
+    if AiState then
+        return
+    end
+
+    AiState = true
     LogInfo(string.format("%s Enabling BattleMod AI...", LogPrefix))
     Execute("/bmrai on")
     Wait(0.5)
 end
 
 function AiOFF()
+    if not AiState then
+        return
+    end
+
+    AiState = false
     LogInfo(string.format("%s Turning BattleMod AI OFF...", LogPrefix))
     Execute("/bmrai off")
     Wait(0.5)
