@@ -51,6 +51,7 @@ configs:
 
 LastAdjustTime  = 0
 LastAggroHandle = 0
+LastLoopLog     = 0
 StopFlag        = false
 WaitingNoFate   = false
 AllFilteredMsg  = false
@@ -527,7 +528,6 @@ function HandleAggroWhileIdle(context)
     end
 
     if HasTarget() then
-        LogInfo(string.format("%s Target acquired (%s). Switching to Manual...", LogPrefix, context))
         RotationManual()
     end
 
@@ -599,7 +599,6 @@ function RunToAndWaitFate(fateId)
 
                 -- STEP 3: Switch to MANUAL now that we are engaged
                 if HasTarget() then
-                    LogInfo(string.format("%s Target acquired! Switching to Manual mode...", LogPrefix))
                     RotationManual()
                 end
                 -- END OF ENGAGEMENT SETUP --
@@ -736,7 +735,7 @@ function RotationON()
 end
 
 function RotationManual()
-    LogInfo(string.format("%s Setting rotation to Manual mode...", LogPrefix))
+    LogInfo(string.format("%s Target acquired! Switching to Manual mode...", LogPrefix))
     Execute("/rotation manual")
     Wait(0.5)
 end
@@ -829,7 +828,12 @@ function StartFarm(zoneId)
         end
 
         StanceOff()
-        LogInfo(string.format("%s Looping FateFarm... TimeLeft=%d", LogPrefix, timeout - os.time()))
+        local now = os.time()
+
+        if (now - LastLoopLog) >= 30 then
+            LastLoopLog = now
+            LogInfo(string.format("%s Looping FateFarm... TimeLeft=%d", LogPrefix, timeout - now))
+        end
         Wait(0.1)
     end
 
