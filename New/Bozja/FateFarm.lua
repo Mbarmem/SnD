@@ -663,7 +663,9 @@ function RunToAndWaitFate(fateId)
             ---------------------------------------------------------
 
             local stick = StayNearFateCenter(target)
-            LogInfo(string.format("%s StayNearFateCenter: %s", LogPrefix, stick))
+            if stick ~= "ok" then
+                LogInfo(string.format("%s StayNearFateCenter: %s", LogPrefix, stick))
+            end
         else
             if FateQuickDespawned(fateId) then
                 return "despawned"
