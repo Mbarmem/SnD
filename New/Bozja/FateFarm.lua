@@ -746,7 +746,7 @@ function RotationManual()
     end
 
     RotationState = "manual"
-    LogInfo(string.format("%s Target acquired! Switching to Manual mode...", LogPrefix))
+    LogInfo(string.format("%s Target acquired! Switching rotation to Manual mode...", LogPrefix))
     Execute("/rotation manual")
     Wait(0.5)
 end
