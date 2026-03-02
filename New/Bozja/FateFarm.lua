@@ -50,7 +50,13 @@ configs:
 -------------------
 
 LastAdjustTime  = 0
+LastAggroHandle = 0
+LastLoopLog     = 0
+AiState         = false
+RotationState   = false
 StopFlag        = false
+WaitingNoFate   = false
+AllFilteredMsg  = false
 ZoneToFarm      = Config.Get("ZoneToFarm")
 UseBlacklist    = Config.Get("UseBlacklist")
 DisabledFates   = Config.Get("FateBlacklist")
@@ -300,6 +306,23 @@ function IsActiveState(state)
     return text == "Running" or text == "Active"
 end
 
+function HasAnyActiveFate()
+    local list  = Fates.GetActiveFates()
+    local count = (list and list.Count) or 0
+
+    if count == 0 then
+        return false
+    end
+
+    for i = 0, count - 1 do
+        local fate = list[i]
+        if fate and fate.Exists and IsActiveState(fate.State) then
+            return true
+        end
+    end
+    return false
+end
+
 function StayNearFateCenter(target)
     if not (target and target.Location) then
         return "ok"
@@ -439,7 +462,6 @@ function PickBestFate(block)
     end
 
     if not anyViable then
-        LogInfo(string.format("%s All active FATEs are blacklisted. Idling...", LogPrefix))
         return nil
     end
 
@@ -476,6 +498,62 @@ function WaitForCombat(maxWaitSeconds)
     end
     RotationOFF()
     AiOFF()
+end
+
+function HandleAggroWhileIdle(context)
+    context = context or "idle"
+
+    if not IsPlayerAvailable() then
+        return false
+    end
+
+    if not IsInCombat() and not HasTarget() then
+        return false
+    end
+
+    local now = os.time()
+    if (now - LastAggroHandle) < 2 then
+        return true
+    end
+    LastAggroHandle = now
+
+    LogInfo(string.format("%s Aggro detected (%s). Dismounting and clearing...", LogPrefix, context))
+
+    PathStop()
+    Dismount()
+    RotationON()
+    AiON()
+
+    local acquireTimeout = os.time() + 5
+    while not HasTarget() and os.time() < acquireTimeout do
+        Wait(0.2)
+    end
+
+    if HasTarget() then
+        RotationManual()
+    end
+
+    local combatTimeout = os.time() + 60
+    while IsInCombat() and os.time() < combatTimeout do
+        if not HasTarget() then
+            RotationON()
+            local reacquireTimeout = os.time() + 5
+            while not HasTarget() and os.time() < reacquireTimeout do
+                Wait(0.2)
+            end
+            if HasTarget() then
+                RotationManual()
+            end
+        end
+
+        Wait(0.2)
+    end
+
+    RotationOFF()
+    AiOFF()
+
+    LogInfo(string.format("%s Aggro cleared (%s). Resuming.", LogPrefix, context))
+    return true
 end
 
 function RunToAndWaitFate(fateId)
@@ -523,7 +601,6 @@ function RunToAndWaitFate(fateId)
 
                 -- STEP 3: Switch to MANUAL now that we are engaged
                 if HasTarget() then
-                    LogInfo(string.format("%s Target acquired! Switching to Manual mode...", LogPrefix))
                     RotationManual()
                 end
                 -- END OF ENGAGEMENT SETUP --
@@ -580,7 +657,6 @@ function RunToAndWaitFate(fateId)
                 end
 
                 if HasTarget() then
-                    LogInfo(string.format("%s New target found! Switching back to Manual mode...", LogPrefix))
                     RotationManual()
                 end
             end
@@ -588,7 +664,7 @@ function RunToAndWaitFate(fateId)
 
             local stick = StayNearFateCenter(target)
             if stick ~= "ok" and stick ~= "cooldown" then
-                LogInfo(string.format("%s Adjust: %s", LogPrefix, stick))
+                LogInfo(string.format("%s StayNearFateCenter: %s", LogPrefix, stick))
             end
         else
             if FateQuickDespawned(fateId) then
@@ -654,30 +730,55 @@ function StanceOff()
 end
 
 function RotationON()
+    if RotationState == "auto" then
+        return
+    end
+
+    RotationState = "auto"
     LogInfo(string.format("%s Setting rotation to Auto mode...", LogPrefix))
     Execute("/rotation auto LowHP")
     Wait(0.5)
 end
 
 function RotationManual()
-    LogInfo(string.format("%s Setting rotation to Manual mode...", LogPrefix))
+    if RotationState == "manual" then
+        return
+    end
+
+    RotationState = "manual"
+    LogInfo(string.format("%s Target acquired! Switching rotation to Manual mode...", LogPrefix))
     Execute("/rotation manual")
     Wait(0.5)
 end
 
 function RotationOFF()
+    if RotationState == "off" then
+        return
+    end
+
+    RotationState = "off"
     LogInfo(string.format("%s Turning rotation OFF...", LogPrefix))
     Execute("/rotation off")
     Wait(0.5)
 end
 
 function AiON()
+    if AiState then
+        return
+    end
+
+    AiState = true
     LogInfo(string.format("%s Enabling BattleMod AI...", LogPrefix))
     Execute("/bmrai on")
     Wait(0.5)
 end
 
 function AiOFF()
+    if not AiState then
+        return
+    end
+
+    AiState = false
     LogInfo(string.format("%s Turning BattleMod AI OFF...", LogPrefix))
     Execute("/bmrai off")
     Wait(0.5)
@@ -704,7 +805,7 @@ function StartFarm(zoneId)
 
     LogInfo(string.format("%s Starting FateFarm...", LogPrefix))
 
-    local timeout = os.time() + 7200  -- default 2 hours in seconds
+    local timeout = os.time() + 10200  -- default 2 hours 50 mins in seconds
 
     while IsInZone(zoneId) do
         if os.time() >= timeout then
@@ -716,32 +817,55 @@ function StartFarm(zoneId)
         local fate = PickBestFate()
         if not fate then
             CheckForSpecialFateAlerts()
-            Mount()
-            RotationOFF()
-            AiOFF()
+            HandleAggroWhileIdle("Waiting for FATE")
+            local anyActive = HasAnyActiveFate()
+
+            if anyActive then
+                if not AllFilteredMsg then
+                    AllFilteredMsg = true
+                    WaitingNoFate  = false
+                    LogInfo(string.format("%s All active FATEs are either blacklisted or filtered. Idling...", LogPrefix))
+                    RotationOFF()
+                    AiOFF()
+                    Mount()
+                end
+            else
+                if not WaitingNoFate then
+                    WaitingNoFate  = true
+                    AllFilteredMsg = false
+                    LogInfo(string.format("%s No active FATEs found. Idling...", LogPrefix))
+                    RotationOFF()
+                    AiOFF()
+                    Mount()
+                end
+            end
             Wait(1)
         else
+            WaitingNoFate  = false
+            AllFilteredMsg = false
             local result = RunToAndWaitFate(fate.Id)
 
             if result == "ended" then
                 WaitForCombat(120)
             else
-                RotationOFF()
-                AiOFF()
                 LogInfo(string.format("%s FATE %s: %s.", LogPrefix, fate.Name, result))
-                Wait(0.1)
+                WaitForCombat(2)
             end
         end
 
         StanceOff()
-        LogInfo(string.format("%s Looping FateFarm... TimeLeft=%d", LogPrefix, timeout - os.time()))
+        local now = os.time()
+
+        if (now - LastLoopLog) >= 30 then
+            LastLoopLog = now
+            LogInfo(string.format("%s Looping FateFarm... TimeLeft=%d", LogPrefix, timeout - now))
+        end
         Wait(0.1)
     end
 
     WaitForPlayer()
     RotationOFF()
     AiOFF()
-    WaitForPlayer()
 
     if IsInZone(zoneId) then
         LeaveInstance()
