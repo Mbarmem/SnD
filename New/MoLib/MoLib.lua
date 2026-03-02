@@ -1047,28 +1047,57 @@ end
 function MoveTo(x, y, z, stopDistance, fly)
     fly = fly or false
     stopDistance = stopDistance or 0.0
-
     local destination = Vector3(x, y, z)
+
+    local currentPos = Player.Entity.Position
+    local initialDist = math.sqrt((currentPos.X - x)^2 + (currentPos.Y - y)^2 + (currentPos.Z - z)^2)
+    if initialDist <= math.max(stopDistance, 1) then
+        LogDebug("[MoLib] MoveTo: Already at destination.")
+        return true
+    end
+
+    local clearRetries = 0
+    while PathfindInProgress() and clearRetries < 60 do
+        Wait(0.1)
+        clearRetries = clearRetries + 1
+    end
+
     local success = IPC.vnavmesh.PathfindAndMoveTo(destination, fly)
     if not success then
         LogDebug("[MoLib] Navmesh's PathfindAndMoveTo() failed to start pathing")
         return false
     end
-    LogDebug(string.format("[MoLib] Navmesh pathing has been issued → (%.3f, %.3f, %.3f)", x, y, z))
 
-    local startupRetries = 0
-    local maxStartupRetries = 10
-    while not PathIsRunning() and startupRetries < maxStartupRetries do
+    local handshakeTimeout = os.clock()
+    local pathStarted = false
+    while (os.clock() - handshakeTimeout) < 5 do
+        if PathfindInProgress() or PathIsRunning() then
+            pathStarted = true
+            LogDebug(string.format("[MoLib] Navmesh pathing has been issued → (%.3f, %.3f, %.3f)", x, y, z))
+            break
+        end
         Wait(0.1)
-        startupRetries = startupRetries + 1
     end
 
-    if not PathIsRunning() then
-        LogDebug("[MoLib] Navmesh failed to start movement after creating a path")
+    if not pathStarted then
+        LogDebug("[MoLib] Navmesh failed to acknowledge the pathing request")
         return false
     end
 
-    -- actively monitor movement
+    local lastLogTime = 0
+    while PathfindInProgress() do
+        if os.clock() - lastLogTime >= 5 then
+            LogDebug("[MoLib] MoveTo: Still calculating best path...")
+            lastLogTime = os.clock()
+        end
+        Wait(0.1)
+    end
+
+    if not PathIsRunning() then
+        LogDebug("[MoLib] Navmesh failed to transition to 'Running' state")
+        return false
+    end
+
     while PathIsRunning() do
         Wait(0.1)
 
@@ -1086,6 +1115,7 @@ function MoveTo(x, y, z, stopDistance, fly)
             end
         end
     end
+
     LogDebug("[MoLib] Navmesh is done pathing")
     return true
 end
