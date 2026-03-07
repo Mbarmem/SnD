@@ -1047,47 +1047,166 @@ end
 function MoveTo(x, y, z, stopDistance, fly)
     fly = fly or false
     stopDistance = stopDistance or 0.0
-
     local destination = Vector3(x, y, z)
+    local arrivalTolerance = 1.0
+
+    local initialDist = GetDistance(Player.Entity.Position, destination)
+    if initialDist <= math.max(stopDistance, arrivalTolerance) then
+        LogDebug("[MoLib] MoveTo: Already at destination.")
+        return true
+    end
+
+    if PathfindInProgress() or PathIsRunning() then
+        PathStop()
+        local clearRetries = 0
+        while (PathfindInProgress() or PathIsRunning()) and clearRetries < 60 do
+            Wait(0.1)
+            clearRetries = clearRetries + 1
+        end
+    end
+
     local success = IPC.vnavmesh.PathfindAndMoveTo(destination, fly)
     if not success then
         LogDebug("[MoLib] Navmesh's PathfindAndMoveTo() failed to start pathing")
         return false
     end
-    LogDebug(string.format("[MoLib] Navmesh pathing has been issued → (%.3f, %.3f, %.3f)", x, y, z))
 
-    local startupRetries = 0
-    local maxStartupRetries = 10
-    while not PathIsRunning() and startupRetries < maxStartupRetries do
+    local t0 = os.clock()
+    local pathStarted = false
+    while (os.clock() - t0) < 5 do
+        if PathfindInProgress() or PathIsRunning() then
+            pathStarted = true
+            LogDebug(string.format("[MoLib] Navmesh pathing issued → (%.3f, %.3f, %.3f)", x, y, z))
+            break
+        end
         Wait(0.1)
-        startupRetries = startupRetries + 1
     end
 
-    if not PathIsRunning() then
-        LogDebug("[MoLib] Navmesh failed to start movement after creating a path")
+    if not pathStarted then
+        LogDebug("[MoLib] Navmesh failed to acknowledge the pathing request")
         return false
     end
 
-    -- actively monitor movement
+    local lastLogTime = 0
+    while PathfindInProgress() do
+        if os.clock() - lastLogTime >= 5 then
+            LogDebug("[MoLib] MoveTo: Still calculating best path...")
+            lastLogTime = os.clock()
+        end
+        Wait(0.1)
+    end
+
+    if not PathIsRunning() then
+        LogDebug("[MoLib] Navmesh failed to transition to 'Running' state")
+        return false
+    end
+
+    local startTime = os.clock()
+    local maxSeconds = 120
+    local stuckSeconds = 6.0
+    local moveEpsilon = 0.05
+    local lastMoveTime = os.clock()
+    local lastPos = Player.Entity.Position
+    local didRebuild = false
+
     while PathIsRunning() do
         Wait(0.1)
 
         if stopDistance > 0 then
-            local pos = Player.Entity.Position
-            local dx = pos.X - x
-            local dy = pos.Y - y
-            local dz = pos.Z - z
-            local dist = math.sqrt(dx * dx + dy * dy + dz * dz)
-
+            local dist = GetDistance(Player.Entity.Position, destination)
             if dist <= stopDistance then
                 PathStop()
                 LogDebug(string.format("[MoLib] Navmesh has been stopped early at distance → %.2f", dist))
                 break
             end
         end
+
+        do
+            local p = Player.Entity.Position
+            local dx = p.X - lastPos.X
+            local dy = p.Y - lastPos.Y
+            local dz = p.Z - lastPos.Z
+            local moved = math.sqrt(dx * dx + dy * dy + dz * dz)
+
+            if moved >= moveEpsilon then
+                lastMoveTime = os.clock()
+                lastPos = p
+            end
+        end
+
+        if (os.clock() - lastMoveTime) >= stuckSeconds then
+            if not didRebuild then
+                didRebuild = true
+                LogDebug("[MoLib] MoveTo: Stuck detected → Rebuilding navmesh and retrying path.")
+                PathStop()
+
+                local clearRetries = 0
+                while (PathfindInProgress() or PathIsRunning()) and clearRetries < 60 do
+                    Wait(0.1)
+                    clearRetries = clearRetries + 1
+                end
+
+                IPC.vnavmesh.Rebuild()
+                Wait(1)
+
+                local ok = IPC.vnavmesh.PathfindAndMoveTo(destination, fly)
+                if not ok then
+                    LogDebug("[MoLib] MoveTo: PathfindAndMoveTo failed after Rebuild().")
+                    return false
+                end
+
+                local rt0 = os.clock()
+                local retryStarted = false
+                while (os.clock() - rt0) < 5 do
+                    if PathfindInProgress() or PathIsRunning() then
+                        retryStarted = true
+                        LogDebug("[MoLib] MoveTo: Retry pathing acknowledged after Rebuild().")
+                        break
+                    end
+                    Wait(0.1)
+                end
+
+                if not retryStarted then
+                    LogDebug("[MoLib] MoveTo: Retry pathing not acknowledged after Rebuild().")
+                    return false
+                end
+
+                while PathfindInProgress() do
+                    Wait(0.1)
+                end
+
+                if not PathIsRunning() then
+                    LogDebug("[MoLib] MoveTo: Retry failed to transition to 'Running' after Rebuild().")
+                    return false
+                end
+
+                startTime = os.clock()
+                lastMoveTime = os.clock()
+                lastPos = Player.Entity.Position
+            else
+                LogDebug("[MoLib] MoveTo: Still stuck after Rebuild() → giving up.")
+                PathStop()
+                return false
+            end
+        end
+
+        if (os.clock() - startTime) > maxSeconds then
+            PathStop()
+            LogDebug("[MoLib] MoveTo: Timed out, stopping path.")
+            return false
+        end
     end
-    LogDebug("[MoLib] Navmesh is done pathing")
-    return true
+
+    local finalDist = GetDistance(Player.Entity.Position, destination)
+    local okDist = (stopDistance > 0) and stopDistance or arrivalTolerance
+
+    if finalDist <= okDist then
+        LogDebug("[MoLib] Navmesh is done pathing (arrived).")
+        return true
+    end
+
+    LogDebug(string.format("[MoLib] Navmesh ended but not close enough (dist=%.2f).", finalDist))
+    return false
 end
 
 --------------------------------------------------------------------
