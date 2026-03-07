@@ -784,12 +784,8 @@ for _, alliedSociety in ipairs(ToDoList) do
                     QuestionableAddQuestPriority(tostring(questId))
 
                     repeat
-                        if not QuestionableIsRunning() then
+                        if not QuestionableIsRunning() and not Quests.IsQuestAccepted(questId) then
                             Execute("/qst start")
-                        elseif IsPlayerCasting() then
-                            PathMoveDir(0, 0, 0.5)
-                        elseif PathIsRunning() then
-                            PathStop()
                         elseif os.time() - timeout > 15 then
                             LogInfo(string.format("%s Took more than 15 seconds to pick up the quest. Reloading...", LogPrefix))
                             Execute("/qst reload")
@@ -826,6 +822,7 @@ for _, alliedSociety in ipairs(ToDoList) do
         until #GetAcceptedAlliedSocietyQuests(alliedSocietyTable.alliedSocietyName) == 0
 
         Execute("/qst stop")
+        QuestionableClearQuestPriority()
     else
         LogInfo(string.format("%s Allied society '%s' not found in data table.", LogPrefix, alliedSociety.alliedSocietyName))
     end
