@@ -794,12 +794,11 @@ for _, alliedSociety in ipairs(ToDoList) do
                         Wait(0.1)
                     until Quests.IsQuestAccepted(questId)
 
+                    Execute("/qst stop")
                     QuestionableClearQuestPriority()
+                    timeout = os.time()
                     acceptedCount = acceptedCount + 1
                     LogInfo(string.format("%s Accepted %d/%d quest(s) via Questionable.", LogPrefix, acceptedCount, maxToAccept))
-
-                    timeout = os.time()
-                    Execute("/qst stop")
                 end
             end
 
