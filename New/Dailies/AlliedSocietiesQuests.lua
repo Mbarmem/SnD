@@ -564,7 +564,7 @@ AlliedSocietiesTable = {
         aetheryteName     = GetPlaceName(3057), -- "The Ostall Imperative"
         expac             = "Shadowbringers"
     },
-    arkosodara = {
+    arkasodara = {
         alliedSocietyName = "Arkasodara",
         questGiver        = GetNPCName(1042257), -- "Maru"
         mainQuests        = { first = 4545, last = 4550 },
@@ -672,21 +672,26 @@ end
 
 function GetAlliedSocietyTable(selectedName)
     for _, alliedSociety in pairs(AlliedSocietiesTable) do
-        if alliedSociety.configName and alliedSociety.configName == selectedName then
+        if alliedSociety.configName == selectedName then
             return alliedSociety
         end
+    end
+
+    for _, alliedSociety in pairs(AlliedSocietiesTable) do
         if alliedSociety.alliedSocietyName == selectedName then
             return alliedSociety
         end
     end
+
+    return nil
 end
 
 function GetAcceptedAlliedSocietyQuests(alliedSocietyName)
     local accepted = {}
     local allAcceptedQuests = Quests.GetAcceptedQuests()
-    local count = allAcceptedQuests.Count
+    local count = allAcceptedQuests.Count - 1
 
-    for i = 0, count - 1 do
+    for i = 0, count do
         local allAcceptedQuestId = allAcceptedQuests[i]
         local row = Excel.GetRow("Quest", allAcceptedQuestId)
 
@@ -749,56 +754,102 @@ for _, alliedSociety in ipairs(ToDoList) do
 
         if ManualQuestPickup then
             for i = 1, maxToAccept do
+                local acceptedNow = #GetAcceptedAlliedSocietyQuests(alliedSocietyTable.alliedSocietyName)
+
+                if acceptedNow >= 3 then
+                    break
+                end
+
                 Target(alliedSocietyTable.questGiver)
                 Interact(alliedSocietyTable.questGiver)
 
-                repeat
-                    Wait(1)
-                until IsAddonReady("SelectIconString")
-                Execute("/callback SelectIconString true 0")
+                local menuStart   = os.time()
+                local menuOpened  = false
+                local menuTimeout = 10
 
                 repeat
-                    Wait(0.1)
-                until IsPlayerAvailable()
+                    if IsAddonReady("SelectIconString") then
+                        menuOpened = true
+                        break
+                    end
+
+                    if os.time() - menuStart > menuTimeout then
+                        LogInfo(string.format("%s Timed out waiting for quest window from '%s'.", LogPrefix, alliedSocietyTable.questGiver))
+                        break
+                    end
+
+                    Wait(1)
+                until false
+
+                if not menuOpened then
+                    LogInfo(string.format("%s Skipping manual pickup attempt %d/%d for '%s'.", LogPrefix, i, maxToAccept, alliedSocietyTable.alliedSocietyName))
+                    break
+                end
+
+                Execute("/callback SelectIconString true 0")
+                local busyStart   = os.time()
+                local busyTimeout = 10
+
+                repeat
+                    if IsPlayerAvailable() then
+                        break
+                    end
+
+                    if os.time() - busyStart > busyTimeout then
+                        LogInfo(string.format("%s Timed out waiting for manual quest pickup %d/%d to complete for '%s'.", LogPrefix, i, maxToAccept, alliedSocietyTable.alliedSocietyName))
+                        break
+                    end
+
+                    Wait(1)
+                until false
+
+                acceptedNow = #GetAcceptedAlliedSocietyQuests(alliedSocietyTable.alliedSocietyName)
                 LogInfo(string.format("%s Accepted %d/%d quest(s) via quest giver.", LogPrefix, i, maxToAccept))
             end
         else
-            local timeout = os.time()
-            local quests = {}
-            local blackList = alliedSocietyTable.dailyQuests.blackList or {}
-            local acceptedCount = 0
-            local blacklistedCount = 0
+            local timeout
+            local quests            = {}
+            local blackList         = alliedSocietyTable.dailyQuests.blackList or {}
+            local acceptedCount     = 0
+            local blacklistedCount  = 0
 
             for questId = alliedSocietyTable.dailyQuests.first, alliedSocietyTable.dailyQuests.last do
                 if acceptedCount >= maxToAccept then
                     break
                 end
 
-                if blackList[questId] then
-                    blacklistedCount = blacklistedCount + 1
-                end
+                if not QuestionableIsQuestLocked(tostring(questId)) then
+                    if blackList[questId] then
+                        blacklistedCount = blacklistedCount + 1
+                    else
+                        QuestionableClearQuestPriority()
+                        QuestionableAddQuestPriority(tostring(questId))
+                        timeout = os.time()
 
-                if not QuestionableIsQuestLocked(tostring(questId)) and not blackList[questId] then
-                    table.insert(quests, questId)
-                    QuestionableClearQuestPriority()
-                    QuestionableAddQuestPriority(tostring(questId))
+                        repeat
+                            if not QuestionableIsRunning() and not Quests.IsQuestAccepted(questId) then
+                                Execute("/qst start")
+                            elseif IsPlayerCasting() then
+                                PathMoveDir(0, 0, 0.5)
+                            elseif PathIsRunning() then
+                                PathStop()
+                            elseif os.time() - timeout > 15 then
+                                LogInfo(string.format("%s Took more than 15 seconds to pick up the quest. Reloading...", LogPrefix))
+                                Execute("/qst reload")
+                                timeout = os.time()
+                            end
+                            Wait(0.1)
+                        until Quests.IsQuestAccepted(questId)
 
-                    repeat
-                        if not QuestionableIsRunning() and not Quests.IsQuestAccepted(questId) then
-                            Execute("/qst start")
-                        elseif os.time() - timeout > 15 then
-                            LogInfo(string.format("%s Took more than 15 seconds to pick up the quest. Reloading...", LogPrefix))
-                            Execute("/qst reload")
-                            timeout = os.time()
+                        Execute("/qst stop")
+                        QuestionableClearQuestPriority()
+
+                        if Quests.IsQuestAccepted(questId) then
+                            table.insert(quests, questId)
+                            acceptedCount = acceptedCount + 1
+                            LogInfo(string.format("%s Accepted %d/%d quest(s) via Questionable.", LogPrefix, acceptedCount, maxToAccept))
                         end
-                        Wait(0.1)
-                    until Quests.IsQuestAccepted(questId)
-
-                    Execute("/qst stop")
-                    QuestionableClearQuestPriority()
-                    timeout = os.time()
-                    acceptedCount = acceptedCount + 1
-                    LogInfo(string.format("%s Accepted %d/%d quest(s) via Questionable.", LogPrefix, acceptedCount, maxToAccept))
+                    end
                 end
             end
 
