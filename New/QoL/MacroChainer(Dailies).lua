@@ -24,6 +24,7 @@ local LogPrefix          = "[MacroChainer]"
 local MacrosToRun        = {
     { macroName = "MiniCactpot",            echoTrigger = "MiniCactpot"  },
     { macroName = "TTSeller",               echoTrigger = "TTSeller"     },
+    { macroName = "PoeticsDump",            echoTrigger = "PoeticsDump"  },
     { macroName = "AlliedSocietiesQuests", 	echoTrigger = "AlliedQuests" },
 }
 
