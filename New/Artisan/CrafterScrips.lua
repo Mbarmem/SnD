@@ -455,16 +455,18 @@ function Checks()
         end
     end
 
-    if not ClassId then
-        Echo(string.format("Could not find crafter class: %s", CrafterClass), LogPrefix)
-        LogInfo(string.format("%s Could not find crafter class: %s", LogPrefix, CrafterClass))
-        StopRunningMacros()
-    elseif not GetClassJobId(ClassId) then
-        Execute(string.format("/gs change %s", CrafterClass))
+    if not EnsureCrafterJob() then
+        if not ClassId then
+            Echo(string.format("Could not find crafter class: %s", CrafterClass), LogPrefix)
+            LogInfo(string.format("%s Could not find crafter class: %s", LogPrefix, CrafterClass))
+            StopRunningMacros()
+            return
+        end
+
+        LogInfo(string.format("%s Crafter class is: %s", LogPrefix, CrafterClass))
+    else
         Wait(1)
         LogInfo(string.format("%s Crafter class changed to: %s", LogPrefix, CrafterClass))
-    else
-        LogInfo(string.format("%s Crafter class is: %s", LogPrefix, CrafterClass))
     end
 
     if ScripColor == "Orange" then
@@ -489,6 +491,28 @@ function Checks()
         LogInfo(string.format("%s Could not find %s on the list of scrip exchange items.", LogPrefix, ItemToBuy))
         StopRunningMacros()
     end
+end
+
+function EnsureCrafterJob()
+    local player = Svc.ClientState.LocalPlayer
+    if not player then
+        return false
+    end
+
+    for _, class in pairs(ClassList) do
+        if CrafterClass == class.className then
+            ClassId = class.classId
+            if player.ClassJob.RowId ~= class.classId then
+                Execute(string.format("/gs change %d", class.classId))
+                return true
+            end
+            return false
+        end
+    end
+
+    Echo(string.format("Could not find crafter class: %s", tostring(CrafterClass)), LogPrefix)
+    LogInfo(string.format("%s Could not find crafter class: %s", LogPrefix, tostring(CrafterClass)))
+    return false
 end
 
 ----------------
@@ -794,6 +818,10 @@ function CanTurnin()
 end
 
 function CollectableAppraiserScripExchange()
+    if EnsureCrafterJob() then
+        Wait(1)
+    end
+
     if DoScrips then
         while CanTurnin() do
             CollectableAppraiser()
