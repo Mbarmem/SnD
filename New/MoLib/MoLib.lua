@@ -1050,7 +1050,13 @@ function MoveTo(x, y, z, stopDistance, fly)
     local destination = Vector3(x, y, z)
     local arrivalTolerance = 1.0
 
-    local initialDist = GetDistance(Player.Entity.Position, destination)
+    local playerPos = GetPlayerPosition()
+    if not playerPos then
+        LogDebug("[MoLib] MoveTo: Player position unavailable.")
+        return false
+    end
+
+    local initialDist = GetDistance(playerPos, destination)
     if initialDist <= math.max(stopDistance, arrivalTolerance) then
         LogDebug("[MoLib] MoveTo: Already at destination.")
         return true
@@ -1106,14 +1112,21 @@ function MoveTo(x, y, z, stopDistance, fly)
     local stuckSeconds = 6.0
     local moveEpsilon = 0.05
     local lastMoveTime = os.clock()
-    local lastPos = Player.Entity.Position
+    local lastPos = playerPos
     local didRebuild = false
 
     while PathIsRunning() do
         Wait(0.1)
 
         if stopDistance > 0 then
-            local dist = GetDistance(Player.Entity.Position, destination)
+            local currentPos = GetPlayerPosition()
+            if not currentPos then
+                PathStop()
+                LogDebug("[MoLib] MoveTo: Player position became unavailable while pathing.")
+                return false
+            end
+
+            local dist = GetDistance(currentPos, destination)
             if dist <= stopDistance then
                 PathStop()
                 LogDebug(string.format("[MoLib] Navmesh has been stopped early at distance → %.2f", dist))
@@ -1122,15 +1135,21 @@ function MoveTo(x, y, z, stopDistance, fly)
         end
 
         do
-            local p = Player.Entity.Position
-            local dx = p.X - lastPos.X
-            local dy = p.Y - lastPos.Y
-            local dz = p.Z - lastPos.Z
+            local currentPos = GetPlayerPosition()
+            if not currentPos then
+                PathStop()
+                LogDebug("[MoLib] MoveTo: Player position became unavailable while tracking movement.")
+                return false
+            end
+
+            local dx = currentPos.X - lastPos.X
+            local dy = currentPos.Y - lastPos.Y
+            local dz = currentPos.Z - lastPos.Z
             local moved = math.sqrt(dx * dx + dy * dy + dz * dz)
 
             if moved >= moveEpsilon then
                 lastMoveTime = os.clock()
-                lastPos = p
+                lastPos = currentPos
             end
         end
 
@@ -1182,7 +1201,7 @@ function MoveTo(x, y, z, stopDistance, fly)
 
                 startTime = os.clock()
                 lastMoveTime = os.clock()
-                lastPos = Player.Entity.Position
+                lastPos = GetPlayerPosition() or lastPos
             else
                 LogDebug("[MoLib] MoveTo: Still stuck after Rebuild() → giving up.")
                 PathStop()
@@ -1197,7 +1216,13 @@ function MoveTo(x, y, z, stopDistance, fly)
         end
     end
 
-    local finalDist = GetDistance(Player.Entity.Position, destination)
+    local finalPos = GetPlayerPosition()
+    if not finalPos then
+        LogDebug("[MoLib] MoveTo: Player position unavailable after pathing.")
+        return false
+    end
+
+    local finalDist = GetDistance(finalPos, destination)
     local okDist = (stopDistance > 0) and stopDistance or arrivalTolerance
 
     if finalDist <= okDist then
@@ -1211,13 +1236,30 @@ end
 
 --------------------------------------------------------------------
 
+--- Returns the current player position from the most reliable SND Lua source
+--- @return userdata|nil position    current player position, or nil if unavailable
+function GetPlayerPosition()
+    if Player and Player.Entity and Player.Entity.Position then
+        return Player.Entity.Position
+    end
+
+    if Entity and Entity.Player and Entity.Player.Position then
+        return Entity.Player.Position
+    end
+
+    return nil
+end
+
+--------------------------------------------------------------------
+
 --- Finds the nearest object whose name contains the given substring (case-insensitive)
 --- @param targetName string            substring to search for in object names
 --- @return object|nil closestObject    the nearest matching object, or nil if none found
 --- @return number closestDistance      the distance to the nearest object, or math.huge if none found
 function FindNearestObjectByName(targetName)
-    local player = Svc.ClientState.LocalPlayer
-    if not player or not player.Position then
+    local playerPos = GetPlayerPosition()
+
+    if not playerPos then
         LogDebug("[MoLib] FindNearestObjectByName: Player position unavailable")
         return nil, math.huge
     end
@@ -1227,10 +1269,13 @@ function FindNearestObjectByName(targetName)
 
     for i = 0, Svc.Objects.Length - 1 do
         local obj = Svc.Objects[i]
+
         if obj then
             local name = obj.Name and obj.Name.TextValue
+
             if name and string.find(string.lower(name), string.lower(targetName)) then
-                local distance = GetDistance(obj.Position, player.Position)
+                local distance = GetDistance(obj.Position, playerPos)
+
                 if distance < closestDistance then
                     closestDistance = distance
                     closestObject = obj
@@ -1242,10 +1287,12 @@ function FindNearestObjectByName(targetName)
     if closestObject then
         local name = closestObject.Name.TextValue
         local pos = closestObject.Position
+
         LogDebug(string.format("[MoLib] Found nearest '%s': %s (%.2f units) | X: %.3f, Y: %.3f, Z: %.3f", targetName, name, closestDistance, pos.X, pos.Y, pos.Z))
     else
         LogDebug(string.format("[MoLib] No object matching '%s' found nearby", targetName))
     end
+
     return closestObject, closestDistance
 end
 
@@ -1323,15 +1370,16 @@ end
 --- @param dZ number           destination Z coordinate
 --- @return number distance    the distance to the point, or math.huge if player position is unavailable
 function GetDistanceToPoint(dX, dY, dZ)
-    local player = Svc.ClientState.LocalPlayer
-    if not player or not player.Position then
+    local playerPos = GetPlayerPosition()
+
+    if not playerPos then
         LogDebug("[MoLib] GetDistanceToPoint: Player position unavailable")
         return math.huge
     end
 
-    local px = player.Position.X
-    local py = player.Position.Y
-    local pz = player.Position.Z
+    local px = playerPos.X
+    local py = playerPos.Y
+    local pz = playerPos.Z
 
     local dx = dX - px
     local dy = dY - py
@@ -1532,8 +1580,9 @@ end
 --- Calculates the distance between the player and the current target
 --- @return number? distance    the distance in game units, or nil if player or target is unavailable
 function GetDistanceToTarget()
-    if not Entity or not Entity.Player then
-        LogDebug(string.format("[MoLib] Entity.Player is not available"))
+    local playerPos = GetPlayerPosition()
+    if not playerPos then
+        LogDebug(string.format("[MoLib] Player position is not available"))
         return nil
     end
 
@@ -1542,7 +1591,6 @@ function GetDistanceToTarget()
         return nil
     end
 
-    local playerPos = Entity.Player.Position
     local targetPos = Entity.Target.Position
 
     local dx = playerPos.X - targetPos.X
@@ -1944,7 +1992,7 @@ function Dismount()
 
         if (os.clock() - startTime) > 5 then
             LogDebug("[MoLib] Dismount taking too long, moving slightly to reset...")
-            local position = Player and Player.Entity and Player.Entity.Position
+            local position = GetPlayerPosition()
             if position then
                 MoveTo(position.X + 1, position.Y, position.Z)
                 Wait(2)
