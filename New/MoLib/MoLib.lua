@@ -262,6 +262,22 @@ end
 
 --------------------------------------------------------------------
 
+--- Returns the current player position from the most reliable SND Lua source
+--- @return userdata|nil position    current player position, or nil if unavailable
+function GetPlayerPosition()
+    if Player and Player.Entity and Player.Entity.Position then
+        return Player.Entity.Position
+    end
+
+    if Entity and Entity.Player and Entity.Player.Position then
+        return Entity.Player.Position
+    end
+
+    return nil
+end
+
+--------------------------------------------------------------------
+
 --- Returns the current player's character name
 --- @return string|nil name    the character name, or nil if unavailable
 function GetCharacterName()
@@ -1232,22 +1248,6 @@ function MoveTo(x, y, z, stopDistance, fly)
 
     LogDebug(string.format("[MoLib] Navmesh ended but not close enough (dist=%.2f).", finalDist))
     return false
-end
-
---------------------------------------------------------------------
-
---- Returns the current player position from the most reliable SND Lua source
---- @return userdata|nil position    current player position, or nil if unavailable
-function GetPlayerPosition()
-    if Player and Player.Entity and Player.Entity.Position then
-        return Player.Entity.Position
-    end
-
-    if Entity and Entity.Player and Entity.Player.Position then
-        return Entity.Player.Position
-    end
-
-    return nil
 end
 
 --------------------------------------------------------------------
