@@ -276,13 +276,13 @@ end
 
 function FindNearestByName(wantName, maxDist)
     maxDist = maxDist or 80
-    local me = Svc.Objects.LocalPlayer
-    if not me then return nil end
+    local playerPos = GetPlayerPosition()
+    if not playerPos then return nil end
     local best, bestD = nil, 999999
     for o in luanet.each(Svc.Objects) do
         local n = ObjName(o)
         if n and n == wantName and o.Position then
-            local d = GetDistance(me.Position, o.Position)
+            local d = GetDistance(playerPos, o.Position)
             if d < bestD and d <= maxDist then
                 best, bestD = o, d
             end
@@ -481,8 +481,8 @@ function DiscoverZoneHub(zone)
     if bell and bell.Position then
         zone.gateHub = PosFrom(bell.Position) -- table
     else
-        local me = Svc.Objects.LocalPlayer
-        zone.gateHub = (me and me.Position) and PosFrom(me.Position) or zone.gateHub -- table
+        local playerPos = GetPlayerPosition()
+        zone.gateHub = playerPos and PosFrom(playerPos) or zone.gateHub -- table
     end
 
     if zone.creditNpc and zone.creditNpc.position then
