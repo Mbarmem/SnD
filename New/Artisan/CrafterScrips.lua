@@ -494,15 +494,15 @@ function Checks()
 end
 
 function EnsureCrafterJob()
-    local player = Svc.Objects.LocalPlayer
-    if not player then
+    local currentJobId = Player and Player.Job and Player.Job.Id
+    if not currentJobId then
         return false
     end
 
     for _, class in pairs(ClassList) do
         if CrafterClass == class.className then
             ClassId = class.classId
-            if player.ClassJob.RowId ~= class.classId then
+            if currentJobId ~= class.classId then
                 Execute(string.format("/gs change %d", class.classId))
                 return true
             end

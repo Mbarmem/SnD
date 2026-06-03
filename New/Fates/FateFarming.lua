@@ -1057,8 +1057,8 @@ function MoveToTargetHitbox()
     if Svc.Targets.Target == nil then
         return
     end
-    local playerPos = Svc.Objects.LocalPlayer.Position
-    local targetPos = Svc.Targets.Target.Position
+    local playerPos = Player.Entity.Position
+    local targetPos = Entity.Target.Position
     local distance = GetDistanceToTarget()
     if distance == 0 then return end
     local desiredRange = math.max(0.1, GetTargetHitboxRadius() + GetPlayerHitboxRadius() + MaxDistance)
@@ -1404,12 +1404,12 @@ function DistanceBetween(pos1, pos2)
 end
 
 function GetDistanceToPoint(vec3)
-    return DistanceBetween(Svc.Objects.LocalPlayer.Position, vec3)
+    return DistanceBetween(Player.Entity.Position, vec3)
 end
 
 function GetDistanceToTarget()
     if Svc.Targets.Target ~= nil then
-        return GetDistanceToPoint(Svc.Targets.Target.Position)
+        return GetDistanceToPoint(Entity.Target.Position)
     else
         return math.maxinteger
     end
@@ -1417,14 +1417,14 @@ end
 
 function GetDistanceToTargetFlat()
     if Svc.Targets.Target ~= nil then
-        return GetDistanceToPointFlat(Svc.Targets.Target.Position)
+        return GetDistanceToPointFlat(Entity.Target.Position)
     else
         return math.maxinteger
     end
 end
 
 function GetDistanceToPointFlat(vec3)
-    return DistanceBetweenFlat(Svc.Objects.LocalPlayer.Position, vec3)
+    return DistanceBetweenFlat(Player.Entity.Position, vec3)
 end
 
 function DistanceBetweenFlat(pos1, pos2)
@@ -1730,7 +1730,7 @@ function FlyBackToAetheryte()
         return
     end
 
-    local closestAetheryte = GetClosestAetheryte(Svc.Objects.LocalPlayer.Position, 0)
+    local closestAetheryte = GetClosestAetheryte(Player.Entity.Position, 0)
     if closestAetheryte == nil then
         DownTimeWaitAtNearestAetheryte = false
         Engines.Run("/echo Could not find aetheryte in the area. Turning off feature to fly back to aetheryte.")
@@ -1781,7 +1781,7 @@ end
 
 HasFlownUpYet = false
 function MoveToRandomNearbySpot(minDist, maxDist)
-    local playerPos = Svc.Objects.LocalPlayer.Position
+    local playerPos = Player.Entity.Position
     local angle = math.random() * 2 * math.pi
     local distance = minDist + math.random() * (maxDist - minDist)
     local dx = math.cos(angle) * distance
@@ -1831,7 +1831,7 @@ function Dismount()
 
             if Svc.Condition[CharacterCondition.flying] and GetDistanceToPoint(LastStuckCheckPosition) < 2 then
                 Dalamud.Log("[FATE] Unable to dismount here. Moving to another spot.")
-                local random = RandomAdjustCoordinates(Svc.Objects.LocalPlayer.Position, 10)
+                local random = RandomAdjustCoordinates(Player.Entity.Position, 10)
                 local nearestFloor = IPC.vnavmesh.PointOnFloor(random, true, 100)
                 if nearestFloor ~= nil then
                     IPC.vnavmesh.PathfindAndMoveTo(nearestFloor, Svc.Condition[CharacterCondition.flying] and SelectedZone.flying)
@@ -1840,7 +1840,7 @@ function Dismount()
             end
 
             LastStuckCheckTime = now
-            LastStuckCheckPosition = Svc.Objects.LocalPlayer.Position
+            LastStuckCheckPosition = Player.Entity.Position
         end
     elseif Svc.Condition[CharacterCondition.mounted] then
         Engines.Run('/ac dismount')
@@ -1990,12 +1990,12 @@ function MoveToFate()
                 Engines.Run("/vnav stop")
                 yield("/wait 1")
                 Dalamud.Log("[FATE] Antistuck")
-                local up10 = Svc.Objects.LocalPlayer.Position + Vector3(0, 10, 0)
+                local up10 = Player.Entity.Position + Vector3(0, 10, 0)
                 IPC.vnavmesh.PathfindAndMoveTo(up10, Svc.Condition[CharacterCondition.flying] and SelectedZone.flying) -- fly up 10 then try again
             end
 
             LastStuckCheckTime = now
-            LastStuckCheckPosition = Svc.Objects.LocalPlayer.Position
+            LastStuckCheckPosition = Player.Entity.Position
         end
         return
     end
@@ -2062,7 +2062,7 @@ function InteractWithFateNpc()
             return
         end
 
-        if GetDistanceToPoint(Svc.Targets.Target.Position) > 5 then
+        if GetDistanceToPoint(Entity.Target.Position) > 5 then
             MoveToNPC()
             return
         end
@@ -2234,8 +2234,8 @@ function GetTargetHitboxRadius()
 end
 
 function GetPlayerHitboxRadius()
-    if Svc.Objects.LocalPlayer ~= nil then
-        return Svc.Objects.LocalPlayer.HitboxRadius
+    if Player and Player.Entity ~= nil then
+        return Player.Entity.HitboxRadius
     else
         return 0
     end
@@ -3109,12 +3109,13 @@ function EorzeaTimeToUnixTime(eorzeaTime)
 end
 
 function HasStatusId(statusId)
-    local statusList = Svc.Objects.LocalPlayer.StatusList
+    local statusList = Player.Status
     if statusList == nil then
         return false
     end
-    for i=0, statusList.Length-1 do
-        if statusList[i].StatusId == statusId then
+    for i=0, statusList.Count-1 do
+        local status = statusList:get_Item(i)
+        if status and status.StatusId == statusId then
             return true
         end
     end
