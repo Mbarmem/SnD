@@ -23,8 +23,8 @@ configs:
     default: []
   Lunar Credits Limit:
     description: |
-      Maximum number of Credits before missions will pause for Gamba.
-      Match this with "Stop at Lunar Credits" in ICE to synchronize behavior.
+      Maximum number of current star credits before missions will pause for Gamba.
+      Match this with the corresponding "Stop at Credits" setting in ICE to synchronize behavior.
       -- Enable Gamba under Gamble Wheel in ICE settings. --
       Set to 0 to disable the limit.
     default: 0
@@ -32,7 +32,7 @@ configs:
     max: 10000
   Report Failed Missions:
     description: |
-      Enable to report missions that failed to reach scoreing tier.
+      Enable to report missions that failed to reach scoring tier.
     default: false
   EX+ 4hr Timed Missions:
     description: |
@@ -139,6 +139,14 @@ ExJobs2H_Oizys = {
     [20] = {Jobs[13].abbr}, -- WVR
 }
 
+ExJobs4H_Auxesia = {
+    [4]  = {Jobs[15].abbr, Jobs[14].abbr},                -- CUL, ALC
+    [12] = {Jobs[8].abbr, Jobs[12].abbr, Jobs[13].abbr},  -- CRP, LTW, WVR
+    [20] = {Jobs[11].abbr, Jobs[9].abbr, Jobs[10].abbr},  -- GSM, BSM, ARM
+}
+
+ExJobs2H_Auxesia = {}
+
 ExJobs4H = ExJobs4H_Default
 ExJobs2H = ExJobs2H_Default
 
@@ -149,6 +157,7 @@ ExJobs2H = ExJobs2H_Default
 SinusTerritory   = 1237
 PhaennaTerritory = 1291
 OizysTerritory   = 1504
+AuxesiaTerritory = 1319
 
 Zones = {
     sinus = {
@@ -173,10 +182,19 @@ Zones = {
         key        = "oizys",
         match      = {"oizys"},
         gateHub    = nil,
-        creditNpc  = { id = nil, name = "Orbitingway", position = nil },
+        creditNpc  = { id = 1052652, name = nil, position = nil }, -- resolved on discovery
         spots      = {},
         discovered = false,
         isOizys    = true,
+    },
+    auxesia = {
+        key        = "auxesia",
+        match      = {"auxesia"},
+        gateHub    = nil,
+        creditNpc  = { id = 1056826, name = nil, position = nil }, -- resolved on discovery
+        spots      = {},
+        discovered = false,
+        isOizys    = false,
     }
 }
 
@@ -317,7 +335,7 @@ function PrePositionAtBell()
 
     if bellObj and bellObj.Position then
         target = PosFrom(bellObj.Position)
-    elseif ActiveZone.gateHub then
+    elseif ActiveZone and ActiveZone.gateHub then
         target = ActiveZone.gateHub
     end
 
@@ -341,14 +359,14 @@ function CurrentexJobs2H()
     local h = GetEorzeaHour()
     local slot = math.floor(h / 2) * 2
     local jobs = ExJobs2H[slot]
-    return jobs and jobs[1] or nil
+    return PickCraftingJob(jobs)
 end
 
 function CurrentexJobs4H()
     local h = GetEorzeaHour()
     local slot = math.floor(h / 4) * 4
     local jobs = ExJobs4H[slot]
-    return jobs and jobs[1] or nil
+    return PickCraftingJob(jobs)
 end
 
 function IsDoLAbbr(abbr)
@@ -359,6 +377,18 @@ function IsDoHAbbr(abbr)
     return abbr == "CRP" or abbr == "BSM" or abbr == "ARM" or abbr == "GSM" or abbr == "LTW" or abbr == "WVR" or abbr == "ALC" or abbr == "CUL"
 end
 
+function PickCraftingJob(jobs)
+    if not jobs then return nil end
+
+    for _, job in ipairs(jobs) do
+        if IsDoHAbbr(job) then
+            return job
+        end
+    end
+
+    return nil
+end
+
 function RetrieveClassScore()
     ClassScoreAll = {}
     if not IsAddonReady("WKSScoreList") then
@@ -366,6 +396,7 @@ function RetrieveClassScore()
         Wait(0.5)
     end
     local scoreAddon = Addons.GetAddon("WKSScoreList")
+    if not scoreAddon then return nil end
     local dohRowIds = {2, 21001, 21002, 21003, 21004, 21005, 21006, 21007}
     for _, rowId in ipairs(dohRowIds) do
         local nameNode  = scoreAddon:GetNode(1, 2, 7, rowId, 4)
@@ -396,6 +427,7 @@ function GetActiveZone()
     if tt == SinusTerritory then return Zones.sinus end
     if tt == PhaennaTerritory then return Zones.phaenna end
     if tt == OizysTerritory then return Zones.oizys end
+    if tt == AuxesiaTerritory then return Zones.auxesia end
 
     local place = PlaceNameByTerritory(tt)
     if not place then return nil end
@@ -457,6 +489,9 @@ function DiscoverZoneHub(zone)
         if #zone.spots == 0 then
             table.insert(zone.spots, zone.creditNpc.position)
         end
+        if ActiveZone == zone then
+            SpotPos = zone.spots
+        end
         zone.discovered = true
         LogInfo(string.format("%s %s hub detected (dynamic hub ready).", LogPrefix, tostring(zone.key)))
     end
@@ -501,7 +536,7 @@ function ShouldCredit()
 
         local job = Player.Job
         if job.IsCrafter then
-            AroundSpot = GetRandomSpotAround(SpotRadius, MinRadius)
+            local AroundSpot = GetRandomSpotAround(SpotRadius, MinRadius)
             if AroundSpot then
                 MoveTo(AroundSpot.X, AroundSpot.Y, AroundSpot.Z, 3, false)
             end
@@ -627,7 +662,7 @@ end
 
 LogInfo(string.format("%s Cosmic Helper started!", LogPrefix))
 
-if JobsConfig.Count > 0 and not HasPlugin("SimpleTweaksPlugin") then
+if (JobsConfig and JobsConfig.Count or 0) > 0 and not HasPlugin("SimpleTweaksPlugin") then
     LogInfo(string.format("%s Cycling jobs requires SimpleTweaks plugin. Script will continue without changing jobs.", LogPrefix))
     JobsConfig = nil
 end
@@ -640,7 +675,9 @@ if Ex4TimeConfig and Ex2TimeConfig then
     Ex2TimeConfig = false
 end
 
-Execute("/tweaks enable EquipJobCommand true")
+if HasPlugin("SimpleTweaksPlugin") then
+    Execute("/tweaks enable EquipJobCommand true")
+end
 
 TotalJobs = (JobsConfig and JobsConfig.Count) or 0
 
@@ -648,12 +685,18 @@ while Run_script do
     ActiveZone = GetActiveZone()
     if ActiveZone then
         DiscoverZoneHub(ActiveZone)
+        SpotPos = ActiveZone.spots or {}
+    else
+        SpotPos = {}
     end
 
     PrePositionAtBell()
     Wait(0.2)
 
-    if ActiveZone == Zones.oizys then
+    if ActiveZone == Zones.auxesia then
+        ExJobs4H = ExJobs4H_Auxesia
+        ExJobs2H = ExJobs2H_Auxesia
+    elseif ActiveZone == Zones.oizys then
         ExJobs4H = ExJobs4H_Oizys
         ExJobs2H = ExJobs2H_Oizys
     else
@@ -662,8 +705,13 @@ while Run_script do
     end
 
     if IsAddonReady("WKSHud") then
-        local txt = Addons.GetAddon("WKSHud"):GetNode(1, 15, 17, 3).Text:gsub("[^%d]", "")
-        LunarCredits = ToNumber(txt)
+        local hud = Addons.GetAddon("WKSHud")
+        local creditsNode = hud and hud:GetNode(1, 15, 17, 3)
+        local creditsText = creditsNode and creditsNode.Text
+        local parsedCredits = creditsText and ToNumber(tostring(creditsText):gsub("[^%d]", ""))
+        if parsedCredits then
+            LunarCredits = parsedCredits
+        end
     end
 
     if LimitConfig > 0 then
