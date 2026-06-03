@@ -276,7 +276,7 @@ end
 
 function FindNearestByName(wantName, maxDist)
     maxDist = maxDist or 80
-    local me = Svc.ClientState.LocalPlayer
+    local me = Svc.Objects.LocalPlayer
     if not me then return nil end
     local best, bestD = nil, 999999
     for o in luanet.each(Svc.Objects) do
@@ -481,7 +481,7 @@ function DiscoverZoneHub(zone)
     if bell and bell.Position then
         zone.gateHub = PosFrom(bell.Position) -- table
     else
-        local me = Svc.ClientState.LocalPlayer
+        local me = Svc.Objects.LocalPlayer
         zone.gateHub = (me and me.Position) and PosFrom(me.Position) or zone.gateHub -- table
     end
 

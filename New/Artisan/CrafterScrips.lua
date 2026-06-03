@@ -494,7 +494,7 @@ function Checks()
 end
 
 function EnsureCrafterJob()
-    local player = Svc.ClientState.LocalPlayer
+    local player = Svc.Objects.LocalPlayer
     if not player then
         return false
     end
