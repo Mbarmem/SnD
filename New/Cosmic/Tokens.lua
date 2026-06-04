@@ -21,9 +21,9 @@ configs:
       -- Enable equip job command in Simple Tweaks and leave it as the default. --
       Leave blank to disable job cycling.
     default: []
-  Lunar Credits Limit:
+  Cosmic Credits Limit:
     description: |
-      Maximum number of current star credits before missions will pause for Gamba.
+      Maximum number of current cosmic credits before missions will pause for Gamba.
       Match this with the corresponding "Stop at Credits" setting in ICE to synchronize behavior.
       -- Enable Gamba under Gamble Wheel in ICE settings. --
       Set to 0 to disable the limit.
@@ -53,7 +53,7 @@ configs:
 -------------------
 
 JobsConfig      = Config.Get("Jobs")
-LimitConfig     = Config.Get("Lunar Credits Limit")
+LimitConfig     = Config.Get("Cosmic Credits Limit")
 FailedConfig    = Config.Get("Report Failed Missions")
 Ex4TimeConfig   = Config.Get("EX+ 4hr Timed Missions")
 Ex2TimeConfig   = Config.Get("EX+ 2hr Timed Missions")
@@ -85,7 +85,7 @@ Run_script      = true
 ReportCount     = 0
 CycleCount      = 0
 JobCount        = 0
-LunarCredits    = 0
+CosmicCredits   = 0
 LastSpotIndex   = nil
 EnabledAutoText = false
 ClassScoreAll   = {}
@@ -96,6 +96,8 @@ CycleLoops      = 100
 SpotRadius      = 3
 MinRadius       = 0.5
 DiscoveredZone  = false
+LoggedEmptyEx2  = false
+LoggedNearBell  = false
 
 --------------------
 --    Missions    --
@@ -341,11 +343,13 @@ function PrePositionAtBell()
 
     -- only move if not already close
     if GetDistanceToPoint(target.X, target.Y, target.Z) > 6 then
+        LoggedNearBell = false
         LogInfo(string.format("%s PrePosition: Moving near Summoning Bell...", LogPrefix))
         MoveTo(target.X, target.Y, target.Z, 3, false)
         Wait(0.5)
-    else
+    elseif not LoggedNearBell then
         LogInfo(string.format("%s PrePosition: Already near Summoning Bell.", LogPrefix))
+        LoggedNearBell = true
     end
     return true
 end
@@ -354,6 +358,12 @@ function CurrentexJobs2H()
     local h = GetEorzeaHour()
     local slot = math.floor(h / 2) * 2
     local jobs = ExJobs2H[slot]
+
+    if not jobs and Ex2TimeConfig and ActiveZone == Zones.auxesia and not LoggedEmptyEx2 then
+        LogInfo(string.format("%s Auxesia has no configured EX+ 2hr timed mission table. Use EX+ 4hr mode for Auxesia token farming.", LogPrefix))
+        LoggedEmptyEx2 = true
+    end
+
     return PickCraftingJob(jobs)
 end
 
@@ -516,11 +526,11 @@ function ShouldCredit()
     local npc = zone.creditNpc
     if not npc.position then return end
 
-    if LunarCredits >= LimitConfig and IsPlayerAvailable() then
+    if CosmicCredits >= LimitConfig and IsPlayerAvailable() then
         Execute("/at enable")
         EnabledAutoText = true
 
-        LogInfo(string.format("%s Credits: %s/%s Going to Gamba!", LogPrefix, tostring(LunarCredits), tostring(LimitConfig)))
+        LogInfo(string.format("%s Credits: %s/%s Going to Gamba!", LogPrefix, tostring(CosmicCredits), tostring(LimitConfig)))
 
         if zone.gateHub and GetDistanceToPoint(zone.gateHub.X, zone.gateHub.Y, zone.gateHub.Z) > 75 then
             LogInfo(string.format("%s Stellar Return", LogPrefix))
@@ -567,7 +577,7 @@ function ShouldCredit()
 end
 
 function ShouldCycle()
-    if LimitConfig > 0 and LunarCredits >= LimitConfig then return end
+    if LimitConfig > 0 and CosmicCredits >= LimitConfig then return end
 
     if IsPlayerAvailable() then
         if (IsAddonReady("WKSMission")
@@ -718,7 +728,7 @@ while Run_script do
         local creditsText = creditsNode and creditsNode.Text
         local parsedCredits = creditsText and ToNumber(tostring(creditsText):gsub("[^%d]", ""))
         if parsedCredits then
-            LunarCredits = parsedCredits
+            CosmicCredits = parsedCredits
         end
     end
 
