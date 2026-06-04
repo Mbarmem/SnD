@@ -58,15 +58,6 @@ configs:
         - "Mid"
         - "Lower"
     default: "Best"
-  Auxesia Tool Mastery Mission ID:
-    description: |
-      Optional mission ID override for direct Tool Mastery selection.
-      Set this when ICE/upstream mission IDs do not match the active game build.
-      Set to 0 to use the built-in current-job/tier table.
-    default: 0
-    min: 0
-    max: 9999
-
 [[End Metadata]]
 --]=====]
 
@@ -83,7 +74,6 @@ Ex4TimeConfig   = Config.Get("EX+ 4hr Timed Missions")
 Ex2TimeConfig   = Config.Get("EX+ 2hr Timed Missions")
 MasteryConfig   = Config.Get("Auxesia Tool Mastery")
 MasteryTier     = Config.Get("Auxesia Tool Mastery Tier")
-MasteryMissionIdConfig = Config.Get("Auxesia Tool Mastery Mission ID")
 LogPrefix       = "[CosmicTokens]"
 
 --========================= INITIALIZATION ========================--
@@ -445,11 +435,6 @@ function NormalizeMasteryTier()
 end
 
 function CurrentAuxesiaToolMasteryMissionId()
-    local configuredId = ToNumber(MasteryMissionIdConfig)
-    if configuredId and configuredId > 0 then
-        return configuredId
-    end
-
     local job = Player.Job
     if not job or not job.Abbreviation then return nil end
 
