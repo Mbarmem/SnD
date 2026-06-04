@@ -4,6 +4,7 @@ author: Mo
 version: 2.0.0
 description: Cosmic Exploration - Script for Token Farming with ICE integration.
 plugin_dependencies:
+- Artisan
 - ICE
 - vnavmesh
 - TextAdvance
@@ -42,6 +43,29 @@ configs:
     description: |
       Enable to swap crafting jobs to the current EX+ 2hr long timed mission job.
     default: false
+  Auxesia Tool Mastery:
+    description: |
+      Enable direct Auxesia Tool Mastery mission selection.
+      This bypasses ICE mission setup and selects the current crafter's Tool Mastery mission from WKSMission.
+    default: false
+  Auxesia Tool Mastery Tier:
+    description: |
+      Tool Mastery mission tier to select for the current crafter.
+      Best gives the highest Auxesia Exploration Token reward.
+    is_choice: true
+    choices:
+        - "Best"
+        - "Mid"
+        - "Lower"
+    default: "Best"
+  Auxesia Tool Mastery Mission ID:
+    description: |
+      Optional mission ID override for direct Tool Mastery selection.
+      Set this when ICE/upstream mission IDs do not match the active game build.
+      Set to 0 to use the built-in current-job/tier table.
+    default: 0
+    min: 0
+    max: 9999
 
 [[End Metadata]]
 --]=====]
@@ -57,6 +81,9 @@ LimitConfig     = Config.Get("Cosmic Credits Limit")
 FailedConfig    = Config.Get("Report Failed Missions")
 Ex4TimeConfig   = Config.Get("EX+ 4hr Timed Missions")
 Ex2TimeConfig   = Config.Get("EX+ 2hr Timed Missions")
+MasteryConfig   = Config.Get("Auxesia Tool Mastery")
+MasteryTier     = Config.Get("Auxesia Tool Mastery Tier")
+MasteryMissionIdConfig = Config.Get("Auxesia Tool Mastery Mission ID")
 LogPrefix       = "[CosmicTokens]"
 
 --========================= INITIALIZATION ========================--
@@ -98,6 +125,7 @@ MinRadius       = 0.5
 DiscoveredZone  = false
 LoggedEmptyEx2  = false
 LoggedNearBell  = false
+MasteryCount    = 0
 
 --------------------
 --    Missions    --
@@ -152,6 +180,17 @@ ExJobs2H_Auxesia = {}
 ExJobs4H = ExJobs4H_Default
 ExJobs2H = ExJobs2H_Default
 
+AuxesiaToolMasteryMissions = {
+    CRP = { lower = 1396, mid = 1395, best = 1397 },
+    BSM = { lower = 1424, mid = 1423, best = 1425 },
+    ARM = { lower = 1452, mid = 1451, best = 1453 },
+    GSM = { lower = 1480, mid = 1479, best = 1481 },
+    LTW = { lower = 1508, mid = 1507, best = 1509 },
+    WVR = { lower = 1536, mid = 1535, best = 1537 },
+    ALC = { lower = 1564, mid = 1563, best = 1565 },
+    CUL = { lower = 1592, mid = 1591, best = 1593 },
+}
+
 ----------------
 --    Zone    --
 ----------------
@@ -164,6 +203,7 @@ AuxesiaTerritory = 1319
 Zones = {
     sinus = {
         key        = "sinus",
+        display    = "Sinus",
         match      = {"sinus"},
         gateHub    = nil,
         creditNpc  = { id = 1052612, name = nil, position = nil }, -- resolved on discovery
@@ -173,6 +213,7 @@ Zones = {
     },
     phaenna = {
         key        = "phaenna",
+        display    = "Phaenna",
         match      = {"phaenna"},
         gateHub    = nil,
         creditNpc  = { id = 1052642, name = nil, position = nil }, -- resolved on discovery
@@ -182,6 +223,7 @@ Zones = {
     },
     oizys = {
         key        = "oizys",
+        display    = "Oizys",
         match      = {"oizys"},
         gateHub    = nil,
         creditNpc  = { id = 1052652, name = nil, position = nil }, -- resolved on discovery
@@ -191,6 +233,7 @@ Zones = {
     },
     auxesia = {
         key        = "auxesia",
+        display    = "Auxesia",
         match      = {"auxesia"},
         gateHub    = nil,
         creditNpc  = { id = 1056826, name = nil, position = nil }, -- resolved on discovery
@@ -394,6 +437,131 @@ function PickCraftingJob(jobs)
     return nil
 end
 
+function NormalizeMasteryTier()
+    local tier = tostring(MasteryTier or "Best"):lower()
+    if tier == "mid" then return "mid" end
+    if tier == "lower" then return "lower" end
+    return "best"
+end
+
+function CurrentAuxesiaToolMasteryMissionId()
+    local configuredId = ToNumber(MasteryMissionIdConfig)
+    if configuredId and configuredId > 0 then
+        return configuredId
+    end
+
+    local job = Player.Job
+    if not job or not job.Abbreviation then return nil end
+
+    local missions = AuxesiaToolMasteryMissions[job.Abbreviation]
+    if not missions then return nil end
+
+    return missions[NormalizeMasteryTier()]
+end
+
+function IsMissionUiBusy()
+    return IsAddonReady("WKSMission")
+        or IsAddonReady("WKSMissionInfomation")
+        or IsAddonReady("WKSRecipeNotebook")
+        or IsAddonReady("WKSReward")
+        or Player.IsBusy
+end
+
+function OpenToolMasteryTab()
+    if not IsAddonReady("WKSMission") then
+        Execute("/callback WKSHud true 11")
+    end
+
+    WaitForAddon("WKSMission", 10)
+    if not IsAddonReady("WKSMission") then
+        LogInfo(string.format("%s Tool Mastery: WKSMission did not open.", LogPrefix))
+        return false
+    end
+
+    -- Tool Mastery is category tab 3.
+    Execute("/callback WKSMission true 15 3")
+    Wait(0.5)
+    return true
+end
+
+function AcceptToolMasteryMission(missionId)
+    Execute(string.format("/callback WKSMission true 13 %d", missionId))
+    Wait(0.5)
+
+    Execute(string.format("/callback WKSMission true 12 %d 2048 3", missionId))
+    Wait(0.5)
+
+    if IsAddonReady("SelectYesno") then
+        Execute("/callback SelectYesno true 0")
+        Wait(0.5)
+    end
+
+    Execute("/callback WKSMission true 20 1")
+end
+
+function ShouldToolMastery()
+    if not MasteryConfig then return false end
+    if ActiveZone ~= Zones.auxesia then return false end
+
+    local job = Player.Job
+    if not job or not job.IsCrafter then return false end
+    if IsMissionUiBusy() or not IsPlayerAvailable() then return false end
+
+    local missionId = CurrentAuxesiaToolMasteryMissionId()
+    if not missionId then
+        MasteryCount = MasteryCount + 1
+        if MasteryCount % 50 == 1 then
+            LogInfo(string.format("%s Tool Mastery: No Auxesia mastery mission configured for %s.", LogPrefix, tostring(job.Abbreviation)))
+        end
+        return false
+    end
+
+    Execute("/ice stop")
+    Wait(0.5)
+
+    if not OpenToolMasteryTab() then
+        return false
+    end
+
+    LogInfo(string.format("%s Tool Mastery: Selecting %s tier mission %s for %s.", LogPrefix, NormalizeMasteryTier(), tostring(missionId), tostring(job.Abbreviation)))
+    AcceptToolMasteryMission(missionId)
+
+    local waitCount = 0
+    repeat
+        if IsAddonReady("SelectYesno") then
+            Execute("/callback SelectYesno true 0")
+        end
+        Wait(0.1)
+        waitCount = waitCount + 1
+    until IsAddonReady("WKSRecipeNotebook") or waitCount >= 300
+
+    if not IsAddonReady("WKSRecipeNotebook") then
+        LogInfo(string.format("%s Tool Mastery: Mission did not reach recipe notebook. Callback may need adjustment.", LogPrefix))
+        CloseAddons()
+        return false
+    end
+
+    ArtisanSetEnduranceStatus(true)
+    LogInfo(string.format("%s Tool Mastery: Crafting started.", LogPrefix))
+    Wait(5)
+
+    WaitForPlayer()
+    ArtisanSetEnduranceStatus(false)
+
+    LogInfo(string.format("%s Tool Mastery: Reporting mission.", LogPrefix))
+    WaitForAddon("WKSMissionInfomation", 10)
+    if IsAddonReady("WKSMissionInfomation") then
+        Execute("/callback WKSMissionInfomation true 11")
+    else
+        LogInfo(string.format("%s Tool Mastery: WKSMissionInfomation not ready for report.", LogPrefix))
+    end
+
+    Wait(1)
+    WaitForPlayer()
+
+    return true
+end
+
 function RetrieveClassScore()
     ClassScoreAll = {}
     if not IsAddonReady("WKSScoreList") then
@@ -515,7 +683,7 @@ function DiscoverZoneHub(zone)
             SpotPos = zone.spots
         end
         zone.discovered = true
-        LogInfo(string.format("%s %s hub detected (dynamic hub ready).", LogPrefix, tostring(zone.key)))
+        LogInfo(string.format("%s %s hub detected (dynamic hub ready).", LogPrefix, tostring(zone.display or zone.key)))
     end
 end
 
@@ -732,16 +900,21 @@ while Run_script do
         end
     end
 
+    local ranMastery = false
+    if MasteryConfig and zone == Zones.auxesia then
+        ranMastery = ShouldToolMastery()
+    end
+
     if LimitConfig > 0 then
         ShouldCredit()
     end
     if FailedConfig then
         ShouldReport()
     end
-    if Ex2TimeConfig or Ex4TimeConfig then
+    if not ranMastery and (Ex2TimeConfig or Ex4TimeConfig) then
         ShouldExTime()
     end
-    if TotalJobs > 0 then
+    if not ranMastery and TotalJobs > 0 then
         ShouldCycle()
     end
 
