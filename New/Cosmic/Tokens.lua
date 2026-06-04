@@ -321,13 +321,7 @@ function PrePositionAtBell()
         Wait(0.5)
     end
 
-    if not DiscoveredZone then
-        ActiveZone = GetActiveZone()
-        if ActiveZone then
-            DiscoverZoneHub(ActiveZone)
-            DiscoveredZone = true
-        end
-    end
+    local zone = ActiveZone or EnsureActiveZone()
 
     -- Prefer the actual bell object; fallback to zone.gateHub (usually bell pos)
     local bellObj = FindNearestByName("Summoning Bell", 120)
@@ -335,12 +329,13 @@ function PrePositionAtBell()
 
     if bellObj and bellObj.Position then
         target = PosFrom(bellObj.Position)
-    elseif ActiveZone and ActiveZone.gateHub then
-        target = ActiveZone.gateHub
+    elseif zone and zone.gateHub then
+        target = zone.gateHub
     end
 
     if not target then
-        LogInfo(string.format("%s PrePosition: Summoning Bell not found yet.", LogPrefix))
+        local zoneName = zone and zone.key or "unknown"
+        LogInfo(string.format("%s PrePosition: Summoning Bell not found yet (zone=%s, territory=%s).", LogPrefix, tostring(zoneName), tostring(GetZoneID())))
         return false
     end
 
@@ -445,6 +440,22 @@ function GetActiveZone()
     return nil
 end
 
+function EnsureActiveZone()
+    local zone = GetActiveZone()
+    ActiveZone = zone
+
+    if zone then
+        if not zone.discovered then
+            DiscoverZoneHub(zone)
+        end
+        SpotPos = zone.spots or {}
+    else
+        SpotPos = {}
+    end
+
+    return zone
+end
+
 function DiscoverZoneHub(zone)
     if not zone or zone.discovered then return end
 
@@ -489,7 +500,8 @@ function DiscoverZoneHub(zone)
         if #zone.spots == 0 then
             table.insert(zone.spots, zone.creditNpc.position)
         end
-        if ActiveZone == zone then
+        local activeZone = ActiveZone
+        if activeZone == zone then
             SpotPos = zone.spots
         end
         zone.discovered = true
@@ -498,8 +510,10 @@ function DiscoverZoneHub(zone)
 end
 
 function ShouldCredit()
-    if not ActiveZone or not ActiveZone.creditNpc then return end
-    local npc = ActiveZone.creditNpc
+    local zone = ActiveZone or EnsureActiveZone()
+    if not zone or not zone.creditNpc then return end
+
+    local npc = zone.creditNpc
     if not npc.position then return end
 
     if LunarCredits >= LimitConfig and IsPlayerAvailable() then
@@ -508,7 +522,7 @@ function ShouldCredit()
 
         LogInfo(string.format("%s Credits: %s/%s Going to Gamba!", LogPrefix, tostring(LunarCredits), tostring(LimitConfig)))
 
-        if ActiveZone.gateHub and GetDistanceToPoint(ActiveZone.gateHub.X, ActiveZone.gateHub.Y, ActiveZone.gateHub.Z) > 75 then
+        if zone.gateHub and GetDistanceToPoint(zone.gateHub.X, zone.gateHub.Y, zone.gateHub.Z) > 75 then
             LogInfo(string.format("%s Stellar Return", LogPrefix))
             Execute('/gaction "Duty Action"')
             Wait(5)
@@ -682,21 +696,15 @@ end
 TotalJobs = (JobsConfig and JobsConfig.Count) or 0
 
 while Run_script do
-    ActiveZone = GetActiveZone()
-    if ActiveZone then
-        DiscoverZoneHub(ActiveZone)
-        SpotPos = ActiveZone.spots or {}
-    else
-        SpotPos = {}
-    end
+    local zone = EnsureActiveZone()
 
     PrePositionAtBell()
     Wait(0.2)
 
-    if ActiveZone == Zones.auxesia then
+    if zone == Zones.auxesia then
         ExJobs4H = ExJobs4H_Auxesia
         ExJobs2H = ExJobs2H_Auxesia
-    elseif ActiveZone == Zones.oizys then
+    elseif zone == Zones.oizys then
         ExJobs4H = ExJobs4H_Oizys
         ExJobs2H = ExJobs2H_Oizys
     else
