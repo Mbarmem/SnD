@@ -64,6 +64,7 @@ LogPrefix       = "[CosmicTokens]"
 local sheet = Excel.GetSheet("ClassJob")
 assert(sheet, "ClassJob sheet not found")
 Jobs = {}
+JobNameByAbbr = {}
 for id = 8, 18 do
     local row = sheet:GetRow(id)
     if row then
@@ -71,6 +72,9 @@ for id = 8, 18 do
         local abbr = row.Abbreviation or row["Abbreviation"]
         if name and abbr then
             Jobs[id] = { name = name, abbr = abbr }
+            local abbrKey = tostring(abbr):gsub("^%s+", ""):gsub("%s+$", ""):lower()
+            local jobName = tostring(name):gsub("^%s+", ""):gsub("%s+$", ""):lower()
+            JobNameByAbbr[abbrKey] = jobName
         end
     end
 end
@@ -81,25 +85,23 @@ end
 --    General    --
 -------------------
 
-Run_script      = true
-ReportCount     = 0
-CycleCount      = 0
-JobCount        = 0
-CosmicCredits   = 0
-LastSpotIndex   = nil
-EnabledAutoText = false
-ClassScoreAll   = {}
-ActiveZone      = nil
-SpotPos         = {}
-LoopDelay       = 0.1
-CycleLoops      = 100
-SpotRadius      = 3
-MinRadius       = 0.5
-DiscoveredZone  = false
-LoggedEmptyEx2  = false
-LoggedNearBell  = false
-AuxesiaTokenId  = 52092
-LastTokenCount = nil
+Run_script           = true
+ReportCount          = 0
+CycleCount           = 0
+JobCount             = 0
+CosmicCredits        = 0
+LastSpotIndex        = nil
+EnabledAutoText      = false
+ActiveZone           = nil
+SpotPos              = {}
+LoopDelay            = 0.1
+CycleLoops           = 100
+SpotRadius           = 3
+MinRadius            = 0.5
+LoggedEmptyEx2       = false
+LoggedNearBell       = false
+LastTokenCount       = nil
+LastTokenZone        = nil
 ConfiguredJobStarted = false
 
 --------------------
@@ -146,8 +148,8 @@ ExJobs2H_Oizys = {
 
 ExJobs4H_Auxesia = {
     [4]  = {Jobs[15].abbr, Jobs[14].abbr},                -- CUL, ALC
-    [12] = {Jobs[8].abbr, Jobs[12].abbr, Jobs[13].abbr},  -- CRP, LTW, WVR
-    [20] = {Jobs[11].abbr, Jobs[9].abbr, Jobs[10].abbr},  -- GSM, BSM, ARM
+    [12] = {Jobs[8].abbr,  Jobs[12].abbr, Jobs[13].abbr}, -- CRP, LTW, WVR
+    [20] = {Jobs[11].abbr, Jobs[9].abbr,  Jobs[10].abbr}, -- GSM, BSM, ARM
 }
 
 ExJobs2H_Auxesia = {}
@@ -166,44 +168,52 @@ AuxesiaTerritory = 1319
 
 Zones = {
     sinus = {
-        key        = "sinus",
-        display    = "Sinus",
-        match      = {"sinus"},
-        gateHub    = nil,
-        creditNpc  = { id = 1052612, name = nil, position = nil }, -- resolved on discovery
-        spots      = {},
-        discovered = false,
-        isOizys    = false,
+        key                = "sinus",
+        display            = "Sinus",
+        match              = {"sinus"},
+        creditNpc          = { id = 1052612, name = nil, position = nil }, -- resolved on discovery
+        tokenItemId        = nil,
+        tracksTokens       = false,
+        gateHub            = nil,
+        spots              = {},
+        discovered         = false,
+        tokenMissingLogged = false,
     },
     phaenna = {
-        key        = "phaenna",
-        display    = "Phaenna",
-        match      = {"phaenna"},
-        gateHub    = nil,
-        creditNpc  = { id = 1052642, name = nil, position = nil }, -- resolved on discovery
-        spots      = {},
-        discovered = false,
-        isOizys    = false,
+        key                = "phaenna",
+        display            = "Phaenna",
+        match              = {"phaenna"},
+        creditNpc          = { id = 1052642, name = nil, position = nil }, -- resolved on discovery
+        tokenItemId        = 47594,
+        tracksTokens       = true,
+        gateHub            = nil,
+        spots              = {},
+        discovered         = false,
+        tokenMissingLogged = false,
     },
     oizys = {
-        key        = "oizys",
-        display    = "Oizys",
-        match      = {"oizys"},
-        gateHub    = nil,
-        creditNpc  = { id = 1052652, name = nil, position = nil }, -- resolved on discovery
-        spots      = {},
-        discovered = false,
-        isOizys    = true,
+        key                = "oizys",
+        display            = "Oizys",
+        match              = {"oizys"},
+        creditNpc          = { id = 1052652, name = nil, position = nil }, -- resolved on discovery
+        tokenItemId        = 49802,
+        tracksTokens       = true,
+        gateHub            = nil,
+        spots              = {},
+        discovered         = false,
+        tokenMissingLogged = false,
     },
     auxesia = {
-        key        = "auxesia",
-        display    = "Auxesia",
-        match      = {"auxesia"},
-        gateHub    = nil,
-        creditNpc  = { id = 1056826, name = nil, position = nil }, -- resolved on discovery
-        spots      = {},
-        discovered = false,
-        isOizys    = false,
+        key                = "auxesia",
+        display            = "Auxesia",
+        match              = {"auxesia"},
+        creditNpc          = { id = 1056826, name = nil, position = nil }, -- resolved on discovery
+        tokenItemId        = 52092,
+        tracksTokens       = true,
+        gateHub            = nil,
+        spots              = {},
+        discovered         = false,
+        tokenMissingLogged = false,
     }
 }
 
@@ -394,9 +404,16 @@ function NormalizeJobText(job)
     return tostring(job):gsub("^%s+", ""):gsub("%s+$", ""):lower()
 end
 
+function ConfigJobCount()
+    return (JobsConfig and JobsConfig.Count) or 0
+end
+
 function ConfigJobAt(index)
     if not JobsConfig then return nil end
-    return JobsConfig[index] or JobsConfig[index + 1]
+    if JobsConfig[0] ~= nil then
+        return JobsConfig[index]
+    end
+    return JobsConfig[index + 1]
 end
 
 function CurrentJobMatches(job)
@@ -407,6 +424,16 @@ function CurrentJobMatches(job)
     local curAbbr = NormalizeJobText(Player.Job and Player.Job.Abbreviation)
 
     return wanted == curName or wanted == curAbbr
+end
+
+function JobMatchesConfig(jobAbbr, configuredJob)
+    local wanted = NormalizeJobText(configuredJob)
+    if not wanted or wanted == "" then return false end
+
+    local abbr = NormalizeJobText(jobAbbr)
+    local name = JobNameByAbbr[abbr]
+
+    return wanted == abbr or wanted == name
 end
 
 function StartIceWhenFree()
@@ -452,6 +479,18 @@ end
 function PickCraftingJob(jobs)
     if not jobs then return nil end
 
+    local jobCount = ConfigJobCount()
+    if jobCount > 0 then
+        for i = 0, jobCount - 1 do
+            local configuredJob = ConfigJobAt(i)
+            for _, job in ipairs(jobs) do
+                if IsDoHAbbr(job) and JobMatchesConfig(job, configuredJob) then
+                    return job
+                end
+            end
+        end
+    end
+
     for _, job in ipairs(jobs) do
         if IsDoHAbbr(job) then
             return job
@@ -461,62 +500,46 @@ function PickCraftingJob(jobs)
     return nil
 end
 
-function GetAuxesiaTokenCount()
-    return GetItemCount(AuxesiaTokenId)
+function GetZoneTokenCount(zone)
+    local tokenItemId = zone and zone.tokenItemId
+    if not tokenItemId then
+        if zone and not zone.tokenMissingLogged then
+            LogInfo(string.format("%s Could not resolve token item for %s.", LogPrefix, tostring(zone.display or zone.key)))
+            zone.tokenMissingLogged = true
+        end
+        return nil
+    end
+    return GetItemCount(tokenItemId)
 end
 
-function TrackAuxesiaTokens()
-    if ActiveZone ~= Zones.auxesia then
+function TrackZoneTokens()
+    local zone = ActiveZone
+    if not zone or not zone.tracksTokens then
         LastTokenCount = nil
+        LastTokenZone = nil
         return
     end
 
-    local current = GetAuxesiaTokenCount()
+    if LastTokenZone ~= zone.key then
+        LastTokenZone = zone.key
+        LastTokenCount = nil
+    end
+
+    local current = GetZoneTokenCount(zone)
     if not current then return end
 
+    local tokenName = tostring(zone.display or zone.key) .. " Exploration Token"
     if LastTokenCount == nil then
         LastTokenCount = current
-        LogInfo(string.format("%s Auxesia Exploration Token inventory: %s.", LogPrefix, tostring(current)))
+        LogInfo(string.format("%s %s inventory: %s.", LogPrefix, tokenName, tostring(current)))
         return
     end
 
     if current ~= LastTokenCount then
         local previous = LastTokenCount
         LastTokenCount = current
-        LogInfo(string.format("%s Auxesia Exploration Token inventory: %s -> %s. Earned: %s.", LogPrefix, tostring(previous), tostring(current), tostring(current - previous)))
+        LogInfo(string.format("%s %s inventory: %s -> %s. Change: %s.", LogPrefix, tokenName, tostring(previous), tostring(current), tostring(current - previous)))
     end
-end
-
-function RetrieveClassScore()
-    ClassScoreAll = {}
-    if not IsAddonReady("WKSScoreList") then
-        Execute("/callback WKSHud true 18")
-        Wait(0.5)
-    end
-    local scoreAddon = Addons.GetAddon("WKSScoreList")
-    if not scoreAddon then return nil end
-    local dohRowIds = {2, 21001, 21002, 21003, 21004, 21005, 21006, 21007}
-    for _, rowId in ipairs(dohRowIds) do
-        local nameNode  = scoreAddon:GetNode(1, 2, 7, rowId, 4)
-        local scoreNode = scoreAddon:GetNode(1, 2, 7, rowId, 5)
-        if nameNode and scoreNode then
-            table.insert(ClassScoreAll, { className = string.lower(nameNode.Text), classScore = scoreNode.Text })
-        end
-    end
-    local dolRowIds = {2, 21001, 21002}
-    for _, rowId in ipairs(dolRowIds) do
-        local nameNode  = scoreAddon:GetNode(1, 8, 13, rowId, 4)
-        local scoreNode = scoreAddon:GetNode(1, 8, 13, rowId, 5)
-        if nameNode and scoreNode then
-            table.insert(ClassScoreAll, { className = string.lower(nameNode.Text), classScore = scoreNode.Text })
-        end
-    end
-    for _, entry in ipairs(ClassScoreAll) do
-        if Player.Job.Name == entry.className then
-            return entry.classScore
-        end
-    end
-    return nil
 end
 
 function GetActiveZone()
@@ -690,13 +713,19 @@ function ShouldCycle()
     end
 
     if CycleCount >= CycleLoops then
-        if JobCount == TotalJobs then
+        if JobCount >= TotalJobs then
             LogInfo(string.format("%s End of job list reached. Exiting script.", LogPrefix))
             Run_script = false
             return
         end
-        LogInfo(string.format("%s Swapping to -> %s", LogPrefix, tostring(JobsConfig[JobCount])))
-        Execute("/equipjob " .. JobsConfig[JobCount])
+        local nextJob = ConfigJobAt(JobCount)
+        if not nextJob or tostring(nextJob) == "" then
+            LogInfo(string.format("%s No configured job found at index %d. Exiting script.", LogPrefix, JobCount))
+            Run_script = false
+            return
+        end
+        LogInfo(string.format("%s Swapping to -> %s", LogPrefix, tostring(nextJob)))
+        Execute("/equipjob " .. nextJob)
         Wait(2)
         Execute("/ice start")
         JobCount = JobCount + 1
@@ -780,7 +809,7 @@ end
 
 LogInfo(string.format("%s Cosmic Helper started!", LogPrefix))
 
-if (JobsConfig and JobsConfig.Count or 0) > 0 and not HasPlugin("SimpleTweaksPlugin") then
+if ConfigJobCount() > 0 and not HasPlugin("SimpleTweaksPlugin") then
     LogInfo(string.format("%s Cycling jobs requires SimpleTweaks plugin. Script will continue without changing jobs.", LogPrefix))
     JobsConfig = nil
 end
@@ -797,7 +826,7 @@ if HasPlugin("SimpleTweaksPlugin") then
     Execute("/tweaks enable EquipJobCommand true")
 end
 
-TotalJobs = (JobsConfig and JobsConfig.Count) or 0
+TotalJobs = ConfigJobCount()
 
 while Run_script do
     local zone = EnsureActiveZone()
@@ -826,7 +855,7 @@ while Run_script do
         end
     end
 
-    TrackAuxesiaTokens()
+    TrackZoneTokens()
 
     local handledConfiguredJob = EnsureConfiguredJobStarted()
 
