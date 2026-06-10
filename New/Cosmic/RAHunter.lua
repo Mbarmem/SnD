@@ -25,6 +25,7 @@ dependencies:
 
 TravelOption            = 0         -- SelectString index for the travel option
 UseICE                  = true
+UseStellarReturn        = true
 Run_script              = true
 UseCruisingwayCoords    = true
 ZONE_WAIT               = 180       -- dwell per zone, 3 minutes
@@ -110,14 +111,7 @@ local function ConfirmYesNo(timeout)
     return CallbackWhenReady("SelectYesno", "/callback SelectYesno true 0", timeout)
 end
 
-function RedAlertCountdown()
-    local title = GetNodeText("WKSAnnounce", 1, 9, 11)
-    if not title or not tostring(title):find("RED ALERT", 1, true) then
-        return nil
-    end
-
-    local text = GetNodeText("WKSAnnounce", 1, 9, 19)
-
+local function ParseCountdown(text)
     if not text or text == "" then
         return nil
     end
@@ -129,11 +123,20 @@ function RedAlertCountdown()
 
     local secs = tonumber(m) * 60 + tonumber(s)
 
-    if secs <= 0 then
+    if secs < 0 then
         return nil
     end
 
     return secs
+end
+
+function RedAlertCountdown()
+    local title = GetNodeText("WKSAnnounce", 1, 9, 11)
+    if not title or not tostring(title):find("RED ALERT", 1, true) then
+        return nil
+    end
+
+    return ParseCountdown(GetNodeText("WKSAnnounce", 1, 9, 19))
 end
 
 local function MoveToCruisingway(zone)
@@ -163,7 +166,11 @@ local function OpenCruisingwayMenu()
         return false
     end
 
-    Wait(0.5)
+    WaitUntil(function()
+        return IsAddonReady("Talk")
+            or IsAddonReady("SelectString")
+            or IsAddonReady("WKSPlanetSelect")
+    end, 10, 0.2)
 
     local talkStart = os.clock()
     while IsAddonReady("Talk") and (os.clock() - talkStart) < 10 do
@@ -171,10 +178,24 @@ local function OpenCruisingwayMenu()
         Wait(0.3)
     end
 
+    if IsAddonReady("WKSPlanetSelect") then
+        return true
+    end
+
     -- Select travel option.
-    if not CallbackWhenReady("SelectString", "/callback SelectString true " .. tostring(TravelOption), 10) then
+    if not WaitUntil(function()
+        return IsAddonReady("SelectString") or IsAddonReady("WKSPlanetSelect")
+    end, 10, 0.2) then
+        LogInfo("%s SelectString did not appear.", LogPrefix)
         return false
     end
+
+    if IsAddonReady("WKSPlanetSelect") then
+        return true
+    end
+
+    Execute("/callback SelectString true " .. tostring(TravelOption))
+    Wait(0.5)
 
     return true
 end
@@ -265,23 +286,73 @@ function StopICE()
     Wait(1)
 end
 
+function StellarReturn()
+    if not UseStellarReturn then
+        return
+    end
+
+    LogInfo("%s Stellar Return.", LogPrefix)
+    ExecuteAction(CharacterAction.Actions.stellarReturn)
+    Wait(1)
+
+    WaitUntil(function()
+        return not IsBetweenAreas()
+            and not IsPlayerCasting()
+            and IsPlayerAvailable()
+    end, 60, 0.5)
+end
+
 function HandleRedAlert(zone, secs)
     local mss = string.format("%d:%02d", math.floor(secs / 60), secs % 60)
 
     LogInfo("%s RED ALERT active in %s - %s remaining. Starting ICE.", LogPrefix, zone.display, mss)
 
     local iceStarted = StartICE()
-    local startTime = os.clock()
+    local deadline = os.clock() + secs + 120
 
-    -- Wait until countdown disappears, reaches zero, or timeout.
-    while Run_script and (os.clock() - startTime) < 600 do
+    while Run_script do
         local remaining = RedAlertCountdown()
 
         if remaining == nil then
-            break
+            Wait(5)
+            remaining = RedAlertCountdown()
+
+            if remaining == nil then
+                Wait(5)
+                remaining = RedAlertCountdown()
+            end
+
+            if remaining and remaining > 0 then
+                LogInfo("%s Red Alert timer refreshed in %s. Continuing ICE.", LogPrefix, zone.display)
+            else
+                break
+            end
         end
 
-        Wait(5)
+        if os.clock() >= deadline then
+            Wait(5)
+            remaining = RedAlertCountdown()
+
+            if not remaining or remaining <= 0 then
+                Wait(5)
+                remaining = RedAlertCountdown()
+            end
+
+            if remaining and remaining > 0 then
+                local mssRemaining = string.format("%d:%02d", math.floor(remaining / 60), remaining % 60)
+                LogInfo("%s Red Alert still active in %s after grace window - %s remaining. Continuing ICE.", LogPrefix, zone.display, mssRemaining)
+                deadline = os.clock() + remaining + 120
+            else
+                LogInfo("%s Red Alert grace window ended in %s and timer is %s. Stopping ICE.", LogPrefix, zone.display, remaining == 0 and "0:00" or "gone")
+                break
+            end
+        end
+
+        if remaining and remaining <= 0 then
+            Wait(10)
+        else
+            Wait(5)
+        end
     end
 
     if iceStarted then
@@ -289,6 +360,10 @@ function HandleRedAlert(zone, secs)
     end
 
     LogInfo("%s %s alert ended - ICE stopped.", LogPrefix, zone.display)
+
+    if Run_script then
+        StellarReturn()
+    end
 end
 
 --=========================== EXECUTION ==========================--
@@ -309,7 +384,7 @@ while Run_script do
             while os.clock() < dwellEnd and Run_script do
                 local secs = RedAlertCountdown()
 
-                if secs then
+                if secs and secs > 0 then
                     HandleRedAlert(zone, secs)
                     break
                 end
