@@ -1,7 +1,7 @@
 ﻿--[=====[
 [[SND Metadata]]
 author: Mo
-version: 2.0.0
+version: 2.2.1
 description: Red Alert Hunter
 plugin_dependencies:
 - Artisan
@@ -13,7 +13,24 @@ dependencies:
 - source: https://forgejo.mownbox.com/Mo/SnD/raw/branch/main/New/MoLib/MoLib.lua
   name: latest
   type: unknown
-
+configs:
+  Sinus Enabled:
+    description: Enable Sinus in the zone rotation.
+    default: true
+  Phaenna Enabled:
+    description: Enable Phaenna in the zone rotation.
+    default: true
+  Oizys Enabled:
+    description: Enable Oizys in the zone rotation.
+    default: true
+  Auxesia Enabled:
+    description: Enable Auxesia in the zone rotation.
+    default: true
+  Zone Wait:
+    description: Seconds to wait in each enabled zone before swapping to the next enabled zone.
+    default: 180
+    min: 10
+    max: 3600
 [[End Metadata]]
 --]=====]
 
@@ -23,15 +40,30 @@ dependencies:
 --    General    --
 -------------------
 
-TravelOption            = 0         -- SelectString index for the travel option
-UseICE                  = true
-UseStellarReturn        = true
-Run_script              = true
-UseCruisingwayCoords    = true
-ZONE_WAIT               = 180       -- dwell per zone, 3 minutes
+SinusEnabledConfig      = Config.Get("Sinus Enabled")
+PhaennaEnabledConfig    = Config.Get("Phaenna Enabled")
+OizysEnabledConfig      = Config.Get("Oizys Enabled")
+AuxesiaEnabledConfig    = Config.Get("Auxesia Enabled")
+ZoneWaitConfig          = Config.Get("Zone Wait")
 LogPrefix               = "[RAHunter]"
 
 --============================ CONSTANT ==========================--
+
+-------------------
+--    General    --
+-------------------
+
+UseICE                  = true
+UseStellarReturn        = true
+UseCruisingwayCoords    = true
+RunScript               = true
+TravelOption            = 0
+CallbackDelay           = 1.5       -- delay after UI callbacks to reduce addon/client instability
+TalkAdvanceDelay        = 1.0       -- delay between Talk callbacks
+PostInteractDelay       = 2.0       -- allow menu addons time to settle after interacting
+AddonPollInterval       = 0.5       -- polling interval for addon readiness/state checks
+NodePollInterval        = 1.0       -- polling interval for UI text reads
+StartupDelay            = 3.0       -- grace period after pressing Start before doing anything
 
 ----------------
 --    Zone    --
@@ -45,24 +77,28 @@ AuxesiaTerritory = 1319
 ZoneCycle = {
     {
         display     = "Sinus",
+        enabled     = SinusEnabledConfig,
         territory   = SinusTerritory,
         cruisingway = {-40.92, 11.89, -97.29},
         planet      = {0, 1}
     },
     {
         display     = "Phaenna",
+        enabled     = PhaennaEnabledConfig,
         territory   = PhaennaTerritory,
         cruisingway = {278.09, 52.02, -378.46},
         planet      = {1, 1}
     },
     {
         display     = "Oizys",
+        enabled     = OizysEnabledConfig,
         territory   = OizysTerritory,
         cruisingway = {-202.93, 0.49, 67.31},
         planet      = {2, 1}
     },
     {
         display     = "Auxesia",
+        enabled     = AuxesiaEnabledConfig,
         territory   = AuxesiaTerritory,
         cruisingway = {364.68, 204.13, 394.90},
         planet      = {3, 1}
@@ -73,11 +109,11 @@ ZoneCycle = {
 
 local function WaitUntil(predicate, timeout, interval)
     timeout  = timeout or 30
-    interval = interval or 0.1
+    interval = interval or AddonPollInterval
 
-    local startTime = os.clock()
+    local startTime = os.time()
 
-    while (os.clock() - startTime) < timeout do
+    while (os.time() - startTime) < timeout do
         if predicate() then
             return true
         end
@@ -103,8 +139,14 @@ local function CallbackWhenReady(addonName, callback, timeout)
     end
 
     Execute(callback)
-    Wait(0.5)
+    Wait(CallbackDelay)
     return true
+end
+
+local function WaitForAddonStateChange(addonName, timeout)
+    return WaitUntil(function()
+        return not IsAddonReady(addonName)
+    end, timeout or 5, AddonPollInterval)
 end
 
 local function ConfirmYesNo(timeout)
@@ -166,16 +208,26 @@ local function OpenCruisingwayMenu()
         return false
     end
 
+    Wait(PostInteractDelay)
+
     WaitUntil(function()
         return IsAddonReady("Talk")
             or IsAddonReady("SelectString")
             or IsAddonReady("WKSPlanetSelect")
-    end, 10, 0.2)
+    end, 10, AddonPollInterval)
 
-    local talkStart = os.clock()
-    while IsAddonReady("Talk") and (os.clock() - talkStart) < 10 do
+    local talkStart = os.time()
+    while IsAddonReady("Talk") and (os.time() - talkStart) < 10 do
         Execute("/callback Talk true 0")
-        Wait(0.3)
+        Wait(TalkAdvanceDelay)
+
+        if WaitUntil(function()
+            return not IsAddonReady("Talk")
+                or IsAddonReady("SelectString")
+                or IsAddonReady("WKSPlanetSelect")
+        end, 3, AddonPollInterval) and not IsAddonReady("Talk") then
+            break
+        end
     end
 
     if IsAddonReady("WKSPlanetSelect") then
@@ -185,7 +237,7 @@ local function OpenCruisingwayMenu()
     -- Select travel option.
     if not WaitUntil(function()
         return IsAddonReady("SelectString") or IsAddonReady("WKSPlanetSelect")
-    end, 10, 0.2) then
+    end, 10, AddonPollInterval) then
         LogInfo("%s SelectString did not appear.", LogPrefix)
         return false
     end
@@ -195,7 +247,13 @@ local function OpenCruisingwayMenu()
     end
 
     Execute("/callback SelectString true " .. tostring(TravelOption))
-    Wait(0.5)
+    Wait(CallbackDelay)
+
+    WaitUntil(function()
+        return IsAddonReady("WKSPlanetSelect")
+            or IsAddonReady("SelectYesno")
+            or not IsAddonReady("SelectString")
+    end, 5, AddonPollInterval)
 
     return true
 end
@@ -209,6 +267,9 @@ local function SelectDestinationPlanet(target)
         LogInfo("%s SelectYesno did not appear after destination selection.", LogPrefix)
         return false
     end
+
+    WaitForAddonStateChange("SelectYesno", 5)
+    Wait(CallbackDelay)
 
     return true
 end
@@ -226,10 +287,10 @@ function TravelToZone(target)
     end
 
     LogInfo("%s Travelling from %s to %s.", LogPrefix, here.display, target.display)
-
-    CloseAddons()
+    LogInfo("%s Step 1: startup/player settle.", LogPrefix)
     WaitForPlayer()
 
+    LogInfo("%s Step 2: moving to Cruisingway.", LogPrefix)
     if not MoveToCruisingway(here) then
         LogInfo("%s Could not move to Cruisingway.", LogPrefix)
         return false
@@ -237,11 +298,13 @@ function TravelToZone(target)
 
     WaitForPlayer()
 
+    LogInfo("%s Step 3: opening Cruisingway menu.", LogPrefix)
     if not OpenCruisingwayMenu() then
         CloseAddons()
         return false
     end
 
+    LogInfo("%s Step 4: selecting destination.", LogPrefix)
     if not SelectDestinationPlanet(target) then
         CloseAddons()
         return false
@@ -249,7 +312,7 @@ function TravelToZone(target)
 
     local startedZoning = WaitUntil(function()
         return IsBetweenAreas() or IsPlayerCasting() or IsInZone(target.territory)
-    end, 20, 0.2)
+    end, 20, AddonPollInterval)
 
     if startedZoning then
         WaitForPlayer()
@@ -308,17 +371,17 @@ function HandleRedAlert(zone, secs)
     LogInfo("%s RED ALERT active in %s - %s remaining. Starting ICE.", LogPrefix, zone.display, mss)
 
     local iceStarted = StartICE()
-    local deadline = os.clock() + secs + 120
+    local deadline = os.time() + secs + 120
 
-    while Run_script do
+    while RunScript do
         local remaining = RedAlertCountdown()
 
         if remaining == nil then
-            Wait(5)
+            Wait(5 + NodePollInterval)
             remaining = RedAlertCountdown()
 
             if remaining == nil then
-                Wait(5)
+                Wait(5 + NodePollInterval)
                 remaining = RedAlertCountdown()
             end
 
@@ -329,19 +392,19 @@ function HandleRedAlert(zone, secs)
             end
         end
 
-        if os.clock() >= deadline then
-            Wait(5)
+        if os.time() >= deadline then
+            Wait(5 + NodePollInterval)
             remaining = RedAlertCountdown()
 
             if not remaining or remaining <= 0 then
-                Wait(5)
+                Wait(5 + NodePollInterval)
                 remaining = RedAlertCountdown()
             end
 
             if remaining and remaining > 0 then
                 local mssRemaining = string.format("%d:%02d", math.floor(remaining / 60), remaining % 60)
                 LogInfo("%s Red Alert still active in %s after grace window - %s remaining. Continuing ICE.", LogPrefix, zone.display, mssRemaining)
-                deadline = os.clock() + remaining + 120
+                deadline = os.time() + remaining + 120
             else
                 LogInfo("%s Red Alert grace window ended in %s and timer is %s. Stopping ICE.", LogPrefix, zone.display, remaining == 0 and "0:00" or "gone")
                 break
@@ -349,9 +412,9 @@ function HandleRedAlert(zone, secs)
         end
 
         if remaining and remaining <= 0 then
-            Wait(10)
+            Wait(10 + NodePollInterval)
         else
-            Wait(5)
+            Wait(5 + NodePollInterval)
         end
     end
 
@@ -361,7 +424,7 @@ function HandleRedAlert(zone, secs)
 
     LogInfo("%s %s alert ended - ICE stopped.", LogPrefix, zone.display)
 
-    if Run_script then
+    if RunScript then
         StellarReturn()
     end
 end
@@ -369,19 +432,27 @@ end
 --=========================== EXECUTION ==========================--
 
 LogInfo("%s Red Alert hunter started.", LogPrefix)
+LogInfo("%s Startup delay for %.1fs before first action.", LogPrefix, StartupDelay)
+Wait(StartupDelay)
 
-while Run_script do
+while RunScript do
     for _, zone in ipairs(ZoneCycle) do
-        if not Run_script then
+        if not RunScript then
             break
         end
 
+        if not zone.enabled then
+            LogInfo("%s %s disabled - skipping.", LogPrefix, zone.display)
+            goto continue
+        end
+
         if TravelToZone(zone) then
-            LogInfo("%s Watching %s for %ds.", LogPrefix, zone.display, ZONE_WAIT)
+            local zoneWait = ZoneWaitConfig or 180
+            LogInfo("%s Watching %s for %ds.", LogPrefix, zone.display, zoneWait)
 
-            local dwellEnd = os.clock() + ZONE_WAIT
+            local dwellEnd = os.time() + zoneWait
 
-            while os.clock() < dwellEnd and Run_script do
+            while os.time() < dwellEnd and RunScript do
                 local secs = RedAlertCountdown()
 
                 if secs and secs > 0 then
@@ -389,11 +460,13 @@ while Run_script do
                     break
                 end
 
-                Wait(10)
+                Wait(10 + NodePollInterval)
             end
         else
             LogInfo("%s Could not reach %s, skipping.", LogPrefix, zone.display)
         end
+
+        ::continue::
     end
 end
 
