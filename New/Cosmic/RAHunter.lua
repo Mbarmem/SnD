@@ -1,7 +1,7 @@
 ﻿--[=====[
 [[SND Metadata]]
 author: Mo
-version: 2.2.1
+version: 2.2.2
 description: Red Alert Hunter
 plugin_dependencies:
 - Artisan
@@ -71,7 +71,7 @@ StartupDelay            = 3.0       -- grace period after pressing Start before 
 
 SinusTerritory   = 1237
 PhaennaTerritory = 1291
-OizysTerritory   = 1504
+OizysTerritory   = 1310
 AuxesiaTerritory = 1319
 
 ZoneCycle = {
@@ -158,7 +158,21 @@ local function ParseCountdown(text)
         return nil
     end
 
-    local m, s = tostring(text):match("(%d+):(%d%d)")
+    local normalized = tostring(text)
+    normalized = normalized:gsub("[%z\1-\31]", "")
+    normalized = normalized:gsub("^%s+", ""):gsub("%s+$", "")
+    normalized = normalized:lower()
+
+    if normalized:find("less than 1m", 1, true) then
+        return 59
+    end
+
+    local minsOnly = normalized:match("(%d+)%s*m")
+    if minsOnly and not normalized:find(":") then
+        return tonumber(minsOnly) * 60
+    end
+
+    local m, s = normalized:match("(%d+):(%d%d)")
     if not m then
         return nil
     end
@@ -172,13 +186,43 @@ local function ParseCountdown(text)
     return secs
 end
 
+local function GetFirstNodeText(addonName, paths)
+    for _, path in ipairs(paths) do
+        local text = GetNodeText(addonName, table.unpack(path))
+        if text and text ~= "" then
+            return tostring(text)
+        end
+    end
+
+    return nil
+end
+
+local function RedAlertTitleVisible()
+    local title = GetFirstNodeText("WKSAnnounce", {
+        {1, 9, 11},
+        {1, 2, 4},
+    })
+    return title and tostring(title):find("RED ALERT", 1, true) ~= nil
+end
+
 function RedAlertCountdown()
-    local title = GetNodeText("WKSAnnounce", 1, 9, 11)
-    if not title or not tostring(title):find("RED ALERT", 1, true) then
+    if not RedAlertTitleVisible() then
         return nil
     end
 
-    return ParseCountdown(GetNodeText("WKSAnnounce", 1, 9, 19))
+    return ParseCountdown(GetFirstNodeText("WKSAnnounce", {
+        {1, 9, 19},
+    }))
+end
+
+function RedAlertAnnouncementCountdown()
+    if not RedAlertTitleVisible() then
+        return nil
+    end
+
+    return ParseCountdown(GetFirstNodeText("WKSAnnounce", {
+        {1, 2, 6},
+    }))
 end
 
 local function MoveToCruisingway(zone)
@@ -287,10 +331,8 @@ function TravelToZone(target)
     end
 
     LogInfo("%s Travelling from %s to %s.", LogPrefix, here.display, target.display)
-    LogInfo("%s Step 1: startup/player settle.", LogPrefix)
     WaitForPlayer()
 
-    LogInfo("%s Step 2: moving to Cruisingway.", LogPrefix)
     if not MoveToCruisingway(here) then
         LogInfo("%s Could not move to Cruisingway.", LogPrefix)
         return false
@@ -298,13 +340,11 @@ function TravelToZone(target)
 
     WaitForPlayer()
 
-    LogInfo("%s Step 3: opening Cruisingway menu.", LogPrefix)
     if not OpenCruisingwayMenu() then
         CloseAddons()
         return false
     end
 
-    LogInfo("%s Step 4: selecting destination.", LogPrefix)
     if not SelectDestinationPlanet(target) then
         CloseAddons()
         return false
@@ -385,9 +425,7 @@ function HandleRedAlert(zone, secs)
                 remaining = RedAlertCountdown()
             end
 
-            if remaining and remaining > 0 then
-                LogInfo("%s Red Alert timer refreshed in %s. Continuing ICE.", LogPrefix, zone.display)
-            else
+            if not (remaining and remaining > 0) then
                 break
             end
         end
@@ -402,8 +440,6 @@ function HandleRedAlert(zone, secs)
             end
 
             if remaining and remaining > 0 then
-                local mssRemaining = string.format("%d:%02d", math.floor(remaining / 60), remaining % 60)
-                LogInfo("%s Red Alert still active in %s after grace window - %s remaining. Continuing ICE.", LogPrefix, zone.display, mssRemaining)
                 deadline = os.time() + remaining + 120
             else
                 LogInfo("%s Red Alert grace window ended in %s and timer is %s. Stopping ICE.", LogPrefix, zone.display, remaining == 0 and "0:00" or "gone")
@@ -429,10 +465,17 @@ function HandleRedAlert(zone, secs)
     end
 end
 
+function HandleRedAlertAnnouncement(zone, secs)
+    local mss = string.format("%d:%02d", math.floor(secs / 60), secs % 60)
+    local waitSecs = secs + 60
+
+    LogInfo("%s RED ALERT announcement in %s - %s remaining. Waiting %ds before rechecking active timer.", LogPrefix, zone.display, mss, waitSecs)
+    Wait(waitSecs)
+end
+
 --=========================== EXECUTION ==========================--
 
 LogInfo("%s Red Alert hunter started.", LogPrefix)
-LogInfo("%s Startup delay for %.1fs before first action.", LogPrefix, StartupDelay)
 Wait(StartupDelay)
 
 while RunScript do
@@ -441,32 +484,37 @@ while RunScript do
             break
         end
 
-        if not zone.enabled then
-            LogInfo("%s %s disabled - skipping.", LogPrefix, zone.display)
-            goto continue
-        end
+        if zone.enabled then
+            if TravelToZone(zone) then
+                local zoneWait = ZoneWaitConfig or 180
 
-        if TravelToZone(zone) then
-            local zoneWait = ZoneWaitConfig or 180
-            LogInfo("%s Watching %s for %ds.", LogPrefix, zone.display, zoneWait)
+                local dwellEnd = os.time() + zoneWait
 
-            local dwellEnd = os.time() + zoneWait
+                while os.time() < dwellEnd and RunScript do
+                    local secs = RedAlertCountdown()
 
-            while os.time() < dwellEnd and RunScript do
-                local secs = RedAlertCountdown()
+                    if secs and secs > 0 then
+                        HandleRedAlert(zone, secs)
+                        break
+                    end
 
-                if secs and secs > 0 then
-                    HandleRedAlert(zone, secs)
-                    break
+                    local announcementSecs = RedAlertAnnouncementCountdown()
+                    if announcementSecs and announcementSecs > 0 then
+                        HandleRedAlertAnnouncement(zone, announcementSecs)
+
+                        local activeSecs = RedAlertCountdown()
+                        if activeSecs and activeSecs > 0 then
+                            HandleRedAlert(zone, activeSecs)
+                            break
+                        end
+                    end
+
+                    Wait(10 + NodePollInterval)
                 end
-
-                Wait(10 + NodePollInterval)
+            else
+                LogInfo("%s Could not reach %s, skipping.", LogPrefix, zone.display)
             end
-        else
-            LogInfo("%s Could not reach %s, skipping.", LogPrefix, zone.display)
         end
-
-        ::continue::
     end
 end
 
