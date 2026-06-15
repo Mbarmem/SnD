@@ -61,9 +61,26 @@ function EnrollTournament()
     end
 
     Execute("/callback SelectString true 0")
-    Wait(1)
 
-    if IsAddonReady("TripleTriadRanking") then
+    local alreadyEnrolled = false
+    local start = os.clock()
+    repeat
+        if IsAddonReady("TripleTriadRanking") then
+            alreadyEnrolled = true
+            break
+        end
+
+        if IsAddonReady("SelectYesno") then
+            break
+        end
+        
+        if IsAddonReady("Talk") then
+            Execute("/click Talk Click")
+        end
+        Wait(0.5)
+    until (os.clock() - start) >= 30
+
+    if alreadyEnrolled then
         LogInfo(string.format("%s Already enrolled in tournament, closing NPC window...", LogPrefix))
         Execute("/callback TripleTriadRanking true -2")
         Wait(1)
@@ -77,12 +94,6 @@ function EnrollTournament()
             Execute("/callback SelectString true 3")
         end
     else
-        while not IsAddonReady("SelectYesno") do
-            if IsAddonReady("Talk") then
-                Execute("/click Talk Click")
-            end
-            Wait(1)
-        end
         Execute("/callback SelectYesno true 1")
     end
 
