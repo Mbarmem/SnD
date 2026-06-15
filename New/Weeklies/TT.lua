@@ -19,7 +19,7 @@ configs:
     default: true
   RegularMatches:
     description: Number of regular matches to play.
-    default: 5
+    default: 15
   PlayTournament:
     description: Play Triple Triad Tournament matches in Battlehall.
     default: false
@@ -59,15 +59,32 @@ function EnrollTournament()
         end
         Wait(1)
     end
-    Execute("/callback SelectString true 0")
 
-    while not IsAddonReady("SelectYesno") do
-        if IsAddonReady("Talk") then
-            Execute("/click Talk Click")
-        end
+    Execute("/callback SelectString true 0")
+    Wait(1)
+
+    if IsAddonReady("TripleTriadRanking") then
+        LogInfo(string.format("%s Already enrolled in tournament, closing NPC window...", LogPrefix))
+        Execute("/callback TripleTriadRanking true -2")
         Wait(1)
+
+        if IsAddonReady("TripleTriadRanking") then
+            Execute("/callback TripleTriadRanking true -1")
+            Wait(1)
+        end
+
+        if IsAddonReady("SelectString") then
+            Execute("/callback SelectString true 3")
+        end
+    else
+        while not IsAddonReady("SelectYesno") do
+            if IsAddonReady("Talk") then
+                Execute("/click Talk Click")
+            end
+            Wait(1)
+        end
+        Execute("/callback SelectYesno true 1")
     end
-    Execute("/callback SelectYesno true 1")
 
     WaitForPlayer()
 end
