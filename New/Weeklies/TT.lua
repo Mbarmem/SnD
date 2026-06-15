@@ -77,7 +77,7 @@ function EnrollTournament()
         if IsAddonReady("Talk") then
             Execute("/click Talk Click")
         end
-        Wait(0.5)
+        Wait(1)
     until (os.clock() - start) >= 30
 
     if alreadyEnrolled then
@@ -94,7 +94,12 @@ function EnrollTournament()
             Execute("/callback SelectString true 3")
         end
     else
-        Execute("/callback SelectYesno true 1")
+        Execute("/callback SelectYesno true 0")
+    end
+
+    while IsAddonReady("Talk") do
+        Execute("/click Talk Click")
+        Wait(2)
     end
 
     WaitForPlayer()
