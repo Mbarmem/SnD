@@ -73,7 +73,7 @@ function EnrollTournament()
         if IsAddonReady("SelectYesno") then
             break
         end
-        
+
         if IsAddonReady("Talk") then
             Execute("/click Talk Click")
         end
@@ -106,8 +106,17 @@ function DoTournamentMatches()
     MoveToTarget("Flichoirel the Lordling", 3)
     Wait(1)
     Interact("Flichoirel the Lordling")
-    WaitForCondition("PlayingMiniGame", true)
-    Execute("/saucy tt play "..TournamentMatches)
+
+    WaitForAddon("SelectString")
+    Execute("/callback SelectString true 1")
+    Wait(1)
+
+    while IsAddonReady("Talk") do
+        Execute("/click Talk Click")
+        Wait(1)
+    end
+
+    Execute("/saucy tt play " .. TournamentMatches)
     Execute("/saucy tt go")
     Wait(1)
 
@@ -128,8 +137,17 @@ function DoRegularTT()
     MoveToTarget("Nell Half-full", 3)
     Wait(1)
     Interact("Nell Half-full")
-    WaitForCondition("PlayingMiniGame", true)
-    Execute("/saucy tt play "..RegularMatches)
+
+    WaitForAddon("SelectString")
+    Execute("/callback SelectString true 0")
+    Wait(1)
+
+    while IsAddonReady("Talk") do
+        Execute("/click Talk Click")
+        Wait(1)
+    end
+
+    Execute("/saucy tt play " .. RegularMatches)
     Execute("/saucy tt go")
     Wait(1)
 
