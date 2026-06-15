@@ -95,11 +95,11 @@ function EnrollTournament()
         end
     else
         Execute("/callback SelectYesno true 0")
-    end
-
-    while IsAddonReady("Talk") do
-        Execute("/click Talk Click")
-        Wait(2)
+        Wait(1)
+        while IsAddonReady("Talk") do
+            Execute("/click Talk Click")
+            Wait(2)
+        end
     end
 
     WaitForPlayer()
