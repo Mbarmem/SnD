@@ -1815,6 +1815,132 @@ function GetAetheryteName(zoneId)
     end
 end
 
+--============================ WEATHER ============================--
+
+--===============--
+--    Weather    --
+--===============--
+
+--- Weather type names, keyed by Weather sheet row ID.
+--- Extend as needed; only includes weather currently referenced by EorzeaWeatherRates below.
+WeatherName = {
+    [1]   = "Clear Skies",
+    [2]   = "Fair Skies",
+    [3]   = "Clouds",
+    [4]   = "Fog",
+    [5]   = "Wind",
+    [6]   = "Gales",
+    [7]   = "Rain",
+    [8]   = "Showers",
+    [9]   = "Thunder",
+    [10]  = "Thunderstorms",
+    [11]  = "Dust Storms",
+    [15]  = "Snow",
+    [49]  = "Umbral Wind",
+    [50]  = "Umbral Static",
+    [149] = "Astromagnetic Storms",
+}
+
+--- Cumulative weather-rate tables per Territory ID, sourced from the FFXIV Fish Tracker dataset
+--- (https://github.com/icykoneko/ff14-fish-tracker-app). Each entry is {weatherId, cumulativeChance},
+--- sorted ascending by cumulativeChance (0-100); the forecast target rolls into the first bucket
+--- whose cumulativeChance exceeds it. Add more territory IDs here as needed.
+EorzeaWeatherRates = {
+    [1189] = {{1, 15}, {2, 55}, {3, 70}, {4, 85}, {7, 100}},                    -- Yak T'el
+    [1188] = {{1, 25}, {2, 60}, {3, 75}, {4, 85}, {7, 95}, {8, 100}},           -- Kozama'uka
+    [1192] = {{7, 10}, {4, 20}, {3, 40}, {2, 100}},                             -- Living Memory
+    [1185] = {{1, 40}, {2, 80}, {3, 85}, {4, 95}, {7, 100}},                    -- Tuliyollal
+    [1191] = {{2, 5}, {3, 25}, {4, 40}, {7, 45}, {10, 50}, {50, 100}},          -- Heritage Found
+    [1190] = {{1, 5}, {2, 50}, {3, 70}, {11, 85}, {6, 100}},                    -- Shaaloani
+    [1187] = {{1, 20}, {2, 50}, {3, 70}, {4, 80}, {5, 90}, {15, 100}},          -- Urqopacha
+    [960]  = {{149, 15}, {2, 85}, {49, 100}},                                   -- Ultima Thule
+    [958]  = {{15, 45}, {9, 50}, {7, 55}, {4, 60}, {3, 85}, {2, 95}, {1, 100}}, -- Garlemald
+}
+
+--------------------------------------------------------------------
+
+--- Returns the current Eorzea hour and minute derived purely from the real-world clock.
+--- Eorzea time runs at a fixed ratio of real time (1 Eorzea hour = 175 real seconds);
+--- no game memory access or external service is required.
+--- @param unixSeconds number?    [optional] real Unix timestamp to evaluate; defaults to now
+--- @return integer hour          the current Eorzea hour (0-23)
+--- @return integer minute        the current Eorzea minute (0-59)
+function GetEorzeaTime(unixSeconds)
+    unixSeconds = unixSeconds or os.time()
+    local eorzeaTotalMinutes = math.floor(unixSeconds * 3600 / 175 / 60)
+    local hour = math.floor(eorzeaTotalMinutes / 60) % 24
+    local minute = eorzeaTotalMinutes % 60
+    LogDebug(string.format("[MoLib] GetEorzeaTime(%d) -> %02d:%02d", unixSeconds, hour, minute))
+    return hour, minute
+end
+
+--------------------------------------------------------------------
+
+--- Calculates the FFXIV weather forecast target (0-99) for the 8-Eorzea-hour weather
+--- period containing the given timestamp. This is the same deterministic algorithm the
+--- game client uses internally, so it requires no network access or addon reads.
+--- @param unixSeconds number    real Unix timestamp to evaluate
+--- @return integer target       forecast target value, 0-99
+function GetWeatherForecastTarget(unixSeconds)
+    local bell = unixSeconds // 175
+    local increment = (bell + 8 - (bell % 8)) % 24
+    local totalDays = unixSeconds // 4200
+
+    local calcBase = totalDays * 100 + increment
+    local step1 = (calcBase << 11) ~ calcBase
+    local step2 = (step1 >> 8) ~ step1
+
+    return step2 % 100
+end
+
+--------------------------------------------------------------------
+
+--- Resolves the active Weather ID for a zone at a given time using its cumulative rate table.
+--- @param territoryId number       the Territory ID of the zone (see EorzeaWeatherRates)
+--- @param unixSeconds number?      [optional] real Unix timestamp to evaluate; defaults to now
+--- @return integer? weatherId      the active weather's row ID, or nil if the zone is unknown
+function GetCurrentWeatherId(territoryId, unixSeconds)
+    unixSeconds = unixSeconds or os.time()
+    local rates = EorzeaWeatherRates[territoryId]
+    if not rates then
+        LogDebug(string.format("[MoLib] GetCurrentWeatherId: no weather rates for territory %d", territoryId))
+        return nil
+    end
+
+    local target = GetWeatherForecastTarget(unixSeconds)
+    for _, entry in ipairs(rates) do
+        local weatherId, cumulativeChance = entry[1], entry[2]
+        if target < cumulativeChance then
+            return weatherId
+        end
+    end
+
+    return nil
+end
+
+--------------------------------------------------------------------
+
+--- Resolves the active weather's display name for a zone at a given time.
+--- @param territoryId number       the Territory ID of the zone (see EorzeaWeatherRates)
+--- @param unixSeconds number?      [optional] real Unix timestamp to evaluate; defaults to now
+--- @return string? weatherName     the active weather's name, or nil if unresolvable
+function GetCurrentWeatherName(territoryId, unixSeconds)
+    local weatherId = GetCurrentWeatherId(territoryId, unixSeconds)
+    return weatherId and WeatherName[weatherId] or nil
+end
+
+--------------------------------------------------------------------
+
+--- Resolves the weather name from the previous 8-Eorzea-hour period for a zone.
+--- Useful for fish that require a weather transition (e.g. "Rain after Clear Skies").
+--- @param territoryId number       the Territory ID of the zone (see EorzeaWeatherRates)
+--- @param unixSeconds number?      [optional] real Unix timestamp to evaluate; defaults to now
+--- @return string? weatherName     the previous period's weather name, or nil if unresolvable
+function GetPreviousWeatherName(territoryId, unixSeconds)
+    unixSeconds = unixSeconds or os.time()
+    return GetCurrentWeatherName(territoryId, unixSeconds - 1400) -- 8 Eorzea hours = 8 * 175s
+end
+
 --============================ DUTIES ============================--
 
 --===================--
