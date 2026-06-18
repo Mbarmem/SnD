@@ -1898,6 +1898,12 @@ end
 --- Calculates the FFXIV weather forecast target (0-99) for the 8-Eorzea-hour weather
 --- period containing the given timestamp. This is the same deterministic algorithm the
 --- game client uses internally, so it requires no network access or addon reads.
+--- The canonical algorithm runs on uint32_t, where << and ~ truncate at 32 bits; Lua's
+--- integers are 64-bit and its bitwise ops do NOT auto-truncate, so each intermediate
+--- value must be masked with 0xFFFFFFFF to match - without it, calcBase grows past 32
+--- bits within a few years of the epoch and the result silently diverges from the real
+--- in-game weather (confirmed live: produced "Gales" here when the real weather, and
+--- every third-party tracker, said "Clouds").
 --- @param unixSeconds number    real Unix timestamp to evaluate
 --- @return integer target       forecast target value, 0-99
 function GetWeatherForecastTarget(unixSeconds)
@@ -1905,8 +1911,8 @@ function GetWeatherForecastTarget(unixSeconds)
     local increment = (bell + 8 - (bell % 8)) % 24
     local totalDays = unixSeconds // 4200
 
-    local calcBase = totalDays * 100 + increment
-    local step1 = (calcBase << 11) ~ calcBase
+    local calcBase = (totalDays * 100 + increment) & 0xFFFFFFFF
+    local step1 = ((calcBase << 11) & 0xFFFFFFFF) ~ calcBase
     local step2 = (step1 >> 8) ~ step1
 
     return step2 % 100
