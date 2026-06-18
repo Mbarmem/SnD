@@ -1038,44 +1038,54 @@ function OnChatMessage()
     end
 end
 
-function BuildDisabledFishSet()
-    disabledFish = {}
-    local disabledFishConfig = Config.Get("DisabledFish")
+--- List-type configs (DisabledFish, EnabledFish) come back from Config.Get()
+--- as a .NET-backed collection, not a plain Lua table - it exposes .Count
+--- and is indexed like a C# list (see Tokens.lua's JobsConfig for the same
+--- pattern), so a plain ipairs()/type()=="table" check silently finds
+--- nothing and leaves the set empty.
+function ConfigListAt(list, index)
+    if not list then return nil end
+    if list[0] ~= nil then
+        return list[index]
+    end
+    return list[index + 1]
+end
 
-    if type(disabledFishConfig) == "table" then
-        for _, fishName in ipairs(disabledFishConfig) do
+function BuildFishNameSet(configKey)
+    local set = {}
+    local config = Config.Get(configKey)
+
+    if config and config.Count then
+        for i = 0, config.Count - 1 do
+            local fishName = ConfigListAt(config, i)
             if fishName and fishName ~= "" then
-                disabledFish[fishName] = true
+                set[fishName] = true
             end
         end
-    elseif type(disabledFishConfig) == "string" and disabledFishConfig ~= "" then
-        for fishName in disabledFishConfig:gmatch("[^\r\n,]+") do
+    elseif type(config) == "table" then
+        for _, fishName in ipairs(config) do
+            if fishName and fishName ~= "" then
+                set[fishName] = true
+            end
+        end
+    elseif type(config) == "string" and config ~= "" then
+        for fishName in config:gmatch("[^\r\n,]+") do
             local trimmed = fishName:gsub("^%s+", ""):gsub("%s+$", "")
             if trimmed ~= "" then
-                disabledFish[trimmed] = true
+                set[trimmed] = true
             end
         end
     end
+
+    return set
+end
+
+function BuildDisabledFishSet()
+    disabledFish = BuildFishNameSet("DisabledFish")
 end
 
 function BuildEnabledFishSet()
-    enabledFish = {}
-    local enabledFishConfig = Config.Get("EnabledFish")
-
-    if type(enabledFishConfig) == "table" then
-        for _, fishName in ipairs(enabledFishConfig) do
-            if fishName and fishName ~= "" then
-                enabledFish[fishName] = true
-            end
-        end
-    elseif type(enabledFishConfig) == "string" and enabledFishConfig ~= "" then
-        for fishName in enabledFishConfig:gmatch("[^\r\n,]+") do
-            local trimmed = fishName:gsub("^%s+", ""):gsub("%s+$", "")
-            if trimmed ~= "" then
-                enabledFish[trimmed] = true
-            end
-        end
-    end
+    enabledFish = BuildFishNameSet("EnabledFish")
 end
 
 function BuildBaitItemIdMap()
