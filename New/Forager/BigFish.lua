@@ -744,6 +744,20 @@ end
 function BuildBaitItemIdMap()
     baitItemIds = {}
     baitChecksReady = false
+    local requiredBaits = {}
+    local remainingBaits = 0
+
+    for _, fish in ipairs(FishData) do
+        if fish.bait and fish.bait ~= "" and not requiredBaits[fish.bait] then
+            requiredBaits[fish.bait] = true
+            remainingBaits = remainingBaits + 1
+        end
+    end
+
+    if remainingBaits == 0 then
+        baitChecksReady = true
+        return
+    end
 
     local itemSheet = Excel.GetSheet("Item")
     if not itemSheet then
@@ -756,7 +770,15 @@ function BuildBaitItemIdMap()
 
     while row do
         if row.Name and row.RowId then
-            baitItemIds[tostring(row.Name)] = row.RowId
+            local itemName = tostring(row.Name)
+            if requiredBaits[itemName] and not baitItemIds[itemName] then
+                baitItemIds[itemName] = row.RowId
+                remainingBaits = remainingBaits - 1
+
+                if remainingBaits <= 0 then
+                    break
+                end
+            end
         end
         index = index + 1
         row = itemSheet:GetRow(index)
