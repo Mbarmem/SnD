@@ -527,6 +527,25 @@ end
 
 --------------------------------------------------------------------
 
+--- Creates and selects an anonymous AutoHook preset from an exported preset string
+--- @param preset string    the exported AutoHook preset string
+--- @return nil
+function SetAutoHookAnonymousPreset(preset)
+    LogDebug(string.format("[MoLib] AutoHook anonymous preset created and selected: %s", tostring(preset)))
+    IPC.AutoHook.CreateAndSelectAnonymousPreset(preset)
+end
+
+--------------------------------------------------------------------
+
+--- Deletes all currently-created anonymous AutoHook presets
+--- @return nil
+function ClearAutoHookAnonymousPresets()
+    LogDebug("[MoLib] Cleared AutoHook anonymous presets")
+    IPC.AutoHook.DeleteAllAnonymousPresets()
+end
+
+--------------------------------------------------------------------
+
 --- Sets the AutoHook plugin state
 --- @param state boolean    the desired plugin state (true to enable, false to disable)
 --- @return nil
