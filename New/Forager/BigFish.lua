@@ -58,11 +58,18 @@ configs:
 --                             to names via WEATHER_TYPES
 --        - bait/additionalBait    <- FISH.bestCatchPath item chain, resolved via
 --                             ITEMS (first item = primary bait, rest = additional)
---      Two spots (Cabinkeep Permit, Purse of Riches - both in Tuliyollal) have a
+--      Two spots (Cabinkeep Permit, Purse of Riches - both in Tuliyollal) had a
 --      corrupted Y value in the *upstream* data.js itself (~47 million instead of
 --      a normal map coordinate) - confirmed by grepping the raw file, not a
---      parsing bug on our end. Left as y = nil here; SelectNextFish() skips any
---      entry with a nil y until someone fills in the real coordinate by hand.
+--      parsing bug on our end. Both have since been fixed by hand:
+--        - Cabinkeep Permit: recovered by standing at the spot in-game and
+--          converting the reported world position (X=-152.01, Z=259.63) to map
+--          coordinates using FFXIV's standard formula with Tuliyollal's map scale
+--          (180): x = 10.7, y = 15.3 (x lines up almost exactly with the value
+--          that was already there, confirming the conversion was correct).
+--        - Purse of Riches: x = 16.9, y = 15.2, read directly off an in-game
+--          gathering-helper overlay (already in map-coordinate units, no
+--          conversion needed).
 --   5. Cross-checked against the user's actual AutoHook preset list (screenshot
 --      of the "(Big Fish) 7.x Dawntrail" preset folder) and confirmed preset
 --      names match fish names exactly 1:1 - that's why CharacterState.fishing
@@ -139,7 +146,6 @@ configs:
 --                                  selectFish.
 --
 -- Known gaps / things to revisit:
---   - Cabinkeep Permit and Purse of Riches have no real Y coordinate (see above).
 --   - No success/failure detection for a fishing attempt beyond "IsFishing()
 --     turned false" - can't currently distinguish "caught it" from "AutoHook gave
 --     up" from "got interrupted". Might be worth hooking chat messages (see
@@ -182,8 +188,6 @@ CharacterState = {}
 --- x/y are map coordinates (same numbers you'd see in-game), fed directly to SetMapFlag.
 --- time is an Eorzea hour window ("HH:00-HH:00") or "Always". weather/previousWeather are
 --- comma-separated lists of acceptable weather names, or "" if unrestricted.
---- Two entries (Cabinkeep Permit, Purse of Riches) have y = nil due to a data error upstream
---- in the source tracker - verify those coordinates in-game before relying on them.
 FishData = {
     {
         name = "Autarch's Supper",
@@ -238,7 +242,7 @@ FishData = {
         zone = "Tuliyollal",
         zoneId = 1185,
         spotName = "The For'ard Cabins",
-        x = 10.8, y = nil --[[ source data error, verify in-game ]], radius = 1000,
+        x = 10.7, y = 15.3, radius = 1000,
         time = "5:00-7:00",
         weather = "",
         previousWeather = "",
@@ -466,7 +470,7 @@ FishData = {
         zone = "Tuliyollal",
         zoneId = 1185,
         spotName = "High Tide Harbor",
-        x = 17.5, y = nil --[[ source data error, verify in-game ]], radius = 1800,
+        x = 16.9, y = 15.2, radius = 1800,
         time = "16:00-18:00",
         weather = "Rain",
         previousWeather = "Clouds",
