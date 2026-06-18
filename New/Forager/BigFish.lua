@@ -634,7 +634,7 @@ FishData = {
         name = "Sidereal Whale",
         zone = "Ultima Thule",
         zoneId = 960,
-        spotName = "Limne 3-β",
+        spotName = "Limne 3-Î²",
         x = 25.1, y = 17.2, radius = 600,
         worldX = 179.82, worldZ = -214.79,
         time = "0:00-8:00",
@@ -881,14 +881,14 @@ function CharacterState.selectFish()
     SelectedFish = fish
     LogInfo(string.format("%s Selected fish: %s (%s, bait: %s)", LogPrefix, SelectedFish.name, SelectedFish.spotName, SelectedFish.bait))
     State = CharacterState.teleportToZone
-    LogInfo(string.format("%s State Changed → TeleportToZone", LogPrefix))
+    LogInfo(string.format("%s State Changed â†’ TeleportToZone", LogPrefix))
 end
 
 function CharacterState.teleportToZone()
     if not IsFishUp(SelectedFish) then
         LogInfo(string.format("%s %s's window closed before arrival.", LogPrefix, SelectedFish.name))
         State = CharacterState.selectFish
-        LogInfo(string.format("%s State Changed → SelectFish", LogPrefix))
+        LogInfo(string.format("%s State Changed â†’ SelectFish", LogPrefix))
         return
     end
 
@@ -905,20 +905,20 @@ function CharacterState.teleportToZone()
     end
 
     State = CharacterState.travelToSpot
-    LogInfo(string.format("%s State Changed → TravelToSpot", LogPrefix))
+    LogInfo(string.format("%s State Changed â†’ TravelToSpot", LogPrefix))
 end
 
 function CharacterState.travelToSpot()
     if not IsFishUp(SelectedFish) then
         LogInfo(string.format("%s %s's window closed before arrival.", LogPrefix, SelectedFish.name))
         State = CharacterState.selectFish
-        LogInfo(string.format("%s State Changed → SelectFish", LogPrefix))
+        LogInfo(string.format("%s State Changed â†’ SelectFish", LogPrefix))
         return
     end
 
     if not IsInZone(SelectedFish.zoneId) then
         State = CharacterState.teleportToZone
-        LogInfo(string.format("%s State Changed → TeleportToZone", LogPrefix))
+        LogInfo(string.format("%s State Changed â†’ TeleportToZone", LogPrefix))
         return
     end
 
@@ -934,7 +934,7 @@ function CharacterState.travelToSpot()
     Dismount()
 
     State = CharacterState.fishing
-    LogInfo(string.format("%s State Changed → Fishing", LogPrefix))
+    LogInfo(string.format("%s State Changed â†’ Fishing", LogPrefix))
 end
 
 function CharacterState.fishing()
@@ -943,7 +943,7 @@ function CharacterState.fishing()
             LogInfo(string.format("%s %s's window closed before fishing started.", LogPrefix, SelectedFish.name))
             CleanupAutoHookPreset(SelectedFish)
             State = CharacterState.selectFish
-            LogInfo(string.format("%s State Changed → SelectFish", LogPrefix))
+            LogInfo(string.format("%s State Changed â†’ SelectFish", LogPrefix))
             return
         end
 
@@ -1006,7 +1006,7 @@ function CharacterState.fishing()
     catchMessage = nil
     forcedQuit = false
     State = CharacterState.selectFish
-    LogInfo(string.format("%s State Changed → SelectFish", LogPrefix))
+    LogInfo(string.format("%s State Changed â†’ SelectFish", LogPrefix))
 end
 
 --=========================== EXECUTION ===========================--
@@ -1027,7 +1027,7 @@ if not GetClassJobId(18) then
 end
 
 State = CharacterState.selectFish
-LogInfo(string.format("%s State Changed → SelectFish", LogPrefix))
+LogInfo(string.format("%s State Changed â†’ SelectFish", LogPrefix))
 
 while true do
     State()

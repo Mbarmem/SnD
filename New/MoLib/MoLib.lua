@@ -999,7 +999,7 @@ end
 --------------------------------------------------------------------
 
 --- Waits for a teleport to fully complete
---- [Casting → Wait → BetweenAreas → Wait → PlayerAvailable]
+--- [Casting â†’ Wait â†’ BetweenAreas â†’ Wait â†’ PlayerAvailable]
 --- @param timeout number?     [optional] timeout in seconds (default 300)
 --- @return boolean success    true if teleport completed, false if timed out
 --- @overload fun(): boolean
@@ -1117,7 +1117,7 @@ function MoveTo(x, y, z, stopDistance, fly)
     while (os.clock() - t0) < 5 do
         if PathfindInProgress() or PathIsRunning() then
             pathStarted = true
-            LogDebug(string.format("[MoLib] Navmesh pathing issued → (%.3f, %.3f, %.3f)", x, y, z))
+            LogDebug(string.format("[MoLib] Navmesh pathing issued â†’ (%.3f, %.3f, %.3f)", x, y, z))
             break
         end
         Wait(0.1)
@@ -1164,7 +1164,7 @@ function MoveTo(x, y, z, stopDistance, fly)
             local dist = GetDistance(currentPos, destination)
             if dist <= stopDistance then
                 PathStop()
-                LogDebug(string.format("[MoLib] Navmesh has been stopped early at distance → %.2f", dist))
+                LogDebug(string.format("[MoLib] Navmesh has been stopped early at distance â†’ %.2f", dist))
                 break
             end
         end
@@ -1191,7 +1191,7 @@ function MoveTo(x, y, z, stopDistance, fly)
         if (os.clock() - lastMoveTime) >= stuckSeconds then
             if not didRebuild then
                 didRebuild = true
-                LogDebug("[MoLib] MoveTo: Stuck detected → Rebuilding navmesh and retrying path.")
+                LogDebug("[MoLib] MoveTo: Stuck detected â†’ Rebuilding navmesh and retrying path.")
                 PathStop()
 
                 local clearRetries = 0
@@ -1238,7 +1238,7 @@ function MoveTo(x, y, z, stopDistance, fly)
                 lastMoveTime = os.clock()
                 lastPos = GetPlayerPosition() or lastPos
             else
-                LogDebug("[MoLib] MoveTo: Still stuck after Rebuild() → giving up.")
+                LogDebug("[MoLib] MoveTo: Still stuck after Rebuild() â†’ giving up.")
                 PathStop()
                 return false
             end
@@ -1405,7 +1405,7 @@ function GetDistanceToPoint(dX, dY, dZ)
     local dz = dZ - pz
 
     local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
-    LogDebug(string.format("[MoLib] [GetDistanceToPoint] from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f) → %.2f", px, py, pz, dX, dY, dZ, distance))
+    LogDebug(string.format("[MoLib] [GetDistanceToPoint] from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f) â†’ %.2f", px, py, pz, dX, dY, dZ, distance))
     return distance
 end
 
@@ -1446,7 +1446,7 @@ function StringStartsWithIgnoreCase(fullString, partialString)
     local fullLower    = string.lower(fullString)
     local partialLower = string.lower(partialString)
     local result       = string.sub(fullLower, 1, #partialLower) == partialLower
-    LogDebug(string.format("[MoLib] [StringStartsWithIgnoreCase] Comparing '%s' with '%s' → %s", fullString, partialString, tostring(result)))
+    LogDebug(string.format("[MoLib] [StringStartsWithIgnoreCase] Comparing '%s' with '%s' â†’ %s", fullString, partialString, tostring(result)))
     return result
 end
 
@@ -1502,7 +1502,7 @@ function Target(name, maxRetries, sleepTime)
         end
 
         if Entity.Target and StringStartsWithIgnoreCase(Entity.Target.Name, name) then
-            LogDebug(string.format("[MoLib] Target acquired → %s [word: %s]", Entity.Target.Name, name))
+            LogDebug(string.format("[MoLib] Target acquired â†’ %s [word: %s]", Entity.Target.Name, name))
             return true
         end
         retries = retries + 1
@@ -1517,7 +1517,7 @@ end
 --- @return string? name    the name of the current target, or nil if no target exists
 function GetTargetName()
     local name = Entity.Target and Entity.Target.Name or nil
-    LogDebug(string.format("[MoLib] Current target name → %s", name or "None"))
+    LogDebug(string.format("[MoLib] Current target name â†’ %s", name or "None"))
     return name
 end
 
@@ -1527,7 +1527,7 @@ end
 --- @return nil
 function ClearTarget()
     if Entity.Target then
-        LogDebug(string.format("[MoLib] Clearing target → %s", Entity.Target.Name))
+        LogDebug(string.format("[MoLib] Clearing target â†’ %s", Entity.Target.Name))
         Entity.Target:ClearTarget()
     else
         LogDebug(string.format("[MoLib] ClearTarget called, but no valid target was selected"))
@@ -1565,7 +1565,7 @@ function MoveToTarget(targetName, distanceThreshold, maxRetries, sleepTime, fly)
         LogDebug(string.format("[MoLib] MoveToTarget() failed: Target entity position is nil"))
         return false
     end
-    LogDebug(string.format("[MoLib] Moving to target [%s] at (%.2f, %.2f, %.2f) with stop distance → %.2f", target.Name, target.Position.X, target.Position.Y, target.Position.Z, distanceThreshold))
+    LogDebug(string.format("[MoLib] Moving to target [%s] at (%.2f, %.2f, %.2f) with stop distance â†’ %.2f", target.Name, target.Position.X, target.Position.Y, target.Position.Z, distanceThreshold))
     return MoveTo(target.Position.X, target.Position.Y, target.Position.Z, distanceThreshold, fly)
 end
 
@@ -1586,7 +1586,7 @@ function Interact(name, maxRetries, sleepTime)
     local success = Target(name, maxRetries, sleepTime)
     if success and Entity.Target then
         Entity.Target:Interact()
-        LogDebug(string.format("[MoLib] Interacted with → %s", Entity.Target.Name))
+        LogDebug(string.format("[MoLib] Interacted with â†’ %s", Entity.Target.Name))
         Wait(sleepTime)
         return true
     end
@@ -1617,7 +1617,7 @@ function GetDistanceToTarget()
     local dz = playerPos.Z - targetPos.Z
 
     local distance = math.sqrt(dx * dx + dy * dy + dz * dz)
-    LogDebug(string.format("[MoLib] Distance to target → %.2f", distance))
+    LogDebug(string.format("[MoLib] Distance to target â†’ %.2f", distance))
     return distance
 end
 
@@ -1634,7 +1634,7 @@ function IsAddonReady(name)
     local addon = Addons.GetAddon(name)
 
     local ready = addon and addon.Exists and addon.Ready
-    LogDebug(string.format("[MoLib] IsAddonReady('%s') → %s", name, tostring(ready)))
+    LogDebug(string.format("[MoLib] IsAddonReady('%s') â†’ %s", name, tostring(ready)))
     return ready
 end
 
@@ -1645,7 +1645,7 @@ end
 --- @return boolean visible    true if the addon is visible (ready), false otherwise
 function IsAddonVisible(name)
     local visible = IsAddonReady(name)
-    LogDebug(string.format("[MoLib] IsAddonVisible('%s') → %s", name, tostring(visible)))
+    LogDebug(string.format("[MoLib] IsAddonVisible('%s') â†’ %s", name, tostring(visible)))
     return visible
 end
 
@@ -1758,7 +1758,7 @@ end
 --- @return number zoneId    the current territory (zone) ID
 function GetZoneID()
     local zoneId = Svc.ClientState.TerritoryType
-    LogDebug(string.format("[MoLib] Current zone ID → %d", zoneId))
+    LogDebug(string.format("[MoLib] Current zone ID â†’ %d", zoneId))
     return zoneId
 end
 
@@ -1770,7 +1770,7 @@ end
 function IsInZone(zoneId)
     local currentZone = GetZoneID()
     local result = currentZone == zoneId
-    LogDebug(string.format("[MoLib] IsInZone(%d) → %s (current: %d)", zoneId, tostring(result), currentZone))
+    LogDebug(string.format("[MoLib] IsInZone(%d) â†’ %s (current: %d)", zoneId, tostring(result), currentZone))
     return result
 end
 
@@ -1780,7 +1780,7 @@ end
 --- @return integer TerritoryId    the ID of the zone where the current map flag is set
 function FlagZoneID()
     local territoryId = Instances.Map.Flag.TerritoryId
-    LogDebug(string.format("[MoLib] FlagZoneID() → %d", territoryId))
+    LogDebug(string.format("[MoLib] FlagZoneID() â†’ %d", territoryId))
     return territoryId
 end
 
