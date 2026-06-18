@@ -17,6 +17,13 @@ configs:
     default: 60
     min: 10
     max: 600
+  EnabledFish:
+    description: |
+      A list of fish names to restrict the rotation to.
+      Enter the exact fish name and press enter. One fish per line.
+      When non-empty, this overrides DisabledFish and only these fish are attempted.
+      Leave empty to run the full rotation.
+    default: []
   DisabledFish:
     description: |
       A list of fish names to skip entirely.
@@ -132,7 +139,10 @@ configs:
 --   CharacterState.selectFish    - scans FishData top-to-bottom for the first
 --                                  entry where IsFishUp() is true, the primary
 --                                  bait is available (if bait checks are active),
---                                  and the fish is not disabled or on cooldown
+--                                  and the fish is allowed (IsFishAllowed: when
+--                                  EnabledFish is non-empty it's an allowlist that
+--                                  overrides DisabledFish entirely; otherwise
+--                                  DisabledFish is a blocklist) and not on cooldown
 --                                  (lastAttempt table, see
 --                                  RetryCooldownSeconds). Sets SelectedFish and
 --                                  advances to teleportToZone. If nothing is up,
@@ -205,6 +215,7 @@ configs:
 
 RetryCooldownSeconds  = Config.Get("RetryCooldownSeconds")
 DisabledFishConfig    = Config.Get("DisabledFish")
+EnabledFishConfig     = Config.Get("EnabledFish")
 LogPrefix             = "[BigFish]"
 
 local lastAttempt     = {}
@@ -214,9 +225,22 @@ local catchDetected   = false
 local catchMessage    = nil
 local forcedQuit      = false
 local disabledFish    = {}
+local enabledFish     = {}
 local baitItemIds     = {}
 local missingBaitLog  = {}
 local baitChecksReady = false
+
+--============================ CONSTANT ===========================--
+
+----------------------------
+--    State Management    --
+----------------------------
+
+CharacterState = {}
+
+-----------------
+--    Baits    --
+-----------------
 
 BaitItemIds = {
     ["Horizon Event"]         = 36518,
@@ -234,14 +258,6 @@ BaitItemIds = {
     ["Ghost Nipper"]          = 43859,
 }
 
---============================ CONSTANT ===========================--
-
-----------------------------
---    State Management    --
-----------------------------
-
-CharacterState = {}
-
 --------------------
 --    Big Fish    --
 --------------------
@@ -251,11 +267,13 @@ CharacterState = {}
 --- worldX/worldZ are the converted raw world coordinates actually used for movement.
 --- time is an Eorzea hour window ("HH:00-HH:00") or "Always". weather/previousWeather are
 --- comma-separated lists of acceptable weather names, or "" if unrestricted.
+--- expansion is the source expansion for the fish ("Dawntrail", "Endwalker", etc.).
 --- autoHookPreset is an optional exported AutoHook preset string for anonymous IPC preset
 --- selection; leave it blank to use the named preset path with fish.name instead.
 FishData = {
     {
         name            = "Autarch's Supper",
+        expansion       = "Dawntrail",
         zone            = "Yak T'el",
         zoneId          = 1189,
         spotName        = "Sapsweet Cenote",
@@ -269,6 +287,7 @@ FishData = {
     },
     {
         name            = "Awaksbane Apoda",
+        expansion       = "Dawntrail",
         zone            = "Yak T'el",
         zoneId          = 1189,
         spotName        = "Yak Awak Tsoly",
@@ -282,6 +301,7 @@ FishData = {
     },
     {
         name            = "Azure Diver",
+        expansion       = "Dawntrail",
         zone            = "Shaaloani",
         zoneId          = 1190,
         spotName        = "Eastbound Zorgor",
@@ -295,6 +315,7 @@ FishData = {
     },
     {
         name            = "Bitterbark Caiman",
+        expansion       = "Dawntrail",
         zone            = "Yak T'el",
         zoneId          = 1189,
         spotName        = "Bitterbark Cenote",
@@ -308,6 +329,7 @@ FishData = {
     },
     {
         name            = "Cabinkeep Permit",
+        expansion       = "Dawntrail",
         zone            = "Tuliyollal",
         zoneId          = 1185,
         spotName        = "The For'ard Cabins",
@@ -321,6 +343,7 @@ FishData = {
     },
     {
         name            = "Cazuela Crab",
+        expansion       = "Dawntrail",
         zone            = "Kozama'uka",
         zoneId          = 1188,
         spotName        = "Waters Hanu",
@@ -334,6 +357,7 @@ FishData = {
     },
     {
         name            = "Crenicichla Miyaka",
+        expansion       = "Dawntrail",
         zone            = "Kozama'uka",
         zoneId          = 1188,
         spotName        = "The Dewspun Bank",
@@ -347,6 +371,7 @@ FishData = {
     },
     {
         name            = "Datnioides Aeroplanos",
+        expansion       = "Dawntrail",
         zone            = "Living Memory",
         zoneId          = 1192,
         spotName        = "Leynode Aero",
@@ -360,6 +385,7 @@ FishData = {
     },
     {
         name            = "Deep Canopy",
+        expansion       = "Dawntrail",
         zone            = "Yak T'el",
         zoneId          = 1189,
         spotName        = "Iq Br'aax Reservoir",
@@ -373,6 +399,7 @@ FishData = {
     },
     {
         name            = "Esperance Carp",
+        expansion       = "Dawntrail",
         zone            = "Living Memory",
         zoneId          = 1192,
         spotName        = "Proto Alexandria",
@@ -386,6 +413,7 @@ FishData = {
     },
     {
         name            = "Excavator Catfish",
+        expansion       = "Dawntrail",
         zone            = "Kozama'uka",
         zoneId          = 1188,
         spotName        = "Marsh Ligaka",
@@ -399,6 +427,7 @@ FishData = {
     },
     {
         name            = "Gigagiant Snakehead",
+        expansion       = "Dawntrail",
         zone            = "Living Memory",
         zoneId          = 1192,
         spotName        = "Mu Springs Eternal",
@@ -412,6 +441,7 @@ FishData = {
     },
     {
         name            = "Gondola Louvar",
+        expansion       = "Dawntrail",
         zone            = "Living Memory",
         zoneId          = 1192,
         spotName        = "Canal Town South",
@@ -425,6 +455,7 @@ FishData = {
     },
     {
         name            = "Harlequin Queen",
+        expansion       = "Dawntrail",
         zone            = "Living Memory",
         zoneId          = 1192,
         spotName        = "The Knowable",
@@ -438,6 +469,7 @@ FishData = {
     },
     {
         name            = "Heirloom Goldgrouper",
+        expansion       = "Dawntrail",
         zone            = "Heritage Found",
         zoneId          = 1191,
         spotName        = "Alexandrian Ruins",
@@ -451,6 +483,7 @@ FishData = {
     },
     {
         name            = "Hwittayoanaan Cichlid",
+        expansion       = "Dawntrail",
         zone            = "Shaaloani",
         zoneId          = 1190,
         spotName        = "Niikwerepi",
@@ -464,6 +497,7 @@ FishData = {
     },
     {
         name            = "Icuvlo's Barter",
+        expansion       = "Dawntrail",
         zone            = "Tuliyollal",
         zoneId          = 1185,
         spotName        = "Downripple",
@@ -477,6 +511,7 @@ FishData = {
     },
     {
         name            = "Ilyon Asoh Cichlid",
+        expansion       = "Dawntrail",
         zone            = "Yak T'el",
         zoneId          = 1189,
         spotName        = "Xd'aa Talat Tsoly",
@@ -490,6 +525,7 @@ FishData = {
     },
     {
         name            = "Iron Oxydoras",
+        expansion       = "Dawntrail",
         zone            = "Kozama'uka",
         zoneId          = 1188,
         spotName        = "Miyakabek'zoma",
@@ -503,6 +539,7 @@ FishData = {
     },
     {
         name            = "Iron Shadowtongue",
+        expansion       = "Dawntrail",
         zone            = "Yak T'el",
         zoneId          = 1189,
         spotName        = "Iq Rrax Tsoly",
@@ -516,6 +553,7 @@ FishData = {
     },
     {
         name            = "Lotl-in-waiting",
+        expansion       = "Dawntrail",
         zone            = "Yak T'el",
         zoneId          = 1189,
         spotName        = "Xobr'it Tsoly",
@@ -528,20 +566,8 @@ FishData = {
         worldX = 589.42, worldZ = -244.76,
     },
     {
-        name            = "Moonmarking Saucer",
-        zone            = "Yak T'el",
-        zoneId          = 1189,
-        spotName        = "Cenote Jayunja",
-        time            = "16:00-21:00",
-        weather         = "Rain",
-        previousWeather = "Clear Skies",
-        bait            = "Red Maggots",
-        autoHookPreset  = "AH6_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",
-        x = 19.7, y = 32.0, radius = 1800,
-        worldX = -89.91, worldZ = 524.49,
-    },
-    {
         name            = "Moongripper",
+        expansion       = "Dawntrail",
         zone            = "Urqopacha",
         zoneId          = 1187,
         spotName        = "Sunken Stars",
@@ -554,7 +580,22 @@ FishData = {
         worldX = -57.06, worldZ = 304.3,
     },
     {
+        name            = "Moonmarking Saucer",
+        expansion       = "Dawntrail",
+        zone            = "Yak T'el",
+        zoneId          = 1189,
+        spotName        = "Cenote Jayunja",
+        time            = "16:00-21:00",
+        weather         = "Rain",
+        previousWeather = "Clear Skies",
+        bait            = "Red Maggots",
+        autoHookPreset  = "AH6_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",
+        x = 19.7, y = 32.0, radius = 1800,
+        worldX = -89.91, worldZ = 524.49,
+    },
+    {
         name            = "Moxutural Greatgar",
+        expansion       = "Dawntrail",
         zone            = "Yak T'el",
         zoneId          = 1189,
         spotName        = "Cenote Moxutural",
@@ -568,6 +609,7 @@ FishData = {
     },
     {
         name            = "Muttering Matamata",
+        expansion       = "Dawntrail",
         zone            = "Kozama'uka",
         zoneId          = 1188,
         spotName        = "Bopo'uihih",
@@ -581,6 +623,7 @@ FishData = {
     },
     {
         name            = "Ole Ole Ole",
+        expansion       = "Dawntrail",
         zone            = "Urqopacha",
         zoneId          = 1187,
         spotName        = "Chirwagur Lake",
@@ -594,6 +637,7 @@ FishData = {
     },
     {
         name            = "Pixel Loach",
+        expansion       = "Dawntrail",
         zone            = "Solution Nine",
         zoneId          = 1186,
         spotName        = "Residential Sector",
@@ -607,6 +651,7 @@ FishData = {
     },
     {
         name            = "Prime Adjudicator",
+        expansion       = "Dawntrail",
         zone            = "Urqopacha",
         zoneId          = 1187,
         spotName        = "Karvarhur the First",
@@ -620,6 +665,7 @@ FishData = {
     },
     {
         name            = "Punutiy Pain",
+        expansion       = "Dawntrail",
         zone            = "Kozama'uka",
         zoneId          = 1188,
         spotName        = "Peaks Poga",
@@ -633,6 +679,7 @@ FishData = {
     },
     {
         name            = "Purse of Riches",
+        expansion       = "Dawntrail",
         zone            = "Tuliyollal",
         zoneId          = 1185,
         spotName        = "High Tide Harbor",
@@ -646,6 +693,7 @@ FishData = {
     },
     {
         name            = "Riverlong Candiru",
+        expansion       = "Dawntrail",
         zone            = "Kozama'uka",
         zoneId          = 1188,
         spotName        = "Miyakabek'zu",
@@ -659,6 +707,7 @@ FishData = {
     },
     {
         name            = "Shin Snuffler",
+        expansion       = "Dawntrail",
         zone            = "Yak T'el",
         zoneId          = 1189,
         spotName        = "Ankledeep",
@@ -672,6 +721,7 @@ FishData = {
     },
     {
         name            = "Shined Copper Shark",
+        expansion       = "Dawntrail",
         zone            = "Living Memory",
         zoneId          = 1192,
         spotName        = "Canal Town North",
@@ -685,6 +735,7 @@ FishData = {
     },
     {
         name            = "Shuckfin Dace",
+        expansion       = "Dawntrail",
         zone            = "Kozama'uka",
         zoneId          = 1188,
         spotName        = "Ku'uxage",
@@ -697,33 +748,8 @@ FishData = {
         worldX = 59.94, worldZ = -19.98,
     },
     {
-        name            = "Sidereal Whale",
-        zone            = "Ultima Thule",
-        zoneId          = 960,
-        spotName        = "Limne 3-Î²",
-        time            = "0:00-8:00",
-        weather         = "Astromagnetic Storms",
-        previousWeather = "Umbral Wind",
-        bait            = "Horizon Event",
-        autoHookPreset  = "",
-        x = 25.1, y = 17.2, radius = 600,
-        worldX = 179.82, worldZ = -214.79,
-    },
-    {
-        name            = "Stardust Sleeper",
-        zone            = "Yak T'el",
-        zoneId          = 1189,
-        spotName        = "Xty'iinbek Tsoly",
-        time            = "20:00-24:00",
-        weather         = "",
-        previousWeather = "",
-        bait            = "Crimson Lugworm",
-        autoHookPreset  = "",
-        x = 36.9, y = 25.9, radius = 800,
-        worldX = 769.75, worldZ = 219.21,
-    },
-    {
         name            = "Sprouting Perch",
+        expansion       = "Dawntrail",
         zone            = "Heritage Found",
         zoneId          = 1191,
         spotName        = "Outskirts Shallows",
@@ -736,20 +762,22 @@ FishData = {
         worldX = -84.92, worldZ = -629.39,
     },
     {
-        name            = "Thunderswift Trout",
-        zone            = "Heritage Found",
-        zoneId          = 1191,
-        spotName        = "The Driftdowns",
-        time            = "9:00-11:00",
+        name            = "Stardust Sleeper",
+        expansion       = "Dawntrail",
+        zone            = "Yak T'el",
+        zoneId          = 1189,
+        spotName        = "Xty'iinbek Tsoly",
+        time            = "20:00-24:00",
         weather         = "",
         previousWeather = "",
-        bait            = "Red Maggots",
+        bait            = "Crimson Lugworm",
         autoHookPreset  = "",
-        x = 13.1, y = 17.4, radius = 1500,
-        worldX = -419.41, worldZ = -206.2,
+        x = 36.9, y = 25.9, radius = 800,
+        worldX = 769.75, worldZ = 219.21,
     },
     {
         name            = "Thunderous Flounder",
+        expansion       = "Dawntrail",
         zone            = "Heritage Found",
         zoneId          = 1191,
         spotName        = "Crackling Canyons",
@@ -762,7 +790,22 @@ FishData = {
         worldX = 0.0, worldZ = 539.47,
     },
     {
+        name            = "Thunderswift Trout",
+        expansion       = "Dawntrail",
+        zone            = "Heritage Found",
+        zoneId          = 1191,
+        spotName        = "The Driftdowns",
+        time            = "9:00-11:00",
+        weather         = "",
+        previousWeather = "",
+        bait            = "Red Maggots",
+        autoHookPreset  = "",
+        x = 13.1, y = 17.4, radius = 1500,
+        worldX = -419.41, worldZ = -206.2,
+    },
+    {
         name            = "Ttokatoa",
+        expansion       = "Dawntrail",
         zone            = "Shaaloani",
         zoneId          = 1190,
         spotName        = "Lake Toari",
@@ -776,6 +819,7 @@ FishData = {
     },
     {
         name            = "Vagrant Keeper",
+        expansion       = "Dawntrail",
         zone            = "Shaaloani",
         zoneId          = 1190,
         spotName        = "Westbound Zorgor",
@@ -786,6 +830,20 @@ FishData = {
         autoHookPreset  = "AH6_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",
         x = 16.1, y = 38.2, radius = 1000,
         worldX = -269.74, worldZ = 834.19,
+    },
+    {
+        name            = "Sidereal Whale",
+        expansion       = "Endwalker",
+        zone            = "Ultima Thule",
+        zoneId          = 960,
+        spotName        = "Limne 3-β",
+        time            = "0:00-8:00",
+        weather         = "Astromagnetic Storms",
+        previousWeather = "Umbral Wind",
+        bait            = "Horizon Event",
+        autoHookPreset  = "",
+        x = 25.1, y = 17.2, radius = 600,
+        worldX = 179.82, worldZ = -214.79,
     },
 }
 
@@ -823,6 +881,25 @@ function BuildDisabledFishSet()
             local trimmed = fishName:gsub("^%s+", ""):gsub("%s+$", "")
             if trimmed ~= "" then
                 disabledFish[trimmed] = true
+            end
+        end
+    end
+end
+
+function BuildEnabledFishSet()
+    enabledFish = {}
+
+    if type(EnabledFishConfig) == "table" then
+        for _, fishName in ipairs(EnabledFishConfig) do
+            if fishName and fishName ~= "" then
+                enabledFish[fishName] = true
+            end
+        end
+    elseif type(EnabledFishConfig) == "string" and EnabledFishConfig ~= "" then
+        for fishName in EnabledFishConfig:gmatch("[^\r\n,]+") do
+            local trimmed = fishName:gsub("^%s+", ""):gsub("%s+$", "")
+            if trimmed ~= "" then
+                enabledFish[trimmed] = true
             end
         end
     end
@@ -923,11 +1000,18 @@ end
 --    Fishing    --
 -------------------
 
+function IsFishAllowed(fish)
+    if next(enabledFish) ~= nil then
+        return enabledFish[fish.name] == true
+    end
+    return not disabledFish[fish.name]
+end
+
 function SelectNextFish()
     for _, fish in ipairs(FishData) do
         if fish.x and fish.y then
             local cooldownUntil = lastAttempt[fish.name]
-            if not disabledFish[fish.name] and HasRequiredBait(fish) and (not cooldownUntil or os.clock() >= cooldownUntil) and IsFishUp(fish) then
+            if IsFishAllowed(fish) and HasRequiredBait(fish) and (not cooldownUntil or os.clock() >= cooldownUntil) and IsFishUp(fish) then
                 return fish
             end
         end
@@ -1087,6 +1171,7 @@ for _, fish in ipairs(FishData) do
 end
 
 BuildDisabledFishSet()
+BuildEnabledFishSet()
 BuildBaitItemIdMap()
 
 if not GetClassJobId(18) then
