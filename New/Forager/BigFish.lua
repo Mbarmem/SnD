@@ -299,6 +299,16 @@ configs:
 --     flight almost instantly on live runs (~1.5s, too fast to be a real
 --     pathing timeout). Since the spot is close to its aetheryte, it's now
 --     marked noMount and walked to instead, which sidesteps the issue.
+--   - swimBait fish (e.g. Muttering Matamata) got stuck in a force-quit loop
+--     on live runs: CharacterState.fishing's window-closed check used
+--     IsFishUp directly, so starting to fish during legitimate swim-bait
+--     prep (before the real window opens) was immediately read as "window
+--     closed," triggering ForceQuitDelaySeconds and reselecting the same
+--     fish to repeat the cycle. Fixed with an explicit windowOpenedAt flag:
+--     it's only set once IsFishUp actually goes true, and the force-quit
+--     countdown only starts after that - so prep fishing is never penalized
+--     for the real window not being open yet, only for it closing again
+--     after having been open.
 --------------------------------------------------------------------
 
 --=========================== VARIABLES ==========================--
@@ -321,6 +331,7 @@ local catchDetected   = false
 local catchMessage    = nil
 local forcedQuit      = false
 local windowClosedAt  = nil
+local windowOpenedAt  = false
 local disabledFish    = {}
 local enabledFish     = {}
 local baitItemIds     = {}
@@ -1435,6 +1446,7 @@ function CharacterState.fishing()
         catchMessage = nil
         forcedQuit = false
         windowClosedAt = nil
+        windowOpenedAt = IsFishUp(SelectedFish)
         SelectAutoHookPreset(SelectedFish)
         SetAutoHookState(true)
         Wait(1)
@@ -1449,7 +1461,10 @@ function CharacterState.fishing()
         return
     end
 
-    if not IsFishUp(SelectedFish) then
+    if IsFishUp(SelectedFish) then
+        windowOpenedAt = true
+        windowClosedAt = nil
+    elseif windowOpenedAt then
         if IsFishing() or IsGathering() then
             if not windowClosedAt then
                 windowClosedAt = os.time()
@@ -1491,6 +1506,7 @@ function CharacterState.fishing()
     catchMessage = nil
     forcedQuit = false
     windowClosedAt = nil
+    windowOpenedAt = false
     State = CharacterState.selectFish
     LogInfo(string.format("%s State Changed -> SelectFish", LogPrefix))
     Wait(0.3)
