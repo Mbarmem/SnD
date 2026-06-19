@@ -2152,6 +2152,11 @@ function Dismount()
         end
     until not IsMounted()
 
+    local landStart = os.clock()
+    repeat
+        Wait(0.1)
+    until IsPlayerAvailable() or (os.clock() - landStart) >= 10
+
     LogDebug("[MoLib] Successfully dismounted")
 end
 
