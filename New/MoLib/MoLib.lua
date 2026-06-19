@@ -850,9 +850,9 @@ function WaitForPathRunning(timeout)
     timeout = timeout or 300
     LogDebug(string.format("[MoLib] Waiting for navmesh pathing to complete..."))
 
-    local startTime = os.clock()
+    local startTime = os.time()
     while IPC.vnavmesh.PathfindInProgress() or IPC.vnavmesh.IsRunning() do
-        if (os.clock() - startTime) >= timeout then
+        if (os.time() - startTime) >= timeout then
             LogDebug(string.format("[MoLib] WaitForPathRunning: Timeout reached waiting for pathing to complete"))
             return false
         end
@@ -983,9 +983,9 @@ function WaitForCondition(name, expectedState, timeout)
         return false
     end
 
-    local startTime = os.clock()
+    local startTime = os.time()
     repeat
-        if (os.clock() - startTime) >= timeout then
+        if (os.time() - startTime) >= timeout then
             LogDebug(string.format("[MoLib] WaitForCondition: timeout while waiting for '%s' to become %s", tostring(name), tostring(expectedState)))
             return false
         end
@@ -1007,9 +1007,9 @@ function WaitForTeleport(timeout)
     timeout = timeout or 300
     LogDebug(string.format("[MoLib] Waiting for teleport to begin (timeout: %.0fs)...", timeout))
 
-    local startTime = os.clock()
+    local startTime = os.time()
     repeat
-        if (os.clock() - startTime) >= timeout then
+        if (os.time() - startTime) >= timeout then
             LogDebug("[MoLib] Timeout reached while waiting for teleport to begin")
             return false
         end
@@ -1019,7 +1019,7 @@ function WaitForTeleport(timeout)
     LogDebug("[MoLib] Teleport started, waiting for zoning to complete...")
 
     repeat
-        if (os.clock() - startTime) >= timeout then
+        if (os.time() - startTime) >= timeout then
             LogDebug("[MoLib] Timeout reached while waiting for teleport zoning to complete")
             return false
         end
@@ -1041,9 +1041,9 @@ function WaitForZoneChange(timeout)
     timeout = timeout or 300
     LogDebug(string.format("[MoLib] Waiting for zoning to start (timeout: %.0fs)...", timeout))
 
-    local startTime = os.clock()
+    local startTime = os.time()
     repeat
-        if (os.clock() - startTime) >= timeout then
+        if (os.time() - startTime) >= timeout then
             LogDebug("[MoLib] Timeout reached while waiting for zoning to start")
             return false
         end
@@ -1052,7 +1052,7 @@ function WaitForZoneChange(timeout)
     LogDebug("[MoLib] Zoning detected, waiting for zoning to complete...")
 
     repeat
-        if (os.clock() - startTime) >= timeout then
+        if (os.time() - startTime) >= timeout then
             LogDebug("[MoLib] Timeout reached while waiting for zoning to complete")
             return false
         end
@@ -1112,9 +1112,9 @@ function MoveTo(x, y, z, stopDistance, fly)
         return false
     end
 
-    local t0 = os.clock()
+    local t0 = os.time()
     local pathStarted = false
-    while (os.clock() - t0) < 5 do
+    while (os.time() - t0) < 5 do
         if PathfindInProgress() or PathIsRunning() then
             pathStarted = true
             LogDebug(string.format("[MoLib] Navmesh pathing issued â†’ (%.3f, %.3f, %.3f)", x, y, z))
@@ -1130,9 +1130,9 @@ function MoveTo(x, y, z, stopDistance, fly)
 
     local lastLogTime = 0
     while PathfindInProgress() do
-        if os.clock() - lastLogTime >= 5 then
+        if os.time() - lastLogTime >= 5 then
             LogDebug("[MoLib] MoveTo: Still calculating best path...")
-            lastLogTime = os.clock()
+            lastLogTime = os.time()
         end
         Wait(0.1)
     end
@@ -1142,11 +1142,11 @@ function MoveTo(x, y, z, stopDistance, fly)
         return false
     end
 
-    local startTime = os.clock()
+    local startTime = os.time()
     local maxSeconds = 120
     local stuckSeconds = 6.0
     local moveEpsilon = 0.05
-    local lastMoveTime = os.clock()
+    local lastMoveTime = os.time()
     local lastPos = playerPos
     local didRebuild = false
 
@@ -1183,12 +1183,12 @@ function MoveTo(x, y, z, stopDistance, fly)
             local moved = math.sqrt(dx * dx + dy * dy + dz * dz)
 
             if moved >= moveEpsilon then
-                lastMoveTime = os.clock()
+                lastMoveTime = os.time()
                 lastPos = currentPos
             end
         end
 
-        if (os.clock() - lastMoveTime) >= stuckSeconds then
+        if (os.time() - lastMoveTime) >= stuckSeconds then
             if not didRebuild then
                 didRebuild = true
                 LogDebug("[MoLib] MoveTo: Stuck detected â†’ Rebuilding navmesh and retrying path.")
@@ -1209,9 +1209,9 @@ function MoveTo(x, y, z, stopDistance, fly)
                     return false
                 end
 
-                local rt0 = os.clock()
+                local rt0 = os.time()
                 local retryStarted = false
-                while (os.clock() - rt0) < 5 do
+                while (os.time() - rt0) < 5 do
                     if PathfindInProgress() or PathIsRunning() then
                         retryStarted = true
                         LogDebug("[MoLib] MoveTo: Retry pathing acknowledged after Rebuild().")
@@ -1234,8 +1234,8 @@ function MoveTo(x, y, z, stopDistance, fly)
                     return false
                 end
 
-                startTime = os.clock()
-                lastMoveTime = os.clock()
+                startTime = os.time()
+                lastMoveTime = os.time()
                 lastPos = GetPlayerPosition() or lastPos
             else
                 LogDebug("[MoLib] MoveTo: Still stuck after Rebuild() â†’ giving up.")
@@ -1244,7 +1244,7 @@ function MoveTo(x, y, z, stopDistance, fly)
             end
         end
 
-        if (os.clock() - startTime) > maxSeconds then
+        if (os.time() - startTime) > maxSeconds then
             PathStop()
             LogDebug("[MoLib] MoveTo: Timed out, stopping path.")
             return false
@@ -1696,11 +1696,11 @@ end
 --- @overload fun(name: string): boolean
 function WaitForAddon(name, timeout)
     timeout = timeout or 60
-    local startTime = os.clock()
+    local startTime = os.time()
     LogDebug(string.format("[MoLib] Waiting for addon '%s' to become ready...", name))
 
     while not IsAddonReady(name) do
-        if os.clock() - startTime >= timeout then
+        if os.time() - startTime >= timeout then
             LogDebug(string.format("[MoLib] WaitForAddon('%s') timed out after %.1f seconds", name, timeout))
             return false
         end
@@ -2136,26 +2136,26 @@ function Dismount()
 
     LogDebug("[MoLib] Attempting to dismount")
 
-    local startTime = os.clock()
+    local startTime = os.time()
     repeat
         ExecuteGeneralAction(CharacterAction.GeneralActions.dismount)
         Wait(1)
 
-        if (os.clock() - startTime) > 5 then
+        if (os.time() - startTime) > 5 then
             LogDebug("[MoLib] Dismount taking too long, moving slightly to reset...")
             local position = GetPlayerPosition()
             if position then
                 MoveTo(position.X + 1, position.Y, position.Z)
                 Wait(2)
             end
-            startTime = os.clock()
+            startTime = os.time()
         end
     until not IsMounted()
 
-    local landStart = os.clock()
+    local landStart = os.time()
     repeat
         Wait(0.1)
-    until IsPlayerAvailable() or (os.clock() - landStart) >= 10
+    until IsPlayerAvailable() or (os.time() - landStart) >= 10
 
     LogDebug("[MoLib] Successfully dismounted")
 end
