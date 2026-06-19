@@ -2116,12 +2116,20 @@ function Mount(mountName)
         return
     end
 
-    if mountName and mountName ~= "" then
-        LogDebug(string.format("[MoLib] Attempting to mount: %s", mountName))
-        Execute(string.format('/mount "%s"', mountName))
-    else
-        LogDebug("[MoLib] Attempting Mount Roulette")
-        ExecuteGeneralAction(CharacterAction.GeneralActions.mount)
+    local startTime = os.time()
+    repeat
+        if mountName and mountName ~= "" then
+            LogDebug(string.format("[MoLib] Attempting to mount: %s", mountName))
+            Execute(string.format('/mount "%s"', mountName))
+        else
+            LogDebug("[MoLib] Attempting Mount Roulette")
+            ExecuteGeneralAction(CharacterAction.GeneralActions.mount)
+        end
+        Wait(1)
+    until IsMounted() or (os.time() - startTime) > 10
+
+    if not IsMounted() then
+        LogDebug("[MoLib] Mount: Failed to mount within timeout")
     end
 end
 
