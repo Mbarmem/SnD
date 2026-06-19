@@ -1379,11 +1379,9 @@ function CharacterState.travelToSpot()
 
     WaitForNavMesh()
 
-    local arrived
-
     if SelectedFish.noMount then
         LogInfo(string.format("%s Walking to %s (%.1f, %.1f)", LogPrefix, SelectedFish.spotName, SelectedFish.worldX, SelectedFish.worldZ))
-        arrived = MoveTo(SelectedFish.worldX, SelectedFish.worldY, SelectedFish.worldZ)
+        MoveTo(SelectedFish.worldX, SelectedFish.worldY, SelectedFish.worldZ)
         Wait(0.3)
     else
         LogInfo(string.format("%s Flying to %s (%.1f, %.1f)", LogPrefix, SelectedFish.spotName, SelectedFish.worldX, SelectedFish.worldZ))
@@ -1391,18 +1389,7 @@ function CharacterState.travelToSpot()
         Wait(0.3)
         MoveTo(SelectedFish.worldX, SelectedFish.worldY, SelectedFish.worldZ, 0, true)
         Dismount()
-
-        local landedPos = GetPlayerPosition()
-        arrived = landedPos and GetDistance(landedPos, Vector3(SelectedFish.worldX, SelectedFish.worldY, SelectedFish.worldZ)) <= 1.0
         Wait(0.3)
-    end
-
-    if not arrived then
-        LogInfo(string.format("%s Failed to reach %s's spot. Cooling down and retrying later.", LogPrefix, SelectedFish.name))
-        lastAttempt[SelectedFish.name] = os.time() + RetryCooldownSeconds
-        State = CharacterState.selectFish
-        LogInfo(string.format("%s State Changed -> SelectFish", LogPrefix))
-        return
     end
 
     local fishX = SelectedFish.fishX or SelectedFish.worldX
