@@ -193,9 +193,9 @@ configs:
 --                                  GetAetheryteName(zoneId) + Teleport(). Falls
 --                                  back to selectFish if the window closed. An
 --                                  explicit per-fish aetheryte matters most for
---                                  SelectedFish.noMount entries (zones with no
---                                  mounting at all, e.g. Tuliyollal), where
---                                  vnavmesh failed to path there ground-walking
+--                                  CanMount()-false zones (no mounting at all,
+--                                  e.g. Tuliyollal), where vnavmesh failed to
+--                                  path there ground-walking
 --                                  from an arbitrary spot 280y away (confirmed:
 --                                  PathfindAndMoveTo starts but never reaches
 --                                  "Running" state) - but it also shortens
@@ -207,10 +207,11 @@ configs:
 --                                  guess can pick the wrong level in multi-level
 --                                  zones, e.g. Living Memory - see worldY/fishY in
 --                                  the FishData doc comment above) - then either
---                                  Mount() -> MoveTo(worldX, Y, worldZ, 0, true)
---                                  -> Dismount() (flight), or for noMount
---                                  entries just MoveTo(worldX, Y, worldZ) on
---                                  foot. worldX/worldZ is a landing spot, not
+--                                  Mount() -> MoveTo(worldX, Y, worldZ, 0, CanFly())
+--                                  -> Dismount() (rides if mountable but CanFly()
+--                                  is false), or for CanMount()-false zones just
+--                                  MoveTo(worldX, Y, worldZ) on foot. worldX/worldZ
+--                                  is a landing spot, not
 --                                  necessarily the cast spot itself (some are
 --                                  in/over water). If the fish entry also has
 --                                  fishX/fishZ (the actual casting position,
@@ -259,8 +260,9 @@ configs:
 --     behavior, not just the stub, before trusting an unfamiliar global again.
 --     Fixed by switching to worldX/worldZ + stored worldY/fishY + MoveTo()
 --     (FishingScrips.lua's proven pattern) instead. Movement is now confirmed
---     working end-to-end on live runs across noMount (Cabinkeep Permit: walked,
---     cast, caught) and flying (Hwittayoanaan Cichlid) entries alike.
+--     working end-to-end on live runs across CanMount()-false (Cabinkeep
+--     Permit: walked, cast, caught) and flying (Hwittayoanaan Cichlid) entries
+--     alike.
 --   - Catch detection is implemented via OnChatMessage matching the fish name in
 --     chat, same as FishingScrips.lua's pattern - confirmed live: caught the
 --     "Caught limit reached (Cabinkeep Permit: 1). Stopping fishing." message,
@@ -297,8 +299,11 @@ configs:
 --     actually quitting, so an in-progress catch isn't cut off.
 --   - Deep Canopy (Iq Br'aax Reservoir, Yak T'el) failed to reach its spot by
 --     flight almost instantly on live runs (~1.5s, too fast to be a real
---     pathing timeout). Since the spot is close to its aetheryte, it's now
---     marked noMount and walked to instead, which sidesteps the issue.
+--     pathing timeout) because worldX/Y/Z was too close to its aetheryte to
+--     fly to. Fixed by pointing worldX/Y/Z directly at the real casting spot
+--     (previously a separate fishX/Y/Z leg) so the flight covers a real
+--     distance, same single-leg pattern as Hwittayoanaan Cichlid/Moongripper/
+--     Shin Snuffler/Sprouting Perch.
 --   - swimBait fish (e.g. Muttering Matamata) got stuck in a force-quit loop
 --     on live runs: CharacterState.fishing's window-closed check used
 --     IsFishUp directly, so starting to fish during legitimate swim-bait
@@ -387,10 +392,12 @@ BaitItemIds = {
 --- flight ~13y below the real casting-spot height). fishX/fishZ are optional - when
 --- present, they're the actual human-verified casting spot (on land, facing the water)
 --- walked to on foot after dismounting; see BigFishCoordCapture.lua. Entries without
---- fishX/fishZ skip that walk and fish right where they land. noMount is optional - set
---- it true for zones where mounting isn't available at all (e.g. Tuliyollal), so
---- travelToSpot ground-walks to worldX/worldZ instead of trying to fly there. aetheryte
---- is optional (works for both noMount and flying entries) - when set, teleportToZone
+--- fishX/fishZ skip that walk and fish right where they land. Whether travelToSpot
+--- walks, rides, or flies to worldX/worldZ is decided live via CanMount()/CanFly() -
+--- CanMount() is false in zones with no mounting at all (e.g. Tuliyollal), and
+--- CanFly() false rides a mount on the ground instead of flying; no per-fish flag
+--- needed for either. aetheryte is optional (works regardless of mount/fly state)
+--- - when set, teleportToZone
 --- uses it instead of the zone's default aetheryte for the shortest/most reliable
 --- approach to that specific spot; leave blank to use the zone's default aetheryte.
 --- time is an Eorzea hour window ("HH:00-HH:00") or "Always". weather/previousWeather are
@@ -480,7 +487,6 @@ FishData = {
         zoneId          = 1185,
         aetheryte       = "The For'ard Cabins",
         spotName        = "The For'ard Cabins",
-        noMount         = true,
         time            = "5:00-7:00",
         weather         = "",
         previousWeather = "",
@@ -549,7 +555,6 @@ FishData = {
         zoneId          = 1189,
         aetheryte       = "Iq Br'aax",
         spotName        = "Iq Br'aax Reservoir",
-        noMount         = true,
         time            = "10:00-12:00",
         weather         = "",
         previousWeather = "",
@@ -557,8 +562,7 @@ FishData = {
         swimBait        = false,
         autoHookPreset  = "AH6_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",
         x = 13.7, y = 12.7, radius = 500,
-        worldX = -424.90, worldY = 19.79, worldZ = -391.79,
-        fishX = -438.47, fishY = 18.05, fishZ = -391.69,
+        worldX = -438.47, worldY = 18.05, worldZ = -391.69,
     },
     {
         name            = "Esperance Carp",
@@ -685,7 +689,6 @@ FishData = {
         zoneId          = 1185,
         aetheryte       = "The Resplendent Quarter",
         spotName        = "Downripple",
-        noMount         = true,
         time            = "0:00-24:00",
         weather         = "Fog",
         previousWeather = "",
@@ -855,7 +858,6 @@ FishData = {
         zoneId          = 1186,
         aetheryte       = "Residential Sector",
         spotName        = "Residential Sector",
-        noMount         = true,
         time            = "0:00-4:00",
         weather         = "",
         previousWeather = "",
@@ -907,7 +909,6 @@ FishData = {
         zoneId          = 1185,
         aetheryte       = "Bayside Bevy Marketplace",
         spotName        = "High Tide Harbor",
-        noMount         = true,
         time            = "16:00-18:00",
         weather         = "Rain",
         previousWeather = "Clouds",
@@ -1389,15 +1390,16 @@ function CharacterState.travelToSpot()
 
     local arrived
 
-    if SelectedFish.noMount then
+    if not CanMount() then
         LogInfo(string.format("%s Walking to %s (%.1f, %.1f)", LogPrefix, SelectedFish.spotName, SelectedFish.worldX, SelectedFish.worldZ))
         arrived = MoveTo(SelectedFish.worldX, SelectedFish.worldY, SelectedFish.worldZ)
         Wait(0.3)
     else
-        LogInfo(string.format("%s Flying to %s (%.1f, %.1f)", LogPrefix, SelectedFish.spotName, SelectedFish.worldX, SelectedFish.worldZ))
+        local fly = CanFly()
+        LogInfo(string.format("%s %s to %s (%.1f, %.1f)", LogPrefix, fly and "Flying" or "Riding", SelectedFish.spotName, SelectedFish.worldX, SelectedFish.worldZ))
         Mount()
         Wait(0.3)
-        MoveTo(SelectedFish.worldX, SelectedFish.worldY, SelectedFish.worldZ, 0, true)
+        MoveTo(SelectedFish.worldX, SelectedFish.worldY, SelectedFish.worldZ, 0, fly)
         while IsMounted() do
             Dismount()
             Wait(1)
