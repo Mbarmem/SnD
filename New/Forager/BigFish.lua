@@ -348,6 +348,8 @@ local enabledFish     = {}
 local baitItemIds     = {}
 local missingBaitLog  = {}
 local baitChecksReady = false
+local fishDataNames   = nil
+local unknownFishLog  = {}
 
 --============================ CONSTANT ===========================--
 
@@ -1081,8 +1083,8 @@ FishData = {
         weather         = "Clouds",
         previousWeather = "Gales",
         bait            = "Dragonfly",
-        swimBait        = false,
-        autoHookPreset  = "AH6_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",
+        swimBait        = true,
+        autoHookPreset  = "AH6_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",
         x = 16.1, y = 38.2, radius = 1000,
         worldX = -164.92, worldY = -27.46, worldZ = 643.97,
         fishX = -168.57, fishY = -31.44, fishZ = 655.41,
@@ -1168,12 +1170,37 @@ function BuildFishNameSet(configKey)
     return set
 end
 
+function GetFishDataNames()
+    if not fishDataNames then
+        fishDataNames = {}
+        for _, fish in ipairs(FishData) do
+            fishDataNames[fish.name] = true
+        end
+    end
+    return fishDataNames
+end
+
+function ValidateFishNameSet(configKey, set)
+    local validNames = GetFishDataNames()
+    for fishName in pairs(set) do
+        if not validNames[fishName] then
+            local logKey = configKey .. ":" .. fishName
+            if not unknownFishLog[logKey] then
+                Dalamud.Log(string.format("%s WARNING: '%s' in %s does not match any DT Big Fish. Check spelling.", LogPrefix, fishName, configKey))
+                unknownFishLog[logKey] = true
+            end
+        end
+    end
+end
+
 function BuildDisabledFishSet()
     disabledFish = BuildFishNameSet("DisabledFish")
+    ValidateFishNameSet("DisabledFish", disabledFish)
 end
 
 function BuildEnabledFishSet()
     enabledFish = BuildFishNameSet("EnabledFish")
+    ValidateFishNameSet("EnabledFish", enabledFish)
 end
 
 function BuildBaitItemIdMap()
