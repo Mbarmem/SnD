@@ -1395,10 +1395,10 @@ function CharacterState.travelToSpot()
         arrived = MoveTo(SelectedFish.worldX, SelectedFish.worldY, SelectedFish.worldZ)
         Wait(0.3)
     else
-        local fly = CanFly()
-        LogInfo(string.format("%s %s to %s (%.1f, %.1f)", LogPrefix, fly and "Flying" or "Riding", SelectedFish.spotName, SelectedFish.worldX, SelectedFish.worldZ))
         Mount()
         Wait(0.3)
+        local fly = CanFly()
+        LogInfo(string.format("%s %s to %s (%.1f, %.1f)", LogPrefix, fly and "Flying" or "Riding", SelectedFish.spotName, SelectedFish.worldX, SelectedFish.worldZ))
         MoveTo(SelectedFish.worldX, SelectedFish.worldY, SelectedFish.worldZ, 0, fly)
         while IsMounted() do
             Dismount()
