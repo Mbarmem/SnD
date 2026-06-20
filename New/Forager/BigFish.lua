@@ -1461,13 +1461,19 @@ function CharacterState.fishing()
         SelectAutoHookPreset(SelectedFish)
         SetAutoHookState(true)
         Wait(1)
-        Execute("/ahstart")
-        Wait(3)
+        local ahStartedAt = os.time()
+        while not IsFishing() and (os.time() - ahStartedAt) < 5 do
+            Execute("/ahstart")
+            Wait(1)
+        end
 
         if IsFishing() then
             fishingStarted = true
         else
+            LogInfo(string.format("%s AutoHook failed to start fishing for %s. Forcing quit to recover.", LogPrefix, SelectedFish.name))
             CleanupAutoHookPreset(SelectedFish)
+            ExecuteAction(CharacterAction.Actions.quitFishing)
+            Wait(0.3)
         end
         return
     end
