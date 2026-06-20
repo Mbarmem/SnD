@@ -378,6 +378,26 @@ function GetStatusTimeRemaining(targetId)
     return nil
 end
 
+---------------------------------------------------------------------
+
+--- Checks if the player is currently allowed to mount (false in zones with no mounting at all)
+--- @return boolean canMount    true if mounting is currently permitted; false otherwise
+function CanMount()
+    local canMount = Player and Player.CanMount
+    LogDebug(string.format("[MoLib] CanMount: %s", tostring(canMount)))
+    return canMount
+end
+
+---------------------------------------------------------------------
+
+--- Checks if the player is currently allowed to fly (false in zones/areas with no flying)
+--- @return boolean canFly    true if flying is currently permitted; false otherwise
+function CanFly()
+    local canFly = Player and Player.CanFly
+    LogDebug(string.format("[MoLib] CanFly: %s", tostring(canFly)))
+    return canFly
+end
+
 --============================= IPC ==============================--
 
 --===============--
