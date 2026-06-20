@@ -391,8 +391,17 @@ end
 ---------------------------------------------------------------------
 
 --- Checks if the player is currently allowed to fly (false in zones/areas with no flying)
+--- Player.CanFly reflects the currently summoned mount's flight capability, not just zone
+--- unlocks - always call Mount() and let it land before checking this, or it reports false
+--- even in flying zones. Short-circuits via CanMount() since flying is impossible wherever
+--- mounting itself is disallowed.
 --- @return boolean canFly    true if flying is currently permitted; false otherwise
 function CanFly()
+    if not CanMount() then
+        LogDebug("[MoLib] CanFly: false (CanMount is false)")
+        return false
+    end
+
     local canFly = Player and Player.CanFly
     LogDebug(string.format("[MoLib] CanFly: %s", tostring(canFly)))
     return canFly
