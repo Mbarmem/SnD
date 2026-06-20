@@ -1462,9 +1462,9 @@ function CharacterState.fishing()
         SetAutoHookState(true)
         Wait(1)
         local ahStartedAt = os.time()
-        while not IsFishing() and (os.time() - ahStartedAt) < 5 do
+        while not IsFishing() and (os.time() - ahStartedAt) < 10 do
             Execute("/ahstart")
-            Wait(1)
+            Wait(4)
         end
 
         if IsFishing() then
