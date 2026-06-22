@@ -42,12 +42,24 @@ configs:
     default: 300
     min: 0
     max: 1800
-  RequireAutoHookPreset:
+  SkipFishWithoutPreset:
     description: |
-      When enabled, fish with no exported AutoHook preset (autoHookPreset = "")
-      are skipped during selection entirely, instead of falling back to a
-      named AutoHook preset that matches the fish name.
+      When enabled, fish with no exported AutoHook preset are skipped instead
+      of falling back to a named preset. Ignored when UseNamedAutoHookPreset is enabled.
+      For fish missing exported presets in this script, ensure matching fish-name
+      presets exist in AutoHook before disabling.
+    default: true
+  UseNamedAutoHookPreset:
+    description: |
+      When enabled, always select the named AutoHook preset matching the fish
+      name, even if the fish has an exported anonymous autoHookPreset string.
+      Ensure matching fish-name presets exist in AutoHook before enabling.
     default: false
+  UseIdleTeleport:
+    description: |
+      When enabled, uses Teleport("Auto") once when no fish window is available.
+      Configure the Auto destination in Lifestream.
+    default: true
   EnabledFish:
     description: |
       A list of fish names to restrict the rotation to.
@@ -177,9 +189,11 @@ configs:
 --                                  (lastAttempt table, see
 --                                  RetryCooldownSeconds). Sets SelectedFish and
 --                                  advances to teleportToZone. If nothing is up,
---                                  logs once (loggedIdle) and just keeps idling -
---                                  the 0.1s main-loop tick re-evaluates constantly,
---                                  so no separate poll-interval config exists.
+--                                  logs once (loggedIdle), optionally uses
+--                                  Teleport("Auto") once to return to the
+--                                  Lifestream idle spot unless a fish/prep
+--                                  window is within the idle teleport holdoff,
+--                                  then keeps re-evaluating from idle.
 --                                  If nothing is open right now, it does a second
 --                                  pass for fish marked swimBait = true whose
 --                                  real window opens within SwimBaitPrepSeconds,
@@ -231,11 +245,10 @@ configs:
 --   CharacterState.fishing        - on first entry (fishingStarted == false):
 --                                  SelectAutoHookPreset(SelectedFish) ->
 --                                  SetAutoHookState(true) -> Execute("/ahstart").
---                                  SelectAutoHookPreset uses
---                                  SetAutoHookAnonymousPreset(autoHookPreset)
---                                  when a fish entry provides an exported preset
---                                  string, otherwise it falls back to the named
---                                  preset path SetAutoHookPreset(SelectedFish.name).
+--                                  SelectAutoHookPreset uses the named preset
+--                                  path when UseNamedAutoHookPreset is enabled;
+--                                  otherwise it uses exported anonymous presets
+--                                  when present and falls back to fish.name.
 --                                  For fish marked swimBait = true, reaching the
 --                                  spot during the SwimBaitPrepSeconds early
 --                                  window does NOT wait for the real fish window
@@ -328,28 +341,35 @@ configs:
 --    General    --
 -------------------
 
-RetryCooldownSeconds   = Config.Get("RetryCooldownSeconds")
-CaughtCooldownSeconds  = Config.Get("CaughtCooldownSeconds")
-RequireAutoHookPreset  = Config.Get("RequireAutoHookPreset")
-ForceQuitDelaySeconds  = Config.Get("ForceQuitDelaySeconds")
-SwimBaitPrepSeconds    = Config.Get("SwimBaitPrepSeconds")
-LogPrefix              = "[BigFish]"
+RetryCooldownSeconds      = Config.Get("RetryCooldownSeconds")
+CaughtCooldownSeconds     = Config.Get("CaughtCooldownSeconds")
+SkipFishWithoutPreset     = Config.Get("SkipFishWithoutPreset")
+UseNamedAutoHookPreset    = Config.Get("UseNamedAutoHookPreset")
+UseIdleTeleport           = Config.Get("UseIdleTeleport")
+ForceQuitDelaySeconds     = Config.Get("ForceQuitDelaySeconds")
+SwimBaitPrepSeconds       = Config.Get("SwimBaitPrepSeconds")
+LogPrefix                 = "[BigFish]"
 
-local lastAttempt     = {}
-local loggedIdle      = false
-local fishingStarted  = false
-local catchDetected   = false
-local catchMessage    = nil
-local forcedQuit      = false
-local windowClosedAt  = nil
-local windowOpenedAt  = false
-local disabledFish    = {}
-local enabledFish     = {}
-local baitItemIds     = {}
-local missingBaitLog  = {}
-local baitChecksReady = false
-local fishDataNames   = nil
-local unknownFishLog  = {}
+local idleHoldoff = 60
+
+local lastAttempt      = {}
+local disabledFish     = {}
+local enabledFish      = {}
+local baitItemIds      = {}
+local missingBaitLog   = {}
+local unknownFishLog   = {}
+local fishDataNames    = nil
+
+local loggedIdle       = false
+local idleTeleported   = false
+local loggedIdleBusy   = false
+local fishingStarted   = false
+local catchDetected    = false
+local catchMessage     = nil
+local forcedQuit       = false
+local windowClosedAt   = nil
+local windowOpenedAt   = false
+local baitChecksReady  = false
 
 --============================ CONSTANT ===========================--
 
@@ -411,8 +431,9 @@ BaitItemIds = {
 --- so AutoHook can work the swim-bait setup automatically.
 --- autoHookPreset is an optional exported AutoHook preset string for anonymous IPC preset
 --- selection; leave it blank to use the named preset path with fish.name instead - unless
---- the RequireAutoHookPreset config option is enabled, in which case fish left blank are
---- skipped during selection rather than falling back to the named preset path.
+--- the SkipFishWithoutPreset config option is enabled, in which case fish left blank are
+--- skipped during selection rather than falling back to the named preset path. If
+--- UseNamedAutoHookPreset is enabled, named presets are always used instead.
 FishData = {
     {
         name            = "Autarch's Supper",
@@ -426,7 +447,7 @@ FishData = {
         previousWeather = "Rain",
         bait            = "Red Maggots",
         swimBait        = true,
-        autoHookPreset  = "AH6_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",
+        autoHookPreset  = "AH6_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",
         x = 35.0, y = 32.7, radius = 1000,
         worldX = 653.68, worldY = -179.30, worldZ = 652.96,
         fishX = 663.30, fishY = -181.52, fishZ = 654.16,
@@ -545,7 +566,7 @@ FishData = {
         previousWeather = "Fog",
         bait            = "Red Maggots",
         swimBait        = true,
-        autoHookPreset  = "AH6_H4sIAAAAAAAACu1daW/jvBH+KynRj9JC92GgBbLO0aA5FrGD/RAEKCWNbDay6JeinE2D/PeCOmzJlhLHcTZ2Vt/i4SFy+Ayf4TV5Qocpp32c8KQfjlDvCR3H2IvgMIpQj7MUJHREY97HsQ/RBaX+uBRfg48TfhiTCeaExnmOMnGYsrhPowh8fhWGqBfiKAEJ9cfpZKVEkVYv8pPwMU2z6pfyibaekxhEW89GMWVQa1be/KD8eRagnua4EjqdDscMkjGNAtRTWnv1gxHKCH9EPVVCZ8nxLz9KAwgW4jxbpbZDj86glPdpHBDRuQFw0cBJVs8I9W6zvxUJ+ah3eychnJd4vpMQoF6cRtHzc963ojlPKPtDWwxJMFdB1inLWeqUqqzVrS30K2uu1Nws195E18qWlK28UdkCkDUNL1BjqIqxmYab+1Io6X3IeUIc9dCAY54mhz4nM+gfIQlNRYm/88cpiNTHhMPkW2FLhMbJt1OIgRH/2xHJBJg9/ke7vS0yDjgj8Ug6KH7+YGSGOXzrUwbnxLuTynxX3n/B56357tpSkIRIkKDereoo+t1zNgbZcEh5b06niz7McIR6hlAznaIe+ieqZK8MpLSuTioflhCJZ2X5l9qww3rM1KMrSrNWGuCdt71tDjFURd3AWrWtzSCijYMYj0YkHr3QSGWDRupbbWSfsoAI5T+hs3gGrBSsmHfOSEMygZ8kDujDPKFhhlE1y1qfma5mwHw8fc+kV9WPsa1Z6q1T7glJxsePkKzw97Ki6hgwlxRlmuugwPqsXl7gexiMSci/Y5LVIQRJKRhw7N8nqGe2kKjlrPZ3jd66n9XbH5gTiP3MJ7uGUHzlGLPoUdhBVkPLoFrLnbTWIljt0/rJyP+gj3nuoLUN3XKvtPXcBv2zejUc44jg++QEzygTddQEJVZ1qS6/Bp/OgKGeKiyxye22nBUPai1FfKTR5nQv3AQa9ymNAvoQV92F+aycOwHqK47IqjK/k9EpFqh/QofxKAKWlArUms1AtxVjBTHrqMnZgpoqFHeRRpyMKb1vJWJNMTdZSG3Bty+auaDV5vXIL85wbRU7x+M1JMD7NI05sB9M/Bg84Om8eyeU+ZBNzJk0L5MJAyHNeq87piNlq+UrH3Cc0diSlmqJh1E04HSaNKcOpjSrVlmSiy42yd9H+0NGRiNgwhdeUc1b7KYyAHObSThmXJiNIiGIBXiN1/1TCQlN5yMxV1D+c0jzQUAyynPlDFrkET/KHE8ZLGVVQucpgwtIEjwSjjuS0GVmguiSxoCKQpk96+LLnE7zCSDr3TUkNJpB4SoL1SRLrltDjgwbl3SeZSCUIMYpc2RLzAWpD0JYqWlCZ5AvVapleZoMaZ5Ytgmy6vo4HY1L4M5LXFJOwsereJD6PiSZJ7UMxWN/TPtjzOdame/AYD6EX2IwkYSOSDKN8KOYsIYUJws1zyUreTNp1gDiZ9s4iw2cev6TCCfjIU7uPczO/Eq+72KZJD5wQhmMGE0FaMo0gGmlX5n0WSzSfgNoX1wg5jaYxnxprVoSxD+yVa6YJmzHWi3+6up0byxG/RCLmZfrTGbHTUYzS5NZZx9iV1Crdajdh4n+TkI3MfkrzVwg5IGhq6FnySHWQtnARiB7nmPKjq4Z4Kp+YBqu8MvPScKvQjH4jQ6OSMhZOAdS4cm1YekagoMLPBpRntQgJcB+SdkER/8qnORr+CslDIKSzxUJlQvhn4CzLCJrAnyFnbPfRWLV5yxE+RcN1XYldJNA5ppP8wIiKfmerawXDsFNAoumiRzLGeqpF0S4Pt+UFTn+VchvEvjBwCcJoXFbnSsZFtWuJtVqpg/AwrS1scvplXqXU6rVDjhEEWZttS4lLypdTpjX+ZYZc5+35Jsdn7YJvdTT+1YkdeCtLucaMNSYaQkQTXmWxrdx6Vja7YAzmm9FL1tu9XTxdcNV9M5wO8PdB8PNbWRHzfEcRhAHmD12FvknUOkXQO5NAkc0LThirrDzfDfnOPHxtCk9F7U5ja3UU5SucY8mNq87n7ED+gcDPYfsBv5SB9odn51zDOwdFDfzFTo07jgav7avMGTlvk6zr9CQnou24yvYptYtVDuofzzUc9Buy1voYLtLM/Te+Qs5GLfoL3R43CU8fmGPQSiKprzS83E6WRHeJNBPE04n+aFEzXvIXs+kLL9+K/6oXO/Lb3Edcg6TKS9tQOQZYjYSrVAb7/nptumuvpT4PRfDNjmUecuti4XOm4asov3G4TqLeZoJ204MTfGI57UzwzfNRd2Z4S5NRXtHje84B2tGY3cQ1qHxk46BOkDu+t7O3k2P3elOdyNoj+Hbndl81ctpewrF7symQ+MuoLE7ienu+u71dNqdr3zdi+d7CsbufKXD4x94alLe4qgcm7TEv/jMc5O6ZjY528he14Uc2OJpfWXGo9PiaeeAwzQ7OBo8kImHCc/nKqFHMXMWwoWiGz9V5Jofp7yp9I49li7i433UE7pc+U0DWntYp9uO4buyqTqebASuJ7vY9OXQN8JA8W3NCGwkjsHyl3UFDG/ngvw13epLu9orO9cRYU/qr+wOD0Jg1Cc0TQ5CyiYHAWY8OSAxpwczAg9/WzzDO8I8JpQEkBwcAqPTCMe0/iBPfQWFZwHEnPg4EtbbGtTCdJeDb+hrRRZyPiNayyBlIfZhEOXPYls6ZG4Wf8bcXjyRLobhb4phOJhiBoIisZgYnloDzJhviGQorPgsGNL+GPx7EfbFNVzL1gSsKjHglM/A/x7EqNnGw/XiMXzDnNbwdP4SZsDqIdRW+VfRRLy3LNrae99ttrNpcRL3Fci0eFK3yqUvXzhZCtmyGiuElMy4ZuQEAYNGt3ceVeEVqncD3XNUO5QN3wtlQzcC2YUglB1X0T07sB3NAlSLFlGGRKq9mLcd+wUQAz04ZPQBx7gj6B0n6LdPuV044vfQwe8g6Nw695Kb1Y6b1Y8n5i8YE6x9nbsV2vSxrzha4Mq6YaqyAa4tO26gyaGlOF6g+aqn2HXabFgBi1Bg7ay5WOB+MdIsZ74WKqxEWO+YsAvM/0mL2tw2t8yZ5e5Hx4SbrVI7Jtw9JrRCD9uhbsgYgy4b4Kmy5xuh7Aa2avquBYpvrbWAVF4IuUYT8NLg4ITR0Z9FhjuzLuw2brex+fcbmKs8P+2Ia4e2Vzvi2j3isrHmQqiaMlY8RTYs8GTP0XU51LGr6IapBZa6FnG9gK9/x2Q05gen1HvseKvjrf37p2kdb/3Rx4Idb+0eb1kKmKarhnIIiiEbpqvIruXqsootO/BsRbEtM7ucc5acRtQTB4s1FLxyf6b6Jc+0PUt1ZdPHqmwYpiK7AWBZMxxTcU0vDEIHPf8fxWJ7WSJ0AAA=",
+        autoHookPreset  = "AH6_H4sIAAAAAAAACu1daW/bPBL+K1liP0qFDusyFgukzrHBNkkRO+iHIMBS0sjmRhb9kpTbbJD/vqAOW5Ll1nGc2kn1LR4eIocP5xlekyd0nAo6wFzwQTRG/Sd0mmA/huM4Rn3BUlDQCU3EACcBxJeUBpNSfAMB5uI4IVMsCE3yHGXiKGXJgMYxBOI6ilA/wjEHBQ0m6XSlRJFWL/KNiAlNs+ob+WRbv5AEZFsvxgllUGtW3vyw/HkRor7hego6n40mDPiExiHqa2t79ZURyoh4RH1dQRf89EcQpyGES3GerVLbsU/nUMoHNAmJ7NwQhGzgNKtnjPp32d+aggLUv7tXEM5LPN8rCFA/SeP4+TnvW9GcJ5T9YSyHJFyoIOuU7TY6pWsbdWsH/cqaq7Q3y3O20bW2I2VrL1S2BGRNw0vU9HStt52G2/tSKOl1yHlCAvXRUGCR8uNAkDkMTpCCZrLE38XjDGTqIxcw/VTMJUIT/ukcEmAk+HRCMgFmj/8x7u6KjEPBSDJWjoqfXxmZYwGfBpTBF+LfK2W+a/+/EIi1+e7XpSAFkZCj/p3uaub9czYG2XAoeW/OZ8s+zHGM+qZUM52hPvonqmSvDKSyqU4qH1YQSeZl+Z+14YD1mKnH07R2rbTAO2/7OhvS0zV9i9lq7MyCyDYOEzwek2T8k0ZqWzTS3GkjB5SFRCr/CV0kc2ClYGV654w0IlP4RpKQfl8ktFgY3bDtzZnpeg4swLPXGL2qfnq7slIvNblnhE9OH4Gv8HdTUXUMWA1FWdYmKLD31ctL/ADDCYnEZ0yyOqSAl4KhwMEDR31rDYna7mp/N+itt6/efsWCQBJkPtkNRPIrp5jFj3IeZDW086vd7KO9Eb8ab9jNXZBJXjof42Zpw3HcewVNSVJiQC/J7h9ryK5F3Yz8DwZY5H7iOgQ1tWts5r2Y+wLRaIJjgh/4GZ5TJuuoCUp1mUpdfgMBnQNDfV0ahDbv33ZXHLmNFGHvH2YbOEuW9nL8fCbjcyxn5hM6TsYxsAKsGbW3wcl0tN4KnDbRobsDHVZo+DKNBZlQ+rDWWTA0a5vF3g7WH0Uzl9Tfvmb6IRiurbQXYL0BDmJA00QA+8rkj+F3PFt074yyADLyyKR5mUwYSmnWe9O1XCVb0V8HgJOMahtaqiUex/FQ0BlvTx3OaFat1pDLLrbJX+eajBgZj4FJ7K+o5iWTqjIAi5nCBWZCMoemIEgkeHu/9qEVJDWdj8RCQfnPEc0HAakoz5WzfJFH/ihzPGWwVHUFfUkZXALneCwXF0hBV9kURFc0AVQUyhYepvyyoDNpF2iS9e4GOI3nULjzUjW84V625MiwcUUXWYZSCXKcMme7xFyYBiCFlZqmdA65aaqWFSkf0TyxbBNk1Q1wOp6UwF2UuKKCRI/XyTANAuCZt9eE4mkwoYMJFgutLHaJsBjBDzmYSEEnhM9i/CgN1ohivlTzQrKSN5NmDSBBttW03GSq5z+LMZ+MMH/wMbsIKvk+y6Wc/MAZZTBmNJWgKdMAZpV+ZdJnaZ9/A2g38Ds2o5PDhrz+JpBflOswf+CYN6wS8+YGmx2HglqjQ+17sNT3CrpNyF9p5sMgx/YN3QBLdWxXU3s2mKpr2j3V9cNeoAWANQtLx/oL4eI6koPf6qHIhJxGcyAVrtg6LN1AeHSJx2MqeA1SEuxXlE1x/K/Cy72Bv1LCICwJWVNQudr+BjjLIrNyEI0W5T+LtKrPWIjyD/Z0x1PQLYfMtZ7lBWQS/5yt3peEfsth2TKZo5mhnnpJpOvySVuR4x+F/JbDVwYB4YQm6+pcybCsdjWpVjP9DixK1za2mV6pt5lSrXYoII4xW1drI3lZaTNhUefrl4sHvF29/w2THO1S5a9bnNQxvLqya4Fja6YGttryNKDSuoosLcBQMJrvnL/OBmhmZwM6G7AfG/CyiZvPkQOdjl9gDEmI2WM3I/8EVv4AyL3lcELTgiMWCvuSb+yc8gDP2tJz0Yvdz6J0jXsMeQLauZ8d0N8Y6Dlkt/CXOtAeuHXOMfDuoLidr9Ch8cDR+LF9hRErt4jafYWW9Fy0G1/BsYxuodpB/e2hnoN2V95CB9tDstDvzl/IwbhDf6HD4yHh8QN7DFJRNBWVnk/S6YrwlsMg5YJO82OAmveQPfZJWX5bWP5RuQaYX+g6FgKmM1HOAZlnhNlYtkJvvQ9oOpa3+rDj99wR2911wLX3+wr1tg1ZRfutw3WRiDQTrjt7tOSbo61PH9tsUXf8eEim6N1R4yvOwdrR2B2EdWjc0zFQB8hD39t5d+axO93pLhe9Y/h2ZzYf9Z7bO4Vid2bTofEQ0NidxHTXht+1Oe3OVz7uHfZ3CsbufKXD4x94alLe4qgcm2jrYgDs79ykrpltzjayd3qRALZ8ZV+xeHRWPBIdCphlB0fD72TqYyJyWyX1KC1nIVwquvVTRa7FccqLSh/Yu+kinN9bPcbLld82oJUneqYTeJoGphrquqf2XNBV3zRdNYhs0zTc0HCtEMljsPyNXgHDu4Ugf5e3+mav9l7Pc2Ugjfp7veOjCBgNCE35UUTZ9CjETPAjkgh6NCfw/W/LB30nWCSEkhD40TEwOotxQutP+/RfoPAihESQAMdy9q6Nb2F5zTgc5kaBkNx9RHUZpizCAQzj/IHtmg5Z28WpsfbRoy44428KzjicYQaSTLE0IU9ro9JYLwjRKOf7RTiigwkEDzJWjNfzbMeQAKwEt9P2gqvDD2yzi8fyxQP8FuvX8lz/CubA6rHhVplaM2QguyyM3GtfeK7n3eLM7iPQbvH4bpV1f341pRHnpRGDSpfP/AoO3TBag4RBq4O8iOTwC6dAc3DgO7ajBr7lqD3dtFTshb5qR5rp2bZtQg9QS4SK+iN9x7XXY3jJ6R+MyMtxWEPPlRh9B8nO2z0a3+TyVEfvH4je88m9Y2Yvps5WfK13fK2/PVl/wOBi61fJO6HSKLQ9PdA8VY9CUHueoaue5USqFoJrYdsJDd+qU2kZkrDBpdpPAt5QDn4aHp0xOv6z2LRb7P5p/4mgBMTbc1y5O91R3AEtSTuKOzyKM3U/sAI7Ui0/tNUeWKbqaZqn9nDkhI7pYN3zN6K4n+Dr3wkZT8TROfUfO4bby4KxdM67/6DT8Va3NOt46/0vzQA07BluqOqOH6k93wtV18E91XGx7ek2QAg4O/q84Ocx9eVmbM17+cXpZJUhTacXhLqlmtjFas9xbNV3dawa4EdGYAWGEbno+f8UYCfcL24AAA==",
         x = 16.2, y = 13.2, radius = 600,
         worldX = -182.92, worldY = 31.82, worldZ = -376.60,
         fishX = -190.89, fishY = 31.20, fishZ = -383.58,
@@ -595,7 +616,7 @@ FishData = {
         previousWeather = "Rain",
         bait            = "Popper Lure",
         swimBait        = true,
-        autoHookPreset  = "AH6_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",
+        autoHookPreset  = "AH6_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",
         x = 25.8, y = 31.6, radius = 800,
         worldX = 150.32, worldY = 115.40, worldZ = 528.67,
         fishX = 169.07, fishY = 109.77, fishZ = 525.83,
@@ -848,7 +869,7 @@ FishData = {
         previousWeather = "Clouds",
         bait            = "White Worm",
         swimBait        = true,
-        autoHookPreset  = "AH6_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",
+        autoHookPreset  = "AH6_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",
         x = 20.0, y = 37.0, radius = 600,
         worldX = -75.05, worldY = 0.06, worldZ = 773.93,
         fishX = -78.47, fishY = -3.54, fishZ = 762.22,
@@ -899,7 +920,7 @@ FishData = {
         previousWeather = "Clouds",
         bait            = "Golden Stonefly Nymph",
         swimBait        = true,
-        autoHookPreset  = "AH6_H4sIAAAAAAAACu1dW2+juhb+K5V1HqHCXAJEZx+pzXS6K/WmJqP9MKp0jDEJpwRnG5OZ7qr//cgGciGkk6ZJSzp+S2zj2IvPa3328sp6Aic5pz2U8awXDUH3CZylKEjISZKALmc50cAXmvIeSjFJrijFo6r4jmCU8ZM0HiMe07RoUVUOcpb2aJIQzG+iCHQjlGREA71RPl55oqxbfuSvmI9oLruvtRNjvYxTIsZ6MUwpI0vDKoYfVl8vQtA1PV8D55PBiJFsRJMQdI21s7plMWUxfwRdqIGL7OwnTvKQhPPiotlCbycBnZKqvEfTMBaT6xMuBjiW/QxB97v8bGgAg+73ew2g4onnew0Q0E3zJHl+LuZWDucJyA/m/JWEMxHISXW82qSgsdG0djAvOVyteVi+u42sjR0J23ilsAUg10nYhoZdm4u7kYi95smUXe9zNsXyeWFCcIuXY+4MMGKM/RQNh3E6fGGQxhaDtHY6yB5lYYwSqWLSKWFVwcrLLBTQIB6Tv+I0pD9mFQ1qCJqdzuaK6GZKGEaTt6BiA222f0x+jbPR2SPJVtR1XVDLGHBqgnKcN0B1/7O8Qg+kP4ojfopi2YcoyKqCPkf4IQNdp9k8dbzV6W4P+ddPtsFCPQEOuuAK/Tyf9L4ADUxE06lYEVIF0gnogn+DZykHKRKteGK+EuaPZRwxDrq2Z2iApEKLmsbCky/K9RbxmKRYGvs7EokJnSGWPIrfkYNtkKcNjU5dnJ1N0GPvUaAvz5LF/5Ae4oXdX2PtVyZlbmSMnI9aEoMRSmL0kH1FU8pEH0sF1ZKwtOXyO4LplDDQhWLBrxNF3S5vIojORwniNB6eIwHXJ3CSDhPCsmryZvMMLdewV172BjN0dzDDBSN4lSc8HlH6sNZUm4azDbPeAdkrh7mgbhoJ6k/O0NK2ZqYo7khGeI/mKSfslokv/R9oMpveV8owkapblhbPyMJQlMrZW57ta3L7dIMJSqWhq0lpqfIkSfqcTrLm2v6Eym6NWrmYYlP524jBgMXDIWGZbF4TzWY971jfa0BIungTMwEVXwe0eAlAB0WrwsaWbcSXqsWThKUONXCZM3JFsgwNCegCoIFruQLBNU0JKB96nBDQtcQvczo5wWLGcnZ3JKPJlJRkWogmq5G7hhYSG9d01qQvhCDek6S6FebCHBNRuNDTmE5JnyOez3FRfB3QorIaE5Hd9VA+HFXAnT1xTXkcPd6k/RxjkkmuVYfiGR7R3gjxmVRmW3LEB+SneJlAA1/ibJKgR6GvBhRlczHPSlbaylI5gBjLff18R7/c/muCstEAZQ8BYhd4od0pi1OpIr9SRoaM5gI0VR0hk4V5ydJnwTbeAbQaiNNpxW/qTEfqtpMpihMxjllHqw2Lt1mo/PnvxaFYe6brevcaGMdpZRKg0dDDj3gcoLh464tdCCXkij2dZGbWwSwyuJdFNntOrbKWrzK5topV5h2OaTAVag/BNtxr4Fsa/51L1gSIaziWgxy9Q6JAtwkydN9Fpo5DHCACPbPjO2Ifexln/CYSL7+RE4mKwnAXQCrJ3zosndMkJOlRn9OURMnj0fXjeDJaApeA/TVlY5T8WTLsO/J3HjMSVmTA0EC1+/2LINlENM0Ir42t+FrWLfLVsqj4QRu6vga+ZUTS+knxgKjKTuVuek4mvmVkPjLRot5gufYqFrTp2FgpRz/L8m8ZuWUEx1lM03V9rjSYd7tatdQz/UFYlK8dbL1+od96zWK3fU6SBLF1vdaq553WK2Z9vkZ1vpYy7OBAppnrrFPI1fTenXXtQjLrJrUM39UNZQMSGxvVYNXUpoaSxs1rtfj7nNHiuPxty9+w1PI/jOV/GnPpUmBzhDPQ/e4fGxp0j437nS/QA1sRl2RI0hCxx6ZFseRWUKviMxjF14G8wFPLoPstI19oXiJyJrDL4kznLMNo0lRfFL2a/ZVPL+l/U7geFftTQN8z0AvIbsFZFGiVdv5Y0L5IKxRuP9tW+3OwigGrznKaWUVDfVG0G1bhOqbaViqo7x/qBWh3xSsUbJWGfkfY7pBZKOQq5L4PcuMxoTmXrAp6klaN8vFiacXfennG6bg4mV8iGjJSI2fF3V/xYeHSX3FB7IRzMp7MPYmi0QCxoRiH2Xi503Idv377D77TpbNX3/4rpfU2Prog9sYXdZHyXBaucyQ6IlJka1dikxZSvsQ2KaFiTR/QtuUNnq1mNCrXlkLjfr1KCpAHe/5zcOpR+YrUTaEDhq/yAH3WS2sHCkXl11FobAMalbdG3QE+aHWqfDCf90L6gYJReVYUHluCx7pn5J3dJWv+LeEj/SXLkmkS7K98GzL8LuKEzcP1FzQenZSxn31OJjKqtIqULXSVkKPQnGXhXNCNP1W2mrlTXvV0ywKwyz9h21eMXSH8phe6EHlnGhay/E6ku16AddsyoR4E0NRdK7A82/AsDyEgXF1F6F0Jw01C72TI87rQuz/zND+6JQhT/HB0irJsKewO7iLs7pUhBirurj005xNfBvy1V02FxhwsPf8NcLsdlVehjr8Fcg88clG59JRL74DPWpRLTx2ztAqKyqWnDqHbgEbl0lMuvU/gRVFhVcql1xowKpeecum1RDkql95+QqA2c/6pwKbf/E8SD45NqcAmhcb2oVEFNin12ApAKi+I8oIcsHVXXhBFNFsFReUFUdueNqBReUGUF+Sg9+3KC6IOkVoGRuUFUbv2luBReUFaH9j0Lok7X85G+C8uw11A/zHjZHxcpu2LaZodn5OUsBgff4llAWKP/zW/fy8b9rmIPtKOyq+3LJ4iTo57lJHLOLjXqnY3wf8I5mvb3a+rAWV2RFimAvrPH7/OBfTZwsH2nXNto3gwaGHoGz7SPWgYuh1AonuQdHRCTBS4nY5pBnghHqwI+VoNB1sKBfNd31kfCnabpzmPH49uUZyuRIG9tAIvQpLyGKNEhGSuzX7s+PUkzdZGSeq9j0hE3c9ZhDDpJ0UyxDUTcrZKMQ4/JMd4OZin4oP5Qub0lfDXjSYFdxYA2zgs390iczb8iH8x7U8QI4JIIKEHntamLHdeIWexii/CAe2NCH4QmcR92++4pgDgfFYiF9wH4Kr9ac93kdi0TJbaoP0aUqtekylh5bTWshTDtDVwMUwpe3PwznrrWQaCfYZY6jLD4arpfJm51bKAzxlYRXPiyjJumFlXwKBxczDLuvurSG+CkW8Zhg5tE+m245m6Z4aO7kO/Y7iRiwwYgoZswjuN6t7Ons//WLqV5vxFxl0k/S5p7R+gfPFCjrtOA/r2TOaKl9Tg1iZasjCq1rGSrXerr6czi38y/zY2U+iydyIyh7orLxPzlttza4/qS1G9XVO9/fO83+qUZCcsLMK25QTQ0D0IHd3uiPMVO8C65Qe2Az2MOlGNhZWDXaZhHf+FvPanjKb/kKPbhGD6yU5UKkLc9nOScpzq9OMTnX4Ui27HfKECyjbHGVAdZygb10IbZ8IoCInp6lZAkG6H2NcRsbCOcAAjz+lYEKONbJy33sbdjOiROG5Q9k3Zt8M73a9ozP6tVnUVQRmtFp3Bq41Z+4yWAU3TMKGpm9g3ddv1Hd03saNbnmtEtokCy8QbGC3XMF9wdZMkD1ANY2pTpjZlymgpo9V2x7EyWu0zWhhi1wjcQIcRgrpNoKcjH2Idech3oiDEkbvJaaIrUnOuw9d5jFJ+NGBoFDOkLJfabqntltpuHdSVJ2W52me5AmwaVogiHWIT6rZPsB5YyNN94mPTtlFgoEjeM77IzhMaCOfzEgqaLw8vHkLaPkS2YegdL/B0GxKkI+xFeugHOPSJE0bQAM//BwVU8U5ZsQAA",        
+        autoHookPreset  = "AH6_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",
         x = 40.0, y = 15.1, radius = 600,
         worldX = 925.54, worldY = 5.93, worldZ = -318.99,
         fishX = 931.25, fishY = 6.06, fishZ = -319.51,
@@ -916,7 +937,7 @@ FishData = {
         previousWeather = "Clouds",
         bait            = "Ghost Nipper",
         swimBait        = true,
-        autoHookPreset  = "AH6_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",
+        autoHookPreset  = "AH6_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",
         x = 16.9, y = 15.2, radius = 1800,
         worldX = 145.86, worldY = -17.96, worldZ = 155.21,
         fishX = 160.38, fishY = -17.96, fishZ = 171.30,
@@ -937,7 +958,7 @@ FishData = {
         x = 29.2, y = 12.0, radius = 600,
         worldX = 366.41, worldY = 1.77, worldZ = -498.61,
         fishX = 367.97, fishY = -0.34, fishZ = -489.50,
-    },    
+    },
     {
         name            = "Shin Snuffler",
         expansion       = "Dawntrail",
@@ -1000,7 +1021,7 @@ FishData = {
         previousWeather = "",
         bait            = "Red Maggots",
         swimBait        = true,
-        autoHookPreset  = "AH6_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",
+        autoHookPreset  = "AH6_H4sIAAAAAAAACu1ca2/qPBL+K0fWfkyqJJCQoNVKLb1spd5UqM6HqtKaZAjehpjXdjinW/W/r2wnXELooZS20DffYDx2PONnLr4+o8NM0A7mgncGMWo/o5MU9xM4TBLUFiwDAx3TVHRwGkJySWk4LMi3EGIuDlMywoLQVHMUhb2MpR2aJBCK68GgoHaG2WitCj+JGNJMNV6wDXDCZROYiwuSguzpeZxSBgud0p2Pir/nEWo7fmCgs3FvyIAPaRKhtrVSphtGKCPiCbVtA53zk99hkkUQzciaba61wz6dwFQ+mkZEytYFITs4Ut+KUfte/bYNFKL2/YOBsK7x8mAgQO00S5KXFy1b3p1npH44swGJpipQQnl+SSjbWkusLcilumtUdytobaJr6wOUba2hbInHBQ3PUNO0rWZJlOZ6Gq6WJVfSG4Sxl4V5RgK1UVdgkfHDUJAJdI6RgcayBok4at/bvtV4eFGCKpkNXeVsPGOc4AS1G1IWOkZt9C80xz6nLWODDxuIpJOi/mt9+Id4GoNs8YkLGB3khk9oyg/OIAVGwoNjogiYPf3Hub/PGbuCkTQ2fuR/bxiZYAEHHcrggvQfjILvuv9fCMVKvodVJcjQ6gksq1orFRjSfV9lqE3bsjcwCWdrZir72E1xHJM0fqWT1gadbGy1kx3KIiKV/4zO0wmwgrBkQ9rt98gIfpI0or+mBRVmbDuet777v54AC/H4PZ5lXj/NbbmCt/q1U8KHJ0/Al4JkWVGLGHBLinLddVDgbUHKORhc4kfoDslAHGGi5JcEXhC6AoePHLXdFfHH85elWEOGYLsy3GBBIA1VknILA1n3BLPkSWJWjWB1wPHKPffWCjjOB8JsG45f19YjV67ttFr+g4FGJC1G1i4C0z9XBKZluN8w8j/oYKETp1W4KGvXWS+cN3ZVu6+qpDfECcGP/BRPKJPNLRAKXTeMRfothHQCDLVtaflVubTnL6VFa2nR+3otrpEVudbbwXdE4jMszfoZHaZxAixHuorhVVhstKzmEhbX0aG/ZUebJYIMKX1cmRU4lrvJ1GkL2XzezVmMr56B/BYML8xap2C9BQ6iQ7NUALth8k/3Fx5PxTulLAQVTxRV11HESFKV9A3f9Q01O74OAacqppa0tFB4mCRdQce8urQ7pqpZq0SXIlbR35eD9BiJY2AS+0uqeYtRzQ3A1FK4wEzIsLNGjmwgqWA9AFO96L89qnWPTKS5dLzPeeSfguNZodG0DXSRMbgEznEsJw/IQFfK8tAVTQHlldTEoiG/LOhYugOaKqFugdNkAnm6LjXCS+ljBYeCxBWdsnSl7HJ4VDJdQC3KQpDEuZZGdALaI83XFRnvUV1Y9AlUcx2cxcMCr9MaV1SQwdN12s3CELjK5soIPAmHtDPEYqqVYplkiEUPfssxRAY6Jnyc4Cfpp3oU85map5QlXkVVHSChWq6Z1inxnyaYD3uYP/YxOw/n+I7kVE1+4JQyiBnN0lm3jwDGc3Ip6ot0yx+H1TVSlPWCx24j3f4QpE/r1VDfdahbBgL5eW9/vLNTY3Yf3PODge5S8lem8hVk2VG/0QwjE3tOw2yG/dAMvAE2A7Bb0IggCN2BTKIvCBfXAzn4ldmILNCxUwMpT7tWYekWoh+XOI6p4AuQkmC/omyEk3/nGe0t/JURBlERhS0DFdPyn4AVi2TlIEo90n/zsvn8MCfpDzbtVmCgOw4qjR7rCrKIH6lp/iyK33GY9UxylBkWSy+JzFcOrCU6/p3T7zjcMAgJJzRd1eYSw6zZ5aKFlukvYINsZWfL5XPtlkvmm+0KSBLMVrVaKp41Wi6Ytvkdli80pKRcy9Ob8vBXcSyNZCVTaViqeEparpxsFcbTFYzqleT3mY/VqM1nn81nh7dwNlw620tzvIAY0gizp9oi/w4B7Rsg947DMc3yGDFV2IVeCDnhIR5XlWvSmzO3vPZC7HHkjmCdudVA/2Cga8hukC/VoK2989eCdrOsosZtjdsvzCp6rFiHqc4qKso1aTtZRct16iltnUB/PNQ1aLeVV9Sw3aV5n0bB3oFxi/lCjcddwuM3XoeQiqKZmJN8mI2WiHccOhkXdKRXQReyB3UXJWP6nK38MXeuTp+QOhQCRuPZhp5k6mEWy25Un7BrtNygfMLO/qRTV9s7YLfyxFyu36oxm1N/5XidpyJTxFU7fK68E7PxHl+VM6o3+XbJF+1dbHzHllk1Gus9sxqNX7RjVANy1xd39s491htB9RGePYZvvb3zXU+T7SkU602bGo27gMZ6K6Y+nLvX7rTeYPm+J8X3FIz1BkuNxx3B4w5tmyzcqv+6fZNFzWyyt6Fuww0EsNm99TmPR8f5RcyugLG64tn9RUZ9TIT2VVKP0nPmxJmiKz+Vc023U95Ue8euJOdvx33UlTet/KoBnbsIB1E0iKKWb3rYcs2m7YWm32r0TTcYRJbXCsACD8ltMH0TLofh/ZSgb78t34xbuBXn2RLdq27FdceMZoKk8Y8bYOFw4Wac/Qd4nUeQChLiRJrlyqcg3KD8ZEVjrceB/K94AqmbsQEOoZvo+6krBHI3ew/G/QqJ6lcB3+WZu2PMQMY+LC3+eeWzLO4b3lSU5nke9WhnCOGjfCwlaAZey5GwmnvGzfr4d29yv62sei+uZ+kHCKfXJOV9LdR2mkFgr3OCYA+erdnG9fj8yn2Fw664oH8FE2CLT7wtZw2WI9+jU6/Bve+Mz2s5QL5/+L1TgNcNsvSey16YJJnlGMo6/2yJM4hWTiSm70r8IXnyA7/vWpZjRrjZN5vBwDMxhAPTswKv5fot6PflKwKvJ0eNljz5s8q+eiQG9uMy44+QJFkaLxpbnR5VvUW4bnY0dUmfkh5tdh9/raBSv7r8Oa8uf0Ympt3BJyVhdZ6y7Tzl45OUv9NCRXcbUdr1mjjwITQjzw/NZuDaph96LdPznAH2wW1YUV8tcZzzs4T2ZQaxAIKVyxRz33D8PjgtLzRDgNBs2g3L9KPAMZ1Wo+HaTcdttSz08n+P7hSer2AAAA==",
         x = 19.8, y = 8.9, radius = 1400,
         worldX = -144.75, worldY = 22.30, worldZ = -770.15,
     },
@@ -1239,18 +1260,31 @@ function HasRequiredBait(fish)
     return true
 end
 
+function HasExportedAutoHookPreset(fish)
+    return fish and fish.autoHookPreset and fish.autoHookPreset ~= ""
+end
+
+function FishCanUseAutoHookPreset(fish)
+    return UseNamedAutoHookPreset or HasExportedAutoHookPreset(fish) or not SkipFishWithoutPreset
+end
+
+function UseAnonymousAutoHookPreset(fish)
+    return fish and not UseNamedAutoHookPreset and HasExportedAutoHookPreset(fish)
+end
+
 function SelectAutoHookPreset(fish)
-    if fish.autoHookPreset and fish.autoHookPreset ~= "" then
+    if UseAnonymousAutoHookPreset(fish) then
         SetAutoHookAnonymousPreset(fish.autoHookPreset)
         LogInfo(string.format("%s Selected anonymous AutoHook preset for %s.", LogPrefix, fish.name))
     else
+        ClearAutoHookAnonymousPresets()
         SetAutoHookPreset(fish.name)
         LogInfo(string.format("%s Selected named AutoHook preset for %s.", LogPrefix, fish.name))
     end
 end
 
 function CleanupAutoHookPreset(fish)
-    if fish and fish.autoHookPreset and fish.autoHookPreset ~= "" then
+    if HasExportedAutoHookPreset(fish) then
         ClearAutoHookAnonymousPresets()
     end
 end
@@ -1322,30 +1356,79 @@ function IsFishAllowed(fish)
     return not disabledFish[fish.name]
 end
 
+function IsFishSelectable(fish)
+    if not fish.x or not fish.y then
+        return false
+    end
+
+    local cooldownUntil = lastAttempt[fish.name]
+    return IsFishAllowed(fish)
+        and HasRequiredBait(fish)
+        and FishCanUseAutoHookPreset(fish)
+        and (not cooldownUntil or os.time() >= cooldownUntil)
+end
+
+function HasUpcomingSelectableFish(secondsAhead)
+    if secondsAhead <= 0 then
+        return false
+    end
+
+    local futureTime = os.time() + secondsAhead
+    for _, fish in ipairs(FishData) do
+        if IsFishSelectable(fish) and IsFishReady(fish, futureTime) then
+            return true
+        end
+    end
+    return false
+end
+
 function SelectNextFish()
     for _, fish in ipairs(FishData) do
-        if fish.x and fish.y then
-            local cooldownUntil = lastAttempt[fish.name]
-            local hasPreset = fish.autoHookPreset and fish.autoHookPreset ~= ""
-            if IsFishAllowed(fish) and HasRequiredBait(fish) and (hasPreset or not RequireAutoHookPreset) and (not cooldownUntil or os.time() >= cooldownUntil) and IsFishUp(fish) then
-                return fish
-            end
+        if IsFishSelectable(fish) and IsFishUp(fish) then
+            return fish
         end
     end
 
     -- Idle fallback: nothing actually open - get a head start on swimBait
     -- fish so bait can be caught before the window opens.
     for _, fish in ipairs(FishData) do
-        if fish.x and fish.y and fish.swimBait then
-            local cooldownUntil = lastAttempt[fish.name]
-            local hasPreset = fish.autoHookPreset and fish.autoHookPreset ~= ""
-            if IsFishAllowed(fish) and HasRequiredBait(fish) and (hasPreset or not RequireAutoHookPreset) and (not cooldownUntil or os.time() >= cooldownUntil) and IsFishReady(fish) then
-                return fish
-            end
+        if fish.swimBait and IsFishSelectable(fish) and IsFishReady(fish) then
+            return fish
         end
     end
 
     return nil
+end
+
+function TeleportToIdleOnce()
+    if not UseIdleTeleport then
+        return
+    end
+
+    if idleTeleported then
+        return
+    end
+
+    if HasUpcomingSelectableFish(idleHoldoff) then
+        if not loggedIdleBusy then
+            LogInfo(string.format("%s Idle teleport skipped: fish window or swim-bait prep is close.", LogPrefix))
+            loggedIdleBusy = true
+        end
+        return
+    end
+
+    if not IsPlayerAvailable() or IsFishing() or IsGathering() or LifestreamIsBusy() then
+        if not loggedIdleBusy then
+            LogInfo(string.format("%s Idle teleport postponed: player is busy or unavailable.", LogPrefix))
+            loggedIdleBusy = true
+        end
+        return
+    end
+
+    idleTeleported = true
+    loggedIdleBusy = false
+    LogInfo(string.format("%s No fish selected. Using Lifestream Auto idle teleport.", LogPrefix))
+    Teleport("Auto")
 end
 
 function CharacterState.selectFish()
@@ -1359,10 +1442,13 @@ function CharacterState.selectFish()
             LogInfo(string.format("%s No fish window currently open. Waiting...", LogPrefix))
             loggedIdle = true
         end
+        TeleportToIdleOnce()
         return
     end
 
     loggedIdle = false
+    idleTeleported = false
+    loggedIdleBusy = false
     SelectedFish = fish
     LogInfo(string.format("%s Selected fish: %s (%s, bait: %s)", LogPrefix, SelectedFish.name, SelectedFish.spotName, SelectedFish.bait))
     State = CharacterState.teleportToZone
