@@ -57,8 +57,8 @@ configs:
     default: false
   UseIdleTeleport:
     description: |
-      When enabled, uses Teleport("Auto") once when no fish window is available.
-      Configure the Auto destination in Lifestream.
+      When enabled, uses Teleport("auto") once when no fish window is available.
+      Configure the auto destination in Lifestream.
     default: true
   EnabledFish:
     description: |
@@ -190,7 +190,7 @@ configs:
 --                                  RetryCooldownSeconds). Sets SelectedFish and
 --                                  advances to teleportToZone. If nothing is up,
 --                                  logs once (loggedIdle), optionally uses
---                                  Teleport("Auto") once to return to the
+--                                  Teleport("auto") once to return to the
 --                                  Lifestream idle spot unless a fish/prep
 --                                  window is within the idle teleport holdoff,
 --                                  then keeps re-evaluating from idle.
@@ -1427,8 +1427,8 @@ function TeleportToIdleOnce()
 
     idleTeleported = true
     loggedIdleBusy = false
-    LogInfo(string.format("%s No fish selected. Using Lifestream Auto idle teleport.", LogPrefix))
-    Teleport("Auto")
+    LogInfo(string.format("%s No fish selected. Using Lifestream auto idle teleport.", LogPrefix))
+    Teleport("auto")
 end
 
 function CharacterState.selectFish()
