@@ -1427,7 +1427,7 @@ function TeleportToIdleOnce()
 
     idleTeleported = true
     loggedIdleBusy = false
-    LogInfo(string.format("%s No fish selected. Using Lifestream auto idle teleport.", LogPrefix))
+    LogInfo(string.format("%s Returning to Lifestream auto idle spot.", LogPrefix))
     Teleport("auto")
 end
 
