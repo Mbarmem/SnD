@@ -14,14 +14,20 @@ dependencies:
   name: latest
   type: unknown
 configs:
+  AutoSelectMode:
+    description: Automatically choose tournament or regular based on the biweekly Triple Triad tournament schedule.
+    default: true
+  TournamentWeekReference:
+    description: Known tournament week date in YYYY-MM-DD format. Default is 2026-06-23.
+    default: "2026-06-23"
   PlayRegular:
-    description: Play the regular Triple Triad weekly (Nell Half-full in Battlehall).
+    description: Play the regular Triple Triad weekly when AutoSelectMode is disabled.
     default: true
   RegularMatches:
     description: Number of regular matches to play.
     default: 15
   PlayTournament:
-    description: Play Triple Triad Tournament matches in Battlehall.
+    description: Play Triple Triad Tournament matches when AutoSelectMode is disabled.
     default: false
   TournamentMatches:
     description: Number of tournament matches to play.
@@ -36,13 +42,79 @@ configs:
 --    General    --
 -------------------
 
-PlayRegular       = Config.Get("PlayRegular")
-RegularMatches    = Config.Get("RegularMatches")
-PlayTournament    = Config.Get("PlayTournament")
-TournamentMatches = Config.Get("TournamentMatches")
-LogPrefix         = "[TT]"
+AutoSelectMode          = Config.Get("AutoSelectMode")
+TournamentWeekReference = Config.Get("TournamentWeekReference")
+PlayRegular             = Config.Get("PlayRegular")
+RegularMatches          = Config.Get("RegularMatches")
+PlayTournament          = Config.Get("PlayTournament")
+TournamentMatches       = Config.Get("TournamentMatches")
+ClaimTournamentPrizes   = false
+LogPrefix               = "[TT]"
+
+--=========================== CONSTANTS ==========================--
+
+--------------------
+--    Schedule    --
+--------------------
+
+SecondsPerWeek          = 7 * 24 * 60 * 60
+WeeklyResetOffsetUtc    = (5 * 24 * 60 * 60) + (8 * 60 * 60) -- Tuesday 11:00 AST / 08:00 UTC, relative to Unix epoch Thursday.
 
 --=========================== FUNCTIONS ==========================--
+
+--------------------
+--    Schedule    --
+--------------------
+
+function ParseDate(dateText)
+    local year, month, day = tostring(dateText):match("^(%d%d%d%d)%-(%d%d)%-(%d%d)$")
+
+    if not year then
+        return nil
+    end
+
+    return os.time({
+        year = tonumber(year),
+        month = tonumber(month),
+        day = tonumber(day),
+        hour = 12,
+        min = 0,
+        sec = 0
+    })
+end
+
+function GetTTWeekIndex(unixSeconds)
+    return math.floor((unixSeconds - WeeklyResetOffsetUtc) / SecondsPerWeek)
+end
+
+function IsTournamentWeek()
+    local referenceTime = ParseDate(TournamentWeekReference)
+
+    if not referenceTime then
+        LogInfo(string.format("%s Invalid TournamentWeekReference '%s'. Defaulting to tournament week.", LogPrefix, tostring(TournamentWeekReference)))
+        referenceTime = ParseDate("2026-06-23")
+    end
+
+    local weeksSinceReference = GetTTWeekIndex(os.time()) - GetTTWeekIndex(referenceTime)
+    return weeksSinceReference % 2 == 0
+end
+
+function SelectPlayMode()
+    if AutoSelectMode == false then
+        LogInfo(string.format("%s AutoSelectMode disabled. Using manual config: PlayTournament=%s, PlayRegular=%s.", LogPrefix, tostring(PlayTournament), tostring(PlayRegular)))
+        return
+    end
+
+    PlayTournament = IsTournamentWeek()
+    PlayRegular = not PlayTournament
+    ClaimTournamentPrizes = PlayRegular
+
+    if PlayTournament then
+        LogInfo(string.format("%s AutoSelectMode selected tournament matches.", LogPrefix))
+    else
+        LogInfo(string.format("%s AutoSelectMode selected regular matches.", LogPrefix))
+    end
+end
 
 --------------------
 --    Tournament  --
@@ -63,7 +135,7 @@ function EnrollTournament()
     Execute("/callback SelectString true 0")
 
     local alreadyEnrolled = false
-    local start = os.clock()
+    local start = os.time()
     repeat
         if IsAddonReady("TripleTriadRanking") then
             alreadyEnrolled = true
@@ -78,7 +150,7 @@ function EnrollTournament()
             Execute("/click Talk Click")
         end
         Wait(1)
-    until (os.clock() - start) >= 30
+    until (os.time() - start) >= 30
 
     if alreadyEnrolled then
         LogInfo(string.format("%s Already enrolled in tournament, closing NPC window...", LogPrefix))
@@ -100,6 +172,68 @@ function EnrollTournament()
             Execute("/click Talk Click")
             Wait(2)
         end
+    end
+
+    WaitForPlayer()
+end
+
+function ClaimTournamentRewards()
+    LogInfo(string.format("%s Claiming tournament prizes...", LogPrefix))
+    MoveToTarget("Tournament Recordkeeper", 3)
+    Interact("Tournament Recordkeeper")
+
+    local start = os.time()
+    local idleSince = nil
+    local sawAddon = false
+    local selectedPrizeOption = false
+    repeat
+        if IsAddonReady("SelectString") then
+            sawAddon = true
+            idleSince = nil
+            if selectedPrizeOption then
+                Execute("/callback SelectString true -1")
+            else
+                Execute("/callback SelectString true 0")
+                selectedPrizeOption = true
+            end
+            Wait(1)
+        elseif IsAddonReady("SelectYesno") then
+            sawAddon = true
+            idleSince = nil
+            Execute("/callback SelectYesno true 0")
+            Wait(1)
+        elseif IsAddonReady("TripleTriadRanking") then
+            sawAddon = true
+            idleSince = nil
+            Execute("/callback TripleTriadRanking true -1")
+            Wait(1)
+        elseif IsAddonReady("Talk") then
+            sawAddon = true
+            idleSince = nil
+            Execute("/click Talk Click")
+            Wait(1)
+        else
+            idleSince = idleSince or os.time()
+            if sawAddon and (os.time() - idleSince) >= 2 then
+                break
+            end
+            Wait(1)
+        end
+    until (os.time() - start) >= 20
+
+    if IsAddonReady("SelectString") then
+        Execute("/callback SelectString true -1")
+        Wait(1)
+    end
+
+    if IsAddonReady("TripleTriadRanking") then
+        Execute("/callback TripleTriadRanking true -1")
+        Wait(1)
+    end
+
+    while IsAddonReady("Talk") do
+        Execute("/click Talk Click")
+        Wait(1)
     end
 
     WaitForPlayer()
@@ -182,6 +316,8 @@ end
 
 --=========================== EXECUTION ==========================--
 
+SelectPlayMode()
+
 if not PlayTournament and not PlayRegular then
     LogInfo(string.format("%s Nothing to do. Enable PlayRegular or PlayTournament.", LogPrefix))
 else
@@ -190,6 +326,9 @@ else
         if PlayTournament then
             Teleport("Entrance & Card Squares")
             EnrollTournament()
+        elseif ClaimTournamentPrizes then
+            Teleport("Entrance & Card Squares")
+            ClaimTournamentRewards()
         end
 
         BattleHall()
