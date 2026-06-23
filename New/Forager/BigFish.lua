@@ -1289,23 +1289,36 @@ function CleanupAutoHookPreset(fish)
     end
 end
 
+function ParseFishTimeWindow(fish)
+    if not fish or fish.time == "Always" then
+        return nil, nil
+    end
+
+    local startHour, startMinute, endHour, endMinute = fish.time:match("^(%d+):(%d+)%-(%d+):(%d+)$")
+    if not startHour then
+        return nil, nil
+    end
+
+    local startMinutes = tonumber(startHour) * 60 + tonumber(startMinute)
+    local endMinutes = tonumber(endHour) * 60 + tonumber(endMinute)
+    return startMinutes, endMinutes
+end
+
 function IsFishUp(fish, unixSeconds)
     unixSeconds = unixSeconds or os.time()
 
-    if fish.time ~= "Always" then
+    local startMinutes, endMinutes = ParseFishTimeWindow(fish)
+    if startMinutes then
         local hour, minute = GetEorzeaTime(unixSeconds)
-        local hourDecimal = hour + minute / 60
+        local currentMinutes = hour * 60 + minute
 
-        local startHour, endHour = fish.time:match("^(%d+):%d+%-(%d+):%d+$")
-        startHour, endHour = tonumber(startHour), tonumber(endHour)
-
-        if endHour > startHour then
-            if hourDecimal < startHour or hourDecimal >= endHour then
+        if endMinutes > startMinutes then
+            if currentMinutes < startMinutes or currentMinutes >= endMinutes then
                 return false
             end
         else
             -- window wraps past midnight (e.g. 20:00-2:00)
-            if hourDecimal < startHour and hourDecimal >= endHour then
+            if currentMinutes < startMinutes and currentMinutes >= endMinutes then
                 return false
             end
         end
@@ -1328,6 +1341,34 @@ function IsFishUp(fish, unixSeconds)
     return true
 end
 
+function GetSecondsUntilFishWindowStart(fish, unixSeconds)
+    unixSeconds = unixSeconds or os.time()
+
+    local startMinutes, endMinutes = ParseFishTimeWindow(fish)
+    if not startMinutes then
+        return nil
+    end
+
+    local hour, minute = GetEorzeaTime(unixSeconds)
+    local currentMinutes = hour * 60 + minute
+
+    if endMinutes > startMinutes then
+        if currentMinutes < startMinutes then
+            return math.ceil((startMinutes - currentMinutes) * 175 / 60)
+        end
+        if currentMinutes >= endMinutes then
+            return math.ceil(((24 * 60) - currentMinutes + startMinutes) * 175 / 60)
+        end
+        return 0
+    end
+
+    if currentMinutes >= startMinutes or currentMinutes < endMinutes then
+        return 0
+    end
+
+    return math.ceil((startMinutes - currentMinutes) * 175 / 60)
+end
+
 --- For swimBait fish, also accepts the window being not-quite-open-yet if it
 --- opens within SwimBaitPrepSeconds, so travel started for early bait prep
 --- doesn't get cancelled while still en route. This is also what lets the
@@ -1340,6 +1381,10 @@ function IsFishReady(fish, unixSeconds)
         return true
     end
     if fish.swimBait then
+        local secondsUntilStart = GetSecondsUntilFishWindowStart(fish, unixSeconds)
+        if secondsUntilStart and secondsUntilStart <= SwimBaitPrepSeconds then
+            return IsFishUp(fish, unixSeconds + secondsUntilStart)
+        end
         return IsFishUp(fish, unixSeconds + SwimBaitPrepSeconds)
     end
     return false
