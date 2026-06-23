@@ -1,7 +1,7 @@
 --[=====[
 [[SND Metadata]]
 author: Mo
-version: 1.0.0
+version: 1.1.0
 description: Forager - BigFish - Automates catching newly-tracked Dawntrail/Endwalker Big Fish
 plugin_dependencies:
 - AutoHook
@@ -358,6 +358,10 @@ local enabledFish      = {}
 local baitItemIds      = {}
 local missingBaitLog   = {}
 local unknownFishLog   = {}
+local invalidTimeLog   = {}
+local invalidNameLog   = {}
+local invalidWeatherLog = {}
+local invalidCoordinateLog = {}
 local fishDataNames    = nil
 
 local loggedIdle       = false
@@ -1136,16 +1140,17 @@ FishData = {
 -------------------
 
 function OnChatMessage()
-    local message = TriggerData.message
+    local message = TriggerData and TriggerData.message
 
-    if not message or not SelectedFish or not fishingStarted then
+    if type(message) ~= "string" or not SelectedFish or not fishingStarted then
         return
     end
 
-    if message:find(SelectedFish.name, 1, true) then
+    local selectedFishName = GetFishName(SelectedFish)
+    if selectedFishName and message:find(selectedFishName, 1, true) then
         catchDetected = true
         catchMessage = message
-        LogInfo(string.format("%s Detected chat match for %s: %s", LogPrefix, SelectedFish.name, message))
+        LogInfo(string.format("%s Detected chat match for %s: %s", LogPrefix, selectedFishName, message))
     end
 end
 
@@ -1195,7 +1200,16 @@ function GetFishDataNames()
     if not fishDataNames then
         fishDataNames = {}
         for _, fish in ipairs(FishData) do
-            fishDataNames[fish.name] = true
+            local fishName = GetFishName(fish)
+            if fishName then
+                fishDataNames[fishName] = true
+            else
+                local logKey = GetFishLogKey(fish, "missing-name")
+                if not invalidNameLog[logKey] then
+                    LogInfo(string.format("%s WARNING: encountered a FishData entry without a valid string name - config name validation will skip it until fixed.", LogPrefix))
+                    invalidNameLog[logKey] = true
+                end
+            end
         end
     end
     return fishDataNames
@@ -1207,7 +1221,7 @@ function ValidateFishNameSet(configKey, set)
         if not validNames[fishName] then
             local logKey = configKey .. ":" .. fishName
             if not unknownFishLog[logKey] then
-                Dalamud.Log(string.format("%s WARNING: '%s' in %s does not match any DT Big Fish. Check spelling.", LogPrefix, fishName, configKey))
+                LogInfo(string.format("%s WARNING: '%s' in %s does not match any DT Big Fish. Check spelling.", LogPrefix, fishName, configKey))
                 unknownFishLog[logKey] = true
             end
         end
@@ -1240,23 +1254,25 @@ function HasRequiredBait(fish)
     end
 
     local baitItemId = baitItemIds[fish.bait]
+    local fishKey = GetFishStateKey(fish)
+    local fishLabel = GetFishLogLabel(fish)
     if not baitItemId then
-        if not missingBaitLog[fish.name] then
-            LogInfo(string.format("%s Skipping %s: could not resolve bait item ID for '%s'.", LogPrefix, fish.name, fish.bait))
-            missingBaitLog[fish.name] = true
+        if not missingBaitLog[fishKey] then
+            LogInfo(string.format("%s Skipping %s: could not resolve bait item ID for '%s'.", LogPrefix, fishLabel, fish.bait))
+            missingBaitLog[fishKey] = true
         end
         return false
     end
 
     if GetItemCount(baitItemId) <= 0 then
-        if not missingBaitLog[fish.name] then
-            LogInfo(string.format("%s Skipping %s: no bait '%s' in inventory.", LogPrefix, fish.name, fish.bait))
-            missingBaitLog[fish.name] = true
+        if not missingBaitLog[fishKey] then
+            LogInfo(string.format("%s Skipping %s: no bait '%s' in inventory.", LogPrefix, fishLabel, fish.bait))
+            missingBaitLog[fishKey] = true
         end
         return false
     end
 
-    missingBaitLog[fish.name] = nil
+    missingBaitLog[fishKey] = nil
     return true
 end
 
@@ -1265,7 +1281,15 @@ function HasExportedAutoHookPreset(fish)
 end
 
 function FishCanUseAutoHookPreset(fish)
-    return UseNamedAutoHookPreset or HasExportedAutoHookPreset(fish) or not SkipFishWithoutPreset
+    if UseNamedAutoHookPreset then
+        return GetFishName(fish) ~= nil
+    end
+
+    if HasExportedAutoHookPreset(fish) then
+        return true
+    end
+
+    return not SkipFishWithoutPreset and GetFishName(fish) ~= nil
 end
 
 function UseAnonymousAutoHookPreset(fish)
@@ -1275,11 +1299,16 @@ end
 function SelectAutoHookPreset(fish)
     if UseAnonymousAutoHookPreset(fish) then
         SetAutoHookAnonymousPreset(fish.autoHookPreset)
-        LogInfo(string.format("%s Selected anonymous AutoHook preset for %s.", LogPrefix, fish.name))
+        LogInfo(string.format("%s Selected anonymous AutoHook preset for %s.", LogPrefix, GetFishLogLabel(fish)))
     else
+        local fishName = GetFishName(fish)
+        if not fishName then
+            LogInfo(string.format("%s WARNING: %s has no valid preset name for the named AutoHook path - skipping preset selection.", LogPrefix, GetFishLogLabel(fish)))
+            return
+        end
         ClearAutoHookAnonymousPresets()
-        SetAutoHookPreset(fish.name)
-        LogInfo(string.format("%s Selected named AutoHook preset for %s.", LogPrefix, fish.name))
+        SetAutoHookPreset(fishName)
+        LogInfo(string.format("%s Selected named AutoHook preset for %s.", LogPrefix, fishName))
     end
 end
 
@@ -1289,25 +1318,226 @@ function CleanupAutoHookPreset(fish)
     end
 end
 
+--- Parses a fish time string into start/end Eorzea minutes.
+--- Missing, invalid, or zero-width windows are warned once per fish and cause the
+--- fish to be skipped until fixed.
+function GetFishName(fish)
+    if fish and type(fish.name) == "string" and fish.name ~= "" then
+        return fish.name
+    end
+    return nil
+end
+
+function GetFishLogLabel(fish)
+    local fishName = GetFishName(fish)
+    if fishName then
+        return fishName
+    end
+    if fish and fish.name ~= nil then
+        return tostring(fish.name)
+    end
+    return "<unnamed fish>"
+end
+
+function GetFishStateKey(fish)
+    return GetFishName(fish) or GetFishLogLabel(fish)
+end
+
+function GetFishLogKey(fish, suffix)
+    return GetFishLogLabel(fish) .. ":" .. suffix
+end
+
+function HasValidFishName(fish)
+    local fishName = GetFishName(fish)
+    if fishName then
+        return true
+    end
+
+    local logKey = GetFishLogKey(fish, "missing-name")
+    if not invalidNameLog[logKey] then
+        LogInfo(string.format("%s WARNING: %s has no valid string name - skipping this fish until fixed.", LogPrefix, GetFishLogLabel(fish)))
+        invalidNameLog[logKey] = true
+    end
+    return false
+end
+
+function GetMissingRequiredCoordinateFields(fish)
+    local missing = {}
+
+    if not fish then
+        table.insert(missing, "worldX")
+        table.insert(missing, "worldY")
+        table.insert(missing, "worldZ")
+        return missing
+    end
+
+    if fish.worldX == nil then
+        table.insert(missing, "worldX")
+    end
+    if fish.worldY == nil then
+        table.insert(missing, "worldY")
+    end
+    if fish.worldZ == nil then
+        table.insert(missing, "worldZ")
+    end
+
+    return missing
+end
+
+function HasRequiredCoordinates(fish)
+    local missing = GetMissingRequiredCoordinateFields(fish)
+    return #missing == 0
+end
+
+function WarnInvalidCoordinatesOnce(fish)
+    local missing = GetMissingRequiredCoordinateFields(fish)
+    if #missing == 0 then
+        return
+    end
+
+    local logKey = GetFishLogKey(fish, "missing-coordinates")
+    if not invalidCoordinateLog[logKey] then
+        LogInfo(string.format("%s WARNING: %s is missing required coordinates (%s) - skipping until fixed.", LogPrefix, GetFishLogLabel(fish), table.concat(missing, ", ")))
+        invalidCoordinateLog[logKey] = true
+    end
+end
+
+function GetWeatherRequirement(fish, fieldName)
+    if not fish then
+        return false, nil
+    end
+
+    local value = fish[fieldName]
+    if value == nil or value == "" then
+        return true, nil
+    end
+
+    if type(value) ~= "string" then
+        local fishLabel = GetFishLogLabel(fish)
+        local logKey = GetFishLogKey(fish, fieldName .. "-non-string")
+        if not invalidWeatherLog[logKey] then
+            LogInfo(string.format("%s WARNING: %s has a non-string %s requirement (%s) - skipping this fish until fixed.", LogPrefix, fishLabel, fieldName, type(value)))
+            invalidWeatherLog[logKey] = true
+        end
+        return false, nil
+    end
+
+    return true, value
+end
+
 function ParseFishTimeWindow(fish)
-    if not fish or fish.time == "Always" then
-        return nil, nil
+    if not fish then
+        return false, nil, nil
+    end
+
+    if fish.time == nil then
+        local fishLabel = GetFishLogLabel(fish)
+        local logKey = GetFishLogKey(fish, "missing")
+        if not invalidTimeLog[logKey] then
+            LogInfo(string.format("%s WARNING: %s is missing a time window - skipping this fish until fixed. Expected 'H:MM-H:MM' or 'Always'.", LogPrefix, fishLabel))
+            invalidTimeLog[logKey] = true
+        end
+        return false, nil, nil
+    end
+
+    if fish.time == "Always" then
+        return true, nil, nil
+    end
+
+    if type(fish.time) ~= "string" then
+        local fishLabel = GetFishLogLabel(fish)
+        local logKey = GetFishLogKey(fish, "non-string")
+        if not invalidTimeLog[logKey] then
+            LogInfo(string.format("%s WARNING: %s has a non-string time window (%s) - skipping this fish until fixed. Expected 'H:MM-H:MM' or 'Always'.", LogPrefix, fishLabel, type(fish.time)))
+            invalidTimeLog[logKey] = true
+        end
+        return false, nil, nil
     end
 
     local startHour, startMinute, endHour, endMinute = fish.time:match("^(%d+):(%d+)%-(%d+):(%d+)$")
     if not startHour then
-        return nil, nil
+        local fishLabel = GetFishLogLabel(fish)
+        local logKey = GetFishLogKey(fish, "malformed")
+        if not invalidTimeLog[logKey] then
+            LogInfo(string.format("%s WARNING: %s has an unparseable time window '%s' - skipping this fish until fixed. Expected 'H:MM-H:MM' or 'Always'.", LogPrefix, fishLabel, fish.time))
+            invalidTimeLog[logKey] = true
+        end
+        return false, nil, nil
     end
 
-    local startMinutes = tonumber(startHour) * 60 + tonumber(startMinute)
-    local endMinutes = tonumber(endHour) * 60 + tonumber(endMinute)
-    return startMinutes, endMinutes
+    startHour = tonumber(startHour)
+    startMinute = tonumber(startMinute)
+    endHour = tonumber(endHour)
+    endMinute = tonumber(endMinute)
+
+    local startValid = startHour and startMinute
+        and startHour >= 0 and startHour < 24
+        and startMinute >= 0 and startMinute < 60
+    local endValid = endHour and endMinute
+        and endHour >= 0 and endHour <= 24
+        and endMinute >= 0 and endMinute < 60
+        and (endHour < 24 or endMinute == 0)
+    if not startValid or not endValid then
+        local fishLabel = GetFishLogLabel(fish)
+        local logKey = GetFishLogKey(fish, "out-of-range")
+        if not invalidTimeLog[logKey] then
+            LogInfo(string.format("%s WARNING: %s has an out-of-range time window '%s' - skipping this fish until fixed. Expected 0:00-23:59, with 24:00 only allowed as an end time.", LogPrefix, fishLabel, fish.time))
+            invalidTimeLog[logKey] = true
+        end
+        return false, nil, nil
+    end
+
+    local startMinutes = startHour * 60 + startMinute
+    local endMinutes = endHour * 60 + endMinute
+    if startMinutes == endMinutes then
+        local fishLabel = GetFishLogLabel(fish)
+        local logKey = GetFishLogKey(fish, "zero-width")
+        if not invalidTimeLog[logKey] then
+            LogInfo(string.format("%s WARNING: %s has a zero-width time window '%s' - skipping this fish until fixed.", LogPrefix, fishLabel, fish.time))
+            invalidTimeLog[logKey] = true
+        end
+        return false, nil, nil
+    end
+
+    return true, startMinutes, endMinutes
+end
+
+function IsFishRuntimeValid(fish)
+    if not HasValidFishName(fish) then
+        return false
+    end
+
+    if not HasRequiredCoordinates(fish) then
+        WarnInvalidCoordinatesOnce(fish)
+        return false
+    end
+
+    local hasValidTimeWindow = ParseFishTimeWindow(fish)
+    if not hasValidTimeWindow then
+        return false
+    end
+
+    local hasValidWeather = GetWeatherRequirement(fish, "weather")
+    if not hasValidWeather then
+        return false
+    end
+
+    local hasValidPreviousWeather = GetWeatherRequirement(fish, "previousWeather")
+    if not hasValidPreviousWeather then
+        return false
+    end
+
+    return true
 end
 
 function IsFishUp(fish, unixSeconds)
     unixSeconds = unixSeconds or os.time()
 
-    local startMinutes, endMinutes = ParseFishTimeWindow(fish)
+    if not IsFishRuntimeValid(fish) then
+        return false
+    end
+
+    local _, startMinutes, endMinutes = ParseFishTimeWindow(fish)
     if startMinutes then
         local hour, minute = GetEorzeaTime(unixSeconds)
         local currentMinutes = hour * 60 + minute
@@ -1324,16 +1554,18 @@ function IsFishUp(fish, unixSeconds)
         end
     end
 
-    if fish.weather and fish.weather ~= "" then
+    local _, weatherRequirement = GetWeatherRequirement(fish, "weather")
+    if weatherRequirement then
         local currentWeather = GetCurrentWeatherName(fish.zoneId, unixSeconds)
-        if not currentWeather or not string.find(fish.weather, currentWeather, 1, true) then
+        if not currentWeather or not string.find(weatherRequirement, currentWeather, 1, true) then
             return false
         end
     end
 
-    if fish.previousWeather and fish.previousWeather ~= "" then
+    local _, previousWeatherRequirement = GetWeatherRequirement(fish, "previousWeather")
+    if previousWeatherRequirement then
         local priorWeather = GetPreviousWeatherName(fish.zoneId, unixSeconds)
-        if not priorWeather or not string.find(fish.previousWeather, priorWeather, 1, true) then
+        if not priorWeather or not string.find(previousWeatherRequirement, priorWeather, 1, true) then
             return false
         end
     end
@@ -1344,7 +1576,11 @@ end
 function GetSecondsUntilFishWindowStart(fish, unixSeconds)
     unixSeconds = unixSeconds or os.time()
 
-    local startMinutes, endMinutes = ParseFishTimeWindow(fish)
+    local hasValidTimeWindow, startMinutes, endMinutes = ParseFishTimeWindow(fish)
+    if not hasValidTimeWindow then
+        return nil
+    end
+
     if not startMinutes then
         return nil
     end
@@ -1396,17 +1632,17 @@ end
 
 function IsFishAllowed(fish)
     if next(enabledFish) ~= nil then
-        return enabledFish[fish.name] == true
+        return enabledFish[GetFishName(fish)] == true
     end
-    return not disabledFish[fish.name]
+    return not disabledFish[GetFishName(fish)]
 end
 
 function IsFishSelectable(fish)
-    if not fish.x or not fish.y then
+    if not IsFishRuntimeValid(fish) then
         return false
     end
 
-    local cooldownUntil = lastAttempt[fish.name]
+    local cooldownUntil = lastAttempt[GetFishStateKey(fish)]
     return IsFishAllowed(fish)
         and HasRequiredBait(fish)
         and FishCanUseAutoHookPreset(fish)
@@ -1495,7 +1731,7 @@ function CharacterState.selectFish()
     idleTeleported = false
     loggedIdleBusy = false
     SelectedFish = fish
-    LogInfo(string.format("%s Selected fish: %s (%s, bait: %s)", LogPrefix, SelectedFish.name, SelectedFish.spotName, SelectedFish.bait))
+    LogInfo(string.format("%s Selected fish: %s (%s, bait: %s)", LogPrefix, GetFishLogLabel(SelectedFish), tostring(SelectedFish.spotName), tostring(SelectedFish.bait)))
     State = CharacterState.teleportToZone
     LogInfo(string.format("%s State Changed -> TeleportToZone", LogPrefix))
     Wait(0.3)
@@ -1503,7 +1739,7 @@ end
 
 function CharacterState.teleportToZone()
     if not IsFishReady(SelectedFish) then
-        LogInfo(string.format("%s %s's window closed before arrival.", LogPrefix, SelectedFish.name))
+        LogInfo(string.format("%s %s's window closed before arrival.", LogPrefix, GetFishLogLabel(SelectedFish)))
         State = CharacterState.selectFish
         LogInfo(string.format("%s State Changed -> SelectFish", LogPrefix))
         return
@@ -1532,7 +1768,7 @@ end
 
 function CharacterState.travelToSpot()
     if not IsFishReady(SelectedFish) then
-        LogInfo(string.format("%s %s's window closed before arrival.", LogPrefix, SelectedFish.name))
+        LogInfo(string.format("%s %s's window closed before arrival.", LogPrefix, GetFishLogLabel(SelectedFish)))
         State = CharacterState.selectFish
         LogInfo(string.format("%s State Changed -> SelectFish", LogPrefix))
         return
@@ -1569,8 +1805,8 @@ function CharacterState.travelToSpot()
     end
 
     if not arrived then
-        LogInfo(string.format("%s Failed to reach %s's spot. Cooling down and retrying later.", LogPrefix, SelectedFish.name))
-        lastAttempt[SelectedFish.name] = os.time() + RetryCooldownSeconds
+        LogInfo(string.format("%s Failed to reach %s's spot. Cooling down and retrying later.", LogPrefix, GetFishLogLabel(SelectedFish)))
+        lastAttempt[GetFishStateKey(SelectedFish)] = os.time() + RetryCooldownSeconds
         State = CharacterState.selectFish
         LogInfo(string.format("%s State Changed -> SelectFish", LogPrefix))
         return
@@ -1585,8 +1821,8 @@ function CharacterState.travelToSpot()
         Wait(0.3)
 
         if not fishArrived then
-            LogInfo(string.format("%s Failed to reach %s's casting spot. Cooling down and retrying later.", LogPrefix, SelectedFish.name))
-            lastAttempt[SelectedFish.name] = os.time() + RetryCooldownSeconds
+            LogInfo(string.format("%s Failed to reach %s's casting spot. Cooling down and retrying later.", LogPrefix, GetFishLogLabel(SelectedFish)))
+            lastAttempt[GetFishStateKey(SelectedFish)] = os.time() + RetryCooldownSeconds
             State = CharacterState.selectFish
             LogInfo(string.format("%s State Changed -> SelectFish", LogPrefix))
             return
@@ -1601,7 +1837,7 @@ end
 function CharacterState.fishing()
     if not fishingStarted then
         if not IsFishReady(SelectedFish) then
-            LogInfo(string.format("%s %s's window closed before fishing started.", LogPrefix, SelectedFish.name))
+            LogInfo(string.format("%s %s's window closed before fishing started.", LogPrefix, GetFishLogLabel(SelectedFish)))
             CleanupAutoHookPreset(SelectedFish)
             State = CharacterState.selectFish
             LogInfo(string.format("%s State Changed -> SelectFish", LogPrefix))
@@ -1612,7 +1848,7 @@ function CharacterState.fishing()
             return
         end
 
-        LogInfo(string.format("%s Starting AutoHook preset: %s", LogPrefix, SelectedFish.name))
+        LogInfo(string.format("%s Starting AutoHook preset: %s", LogPrefix, GetFishLogLabel(SelectedFish)))
         catchDetected = false
         catchMessage = nil
         forcedQuit = false
@@ -1630,7 +1866,7 @@ function CharacterState.fishing()
         if IsFishing() then
             fishingStarted = true
         else
-            LogInfo(string.format("%s AutoHook failed to start fishing for %s. Forcing quit to recover.", LogPrefix, SelectedFish.name))
+            LogInfo(string.format("%s AutoHook failed to start fishing for %s. Forcing quit to recover.", LogPrefix, GetFishLogLabel(SelectedFish)))
             CleanupAutoHookPreset(SelectedFish)
             ExecuteAction(CharacterAction.Actions.quitFishing)
             Wait(0.3)
@@ -1645,7 +1881,7 @@ function CharacterState.fishing()
         if IsFishing() or IsGathering() then
             if not windowClosedAt then
                 windowClosedAt = os.time()
-                LogInfo(string.format("%s %s's window closed while fishing. Forcing quit in %.0f seconds.", LogPrefix, SelectedFish.name, ForceQuitDelaySeconds))
+                LogInfo(string.format("%s %s's window closed while fishing. Forcing quit in %.0f seconds.", LogPrefix, GetFishLogLabel(SelectedFish), ForceQuitDelaySeconds))
             end
 
             if os.time() - windowClosedAt >= ForceQuitDelaySeconds then
@@ -1665,18 +1901,18 @@ function CharacterState.fishing()
     -- Gathering ended: either we saw a catch message, forced a quit when the
     -- window closed, or something external interrupted the attempt.
     if catchDetected then
-        LogInfo(string.format("%s Confirmed catch for %s.", LogPrefix, SelectedFish.name))
+        LogInfo(string.format("%s Confirmed catch for %s.", LogPrefix, GetFishLogLabel(SelectedFish)))
         if catchMessage then
             LogInfo(string.format("%s Catch message: %s", LogPrefix, catchMessage))
         end
     elseif forcedQuit then
-        LogInfo(string.format("%s Ended attempt on %s after the window closed.", LogPrefix, SelectedFish.name))
+        LogInfo(string.format("%s Ended attempt on %s after the window closed.", LogPrefix, GetFishLogLabel(SelectedFish)))
     else
-        LogInfo(string.format("%s Finished attempt on %s without a confirmed catch.", LogPrefix, SelectedFish.name))
+        LogInfo(string.format("%s Finished attempt on %s without a confirmed catch.", LogPrefix, GetFishLogLabel(SelectedFish)))
     end
 
     local cooldownSeconds = catchDetected and CaughtCooldownSeconds or RetryCooldownSeconds
-    lastAttempt[SelectedFish.name] = os.time() + cooldownSeconds
+    lastAttempt[GetFishStateKey(SelectedFish)] = os.time() + cooldownSeconds
     CleanupAutoHookPreset(SelectedFish)
     fishingStarted = false
     catchDetected = false
@@ -1692,9 +1928,7 @@ end
 --=========================== EXECUTION ===========================--
 
 for _, fish in ipairs(FishData) do
-    if not fish.y then
-        LogInfo(string.format("%s WARNING: %s has no valid coordinates (source data error) - skipping until fixed.", LogPrefix, fish.name))
-    end
+    IsFishRuntimeValid(fish)
 end
 
 BuildBaitItemIdMap()
