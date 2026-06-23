@@ -178,6 +178,17 @@ configs:
 --   IsFishUp(fish, unixSeconds?) below combines all of this into a single
 --   true/false check per fish entry.
 --
+-- Runtime validation / fail-closed behavior:
+--   FishData is treated as source data, not trusted runtime input. Before a fish
+--   can be selected, the script validates the fields its logic depends on:
+--     - name must be a non-empty string
+--     - worldX/worldY/worldZ must exist
+--     - time must be "Always" or parse as H:MM-H:MM with in-range bounds
+--     - weather/previousWeather must be strings when present
+--   Any fish that fails one of those checks is logged once and skipped until
+--   fixed. This is intentionally fail-closed: malformed data should never widen
+--   a fish's availability or silently turn into unrestricted behavior.
+--
 -- Script architecture (mirrors FishingScrips.lua in this same folder):
 --   CharacterState.selectFish    - scans FishData top-to-bottom for the first
 --                                  entry where IsFishUp() is true, the primary
@@ -198,6 +209,8 @@ configs:
 --                                  pass for fish marked swimBait = true whose
 --                                  real window opens within SwimBaitPrepSeconds,
 --                                  so travel/fishing can start early for bait prep.
+--                                  Fish entries that fail runtime validation are
+--                                  excluded here automatically and logged once.
 --   CharacterState.teleportToZone - re-checks IsFishReady() rather than only
 --                                  IsFishUp(), so early-selected swimBait fish
 --                                  are not cancelled mid-travel just because the
@@ -411,7 +424,9 @@ BaitItemIds = {
 --- One entry per newly-tracked Big Fish (Dawntrail 7.x + the Endwalker stragglers).
 --- x/y are map coordinates (same numbers you'd see in-game), kept for reference.
 --- worldX/worldZ are the converted raw world coordinates used as the flight/landing
---- target. worldY/fishY are optional human-verified heights from BigFishCoordCapture.lua
+--- target. worldX/worldY/worldZ are the required movement coordinates; if any are
+--- missing, the fish is logged once and skipped until fixed. worldY/fishY are optional
+--- human-verified heights from BigFishCoordCapture.lua
 --- (logged as worldY/fishY there) - when present, travelToSpot passes them straight to
 --- MoveTo() instead of guessing a height via QueryMeshPointOnFloor, which can pick the
 --- wrong level in multi-level zones (confirmed on Esperance Carp: guessed Y landed the
@@ -426,8 +441,11 @@ BaitItemIds = {
 --- - when set, teleportToZone
 --- uses it instead of the zone's default aetheryte for the shortest/most reliable
 --- approach to that specific spot; leave blank to use the zone's default aetheryte.
---- time is an Eorzea hour window ("HH:00-HH:00") or "Always". weather/previousWeather are
---- comma-separated lists of acceptable weather names, or "" if unrestricted.
+--- time is an Eorzea hour window ("HH:00-HH:00") or "Always". Missing, malformed,
+--- out-of-range, or zero-width time windows are logged once and cause the fish to be
+--- skipped until fixed. weather/previousWeather are comma-separated lists of acceptable
+--- weather names, or "" if unrestricted. Non-string weather fields are logged once and
+--- cause the fish to be skipped until fixed.
 --- expansion is the source expansion for the fish ("Dawntrail", "Endwalker", etc.).
 --- swimBait is optional - set it true for fish that should start early during the
 --- SwimBaitPrepSeconds prep window. When enabled, the script may select the fish
