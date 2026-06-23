@@ -41,7 +41,7 @@ LogPrefix    = "[ChocoboRacing]"
 ----------------
 
 function DutyFinder()
-    LogInfo(string.format("%s Starting new race. Currently at %s/%s runs.", LogPrefix, RunsPlayed, RunsToPlay))
+    LogInfo(string.format("%s Starting new race. Currently at %s/%s runs.", LogPrefix, RunsPlayed + 1, RunsToPlay))
     DFQueueRoulette(22) -- Chocobo Race: Sagolii Road (No Rewards)
 
     while not IsOccupiedInCutScene() do
