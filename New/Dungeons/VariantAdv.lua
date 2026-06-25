@@ -21,6 +21,11 @@ configs:
   PrimaryPlayer:
     description: If true, this character handles route-start interactions while the secondary waits.
     default: false
+  RepairThreshold:
+    description: Repairs gear after each run when durability falls below this percentage. Set to 0 to disable.
+    default: 20
+    min: 0
+    max: 100
 
 [[End Metadata]]
 --]=====]
@@ -37,7 +42,9 @@ DeadStartedAt       = nil
 RecoverAfterDeath   = false
 QueueInitialized    = false
 CombatStarted       = false
+RouteSelected       = false
 PrimaryPlayer       = Config.Get("PrimaryPlayer")
+RepairThreshold     = Config.Get("RepairThreshold")
 LogPrefix           = "[Variant]"
 
 --============================ CONSTANT ==========================--
@@ -95,7 +102,18 @@ function SetState(newState)
     CombatStarted = false
     DeadStartedAt = nil
     RecoverAfterDeath = false
-    LogInfo(string.format("%s State changed -> %s", LogPrefix, tostring(newState)))
+    RouteSelected = false
+    LogInfo(string.format("%s State changed -> %s", LogPrefix, GetStateName(newState)))
+end
+
+function GetStateName(state)
+    for name, fn in pairs(CharacterState) do
+        if fn == state then
+            return name
+        end
+    end
+
+    return tostring(state)
 end
 
 function IsPartnerReady()
@@ -168,7 +186,7 @@ function CharacterState.EnterVariant()
         return
     end
 
-    if IsAddonReady("ContentsFinderConfirm") then
+    if WaitForAddon("ContentsFinderConfirm", 3) then
         Execute("/callback ContentsFinderConfirm Commence")
         Wait(2)
     end
@@ -184,12 +202,19 @@ function CharacterState.StartRoute()
         return
     end
 
-    if IsAddonReady("VVDVoteRoute") then
-        Execute("/callback VVDVoteRoute true 1")
+    if WaitForAddon("VVDVoteRoute", 3) then
+        Execute("/callback VVDVoteRoute true 1 1")
         Wait(1)
+        RouteSelected = true
+        return
     elseif PrimaryPlayer and MoveToTarget("The Merchant's Tale: Abridged", 3) then
         Wait(0.3)
         Interact("The Merchant's Tale: Abridged")
+        return
+    end
+
+    if not RouteSelected then
+        Wait(1)
         return
     end
 
@@ -203,20 +228,24 @@ function CharacterState.StartRoute()
 end
 
 function CharacterState.KillBoss()
-    if not IsPlayerAvailable() then
-        return
-    end
-
     if IsDead() then
         DeadStartedAt = DeadStartedAt or os.time()
 
         if os.time() - DeadStartedAt >= 30 and IsAddonReady("SelectYesno") then
-            Execute("/callback SelectYesno true 0")
+            while IsDead() and IsAddonReady("SelectYesno") do
+                Execute("/callback SelectYesno true 0")
+                Wait(0.1)
+            end
+
             RecoverAfterDeath = true
             Wait(1)
         end
 
         Wait(1)
+        return
+    end
+
+    if not IsPlayerAvailable() then
         return
     end
 
@@ -231,6 +260,11 @@ function CharacterState.KillBoss()
         if MoveToTarget("Shortcut", 3) then
             Wait(0.3)
             Interact("Shortcut")
+            if WaitForAddon("SelectYesno", 3) then
+                Execute("/callback SelectYesno true 0")
+                Wait(1)
+            end
+
             WaitForPlayer()
             RecoverAfterDeath = false
             CombatStarted = false
@@ -278,13 +312,21 @@ function CharacterState.LootChest()
 end
 
 function CharacterState.LeaveRun()
-    if IsPlayerAvailable() and LeaveInstance() then
-        if not IsInZone(Zones.MerchantTale.Id) then
-            RunsPlayed = RunsPlayed + 1
-            LogInfo(string.format("%s Runs played: %s", LogPrefix, RunsPlayed))
-            SetState(CharacterState.QueueForDuty)
+    if not IsInZone(Zones.MerchantTale.Id) then
+        if RepairThreshold > 0 then
+            Repair(RepairThreshold)
         end
+
+        RunsPlayed = RunsPlayed + 1
+        LogInfo(string.format("%s Runs played: %s", LogPrefix, RunsPlayed))
+        SetState(CharacterState.QueueForDuty)
+        return
     end
+
+    if IsPlayerAvailable() and LeaveInstance() then
+        Wait(1)
+    end
+
     Wait(2)
 end
 
