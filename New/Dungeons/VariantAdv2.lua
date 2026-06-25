@@ -114,6 +114,16 @@ until not IsInCombat() and not Target("Pari of Plenty")
 RotationOFF()
 AiOFF()
 
+repeat
+    Wait(1)
+    Target("Personal Spoils")
+until not Target("Personal Spoils")
+
+MoveToTarget("Personal Spoils")
+Interact("Personal Spoils")
+Wait(1)
+LeaveInstance()
+
 LogInfo(string.format("%s Variant Advanced script completed successfully..!!", LogPrefix))
 
 --============================== END =============================--

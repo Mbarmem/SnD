@@ -129,6 +129,45 @@ until not IsInCombat() and not Target("Pari of Plenty")
 RotationOFF()
 AiOFF()
 
+repeat
+    while not Target("Personal Spoils") do
+        Wait(1)
+        Target("Personal Spoils")
+    end
+
+    MoveToTarget("Personal Spoils")
+    Interact("Personal Spoils")
+    Wait(1)
+
+    while not Target("") do
+        Wait(1)
+        Target("")
+    end
+
+    MoveToTarget("")
+    Wait(0.5)
+    Interact("")
+
+    while not IsAddonReady("VVDVoteRoute") do
+        Wait(0.5)
+    end
+    Wait(1)
+    Execute("/callback VVVoteRoute true 1 100")
+
+    repeat
+        Wait(1)
+        Target("Exit")
+    until not Target("Exit")
+
+    MoveToTarget("Exit")
+    Interact("Exit")
+    Wait(1)
+
+    if IsAddonReady("SelectYesNo") then
+        Execute("/callback SelectYesno true 0")
+    end
+until not IsInZone(Zones.MerchantTale.Id)
+
 LogInfo(string.format("%s Variant Advanced script completed successfully..!!", LogPrefix))
 
 --============================== END =============================--
