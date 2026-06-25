@@ -17,6 +17,10 @@ dependencies:
 - source: https://forgejo.mownbox.com/Mo/SnD/raw/branch/main/New/MoLib/MoLib.lua
   name: latest
   type: unknown
+configs:
+  PrimaryPlayer:
+    description: If true, this character handles route-start interactions while the secondary waits.
+    default: false
 
 [[End Metadata]]
 --]=====]
@@ -27,17 +31,32 @@ dependencies:
 --    General    --
 -------------------
 
-RunsPlayed = 0
-LogPrefix = "[Variant]"
+RunsPlayed          = 0
+State               = nil
+DeadStartedAt       = nil
+RecoverAfterDeath   = false
+QueueInitialized    = false
+CombatStarted       = false
+PrimaryPlayer       = Config.Get("PrimaryPlayer")
+LogPrefix           = "[Variant]"
 
 --============================ CONSTANT ==========================--
+
+----------------------------
+--    State Management    --
+----------------------------
+
+CharacterState = {}
 
 -----------------
 --    Zones    --
 -----------------
 
 Zones = {
-    MerchantTale = { Id = 1316, Name = "The Merchant's Tale" }
+    MerchantTale = {
+        Id   = 1316,
+        Name = "The Merchant's Tale",
+    },
 }
 
 --=========================== FUNCTIONS ==========================--
@@ -70,104 +89,212 @@ function AiOFF()
     Wait(0.5)
 end
 
---=========================== EXECUTION ==========================--
+function SetState(newState)
+    State = newState
+    QueueInitialized = false
+    CombatStarted = false
+    DeadStartedAt = nil
+    RecoverAfterDeath = false
+    LogInfo(string.format("%s State changed -> %s", LogPrefix, tostring(newState)))
+end
 
-MoveToInn()
-WaitForLifestream()
-WaitForPlayer()
+function IsPartnerReady()
+    local partner = Entity.NearestOtherCharacter
+    if not partner then
+        return false
+    end
 
-repeat
-    Execute("/hold CONTROL")
-    Execute("/send L")
-    Wait(1.5)
-    Execute("/release CONTROL")
-    Wait(1)
-until IsAddonReady("VVDFinder")
+    if partner.CurrentHp <= 0 then
+        return false
+    end
 
-if IsAddonReady("VVDFinder") then
-    Execute("/callback VVDFinder true 12")
+    if not partner.IsTargetable then
+        return false
+    end
 
-    while not IsInZone(Zones.MerchantTale.Id) do
+    return true
+end
+
+----------------
+--    Duty    --
+----------------
+
+function CharacterState.QueueForDuty()
+    if IsInZone(Zones.MerchantTale.Id) then
+        SetState(CharacterState.EnterVariant)
+        return
+    end
+
+    if not IsPlayerAvailable() then
+        return
+    end
+
+    if not QueueInitialized then
+        Teleport("auto")
+        WaitForLifestream()
+        WaitForPlayer()
+
+        while not IsPartnerReady() do
+            Wait(1)
+        end
+
+        QueueInitialized = true
+    end
+
+    if PrimaryPlayer and not IsAddonReady("VVDFinder") then
+        Execute("/hold CONTROL")
+        Execute("/send L")
+        Wait(1.5)
+        Execute("/release CONTROL")
         Wait(1)
-        if IsAddonReady("ContentsFinderConfirm") then
-            Execute("/callback ContentsFinderConfirm Commence")
-            Wait(2)
+    end
+
+    if not PrimaryPlayer and IsAddonReady("ContentsFinderConfirm") then
+        Execute("/callback ContentsFinderConfirm Commence")
+        Wait(1)
+    end
+
+    if PrimaryPlayer and IsAddonReady("VVDFinder") then
+        Execute("/callback VVDFinder true 12")
+        SetState(CharacterState.EnterVariant)
+    elseif not PrimaryPlayer and (IsBoundByDuty() or IsBetweenAreas()) then
+        SetState(CharacterState.EnterVariant)
+    end
+end
+
+function CharacterState.EnterVariant()
+    if IsInZone(Zones.MerchantTale.Id) then
+        SetState(CharacterState.StartRoute)
+        return
+    end
+
+    if IsAddonReady("ContentsFinderConfirm") then
+        Execute("/callback ContentsFinderConfirm Commence")
+        Wait(2)
+    end
+end
+
+function CharacterState.StartRoute()
+    if not IsPlayerAvailable() then
+        return
+    end
+
+    if not IsPartnerReady() then
+        Wait(1)
+        return
+    end
+
+    if IsAddonReady("VVDVoteRoute") then
+        Execute("/callback VVDVoteRoute true 1")
+        Wait(1)
+    elseif PrimaryPlayer and MoveToTarget("The Merchant's Tale: Abridged", 3) then
+        Wait(0.3)
+        Interact("The Merchant's Tale: Abridged")
+        return
+    end
+
+    if MoveToTarget("Aetherial Flow", 3) then
+        Wait(0.3)
+        Interact("Aetherial Flow")
+        Wait(5)
+        WaitForPlayer()
+        SetState(CharacterState.KillBoss)
+    end
+end
+
+function CharacterState.KillBoss()
+    if not IsPlayerAvailable() then
+        return
+    end
+
+    if IsDead() then
+        DeadStartedAt = DeadStartedAt or os.time()
+
+        if os.time() - DeadStartedAt >= 30 and IsAddonReady("SelectYesno") then
+            Execute("/callback SelectYesno true 0")
+            RecoverAfterDeath = true
+            Wait(1)
+        end
+
+        Wait(1)
+        return
+    end
+
+    if RecoverAfterDeath then
+        DeadStartedAt = nil
+
+        if not IsPartnerReady() then
+            Wait(1)
+            return
+        end
+
+        if MoveToTarget("Shortcut", 3) then
+            Wait(0.3)
+            Interact("Shortcut")
+            WaitForPlayer()
+            RecoverAfterDeath = false
+            CombatStarted = false
+        else
+            Wait(1)
+        end
+        return
+    end
+
+    DeadStartedAt = nil
+
+    if not IsPartnerReady() then
+        Wait(1)
+        return
+    end
+
+    if not CombatStarted then
+        RotationON()
+        AiON()
+        if MoveToTarget("Pari of Plenty") or IsInCombat() or Target("Pari of Plenty") then
+            CombatStarted = true
+        else
+            Wait(1)
+        end
+        return
+    end
+
+    if not IsInCombat() and not IsDead() and not Target("Pari of Plenty") then
+        RotationOFF()
+        AiOFF()
+        SetState(CharacterState.LootChest)
+        return
+    end
+
+    Wait(2)
+end
+
+function CharacterState.LootChest()
+    if IsPlayerAvailable() and MoveToTarget("Personal Spoils", 3) then
+        Wait(0.3)
+        Interact("Personal Spoils")
+        Wait(1)
+        SetState(CharacterState.LeaveRun)
+    end
+end
+
+function CharacterState.LeaveRun()
+    if IsPlayerAvailable() and LeaveInstance() then
+        if not IsInZone(Zones.MerchantTale.Id) then
+            RunsPlayed = RunsPlayed + 1
+            LogInfo(string.format("%s Runs played: %s", LogPrefix, RunsPlayed))
+            SetState(CharacterState.QueueForDuty)
         end
     end
-end
-
-RunsPlayed = RunsPlayed + 1
-LogInfo(string.format("%s Runs played: %s", LogPrefix, RunsPlayed))
-WaitForPlayer()
-
-MoveToTarget("The Merchant's Tale: Abridged")
-Wait(0.5)
-Interact("The Merchant's Tale: Abridged")
-
-while not IsAddonReady("VVDVoteRoute") do
-    Wait(0.5)
-end
-Wait(1)
-Execute("/callback VVDVoteRoute true 1")
-
-while not Target("Aetherial Flow") do
-    Wait(1)
-end
-
-Interact("Aetherial Flow")
-Wait(5)
-WaitForPlayer()
-
-MoveToTarget("Pari of Plenty")
-RotationON()
-AiON()
-
-repeat
     Wait(2)
-until not IsInCombat() and not Target("Pari of Plenty")
+end
 
-RotationOFF()
-AiOFF()
+--=========================== EXECUTION ==========================--
 
-repeat
-    while not Target("Personal Spoils") do
-        Wait(1)
-        Target("Personal Spoils")
-    end
+SetState(CharacterState.QueueForDuty)
 
-    MoveToTarget("Personal Spoils")
-    Interact("Personal Spoils")
+while true do
+    State()
     Wait(1)
-
-    while not Target("") do
-        Wait(1)
-        Target("")
-    end
-
-    MoveToTarget("")
-    Wait(0.5)
-    Interact("")
-
-    while not IsAddonReady("VVDVoteRoute") do
-        Wait(0.5)
-    end
-    Wait(1)
-    Execute("/callback VVVoteRoute true 1 100")
-
-    repeat
-        Wait(1)
-        Target("Exit")
-    until not Target("Exit")
-
-    MoveToTarget("Exit")
-    Interact("Exit")
-    Wait(1)
-
-    if IsAddonReady("SelectYesNo") then
-        Execute("/callback SelectYesno true 0")
-    end
-until not IsInZone(Zones.MerchantTale.Id)
-
-LogInfo(string.format("%s Variant Advanced script completed successfully..!!", LogPrefix))
+end
 
 --============================== END =============================--
