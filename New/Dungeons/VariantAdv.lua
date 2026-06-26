@@ -78,21 +78,9 @@ function RotationON()
     Wait(0.5)
 end
 
-function RotationOFF()
-    LogInfo(string.format("%s Turning rotation OFF...", LogPrefix))
-    Execute("/rotation off")
-    Wait(0.5)
-end
-
 function AiON()
     LogInfo(string.format("%s Enabling BattleMod AI...", LogPrefix))
     Execute("/vbmai on")
-    Wait(0.5)
-end
-
-function AiOFF()
-    LogInfo(string.format("%s Turning BattleMod AI OFF...", LogPrefix))
-    Execute("/vbmai off")
     Wait(0.5)
 end
 
@@ -228,6 +216,8 @@ function CharacterState.StartRoute()
 end
 
 function CharacterState.KillBoss()
+    local boss = Entity.GetEntityByName("Pari of Plenty")
+
     if IsDead() then
         DeadStartedAt = DeadStartedAt or os.time()
 
@@ -245,13 +235,13 @@ function CharacterState.KillBoss()
         return
     end
 
+    DeadStartedAt = nil
+
     if not IsPlayerAvailable() then
         return
     end
 
     if RecoverAfterDeath then
-        DeadStartedAt = nil
-
         if not IsPartnerReady() then
             Wait(1)
             return
@@ -274,16 +264,12 @@ function CharacterState.KillBoss()
         return
     end
 
-    DeadStartedAt = nil
-
     if not IsPartnerReady() then
         Wait(1)
         return
     end
 
     if not CombatStarted then
-        RotationON()
-        AiON()
         if MoveToTarget("Pari of Plenty") or IsInCombat() or Target("Pari of Plenty") then
             CombatStarted = true
         else
@@ -292,9 +278,7 @@ function CharacterState.KillBoss()
         return
     end
 
-    if not IsInCombat() and not IsDead() and not Target("Pari of Plenty") then
-        RotationOFF()
-        AiOFF()
+    if not IsInCombat() and (not boss or (boss.CurrentHp ~= nil and boss.CurrentHp <= 0)) then
         SetState(CharacterState.LootChest)
         return
     end
@@ -332,6 +316,8 @@ end
 
 --=========================== EXECUTION ==========================--
 
+RotationON()
+AiON()
 SetState(CharacterState.QueueForDuty)
 
 while true do
