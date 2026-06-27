@@ -415,6 +415,7 @@ BaitItemIds = {
     ["Dragonfly"]             = 43857,
     ["Red Maggots"]           = 43858,
     ["Ghost Nipper"]          = 43859,
+    ["Mackerel Strip"]        = 36593,
 }
 
 --------------------
@@ -1148,6 +1149,23 @@ FishData = {
         x = 25.1, y = 17.2, radius = 600,
         worldX = 184.35, worldY = 233.86, worldZ = -253.70,
         fishX = 186.21, fishY = 233.07, fishZ = -268.13,
+    },
+    {
+        name            = "Gharlichthys",
+        expansion       = "Endwalker",
+        zone            = "Thavnair",
+        zoneId          = 957,
+        aetheryte       = "The Great Work",
+        spotName        = "The Perfumed Tides",
+        time            = "14:00-16:00",
+        weather         = "Fair Skies",
+        previousWeather = "Showers",
+        bait            = "Mackerel Strip",
+        swimBait        = true,
+        autoHookPreset  = "AH6_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",
+        x = 7.4, y = 7.6, radius = 900,
+        worldX = -643.16, worldY = 0.00, worldZ = -653.72,
+        fishX = -649.54, fishY = -0.05, fishZ = -662.19,
     },
 }
 
