@@ -2,7 +2,7 @@
 [[SND Metadata]]
 author: Mo
 version: 2.0.0
-description: Dungeon Farm for TT Cards - A barebones script
+description: The Merchant's Tale: Abridged (Advanced Variant Dungeon) Farm
 plugin_dependencies:
 - AutoDuty
 - Automaton
@@ -22,7 +22,7 @@ configs:
     description: If true, this character handles route-start interactions while the secondary waits.
     default: false
   RepairThreshold:
-    description: Repairs gear after each run when durability falls below this percentage. Set to 0 to disable.
+    description: Repairs gear before queueing for a new run when durability falls below this percentage. Set to 0 to disable.
     default: 20
     min: 0
     max: 100
@@ -136,6 +136,10 @@ function CharacterState.QueueForDuty()
     end
 
     if not QueueInitialized then
+        if RepairThreshold > 0 then
+            Repair(RepairThreshold)
+        end
+
         Teleport("auto")
         WaitForLifestream()
         WaitForPlayer()
@@ -297,10 +301,6 @@ end
 
 function CharacterState.LeaveRun()
     if not IsInZone(Zones.MerchantTale.Id) then
-        if RepairThreshold > 0 then
-            Repair(RepairThreshold)
-        end
-
         RunsPlayed = RunsPlayed + 1
         LogInfo(string.format("%s Runs played: %s", LogPrefix, RunsPlayed))
         SetState(CharacterState.QueueForDuty)
