@@ -179,7 +179,7 @@ while 1 == 1 do
 
             if inprae > 0 then
                 -- Stop AutoDuty if we had previously been in Praetorium
-                Execute("/ad stop")
+                AutoDutyStop()
             end
 
             -- If we still have a ContentsFinderConfirm up, withdraw from it
