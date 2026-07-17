@@ -22,7 +22,7 @@ configs:
     default: false
   ZoneID:
     description: The Zone ID / AutoDuty Duty ID of the dungeon to farm.
-    default: 837
+    default: 1044
   MaxRuns:
     description: Number of runs to complete (primary role only). Set to 0 for infinite.
     default: 0
