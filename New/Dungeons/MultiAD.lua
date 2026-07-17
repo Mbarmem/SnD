@@ -58,6 +58,10 @@ configs:
 
 --=========================== VARIABLES ==========================--
 
+-------------------
+--    General    --
+-------------------
+
 PrimaryPlayer     = Config.Get("PrimaryPlayer")
 ZoneID            = Config.Get("ZoneID")
 MaxRuns           = Config.Get("MaxRuns")
@@ -69,6 +73,10 @@ RequiredPartySize = Config.Get("RequiredPartySize")
 LogPrefix         = "[MultiAD]"
 
 --============================ CONSTANT ==========================--
+
+--------------------
+--    Timeouts    --
+--------------------
 
 BoundTimeout    = 60
 RunTimeout      = 1800
@@ -88,13 +96,9 @@ function RunsText()
     return tostring(MaxRuns)
 end
 
---------------------------------------------------------------------
-
 function HasRequiredParty()
     return HasPartySize(RequiredPartySize)
 end
-
---------------------------------------------------------------------
 
 function WaitForRequiredParty()
     local lastCount = -1
@@ -104,13 +108,11 @@ function WaitForRequiredParty()
 
         if partyCount ~= lastCount then
             LogInfo(string.format("%s Waiting for required party size: %d / %d members.", LogPrefix, partyCount, RequiredPartySize))
-
             lastCount = partyCount
         end
 
         if AutoDutyIsRunning() then
             LogInfo(string.format("%s AutoDuty is running without the required party size. Stopping AutoDuty.", LogPrefix))
-
             AutoDutyStop()
         end
 
@@ -132,7 +134,6 @@ function WaitUntilBoundWithPartyCheck(timeout)
         if partyCount ~= RequiredPartySize then
             if partyCount ~= lastPartyCount then
                 LogInfo(string.format("%s Party changed while queueing: %d / %d members.", LogPrefix, partyCount, RequiredPartySize))
-
                 lastPartyCount = partyCount
             end
 
@@ -165,46 +166,34 @@ function RunPrimary()
 
     while MaxRuns == 0 or runCount < MaxRuns do
         WaitForRequiredParty()
-
         local nextRun = runCount + 1
-
         LogInfo(string.format("%s Preparing run %s / %s.", LogPrefix, tostring(nextRun), RunsText()))
 
         if RepairThreshold > 0 and NeedsRepair(RepairThreshold) then
             LogInfo(string.format("%s Gear below %d%% durability. Repairing before queueing.", LogPrefix, RepairThreshold))
-
             Repair(RepairThreshold)
             Wait(1)
         end
 
         AutoDutyConfig("Unsynced", tostring(Unsynced))
         Wait(2)
-
         AutoDutyConfig("dutyModeEnum", DutyMode)
         Wait(2)
-
         -- Final check after repairs and configuration.
         if not HasRequiredParty() then
             LogInfo(string.format("%s Party changed before AutoDuty start: %d / %d members. Cancelling attempt.", LogPrefix, GetPartyCount(), RequiredPartySize))
-
             AutoDutyStop()
             Wait(PartyCheckDelay)
         else
-            runCount = runCount + 1
-
-            LogInfo(string.format("%s Starting run %s / %s with %d party members.", LogPrefix, tostring(runCount), RunsText(), GetPartyCount()))
-
+            LogInfo(string.format("%s Starting run %s / %s with %d party members.", LogPrefix, tostring(nextRun), RunsText(), GetPartyCount()))
             AutoDutyRun(ZoneID, 1, true)
             Wait(2)
 
             Execute("/bmrai on")
             Execute("/rotation auto")
             Wait(1)
-
             LogInfo(string.format("%s Waiting until bound by duty.", LogPrefix))
-
-            local bound, failureReason =
-                WaitUntilBoundWithPartyCheck(BoundTimeout)
+            local bound, failureReason = WaitUntilBoundWithPartyCheck(BoundTimeout)
 
             if not bound then
                 if failureReason == "party" then
@@ -218,14 +207,12 @@ function RunPrimary()
                 Wait(5)
             else
                 LogInfo(string.format("%s Bound by duty. Waiting for AutoDuty to finish.", LogPrefix))
-
                 local startTime = os.time()
                 local stuck = false
 
                 while AutoDutyIsRunning() do
                     if (os.time() - startTime) >= RunTimeout then
                         LogInfo(string.format("%s AutoDuty has been running for over %ds. Forcing stop.", LogPrefix, RunTimeout))
-
                         stuck = true
                         break
                     end
@@ -237,12 +224,16 @@ function RunPrimary()
                     Execute("/rotation off")
                     AutoDutyStop()
                     Wait(5)
+                else
+                    runCount = runCount + 1
                 end
 
                 Execute("/rotation off")
                 WaitForPlayer()
 
-                LogInfo(string.format("%s Run finished %s / %s.", LogPrefix, tostring(runCount), RunsText()))
+                if not stuck then
+                    LogInfo(string.format("%s Run finished %s / %s.", LogPrefix, tostring(runCount), RunsText()))
+                end
 
                 AutoDutyStop()
                 Wait(5)
@@ -287,6 +278,8 @@ function RunSecondary()
         -- Detect entry.
         if currentlyInDungeon and not wasInDungeon then
             LogInfo(string.format("%s Entered configured duty zone.", LogPrefix))
+            Execute("/bmrai on")
+            Execute("/rotation auto")
 
             wasInDungeon = true
             inDungeonTime = 0
@@ -310,7 +303,6 @@ function RunSecondary()
 
             if not gearFine then
                 LogInfo(string.format("%s Repairing degraded equipment after duty.", LogPrefix))
-
                 Repair(RepairThreshold)
                 SetYesAlready(true)
                 gearFine = true
@@ -361,7 +353,6 @@ function RunSecondary()
 
                 if not gearFine then
                     LogInfo(string.format("%s Repairing degraded equipment.", LogPrefix))
-
                     Repair(RepairThreshold)
                     SetYesAlready(true)
                     gearFine = true
