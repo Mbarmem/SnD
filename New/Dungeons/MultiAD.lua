@@ -188,7 +188,6 @@ function RunPrimary()
             LogInfo(string.format("%s Starting run %s / %s with %d party members.", LogPrefix, tostring(nextRun), RunsText(), GetPartyCount()))
             AutoDutyRun(ZoneID, 1, true)
             Wait(2)
-
             Execute("/bmrai on")
             Execute("/rotation auto")
             Wait(1)
@@ -242,7 +241,6 @@ function RunPrimary()
     end
 
     LogInfo(string.format("%s MaxRuns completed. Primary script finished.", LogPrefix))
-
     Echo("Multi-Account AutoDuty primary completed successfully..!!", LogPrefix)
 
     while true do
@@ -272,7 +270,6 @@ function RunSecondary()
 
     while true do
         Wait(1)
-
         local currentlyInDungeon = IsInZone(ZoneID)
 
         -- Detect entry.
@@ -280,7 +277,6 @@ function RunSecondary()
             LogInfo(string.format("%s Entered configured duty zone.", LogPrefix))
             Execute("/bmrai on")
             Execute("/rotation auto")
-
             wasInDungeon = true
             inDungeonTime = 0
             isDeadTime = 0
@@ -293,12 +289,10 @@ function RunSecondary()
 
             AutoDutyStop()
             Execute("/rotation off")
-
             wasInDungeon = false
             inDungeonTime = 0
             isDeadTime = 0
             maxZoneTime = 0
-
             WaitForPlayer()
 
             if not gearFine then
@@ -332,14 +326,12 @@ function RunSecondary()
                     and NeedsRepair(RepairThreshold)
                 then
                     LogInfo(string.format("%s Gear degraded. Will repair after this run.", LogPrefix))
-
                     SetYesAlready(false)
                     gearFine = false
                 end
 
                 if inDungeonTime > MaxTime then
                     LogInfo(string.format("%s Dungeon time limit exceeded. Leaving instance.", LogPrefix))
-
                     LeaveInstance()
                 end
             else
@@ -347,7 +339,6 @@ function RunSecondary()
                 -- without the configured party size.
                 if AutoDutyIsRunning() and not HasRequiredParty() then
                     LogInfo(string.format("%s AutoDuty is running without the required party size: %d / %d. Stopping.", LogPrefix, GetPartyCount(), RequiredPartySize))
-
                     AutoDutyStop()
                 end
 
@@ -366,15 +357,10 @@ function RunSecondary()
 
                         if HasRequiredParty() then
                             LogInfo(string.format("%s Duty confirm detected with %d / %d party members. Accepting.", LogPrefix, partyCount, RequiredPartySize))
-
-                            Execute(
-                                "/callback ContentsFinderConfirm Commence"
-                            )
-
+                            Execute("/callback ContentsFinderConfirm Commence")
                             SetYesAlready(true)
                         else
                             LogInfo(string.format("%s Duty confirm detected without the required party size: %d / %d. Not accepting.", LogPrefix, partyCount, RequiredPartySize))
-
                             AutoDutyStop()
                         end
                     end
