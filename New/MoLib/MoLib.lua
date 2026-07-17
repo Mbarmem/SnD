@@ -2,6 +2,7 @@
 
 import("System")
 import("System.Numerics")
+import("FFXIVClientStructs.FFXIV.Client.UI.Info")
 
 --=========================== CONSTANT ===========================--
 
@@ -2074,6 +2075,64 @@ function DFSetLevelSync(enable)
     df.IsLevelSync = enable
     LogDebug(string.format("[MoLib] SetLevelSync: %s", enable and "Enabled" or "Disabled"))
     return true
+end
+
+--============================ PARTY =============================--
+
+--=============--
+--    Party    --
+--=============--
+
+--- Returns the current party size for regular and cross-world parties
+--- @return number partyCount    current number of party members
+function GetPartyCount()
+    local partyCount = 0
+    local partyType = "none"
+
+    if InfoProxyCrossRealm.IsCrossRealmParty() then
+        partyCount = tonumber(InfoProxyCrossRealm.GetPartyMemberCount()) or 0
+        partyType = "cross-world"
+    elseif Svc and Svc.Party then
+        partyCount = tonumber(Svc.Party.Length) or 0
+        partyType = "regular"
+    end
+
+    LogDebug(string.format(
+        "[MoLib] GetPartyCount: %d (%s)",
+        partyCount,
+        partyType
+    ))
+
+    return partyCount
+end
+
+--------------------------------------------------------------------
+
+--- Checks whether the current party has exactly the requested number of members
+--- @param requiredSize number    exact party size required
+--- @return boolean hasRequiredSize    true if the current party size matches
+function HasPartySize(requiredSize)
+    local required = tonumber(requiredSize)
+
+    if not required then
+        LogDebug(string.format(
+            "[MoLib] HasPartySize: Invalid required size: %s",
+            tostring(requiredSize)
+        ))
+        return false
+    end
+
+    local partyCount = GetPartyCount()
+    local hasRequiredSize = partyCount == required
+
+    LogDebug(string.format(
+        "[MoLib] HasPartySize: %d / %d = %s",
+        partyCount,
+        required,
+        tostring(hasRequiredSize)
+    ))
+
+    return hasRequiredSize
 end
 
 --=========================== UTILITIES ==========================--
