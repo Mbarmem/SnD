@@ -28,6 +28,9 @@ configs:
     default: 10
     min: 1
     max: 100
+  UseFood:
+    description: Enable eating food for extra experience gain.
+    default: false
   Food:
     description: The food item to consume for extra experience gain.
     default: Apple Juice <hq>
@@ -43,6 +46,7 @@ configs:
 
 StopAtLevel      = Config.Get("StopAtLevel")
 MaxRunsPerTier   = Config.Get("MaxRunsPerTier")
+UseFood          = Config.Get("UseFood")
 Food             = Config.Get("Food")
 LogPrefix        = "[LevelFarmer]"
 
@@ -273,6 +277,11 @@ function UpdateJobGear(job)
     Execute("/equiprecommended")
     Wait(2)
 
+    if IsAddonReady("SelectYesno") then
+        Execute("/callback SelectYesno true 0")
+        Wait(1)
+    end
+
     Execute(string.format("/gs save %d", job.id))
     LogInfo(string.format("%s [SUCCESS] %s (Set #%d) updated and saved.", LogPrefix, job.name, job.id))
 
@@ -374,6 +383,10 @@ function NextCeilingFromLevel(level)
 end
 
 function FoodCheck()
+    if not UseFood then
+        return
+    end
+
     if not HasStatusId(48) or GetStatusTimeRemaining(48) < 1500 then
         local foodForExp = GetItemCount(4747)
         if Food ~= "" and foodForExp and foodForExp > 1 then
