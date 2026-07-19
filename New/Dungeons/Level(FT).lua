@@ -271,9 +271,8 @@ function UpdateJobGear(job)
     LogInfo(string.format("%s [MATCH] Updating gear for %s...", LogPrefix, job.name))
 
     Execute("/equiprecommended")
-    Wait(2)
 
-    if IsAddonReady("SelectYesno") then
+    if WaitForAddon("SelectYesno", 3) then
         Execute("/callback SelectYesno true 0")
         Wait(1)
     end
