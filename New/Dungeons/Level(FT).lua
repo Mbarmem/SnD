@@ -253,13 +253,24 @@ function TierForLevel(level)
     end
 end
 
+function ConfirmGearPrompt(timeout)
+    timeout = timeout or 1
+    if WaitForAddon("SelectYesno", timeout) then
+        Execute("/callback SelectYesno true 0")
+        Wait(0.5)
+        return true
+    end
+    return false
+end
+
 function UpdateJobGear(job)
     if not job or not job.id then
         return false
     end
 
     Execute(string.format("/gs change %d", job.id))
-    Wait(3)
+    ConfirmGearPrompt()
+    Wait(1.5)
 
     local currentJobName = Player.Job.Name
 
@@ -271,16 +282,13 @@ function UpdateJobGear(job)
     LogInfo(string.format("%s [MATCH] Updating gear for %s...", LogPrefix, job.name))
 
     Execute("/equiprecommended")
-
-    if WaitForAddon("SelectYesno", 3) then
-        Execute("/callback SelectYesno true 0")
-        Wait(1)
-    end
+    ConfirmGearPrompt()
 
     Execute(string.format("/gs save %d", job.id))
+    ConfirmGearPrompt()
     LogInfo(string.format("%s [SUCCESS] %s (Set #%d) updated and saved.", LogPrefix, job.name, job.id))
 
-    Wait(2)
+    Wait(1)
     return true
 end
 
