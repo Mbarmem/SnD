@@ -268,6 +268,10 @@ function UpdateJobGear(job)
         return false
     end
 
+    while IsBetweenAreas() or IsBoundByDuty() do
+        Wait(0.5)
+    end
+
     Execute(string.format("/gs change %d", job.id))
     ConfirmGearPrompt()
     Wait(1.5)
