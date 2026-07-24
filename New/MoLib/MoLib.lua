@@ -76,6 +76,7 @@ CharacterCondition = {
     occupiedSummoningBell   = 50,
     betweenArea51           = 51,
     boundByDuty56           = 56,
+    jumping                 = 61,
     beingMoved              = 70,
     inFlight                = 77,
     diving                  = 81,
@@ -245,6 +246,16 @@ function IsBetweenAreas()
     local isBetweenAreas = Svc.Condition[CharacterCondition.betweenAreas]
     LogDebug(string.format("[MoLib] IsBetweenAreas: %s", tostring(isBetweenAreas)))
     return isBetweenAreas
+end
+
+---------------------------------------------------------------------
+
+--- Checks if the player is currently jumping (e.g. launched by an aetherial lift)
+--- @return boolean isJumping    true if player is jumping; false otherwise
+function IsJumping()
+    local isJumping = Svc.Condition[CharacterCondition.jumping]
+    LogDebug(string.format("[MoLib] IsJumping: %s", tostring(isJumping)))
+    return isJumping
 end
 
 ---------------------------------------------------------------------
