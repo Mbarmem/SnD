@@ -78,7 +78,8 @@ CharacterCondition = {
     boundByDuty56           = 56,
     beingMoved              = 70,
     inFlight                = 77,
-    diving                  = 81
+    diving                  = 81,
+    inDutyQueue             = 91
 }
 
 --========================== FUNCTIONS ===========================--
@@ -204,6 +205,16 @@ function IsBoundByDuty()
     local isBoundByDuty = Svc.Condition[CharacterCondition.boundByDuty] or Svc.Condition[CharacterCondition.boundByDuty56]
     LogDebug(string.format("[MoLib] IsBoundByDuty: %s", tostring(isBoundByDuty)))
     return isBoundByDuty
+end
+
+---------------------------------------------------------------------
+
+--- Checks if the player is currently registered / waiting in the duty queue
+--- @return boolean inDutyQueue    true if in the duty queue; false otherwise
+function IsInDutyQueue()
+    local inDutyQueue = Svc.Condition[CharacterCondition.inDutyQueue]
+    LogDebug(string.format("[MoLib] IsInDutyQueue: %s", tostring(inDutyQueue)))
+    return inDutyQueue
 end
 
 ---------------------------------------------------------------------
