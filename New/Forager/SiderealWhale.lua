@@ -104,6 +104,8 @@ local lastStartAttempt = 0
 --    Logging    --
 -------------------
 
+local loggedFirstChat   = false
+local loggedFirstLand   = false
 local lastWaitKey       = nil
 local lastWaitAt        = 0
 local lastSkippedWindow = nil
@@ -595,10 +597,20 @@ function GetCatchCount(message, fishName)
 end
 
 function OnChatMessage()
+    if not loggedFirstChat then
+        loggedFirstChat = true
+        LogInfo("%s CHAT PROBE: handler is live. type=%s sender=%s messageType=%s message=%s", LogPrefix, tostring(TriggerData and TriggerData.type), tostring(TriggerData and TriggerData.sender), type(TriggerData and TriggerData.message), tostring(TriggerData and TriggerData.message))
+    end
+
     local message = TriggerData and TriggerData.message
 
     if type(message) ~= "string" then
         return
+    end
+
+    if not loggedFirstLand and message:find("land", 1, true) then
+        loggedFirstLand = true
+        LogInfo("%s CHAT PROBE: first 'land' message seen verbatim: [%s]", LogPrefix, message)
     end
 
     local whale = GetCatchCount(message, FishSiderealWhale)
