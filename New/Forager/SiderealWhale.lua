@@ -303,7 +303,13 @@ function DescribeIntuition()
     if intuitionCycles == 0 then
         return "Intuition never procced"
     end
-    return string.format("Intuition %d cycle(s), %s total", intuitionCycles, FormatDuration(intuitionSeconds))
+
+    local total = intuitionSeconds
+    if intuitionGainedAt then
+        total = total + (os.time() - intuitionGainedAt)
+    end
+
+    return string.format("Intuition %d cycle(s), %s total", intuitionCycles, FormatDuration(total))
 end
 
 function IsPhallainaBanked()
@@ -917,11 +923,8 @@ end
 function CharacterState.finish()
     StopSession("finished")
 
-    if IsWhaleCaught() then
-        LogInfo("%s Sidereal Whale caught. Done.", LogPrefix)
-    else
-        LogInfo("%s Finished without the whale. Phallaina %d, Unbegotten %d, E.B.E. %d, %s, spots used %d/%d.", LogPrefix, GetCatchTotal(FishPhallaina), GetCatchTotal(FishUnbegotten), GetCatchTotal(FishEBE), DescribeIntuition(), nextSpotIndex - 1, #PhallainaSpots)
-    end
+    local outcome = IsWhaleCaught() and "SIDEREAL WHALE CAUGHT" or "Finished without the whale"
+    LogInfo("%s %s. Phallaina %d, Unbegotten %d, E.B.E. %d, %s, spots used %d/%d.", LogPrefix, outcome, GetCatchTotal(FishPhallaina), GetCatchTotal(FishUnbegotten), GetCatchTotal(FishEBE), DescribeIntuition(), nextSpotIndex - 1, #PhallainaSpots)
 
     if UseIdleTeleport and IsPlayerAvailable() and not IsFishing() and not IsGathering() and not LifestreamIsBusy() then
         LogInfo("%s Returning to the Lifestream idle destination.", LogPrefix)
