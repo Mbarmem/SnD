@@ -592,7 +592,7 @@ function GetCatchCount(message, fishName)
     if ContainsAny(message, ChatterMarkers) then
         return 0
     end
-    if not message:find(fishName, 1, true) then
+    if not message:lower():find(fishName:lower(), 1, true) then
         return 0
     end
     if not ContainsAny(message, CatchMarkers) then
