@@ -81,6 +81,15 @@ local chatCatches      = {}
 local baselineItems    = {}
 local baselineCaptured = false
 
+--------------------
+--    Intuition   --
+--------------------
+
+local intuitionActive   = false
+local intuitionGainedAt = nil
+local intuitionCycles   = 0
+local intuitionSeconds  = 0
+
 -------------------
 --    Session    --
 -------------------
@@ -141,11 +150,15 @@ PresetPerfectJail    = "Sidereal Whale - 4a - Perfect Jail prepped HE + Stacks"
 
 FishPhallaina        = "Phallaina"
 FishUnbegotten       = "Unbegotten"
+FishEBE              = "E.B.E.-9318"
 FishSiderealWhale    = "Sidereal Whale"
+
+StatusIntuition      = 568
 
 TrackedFishItemIds = {
     [FishPhallaina]     = 36521,
     [FishUnbegotten]    = 36520,
+    [FishEBE]           = 36519,
     [FishSiderealWhale] = 41412,
 }
 
@@ -261,6 +274,34 @@ function ReportCatchSignalDivergence()
             end
         end
     end
+end
+
+function TrackIntuition()
+    local active = HasStatusId(StatusIntuition) == true
+
+    if active == intuitionActive then
+        return
+    end
+
+    intuitionActive = active
+
+    if active then
+        intuitionGainedAt = os.time()
+        intuitionCycles   = intuitionCycles + 1
+        LogInfo("%s Fisher's Intuition GAINED (cycle %d). E.B.E.-9318 caught so far: %d.", LogPrefix, intuitionCycles, GetCatchTotal(FishEBE))
+    else
+        local held = intuitionGainedAt and (os.time() - intuitionGainedAt) or 0
+        intuitionSeconds  = intuitionSeconds + held
+        intuitionGainedAt = nil
+        LogInfo("%s Fisher's Intuition EXPIRED after %s.", LogPrefix, FormatDuration(held))
+    end
+end
+
+function DescribeIntuition()
+    if intuitionCycles == 0 then
+        return "Intuition never procced"
+    end
+    return string.format("Intuition %d cycle(s), %s total", intuitionCycles, FormatDuration(intuitionSeconds))
 end
 
 function IsPhallainaBanked()
@@ -578,6 +619,13 @@ function OnChatMessage()
     if unbegotten > 0 then
         chatCatches[FishUnbegotten] = (chatCatches[FishUnbegotten] or 0) + unbegotten
         LogInfo("%s Unbegotten caught (%d total).", LogPrefix, GetCatchTotal(FishUnbegotten))
+        return
+    end
+
+    local ebe = GetCatchCount(message, FishEBE)
+    if ebe > 0 then
+        chatCatches[FishEBE] = (chatCatches[FishEBE] or 0) + ebe
+        LogInfo("%s E.B.E.-9318 caught (%d total).", LogPrefix, GetCatchTotal(FishEBE))
     end
 end
 
@@ -796,6 +844,7 @@ function CharacterState.prefarm()
         return
     end
 
+    TrackIntuition()
     KeepSessionFishing()
     Wait(1)
 end
@@ -837,6 +886,7 @@ function CharacterState.whaleWindow()
         return
     end
 
+    TrackIntuition()
     KeepSessionFishing()
     Wait(1)
 end
@@ -848,7 +898,7 @@ function CharacterState.abort()
         MoveToBase()
     end
 
-    LogInfo("%s Campaign aborted. Phallaina %d, Unbegotten %d, spots used %d/%d.", LogPrefix, GetCatchTotal(FishPhallaina), GetCatchTotal(FishUnbegotten), nextSpotIndex - 1, #PhallainaSpots)
+    LogInfo("%s Campaign aborted. Phallaina %d, Unbegotten %d, E.B.E. %d, %s, spots used %d/%d.", LogPrefix, GetCatchTotal(FishPhallaina), GetCatchTotal(FishUnbegotten), GetCatchTotal(FishEBE), DescribeIntuition(), nextSpotIndex - 1, #PhallainaSpots)
     ChangeState(CharacterState.finish, "Finish")
 end
 
@@ -858,7 +908,7 @@ function CharacterState.finish()
     if IsWhaleCaught() then
         LogInfo("%s Sidereal Whale caught. Done.", LogPrefix)
     else
-        LogInfo("%s Finished without the whale. Phallaina %d, Unbegotten %d, spots used %d/%d.", LogPrefix, GetCatchTotal(FishPhallaina), GetCatchTotal(FishUnbegotten), nextSpotIndex - 1, #PhallainaSpots)
+        LogInfo("%s Finished without the whale. Phallaina %d, Unbegotten %d, E.B.E. %d, %s, spots used %d/%d.", LogPrefix, GetCatchTotal(FishPhallaina), GetCatchTotal(FishUnbegotten), GetCatchTotal(FishEBE), DescribeIntuition(), nextSpotIndex - 1, #PhallainaSpots)
     end
 
     if UseIdleTeleport and IsPlayerAvailable() and not IsFishing() and not IsGathering() and not LifestreamIsBusy() then
