@@ -36,12 +36,15 @@ configs:
 --    General    --
 -------------------
 
-local MacrosToRun  = GetConfigList("MacrosToRun")
+local MacrosToRun  = Config.Get("MacrosToRun")
 local StartTimeout = Config.Get("StartTimeout")
 local RunTimeout   = Config.Get("RunTimeout")
 local LogPrefix    = "[MacroChainer]"
 
--- A RunTimeout of 0 means the macro may run for as long as it needs
+-------------------
+--    Options    --
+-------------------
+
 local MacroOptions = {
     startTimeout = StartTimeout,
     runTimeout   = (RunTimeout > 0) and RunTimeout or nil,
@@ -54,34 +57,35 @@ if not GetMacroScheduler() then
     return
 end
 
-if #MacrosToRun == 0 then
+if not MacrosToRun or MacrosToRun.Count == 0 then
     LogInfo(string.format("%s No macros configured, add them in the script settings..!!", LogPrefix))
     return
 end
 
--- Report misspelled names up front, rather than one start timeout at a time
-local KnownMacros = GetKnownMacroNames()
-if next(KnownMacros) ~= nil then
-    for _, macroName in ipairs(MacrosToRun) do
-        if not KnownMacros[macroName] then
-            Echo(string.format("Macro not found in SND, check the spelling -> %s", macroName), LogPrefix)
-            LogInfo(string.format("%s Macro not found in SND, check the spelling -> %s", LogPrefix, macroName))
-        end
-    end
-end
+local KnownMacros  = GetKnownMacroNames()
+local NamesChecked = next(KnownMacros) ~= nil
 
-for _, macroName in ipairs(MacrosToRun) do
-    LogInfo(string.format("%s Starting macro -> %s", LogPrefix, macroName))
+local Macros = MacrosToRun:GetEnumerator()
 
-    if RunMacroAndWait(macroName, MacroOptions) then
-        LogInfo(string.format("%s Completed macro -> %s", LogPrefix, macroName))
+while Macros:MoveNext() do
+    local macroName = tostring(Macros.Current)
+
+    if NamesChecked and not KnownMacros[macroName] then
+        LogInfo(string.format("%s Macro not found in SND, check the spelling -> %s", LogPrefix, macroName))
     else
-        LogInfo(string.format("%s Skipped macro, it never ran to completion -> %s", LogPrefix, macroName))
+        LogInfo(string.format("%s Starting macro -> %s", LogPrefix, macroName))
+
+        if RunMacroAndWait(macroName, MacroOptions) then
+            LogInfo(string.format("%s Completed macro -> %s", LogPrefix, macroName))
+        else
+            LogInfo(string.format("%s Skipped macro, it never ran to completion -> %s", LogPrefix, macroName))
+        end
     end
 
     Wait(1)
 end
 
+Echo("All macros completed. Stopping any remaining..!!", LogPrefix)
 LogInfo(string.format("%s All macros completed. Stopping any remaining..!!", LogPrefix))
 StopRunningMacros()
 
