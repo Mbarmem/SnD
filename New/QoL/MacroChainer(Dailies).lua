@@ -1,13 +1,32 @@
 --[=====[
 [[SND Metadata]]
 author: Mo
-version: 2.0.0
+version: 3.0.0
 description: Macro Chainer - Script for running multiple macros in sequence for daily tasks
 dependencies:
 - source: https://forgejo.mownbox.com/Mo/SnD/raw/branch/main/New/MoLib/MoLib.lua
   name: latest
   type: unknown
-
+configs:
+  MacrosToRun:
+    description: |
+      The macros to run, one after another, in the order listed.
+      Enter the exact macro name as it appears in SND and press enter. One macro per line.
+    default: []
+  StartTimeout:
+    description: |
+      Seconds to wait for a macro to appear as running before giving up on it.
+      This only comes into play when a macro name is wrong, so the macro never starts at all.
+    default: 10
+    min: 1
+    max: 120
+  RunTimeout:
+    description: |
+      Maximum seconds a single macro may run before it is stopped and skipped.
+      Set to 0 for no limit, letting every macro take as long as it needs.
+    default: 0
+    min: 0
+    max: 14400
 [[End Metadata]]
 --]=====]
 
@@ -17,44 +36,49 @@ dependencies:
 --    General    --
 -------------------
 
-local macroDone          = false
-local currentEchoTrigger = nil
-local LogPrefix          = "[MacroChainer]"
+local MacrosToRun  = GetConfigList("MacrosToRun")
+local StartTimeout = Config.Get("StartTimeout")
+local RunTimeout   = Config.Get("RunTimeout")
+local LogPrefix    = "[MacroChainer]"
 
-local MacrosToRun        = {
-    { macroName = "MiniCactpot",            echoTrigger = "MiniCactpot"  },
-    { macroName = "TTSeller",               echoTrigger = "TTSeller"     },
-    { macroName = "PoeticsDump",            echoTrigger = "PoeticsDump"  },
-    { macroName = "AlliedSocietiesQuests", 	echoTrigger = "AlliedQuests" },
+-- A RunTimeout of 0 means the macro may run for as long as it needs
+local MacroOptions = {
+    startTimeout = StartTimeout,
+    runTimeout   = (RunTimeout > 0) and RunTimeout or nil,
 }
-
---=========================== FUNCTIONS ==========================--
-
-function OnChatMessage()
-    local messageType = TriggerData.type
-    local sender = TriggerData.sender
-    local message = TriggerData.message
-
-    if currentEchoTrigger and message:find(currentEchoTrigger) then
-        LogInfo(string.format("%s Detected echo for: %s | Type: %s | Sender: %s | Message: %s", LogPrefix, currentEchoTrigger, tostring(messageType), tostring(sender), tostring(message) ))
-        macroDone = true
-    end
-end
 
 --=========================== EXECUTION ==========================--
 
-for _, macro in ipairs(MacrosToRun) do
-    currentEchoTrigger = macro.echoTrigger
-    macroDone = false
+if not GetMacroScheduler() then
+    LogInfo(string.format("%s SND macro scheduler unavailable, cannot track macros. Aborting..!!", LogPrefix))
+    return
+end
 
-    LogInfo(string.format("%s Starting macro: %s", LogPrefix, macro.macroName))
-    Execute(string.format("/snd run %s", macro.macroName))
+if #MacrosToRun == 0 then
+    LogInfo(string.format("%s No macros configured, add them in the script settings..!!", LogPrefix))
+    return
+end
 
-    while not macroDone do
-        Wait(1)
+-- Report misspelled names up front, rather than one start timeout at a time
+local KnownMacros = GetKnownMacroNames()
+if next(KnownMacros) ~= nil then
+    for _, macroName in ipairs(MacrosToRun) do
+        if not KnownMacros[macroName] then
+            Echo(string.format("Macro not found in SND, check the spelling -> %s", macroName), LogPrefix)
+            LogInfo(string.format("%s Macro not found in SND, check the spelling -> %s", LogPrefix, macroName))
+        end
+    end
+end
+
+for _, macroName in ipairs(MacrosToRun) do
+    LogInfo(string.format("%s Starting macro -> %s", LogPrefix, macroName))
+
+    if RunMacroAndWait(macroName, MacroOptions) then
+        LogInfo(string.format("%s Completed macro -> %s", LogPrefix, macroName))
+    else
+        LogInfo(string.format("%s Skipped macro, it never ran to completion -> %s", LogPrefix, macroName))
     end
 
-    LogInfo(string.format("%s Completed macro: %s", LogPrefix, macro.macroName))
     Wait(1)
 end
 
