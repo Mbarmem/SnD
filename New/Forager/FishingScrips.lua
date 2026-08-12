@@ -1,7 +1,7 @@
 --[=====[
 [[SND Metadata]]
 author: Mo
-version: 2.0.0
+version: 2.0.1
 description: Forager - Script for Fishing Gatherer Scrips
 plugin_dependencies:
 - AutoHook
@@ -194,7 +194,7 @@ FishTable = {
         zoneName                    = "Mare Lamentorum",
         autoHookPreset              = "[SND] Fleeting Brand - Purple Scrips",
         fishingSpots = {
-            maxHeight               = 35,
+            maxHeight               = 30,
             waypoints = {
                 { x = 10.05, y = 26.89, z = 448.99 },
                 { x = 37.71, y = 22.36, z = 481.05 },
