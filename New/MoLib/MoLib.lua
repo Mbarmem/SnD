@@ -2318,7 +2318,7 @@ end
 --------------------------------------------------------------------
 
 --- Reads a list style config option (default: []) into an ordered Lua array
---- SND hands these back as a .NET backed collection rather than a plain Lua table, so it is read through Count
+--- SND hands these back as a .NET backed collection rather than a plain Lua table, so it is walked with an enumerator
 --- Plain tables and comma or newline separated strings are accepted too, and blank entries are dropped
 --- @param configKey string    the name of the config option to read
 --- @return table values       the configured values in order; empty if nothing is configured
@@ -2327,24 +2327,17 @@ function GetConfigList(configKey)
     local values = {}
 
     local function add(value)
-        if type(value) ~= "string" then
-            value = tostring(value or "")
-        end
-        value = value:gsub("^%s+", ""):gsub("%s+$", "")
+        value = tostring(value or ""):gsub("^%s+", ""):gsub("%s+$", "")
         if value ~= "" then
             values[#values + 1] = value
         end
     end
 
-    if config and config.Count then
-        -- .NET lists are indexed from 0, but NLua sometimes surfaces them as 1 based
-        local zeroBased = config[0] ~= nil
-        for i = 0, config.Count - 1 do
-            if zeroBased then
-                add(config[i])
-            else
-                add(config[i + 1])
-            end
+    -- An enumerator sidesteps the indexer, which .NET starts at 0 but NLua sometimes surfaces as 1 based
+    if config and config.GetEnumerator then
+        local enumerator = config:GetEnumerator()
+        while enumerator:MoveNext() do
+            add(enumerator.Current)
         end
     elseif type(config) == "table" then
         for _, value in ipairs(config) do
@@ -2513,7 +2506,7 @@ function IsMacroRunning(macroName)
             local state    = tostring(macro.State)
             local finished = false
             for _, finishedState in ipairs(finishedStates) do
-                if state:find(finishedState) then
+                if state:find(finishedState, 1, true) then
                     finished = true
                     break
                 end
