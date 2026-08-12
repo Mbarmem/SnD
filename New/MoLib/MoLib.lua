@@ -2317,6 +2317,270 @@ end
 
 --------------------------------------------------------------------
 
+--- Reads a list style config option (default: []) into an ordered Lua array
+--- SND hands these back as a .NET backed collection rather than a plain Lua table, so it is read through Count
+--- Plain tables and comma or newline separated strings are accepted too, and blank entries are dropped
+--- @param configKey string    the name of the config option to read
+--- @return table values       the configured values in order; empty if nothing is configured
+function GetConfigList(configKey)
+    local config = Config.Get(configKey)
+    local values = {}
+
+    local function add(value)
+        if type(value) ~= "string" then
+            value = tostring(value or "")
+        end
+        value = value:gsub("^%s+", ""):gsub("%s+$", "")
+        if value ~= "" then
+            values[#values + 1] = value
+        end
+    end
+
+    if config and config.Count then
+        -- .NET lists are indexed from 0, but NLua sometimes surfaces them as 1 based
+        local zeroBased = config[0] ~= nil
+        for i = 0, config.Count - 1 do
+            if zeroBased then
+                add(config[i])
+            else
+                add(config[i + 1])
+            end
+        end
+    elseif type(config) == "table" then
+        for _, value in ipairs(config) do
+            add(value)
+        end
+    elseif type(config) == "string" then
+        for value in config:gmatch("[^\r\n,]+") do
+            add(value)
+        end
+    end
+
+    LogDebug(string.format("[MoLib] GetConfigList: '%s' holds %d entries", configKey, #values))
+    return values
+end
+
+--------------------------------------------------------------------
+
+--==============--
+--    Macros    --
+--==============--
+
+--- Resolves SND's internal IMacroScheduler through CLR reflection
+--- SND does not expose the scheduler to Lua, so it is reached through the Plugin singleton's private service provider
+--- The resolved scheduler is cached in MacroScheduler; a failed lookup is cached too and never retried
+--- @return userdata? scheduler    the IMacroScheduler instance, or nil if it could not be resolved
+function GetMacroScheduler()
+    if MacroScheduler or MacroSchedulerFailed then
+        return MacroScheduler
+    end
+
+    -- Treated as failed until every step below succeeds, so a broken lookup is only attempted once
+    MacroSchedulerFailed = true
+
+    luanet.load_assembly("SomethingNeedDoing")
+
+    -- BindingFlags and Enum live in the always loaded core library, so they need no assembly load
+    local enumProxy         = luanet.import_type("System.Enum")
+    local pluginProxy       = luanet.import_type("SomethingNeedDoing.Plugin")
+    local schedulerProxy    = luanet.import_type("SomethingNeedDoing.Core.Interfaces.IMacroScheduler")
+    local bindingFlagsProxy = luanet.import_type("System.Reflection.BindingFlags")
+
+    if not pluginProxy or not schedulerProxy or not bindingFlagsProxy then
+        LogDebug("[MoLib] GetMacroScheduler: SND types could not be imported")
+        return nil
+    end
+
+    local pluginType       = luanet.ctype(pluginProxy)
+    local schedulerType    = luanet.ctype(schedulerProxy)
+    local bindingFlagsType = luanet.ctype(bindingFlagsProxy)
+
+    -- Enum.Parse builds a real BindingFlags value; flags built with luanet.enum do not reach .NET correctly
+    local staticNonPublic   = enumProxy.Parse(bindingFlagsType, "Static,NonPublic")
+    local instanceNonPublic = enumProxy.Parse(bindingFlagsType, "Instance,NonPublic")
+
+    -- Plugin.P is an auto-property, so the singleton lives in its compiler generated backing field
+    local pluginField = pluginType:GetField("<P>k__BackingField", staticNonPublic)
+    if not pluginField then
+        LogDebug("[MoLib] GetMacroScheduler: SND no longer exposes Plugin.P")
+        return nil
+    end
+
+    local plugin = pluginField:GetValue(nil)
+    if not plugin then
+        LogDebug("[MoLib] GetMacroScheduler: SND plugin instance is not available")
+        return nil
+    end
+
+    -- Plugin.C is stashed on the way past; it holds every macro, not just the running ones
+    local configField = pluginType:GetField("<C>k__BackingField", staticNonPublic)
+    if configField then
+        SndConfig = configField:GetValue(nil)
+    else
+        LogDebug("[MoLib] GetMacroScheduler: SND no longer exposes Plugin.C")
+    end
+
+    local providerField = pluginType:GetField("_serviceProvider", instanceNonPublic)
+    if not providerField then
+        LogDebug("[MoLib] GetMacroScheduler: SND no longer exposes _serviceProvider")
+        return nil
+    end
+
+    local serviceProvider = providerField:GetValue(plugin)
+    if not serviceProvider then
+        LogDebug("[MoLib] GetMacroScheduler: SND service provider is not available")
+        return nil
+    end
+
+    local scheduler = serviceProvider:GetService(schedulerType)
+    if not scheduler then
+        LogDebug("[MoLib] GetMacroScheduler: SND did not resolve an IMacroScheduler")
+        return nil
+    end
+
+    MacroScheduler       = scheduler
+    MacroSchedulerFailed = false
+    LogDebug("[MoLib] GetMacroScheduler: resolved SND macro scheduler")
+    return MacroScheduler
+end
+
+--------------------------------------------------------------------
+
+--- Returns the names of every macro SND knows about, running or not
+--- Reads SND's config, which is the same list the SND window shows, so a name can be checked before running it
+--- @return table names    a set of macro names keyed by name; empty when the list could not be read
+function GetKnownMacroNames()
+    local names = {}
+
+    if not GetMacroScheduler() or not SndConfig then
+        LogDebug("[MoLib] GetKnownMacroNames: SND config is not available")
+        return names
+    end
+
+    -- Macros can be declared as a property or as a plain field, so both are tried
+    local macros
+    local configType     = SndConfig:GetType()
+    local macrosProperty = configType:GetProperty("Macros")
+
+    if macrosProperty then
+        macros = macrosProperty:GetValue(SndConfig)
+    else
+        local macrosField = configType:GetField("Macros")
+        if macrosField then
+            macros = macrosField:GetValue(SndConfig)
+        end
+    end
+
+    if not macros then
+        LogDebug("[MoLib] GetKnownMacroNames: SND config does not expose a macro list")
+        return names
+    end
+
+    local count      = 0
+    local enumerator = macros:GetEnumerator()
+    while enumerator:MoveNext() do
+        local name = enumerator.Current.Name
+        if name then
+            names[tostring(name)] = true
+            count = count + 1
+        end
+    end
+
+    LogDebug(string.format("[MoLib] GetKnownMacroNames: SND knows %d macros", count))
+    return names
+end
+
+--------------------------------------------------------------------
+
+--- Checks whether an SND macro with the given name is currently running
+--- Matches on the exact macro name, since SND also lists internal helper entries such as "Temporary Macro"
+--- Returns false when the scheduler is unavailable, so check GetMacroScheduler before relying on the result
+--- @param macroName string     the exact name of the macro to look for
+--- @return boolean running     true if the macro is present in SND's running macro list
+function IsMacroRunning(macroName)
+    local scheduler = GetMacroScheduler()
+    if not scheduler then
+        return false
+    end
+
+    -- Macro states that mean the macro is no longer executing
+    local finishedStates = { "Completed", "Failed", "Error", "Cancel", "Stopped" }
+
+    local enumerator = scheduler:GetMacros():GetEnumerator()
+    while enumerator:MoveNext() do
+        local macro = enumerator.Current
+        if tostring(macro.Name) == macroName then
+            local state    = tostring(macro.State)
+            local finished = false
+            for _, finishedState in ipairs(finishedStates) do
+                if state:find(finishedState) then
+                    finished = true
+                    break
+                end
+            end
+            if not finished then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
+--------------------------------------------------------------------
+
+--- Starts an SND macro and blocks until it is no longer running
+--- Completion is detected through SND's own scheduler, so the macro does not need to echo anything
+--- @class RunMacroOptions
+--- @field startTimeout? number     seconds to wait for the macro to appear as running (default 10)
+--- @field runTimeout? number       [optional] maximum seconds to let the macro run; it is stopped if exceeded
+--- @field pollInterval? number     seconds between running checks while waiting (default 1)
+
+--- @param macroName string      the exact name of the macro to run
+--- @param opts? RunMacroOptions [optional] options table
+--- @return boolean success      true if the macro started and finished on its own
+--- @overload fun(macroName: string): boolean
+function RunMacroAndWait(macroName, opts)
+    opts = opts or {}
+    local startTimeout = opts.startTimeout or 10
+    local runTimeout   = opts.runTimeout
+    local pollInterval = opts.pollInterval or 1
+
+    if not GetMacroScheduler() then
+        LogDebug(string.format("[MoLib] RunMacroAndWait: macro scheduler unavailable, cannot track '%s'", macroName))
+        return false
+    end
+
+    LogDebug(string.format("[MoLib] RunMacroAndWait: starting '%s'", macroName))
+    Execute(string.format("/snd run %s", macroName))
+
+    -- Wait for the macro to show up, so a slow start is not mistaken for a finished run
+    local startTime = os.time()
+    while not IsMacroRunning(macroName) do
+        if (os.time() - startTime) >= startTimeout then
+            LogDebug(string.format("[MoLib] RunMacroAndWait: '%s' never started within %.0fs, check the macro name", macroName, startTimeout))
+            return false
+        end
+        Wait(0.1)
+    end
+
+    -- Wait for it to disappear from the running list
+    local runStart = os.time()
+    while IsMacroRunning(macroName) do
+        if runTimeout and (os.time() - runStart) >= runTimeout then
+            LogDebug(string.format("[MoLib] RunMacroAndWait: '%s' exceeded its %.0fs run timeout, stopping it", macroName, runTimeout))
+            StopRunningMacros(macroName)
+            return false
+        end
+        Wait(pollInterval)
+    end
+
+    LogDebug(string.format("[MoLib] RunMacroAndWait: '%s' finished after %.0fs", macroName, os.time() - runStart))
+    return true
+end
+
+--------------------------------------------------------------------
+
 --- Stops a specific macro by name, or all macros if no name is provided
 --- @param macroName string?    [optional] the name of the macro to stop; stops all if nil or empty
 --- @return nil
