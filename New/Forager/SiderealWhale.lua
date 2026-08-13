@@ -1,7 +1,7 @@
 --[=====[
 [[SND Metadata]]
 author: Mo
-version: 1.0.0
+version: 1.1.0
 description: Forager - SiderealWhale - Unattended Sidereal Whale campaign (Ultima Thule, Limne 3-b)
 plugin_dependencies:
 - AutoHook
@@ -777,11 +777,10 @@ function CharacterState.planning()
                 LogInfo("%s WARNING: only %d Unbegotten seen and Intuition needs 2. Proceeding anyway - AutoHook's own counters decide.", LogPrefix, GetCatchTotal(FishUnbegotten))
             end
             LogInfo("%s Phallaina banked. Heading to the whale spot.", LogPrefix)
-            ChangeState(CharacterState.moveToWhaleSpot, "MoveToWhaleSpot")
         else
-            LogInfo("%s Whale window opens in %s but Phallaina was never caught - not attempting both in the last window.", LogPrefix, FormatDuration(whaleWindowStart - now))
-            ChangeState(CharacterState.abort, "Abort")
+            LogInfo("%s Whale window opens in %s without Phallaina - fishing fodder inside the window itself.", LogPrefix, FormatDuration(whaleWindowStart - now))
         end
+        ChangeState(CharacterState.moveToWhaleSpot, "MoveToWhaleSpot")
         return
     end
 
@@ -886,7 +885,13 @@ function CharacterState.whaleWindow()
             ChangeState(CharacterState.finish, "Finish")
             return
         end
-        if not StartSession(PresetPerfectJail, "whale window", windowEnd) then
+
+        -- Without fodder the whale cannot be hooked, so the window opens on the prep preset
+        -- and AutoHook carries it through to the whale itself once Intuition is up
+        local hasFodder = IsFodderComplete()
+        local preset    = hasFodder and PresetPerfectJail or PresetPrepJail
+
+        if not StartSession(preset, hasFodder and "whale window" or "whale window (fodder)", windowEnd) then
             Wait(5)
         end
         return
