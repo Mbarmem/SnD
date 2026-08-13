@@ -23,7 +23,7 @@ dependencies:
 --    General    --
 -------------------
 
-LogPrefix  = "[BozjanClusters]"
+LogPrefix  = "[ClusterFarm]"
 
 --============================ CONSTANT ==========================--
 
