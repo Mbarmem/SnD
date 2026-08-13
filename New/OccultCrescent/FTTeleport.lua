@@ -10,11 +10,12 @@ dependencies:
   name: latest
   type: unknown
 
-
 [[End Metadata]]
 --]=====]
 
---=========================== VARIABLES ==========================--
+--=========================== EXECUTION ==========================--
 
 MoveToTarget("Teleportation Sigil")
 Interact("Teleportation Sigil")
+
+--============================== END =============================--

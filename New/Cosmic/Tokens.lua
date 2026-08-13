@@ -43,6 +43,7 @@ configs:
     description: |
       Enable to swap crafting jobs to the current EX+ 2hr long timed mission job.
     default: false
+
 [[End Metadata]]
 --]=====]
 

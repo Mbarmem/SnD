@@ -31,6 +31,7 @@ configs:
     default: 180
     min: 10
     max: 3600
+
 [[End Metadata]]
 --]=====]
 

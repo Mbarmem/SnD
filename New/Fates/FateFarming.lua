@@ -150,6 +150,7 @@ configs:
   CompanionScriptMode:
     description: Multi Zone Farming.
     default: true
+
 [[End Metadata]]
 --]=====]
 --[[

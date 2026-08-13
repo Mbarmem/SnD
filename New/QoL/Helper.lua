@@ -38,6 +38,7 @@ configs:
   AetheryteName:
     description: Whether to print the current zone aetheryte name.
     default: false
+
 [[End Metadata]]
 --]=====]
 
