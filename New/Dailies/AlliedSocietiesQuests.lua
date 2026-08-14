@@ -830,7 +830,7 @@ for _, alliedSociety in ipairs(ToDoList) do
                             if not QuestionableIsRunning() and not Quests.IsQuestAccepted(questId) then
                                 Execute("/qst start")
                             elseif IsPlayerCasting() then
-                                PathMoveDir(0, 0, 0.5)
+                                Actions.CancelCast()
                             elseif PathIsRunning() then
                                 PathStop()
                             elseif os.time() - timeout > 15 then
