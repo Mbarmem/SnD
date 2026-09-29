@@ -2375,13 +2375,27 @@ function GetMacroScheduler()
         LogDebug("[MoLib] GetMacroScheduler: SND no longer exposes Plugin.C")
     end
 
-    local providerField = pluginType:GetField("_serviceProvider", instanceNonPublic)
-    if not providerField then
-        LogDebug("[MoLib] GetMacroScheduler: SND no longer exposes _serviceProvider")
+    -- SND 15.11+ runs on the generic host, so the service provider is IHost.Services on the private _host field
+    local hostField = pluginType:GetField("_host", instanceNonPublic)
+    if not hostField then
+        LogDebug("[MoLib] GetMacroScheduler: SND no longer exposes _host")
         return nil
     end
 
-    local serviceProvider = providerField:GetValue(plugin)
+    local host = hostField:GetValue(plugin)
+    if not host then
+        LogDebug("[MoLib] GetMacroScheduler: SND host is not available")
+        return nil
+    end
+
+    -- Services is read through the field's declared IHost type, so the Hosting assembly needs no separate load
+    local servicesProperty = hostField.FieldType:GetProperty("Services")
+    if not servicesProperty then
+        LogDebug("[MoLib] GetMacroScheduler: SND host no longer exposes Services")
+        return nil
+    end
+
+    local serviceProvider = servicesProperty:GetValue(host)
     if not serviceProvider then
         LogDebug("[MoLib] GetMacroScheduler: SND service provider is not available")
         return nil
